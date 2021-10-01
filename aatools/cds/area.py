@@ -1,3 +1,4 @@
+"""Create geographic area required for CDS API."""
 from collections import namedtuple
 from typing import Dict, List, Union
 
@@ -8,7 +9,22 @@ Station = namedtuple("Station", "lon lat")
 
 
 class Area:
+    """Class."""
+
     def __init__(self, north: float, south: float, east: float, west: float):
+        """Summary line.
+
+        Parameters
+        ----------
+        north :
+        south :
+        east :
+        west :
+
+        Examples
+        --------
+        Example here
+        """
         self.north = north
         self.south = south
         self.east = east
@@ -19,7 +35,8 @@ class Area:
         round_val: float = None,
         offset_val: float = None,
     ) -> List[float]:
-        """
+        """Summary line.
+
         List the coordinates in the order that they're needed for the
         API :param do_not_round: Don't round to the format x.y5, which
         is required for the API. Only left as a parameter for now to be
@@ -60,7 +77,8 @@ class Area:
     def _round_coord(
         coord: float, direction: str, round_val, offset_val
     ) -> float:
-        """
+        """Summary line.
+
         Rounding coordinates
         Used for GloFAS in the CDS API, to the format x.y5
         :param coord: The coordinate to round
@@ -80,8 +98,11 @@ class Area:
 
 
 class AreaFromStations(Area):
+    """SUmmary line."""
+
     def __init__(self, stations: Dict[str, Station], buffer: float = 0.2):
-        """
+        """Summary line.
+
         Args: stations: dictionary of form {station_name: Station]
             buffer: degrees above / below maximum lat / lon from
             stations to include.
@@ -99,6 +120,8 @@ class AreaFromStations(Area):
 
 
 class AreaFromShape(Area):
+    """Summary line."""
+
     def __init__(self, shape: Union[gpd.GeoSeries, gpd.GeoDataFrame]):
         # total_bounds is of form (minx, miny, maxx, maxy)
         super().__init__(

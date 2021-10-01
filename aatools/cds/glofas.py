@@ -11,7 +11,8 @@ from typing import Dict, List, Union
 import cdsapi
 import numpy as np
 import xarray as xr
-from area import Area, Station
+
+from aatools.cds.area import Area, Station
 
 DATA_DIR = Path(os.environ["AA_DATA_DIR"])
 PUBLIC_DATA_DIR = "public"
@@ -72,7 +73,7 @@ class Glofas:
         version: int,
         year: int,
         month: int = None,
-        leadtime: [int, list] = None,
+        leadtime: [int, List] = None,
         use_cache: bool = True,
     ):
         filepath = self._get_raw_filepath(
@@ -113,7 +114,7 @@ class Glofas:
         version: int,
         year: int,
         month: int = None,
-        leadtime: [int, list] = None,
+        leadtime: [int, List] = None,
     ):
         version_dir = f"version_{version}"
         if self.use_incorrect_area_coords:
@@ -144,7 +145,7 @@ class Glofas:
         version: int,
         year: int,
         month: int = None,
-        leadtime: [int, list] = None,
+        leadtime: [int, List] = None,
     ) -> dict:
         query = {
             "variable": "river_discharge_in_the_last_24_hours",
@@ -218,7 +219,7 @@ class Glofas:
         country_iso3: str,
         version: int,
         ds: xr.Dataset,
-        leadtime: [int, list] = None,
+        leadtime: [int, List] = None,
     ) -> Path:
         filepath = self._get_processed_filepath(
             country_iso3=country_iso3,
@@ -234,7 +235,7 @@ class Glofas:
         return filepath
 
     def _get_processed_filepath(
-        self, country_iso3: str, version: int, leadtime: [int, list] = None
+        self, country_iso3: str, version: int, leadtime: [int, List] = None
     ) -> Path:
         filename = f"{country_iso3}_{self.cds_name}_v{version}"
         if self.use_incorrect_area_coords:
@@ -255,7 +256,7 @@ class Glofas:
         self,
         country_iso3: str,
         version: int = DEFAULT_VERSION,
-        leadtime: [int, list] = None,
+        leadtime: [int, List] = None,
     ):
         filepath = self._get_processed_filepath(
             country_iso3=country_iso3,
@@ -476,7 +477,7 @@ class GlofasReforecast(GlofasForecastBase):
 
 
 def expand_dims(
-    ds: xr.Dataset, dataset_name: str, coord_names: list, expansion_dim: int
+    ds: xr.Dataset, dataset_name: str, coord_names: List, expansion_dim: int
 ):
     """
     Using expand_dims seems to cause a bug with Dask like the one
