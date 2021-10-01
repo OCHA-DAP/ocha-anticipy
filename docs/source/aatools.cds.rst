@@ -12,14 +12,6 @@ aatools.cds.area module
    :undoc-members:
    :show-inheritance:
 
-aatools.cds.glofas module
--------------------------
-
-.. automodule:: aatools.cds.glofas
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 Module contents
 ---------------
 

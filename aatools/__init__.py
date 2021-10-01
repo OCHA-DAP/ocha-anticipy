@@ -1,4 +1,6 @@
-"""aatools.
+"""aa-tools: Tools for Anticipatory Action.
 
-Init docstring
+The ``aatools`` library contains modules designed to assist with
+downloading and processing the data required for climate- and weather-related
+anticipatory action.
 """
