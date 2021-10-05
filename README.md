@@ -13,3 +13,18 @@ The repo is set-up to use
 [pre-commit](https://github.com/pre-commit/pre-commit).
 So please run `pre-commit install` the first time you are editing.
 Thereafter all commits will be checked against black and flake8 guidelines
+
+### Installation
+
+To install, execute:
+```buildoutcfg
+python setup.py install
+```
+
+### Documentation
+
+To build the docs, execute:
+```buildoutcfg
+python setup.py build_sphinx
+```
+The documentation can be found in `docs/build/html`.

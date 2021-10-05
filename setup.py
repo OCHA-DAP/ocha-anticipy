@@ -1,5 +1,5 @@
 """Setup for aatools."""
 
-from setuptools import find_packages, setup
+from setuptools import setup
 
-setup(name="aatools", version="0.0.0", packages=find_packages())
+setup(setup_requires=["pbr"], pbr=True)
