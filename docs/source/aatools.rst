@@ -8,7 +8,6 @@ Subpackages
    :maxdepth: 4
 
    aatools.cds
-   aatools.io
 
 Module contents
 ---------------

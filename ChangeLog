@@ -1,6 +1,7 @@
 CHANGES
 =======
 
+* Added pbr to version and build docs
 * Fixed find packages
 * Add tests
 * Add tests

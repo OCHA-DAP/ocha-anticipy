@@ -42,7 +42,6 @@ exclude_patterns = []  # type: list
 
 # API doc settings
 apidoc_module_dir = "../../aatools"
-apidoc_excluded_paths = ["tests"]
 apidoc_output_dir = "."
 
 # -- Options for HTML output -------------------------------------------------
