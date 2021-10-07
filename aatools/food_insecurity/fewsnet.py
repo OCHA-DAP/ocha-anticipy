@@ -1,18 +1,26 @@
+"""
+FEWS NET processing.
+
+Download and save the data provided by FEWS NET.
+"""
+
+import logging
 from datetime import datetime
 from pathlib import Path
-import logging
+
 from aatools.utils.io import download_url, unzip
 
 logger = logging.getLogger(__name__)
 
+
 def download_zip(
-        url: str,
-        zip_path: Path,
-        output_dir: Path,
-)-> bool:
+    url: str,
+    zip_path: Path,
+    output_dir: Path,
+) -> bool:
     """
-    Download the zip file at url, and unzip the file to the folder
-    indicated by zip_path
+    Download and unzip the file at the url.
+
     Parameters
     ----------
     url : str
@@ -32,9 +40,7 @@ def download_zip(
 
     try:
         download_url(url, zip_path)
-        logger.info(
-            f'Downloaded {url} to {zip_path}'
-        )
+        logger.info(f"Downloaded {url} to {zip_path}")
 
         try:
             unzip(zip_path, output_dir)
@@ -44,12 +50,9 @@ def download_zip(
             # indicates that the url returned something that wasn't a
             # zip, happens often and indicates data for the given
             # country - date is not available
-            logger.debug(
-                f"No zip data returned from url {url}"
-            )
+            logger.debug(f"No zip data returned from url {url}")
         # remove the zip file
         zip_path.unlink()
-
 
     except Exception:
         logger.info(
@@ -59,18 +62,19 @@ def download_zip(
 
     return valid_file
 
+
 def download_fewsnet_country(
-        date: datetime,
-        iso2: str,
-        output_dir: Path,
-        #question: do you make this an optional arg
-        #if the function is only called by another function
-        #that already has it as optional arg?
-        use_cache: bool,
-)-> bool:
+    date: datetime,
+    iso2: str,
+    output_dir: Path,
+    # question: do you make this an optional arg
+    # if the function is only called by another function
+    # that already has it as optional arg?
+    use_cache: bool,
+) -> bool:
     """
-    download fewsnet data that covers the country
-    indicated by the iso2
+    Download fewsnet data that covers the iso2 country.
+
     Parameters
     ----------
     date : datetime
@@ -90,26 +94,32 @@ def download_fewsnet_country(
         if True, country data for the given date and iso2 exists
     """
     base_url_country = "https://fdw.fews.net/api/ipcpackage/"
-    url_country = f"{base_url_country}?country_code={iso2}&collection_date={date.strftime('%Y-%m')}-01"
+    url_country = (
+        f"{base_url_country}?country_code={iso2}"
+        f"&collection_date={date.strftime('%Y-%m')}-01"
+    )
     output_dir_country = output_dir / f"{iso2}{date.strftime('%Y%m')}"
-    #question: is there a better way to define this zip path?
+    # question: is there a better way to define this zip path?
     zip_path_country = Path(f"{output_dir_country}.zip")
-    if not output_dir_country.exists() or use_cache==False:
-        country_data = download_zip(url_country,zip_path_country,output_dir_country)
+    if not output_dir_country.exists() or use_cache is False:
+        country_data = download_zip(
+            url_country, zip_path_country, output_dir_country
+        )
     else:
         country_data = True
     return country_data
 
+
 def download_fewsnet_region(
-        date: datetime,
-        region_name: str,
-        region_code: str,
-        output_dir: str,
-        use_cache: bool,
-)-> bool:
+    date: datetime,
+    region_name: str,
+    region_code: str,
+    output_dir: Path,
+    use_cache: bool,
+) -> bool:
     """
-    download fewsnet data that covers the country
-    indicated by `region_name`
+    Download fewsnet data that covers `region_name`.
+
     Parameters
     ----------
     date : datetime
@@ -132,33 +142,44 @@ def download_fewsnet_region(
     region_data : bool
         if True, region data for the given date and region name exists
     """
-    base_url_region = "https://fews.net/data_portal_download/download?data_file_path=http://shapefiles.fews.net.s3.amazonaws.com/HFIC/"
+    base_url_region = (
+        "https://fews.net/data_portal_download/download?"
+        "data_file_path=http://shapefiles.fews.net.s3.amazonaws.com/HFIC/"
+    )
     url_region = (
-        f"{base_url_region}{region_code}/{region_name}{date.strftime('%Y%m')}.zip"
+        f"{base_url_region}{region_code}/"
+        f"{region_name}{date.strftime('%Y%m')}.zip"
     )
     zip_path_region = output_dir / f"{region_code}{date.strftime('%Y%m')}.zip"
     output_dir_region = output_dir / f"{region_code}{date.strftime('%Y%m')}"
 
-    if not output_dir_region.exists() or use_cache == False:
-        region_data = download_zip(url_region, zip_path_region, output_dir_region)
+    if not output_dir_region.exists() or use_cache is False:
+        region_data = download_zip(
+            url_region, zip_path_region, output_dir_region
+        )
     else:
         region_data = True
     return region_data
 
-def download_fewsnet(date: datetime,
-                     iso2: str,
-                     region_name:str,
-                     region_code:str,
-                     #question: is it good practice to have
-                     # output_dir as input arg or define that with a config?
-                     #question: is it too much to require it to be a Path object?
-                     output_dir: Path,
-                     use_cache=True):
+
+def download_fewsnet(
+    date: datetime,
+    iso2: str,
+    region_name: str,
+    region_code: str,
+    # question: is it good practice to have
+    # output_dir as input arg or define that with a config?
+    # question: is it too much to require it to be a Path object?
+    output_dir: Path,
+    use_cache=True,
+):
     """
     Retrieve the raw fewsnet data.
+
     Depending on the region and date, this data is published per region or
-    per country. This function retrieves the country data if it exists, and else
-    the regional data for `date` and `iso2`.
+    per country. This function retrieves the country data
+    if it exists, and else the regional data for `date` and `iso2`.
+
     Parameters
     ----------
     date : datetime
@@ -178,20 +199,20 @@ def download_fewsnet(date: datetime,
     use_cache : bool
         if True, don't download if output_dir already exists
     """
-
-    #question: is there a method to force the input to be upper-cased?
-    #upper case iso2 and region_code since they are upper-cased
-    #in fewsnet's url
-    iso2=iso2.upper()
+    # question: is there a method to force the input to be upper-cased?
+    # upper case iso2 and region_code since they are upper-cased
+    # in fewsnet's url
+    iso2 = iso2.upper()
     region_code = region_code.upper()
 
-    #we prefer the country data as this more nicely structured
-    #thus first check if that is available
+    # we prefer the country data as this more nicely structured
+    # thus first check if that is available
     # question: is it a good or bad idea to split this to two functions?
-    #or better to put the content of those two functions directly here?
-    country_data = download_fewsnet_country(date,iso2,output_dir,use_cache)
+    # or better to put the content of those two functions directly here?
+    country_data = download_fewsnet_country(date, iso2, output_dir, use_cache)
     if not country_data:
-        region_data = download_fewsnet_region(date, region_name, region_code, output_dir, use_cache)
+        region_data = download_fewsnet_region(
+            date, region_name, region_code, output_dir, use_cache
+        )
         if not region_data:
             logger.info(f"No data found for {date.strftime('%Y-%m')}")
-
