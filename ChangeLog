@@ -1,6 +1,9 @@
 CHANGES
 =======
 
+* Removed unused packages
+* Change additional dependency formatting
+* Removed exclude dirs
 * Added pbr to version and build docs
 * Fixed find packages
 * Add tests
