@@ -5,8 +5,11 @@ Download and save the data provided by FEWS NET.
 """
 
 import logging
+import zipfile
 from datetime import datetime
 from pathlib import Path
+
+from requests.exceptions import HTTPError
 
 from aatools.utils.io import download_url, unzip
 
@@ -46,30 +49,27 @@ def download_zip(
             unzip(zip_path, output_dir)
             logger.debug(f"Unzipped {zip_path}")
             valid_file = True
-        except Exception:
+        except zipfile.BadZipFile:
             # indicates that the url returned something that wasn't a
             # zip, happens often and indicates data for the given
             # country - date is not available
-            logger.debug(f"No zip data returned from url {url}")
+            logger.debug(
+                f"No zip data returned from url {url} "
+                f"check that the area and date exist."
+            )
         # remove the zip file
         zip_path.unlink()
 
-    except Exception:
-        logger.info(
-            f"Couldn't download url {url}. "
-            f"Check the url and output path: {zip_path}"
-        )
+    except HTTPError:
+        logger.info(f"Couldn't download url {url}")
 
     return valid_file
 
 
-def download_fewsnet_country(
+def _download_fewsnet_country(
     date: datetime,
     iso2: str,
     output_dir: Path,
-    # question: do you make this an optional arg
-    # if the function is only called by another function
-    # that already has it as optional arg?
     use_cache: bool,
 ) -> bool:
     """
@@ -98,9 +98,9 @@ def download_fewsnet_country(
         f"{base_url_country}?country_code={iso2}"
         f"&collection_date={date.strftime('%Y-%m')}-01"
     )
-    output_dir_country = output_dir / f"{iso2}{date.strftime('%Y%m')}"
-    # question: is there a better way to define this zip path?
-    zip_path_country = Path(f"{output_dir_country}.zip")
+
+    zip_path_country = output_dir / f"{iso2}{date.strftime('%Y%m')}.zip"
+    output_dir_country = output_dir / zip_path_country.stem
     if not output_dir_country.exists() or use_cache is False:
         country_data = download_zip(
             url_country, zip_path_country, output_dir_country
@@ -110,7 +110,7 @@ def download_fewsnet_country(
     return country_data
 
 
-def download_fewsnet_region(
+def _download_fewsnet_region(
     date: datetime,
     region_name: str,
     region_code: str,
@@ -151,7 +151,7 @@ def download_fewsnet_region(
         f"{region_name}{date.strftime('%Y%m')}.zip"
     )
     zip_path_region = output_dir / f"{region_code}{date.strftime('%Y%m')}.zip"
-    output_dir_region = output_dir / f"{region_code}{date.strftime('%Y%m')}"
+    output_dir_region = output_dir / zip_path_region.stem
 
     if not output_dir_region.exists() or use_cache is False:
         region_data = download_zip(
@@ -167,9 +167,6 @@ def download_fewsnet(
     iso2: str,
     region_name: str,
     region_code: str,
-    # question: is it good practice to have
-    # output_dir as input arg or define that with a config?
-    # question: is it too much to require it to be a Path object?
     output_dir: Path,
     use_cache=True,
 ):
@@ -199,7 +196,6 @@ def download_fewsnet(
     use_cache : bool
         if True, don't download if output_dir already exists
     """
-    # question: is there a method to force the input to be upper-cased?
     # upper case iso2 and region_code since they are upper-cased
     # in fewsnet's url
     iso2 = iso2.upper()
@@ -207,11 +203,9 @@ def download_fewsnet(
 
     # we prefer the country data as this more nicely structured
     # thus first check if that is available
-    # question: is it a good or bad idea to split this to two functions?
-    # or better to put the content of those two functions directly here?
-    country_data = download_fewsnet_country(date, iso2, output_dir, use_cache)
+    country_data = _download_fewsnet_country(date, iso2, output_dir, use_cache)
     if not country_data:
-        region_data = download_fewsnet_region(
+        region_data = _download_fewsnet_region(
             date, region_name, region_code, output_dir, use_cache
         )
         if not region_data:

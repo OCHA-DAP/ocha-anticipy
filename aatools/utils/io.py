@@ -35,6 +35,7 @@ def download_url(
     # not loosing too much speed
     session = requests.Session()
     r = session.get(url, stream=True)
+    r.raise_for_status()
     with save_path.open("wb") as fd:
         for chunk in r.iter_content(chunk_size=chunk_size):
             fd.write(chunk)
