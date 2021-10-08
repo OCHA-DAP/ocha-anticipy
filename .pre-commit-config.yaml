@@ -30,3 +30,5 @@ repos:
     rev: v0.910
     hooks:
       - id: mypy
+        additional_dependencies:
+          - types-PyYAML==5.4.10
