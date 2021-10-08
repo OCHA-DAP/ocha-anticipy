@@ -62,10 +62,10 @@ class Area:
 
         Parameters
         ----------
-        round_coords: bool (default=False)
+        round_coords: bool, default = False
             Whether or not to round the coordinates. In general this should be
             done, but this option has been left in for some legacy data.
-        offset_val: float (default=0.)
+        offset_val: float, default = 0.0
             Offset the coordinates by this factor. Some CDS datasets require
             coordinates that end in 0.5.
 
