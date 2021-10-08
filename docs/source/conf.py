@@ -41,7 +41,7 @@ templates_path = ["_templates"]
 exclude_patterns = []  # type: list
 
 # API doc settings
-apidoc_module_dir = "../../aatools"
+apidoc_module_dir = "../../aatoolbox"
 apidoc_output_dir = "."
 
 # -- Options for HTML output -------------------------------------------------

@@ -1,4 +1,4 @@
-"""Setup for aatools."""
+"""Setup for aatoolbox."""
 
 from setuptools import setup
 

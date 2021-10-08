@@ -1,7 +1,7 @@
-aatools
-=======
+aatoolbox
+=========
 
 .. toctree::
    :maxdepth: 4
 
-   aatools
+   aatoolbox
