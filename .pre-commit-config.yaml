@@ -30,3 +30,5 @@ repos:
     rev: v0.910
     hooks:
       - id: mypy
+        additional_dependencies:
+          - types-setuptools==57.4.0
