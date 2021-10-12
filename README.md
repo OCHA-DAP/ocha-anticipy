@@ -61,6 +61,7 @@ please add it to the `install_requires` section of `setup.cfg` with any known
 version constraints.
 For adding packages for developement, documentation, or tests, add them to the relevant
 `.in` file in the `requirements` directory.
+When you add new packages, please try to keep the lists alphabetical!
 
 After adding any new packages, please execute `make` in the top-level directory
 to update the requirements files.
