@@ -32,7 +32,7 @@ python setup.py develop
 
 To run the tests and view coverage, execute:
 ```buildoutcfg
-pytest --cov=aatolbox
+pytest --cov=aatoolbox
 ```
 
 ### Documentation
