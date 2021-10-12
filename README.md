@@ -7,6 +7,13 @@ Currently under development
 
 ## Development
 
+### Environment
+
+To setup the development environment, please install all packages from `requirements/requirements-dev.txt`:
+```
+pip install -r requirements/requirements-dev.txt
+```
+
 ### pre-commit
 All code is formatted according to
 [black](https://github.com/psf/black) and
@@ -17,28 +24,46 @@ So please run `pre-commit install` the first time you are editing.
 Thereafter all commits will be checked against black and flake8 guidelines
 
 To check if your changes pass pre-commit without committing, run:
-```buildoutcfg
+```
 pre-commit run --all-files
 ```
 
 ### Installation
 
 To install, execute:
-```buildoutcfg
+```
 python setup.py develop
 ```
 
 ### Testing
 
 To run the tests and view coverage, execute:
-```buildoutcfg
+```
 pytest --cov=aatoolbox
 ```
+Note that you first need to install the aatools package.
 
 ### Documentation
 
 To build the docs, execute:
-```buildoutcfg
+```
 python setup.py build_sphinx
 ```
 To view the docs, open up `docs/build/html/index.html` in your browser.
+
+### Packages
+
+[`pip-tools`](https://github.com/jazzband/pip-tools)
+is used for package management.
+
+If you've introduced an additional dependency to the source code,
+please add it to the `install_requires` section of `setup.cfg` with any known
+version constraints.
+For adding packages for developement, documentation, or tests, add them to the relevant
+`.in` file in the `requirements` directory.
+
+After adding any new packages, please execute `make` in the top-level directory
+to update the requirements files.
+
+For other functionality such as updating specific package versions, refer to the
+`pip-tools` documentation.
