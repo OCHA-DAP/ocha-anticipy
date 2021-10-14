@@ -10,11 +10,13 @@ Currently under development
 ### Environment
 
 To setup the development environment, please install all packages from `requirements/requirements-dev.txt`:
+
 ```
 pip install -r requirements/requirements-dev.txt
 ```
 
 ### pre-commit
+
 All code is formatted according to
 [black](https://github.com/psf/black) and
 [flake8](https://flake8.pycqa.org/en/latest/) guidelines.
@@ -24,6 +26,7 @@ So please run `pre-commit install` the first time you are editing.
 Thereafter all commits will be checked against black and flake8 guidelines
 
 To check if your changes pass pre-commit without committing, run:
+
 ```
 pre-commit run --all-files
 ```
@@ -31,6 +34,7 @@ pre-commit run --all-files
 ### Installation
 
 To install, execute:
+
 ```
 python setup.py develop
 ```
@@ -38,17 +42,21 @@ python setup.py develop
 ### Testing
 
 To run the tests and view coverage, execute:
+
 ```
 pytest --cov=aatoolbox
 ```
+
 Note that you first need to install the aatools package.
 
 ### Documentation
 
 To build the docs, execute:
+
 ```
 python setup.py build_sphinx
 ```
+
 To view the docs, open up `docs/build/html/index.html` in your browser.
 
 ### Packages
