@@ -1,5 +1,6 @@
 # aa-toolbox: Toolbox for anticipatory action
 
+[![license](https://img.shields.io/github/license/OCHA-DAP/pa-aa-toolbox.svg)](https://github.com/OCHA-DAP/pa-aa-toolbx/blob/main/LICENSE)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
 
@@ -64,15 +65,15 @@ To view the docs, open up `docs/build/html/index.html` in your browser.
 [`pip-tools`](https://github.com/jazzband/pip-tools)
 is used for package management.
 
-If you've introduced an additional dependency to the source code,
+If you've introduced a new package to the source code (i.e. anywhere in `src/`),
 please add it to the `install_requires` section of `setup.cfg` with any known
 version constraints.
-For adding packages for developement, documentation, or tests, add them to the relevant
-`.in` file in the `requirements` directory.
-When you add new packages, please try to keep the lists alphabetical!
+For adding packages for development, documentation, or tests,
+add them to the relevant `.in` file in the `requirements` directory.
+When you modify any of these lists, please try to keep them alphabetical!
 
-After adding any new packages, please execute `make` in the top-level directory
-to update the requirements files.
+After adding any new packages, please execute `make` in the top-level directory,
+which will update all the `requirements*.txt` files.
 
 For other functionality such as updating specific package versions, refer to the
 `pip-tools` documentation.
