@@ -15,11 +15,16 @@ from requests.exceptions import HTTPError
 from aatoolbox.utils.io import download_url, unzip
 
 logger = logging.getLogger(__name__)
-
-BASE_URL_COUNTRY = "https://fdw.fews.net/api/ipcpackage/"
+# YYYYMM of BASE_URL_COUNTRY should have a dash, i.e. YYYY-MM
+BASE_URL_COUNTRY = (
+    "https://fdw.fews.net/api/ipcpackage/"
+    "?country_code={iso2}&collection_date={YYYYMM}-01"
+)
+# the BASE_URL_REGION doesnt require a dash between Y and M
 BASE_URL_REGION = (
-    "https://fews.net/data_portal_download/download?"
-    "data_file_path=http://shapefiles.fews.net.s3.amazonaws.com/HFIC/"
+    "https://fews.net/data_portal_download/download"
+    "?data_file_path=http://shapefiles.fews.net.s3.amazonaws.com/"
+    "HFIC/{region_code}/{region_name}{YYYYMM}.zip"
 )
 
 
@@ -67,8 +72,8 @@ def download_zip(
         # remove the zip file
         zip_path.unlink()
 
-    except HTTPError:
-        logger.info(f"Couldn't download url {url}")
+    except HTTPError as e:
+        logger.info(e)
 
     return valid_file
 
@@ -100,16 +105,15 @@ def _download_fewsnet_country(
     country_data : bool
         if True, country data for the given date and iso2 exists
     """
-    url_country = (
-        f"{BASE_URL_COUNTRY}?country_code={iso2}"
-        f"&collection_date={date.strftime('%Y-%m')}-01"
+    url_country_date = BASE_URL_COUNTRY.format(
+        iso2=iso2, YYYYMM=date.strftime("%Y-%m")
     )
 
     output_dir_country = output_dir / f"{iso2}{date.strftime('%Y%m')}"
     zip_path_country = Path(f"{output_dir_country}.zip")
     if not output_dir_country.exists() or use_cache is False:
         country_data = download_zip(
-            url_country, zip_path_country, output_dir_country
+            url_country_date, zip_path_country, output_dir_country
         )
     else:
         country_data = True
@@ -148,16 +152,18 @@ def _download_fewsnet_region(
     region_data : bool
         if True, region data for the given date and region name exists
     """
-    url_region = (
-        f"{BASE_URL_REGION}{region_code}/"
-        f"{region_name}{date.strftime('%Y%m')}.zip"
+    url_region_date = BASE_URL_REGION.format(
+        region_code=region_code,
+        region_name=region_name,
+        YYYYMM=date.strftime("%Y%m"),
     )
+
     output_dir_region = output_dir / f"{region_code}{date.strftime('%Y%m')}"
     zip_path_region = Path(f"{output_dir_region}.zip")
 
     if not output_dir_region.exists() or use_cache is False:
         region_data = download_zip(
-            url_region, zip_path_region, output_dir_region
+            url_region_date, zip_path_region, output_dir_region
         )
     else:
         region_data = True
