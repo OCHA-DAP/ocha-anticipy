@@ -34,6 +34,6 @@ class CountryConfig(object):
         #  country config
         # Get directory of this file + the config filename
         parameters = parse_yaml(
-            Path(__file__).parent.resolve() / f"{iso3}.yaml"
+            Path(__file__).parent.resolve() / f"countries/{iso3}.yaml"
         )
         self.codab = _CodABConfig(**parameters.get("codab", {}))

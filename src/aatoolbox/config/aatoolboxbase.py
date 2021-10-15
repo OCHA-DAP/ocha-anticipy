@@ -4,7 +4,7 @@ from pathlib import Path
 from aatoolbox.config.config import Config
 
 
-class AaToolbox(object):
+class AaToolboxBase(object):
     """
     Base class object that contains path convenience functions.
 

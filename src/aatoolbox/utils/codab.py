@@ -1,12 +1,12 @@
 """Retrieve COD administrative boundaries."""
 import geopandas as gpd
 
-from aatoolbox.config.aatoolbox import AaToolbox
+from aatoolbox.config.aatoolboxbase import AaToolboxBase
 
 MODULE_BASE_DIR = "cod_ab"
 
 
-class CodAB(AaToolbox):
+class CodAB(AaToolboxBase):
     """
     Work with COD AB (administrative boundaries).
 
