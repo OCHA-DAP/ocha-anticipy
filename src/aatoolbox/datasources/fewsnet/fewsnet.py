@@ -10,8 +10,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Union
 
-from aatools.utils.io import download_url, unzip
 from requests.exceptions import HTTPError
+
+from aatoolbox.utils.io import download_url, unzip
 
 logger = logging.getLogger(__name__)
 
