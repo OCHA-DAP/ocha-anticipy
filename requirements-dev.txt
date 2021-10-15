@@ -1,4 +1,0 @@
-pre-commit==2.15.0
-sphinxcontrib-apidoc==0.3.0
--r requirements-doc.txt
--r requirements-test.txt

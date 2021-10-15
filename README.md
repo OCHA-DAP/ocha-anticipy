@@ -8,6 +8,16 @@ Currently under development
 
 ## Development
 
+### Environment
+
+To setup the development environment, please install all packages from `requirements/requirements-dev.txt`:
+
+```
+pip install -r requirements/requirements-dev.txt
+```
+
+### pre-commit
+
 All code is formatted according to
 [black](https://github.com/psf/black) and
 [flake8](https://flake8.pycqa.org/en/latest/) guidelines.
