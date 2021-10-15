@@ -26,7 +26,7 @@ class _PathConfig(object):
     BASE_DIR_ENV = "AA_DATA_DIR"
 
     def __init__(self):
-        self.base = Path(os.environ[_PathConfig.BASE_DIR_ENV])
+        self.base = Path(os.environ[self.BASE_DIR_ENV])
         self.public = "public"
         self.private = "private"
         self.raw = "raw"
