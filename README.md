@@ -48,7 +48,7 @@ To run the tests and view coverage, execute:
 pytest --cov=aatoolbox
 ```
 
-Note that you first need to install the aatools package.
+Note that you first need to install the aatoolbox package.
 
 ### Documentation
 

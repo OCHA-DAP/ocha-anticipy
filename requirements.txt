@@ -45,6 +45,8 @@ pandas==1.3.3
     # via
     #   aa-toolbox (setup.py)
     #   geopandas
+pydantic==1.8.2
+    # via aa-toolbox (setup.py)
 pyproj==3.2.1
     # via
     #   aa-toolbox (setup.py)
@@ -67,6 +69,10 @@ six==1.16.0
     #   fiona
     #   munch
     #   python-dateutil
+typing-extensions==3.10.0.2
+    # via
+    #   aa-toolbox (setup.py)
+    #   pydantic
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
