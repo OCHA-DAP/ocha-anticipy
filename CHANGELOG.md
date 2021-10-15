@@ -7,8 +7,16 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.1] - 2021-08-12
+## [0.2.0] - 2021-10-15
 
+### Added
+
+- Configuration class
+- Base class for data manipulation
+
+## [0.1.0] - 2021-10-12
+
+<!-- markdownlint-disable MD024 -->
 ### Added
 
 - CDS Area module
