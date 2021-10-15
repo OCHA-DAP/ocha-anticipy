@@ -2,7 +2,7 @@
 import os
 from pathlib import Path
 
-from aatoolbox.config import codab, country
+from aatoolbox.config import country
 
 
 class Config(object):
@@ -19,7 +19,6 @@ class Config(object):
         self.iso3 = iso3
         self.path = _PathConfig()
         self.country = country.CountryConfig(iso3)
-        self.codab = codab.CodABConfig()
 
 
 class _PathConfig(object):

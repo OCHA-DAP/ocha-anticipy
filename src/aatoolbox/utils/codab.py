@@ -1,10 +1,12 @@
 """Retrieve COD administrative boundaries."""
 import geopandas as gpd
 
-from aatoolbox.config.config import Config
+from aatoolbox.config.aatoolbox import AaToolbox
+
+MODULE_BASE_DIR = "cod_ab"
 
 
-class CodAB(object):
+class CodAB(AaToolbox):
     """
     Work with COD AB (administrative boundaries).
 
@@ -15,16 +17,7 @@ class CodAB(object):
     """
 
     def __init__(self, iso3: str):
-        self.config = Config(iso3)
-
-    def _get_raw_base_dir(self):
-        return (
-            self.config.path.base
-            / self.config.path.public
-            / self.config.path.raw
-            / self.config.country.iso3
-            / self.config.codab.base_dir
-        )
+        super().__init__(iso3=iso3, module_base_dir=MODULE_BASE_DIR)
 
     def get_admin0(self):
         """
@@ -42,7 +35,7 @@ class CodAB(object):
         >>> npl_admin0 = codab.get_admin0()
         """
         shapefile = (
-            self._get_raw_base_dir()
+            self.get_public_raw_dir()
             / self.config.country.codab.base_dir
             / f"{self.config.country.codab.base_zip}"
             f"!{self.config.country.codab.admin0.base_layer}"
