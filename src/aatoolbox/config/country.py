@@ -11,6 +11,8 @@ class _CodAdmin(BaseModel):
 
 
 class _CodABConfig(BaseModel):
+    hdx_address: str
+    hdx_dataset_name: str
     base_dir: str
     base_zip: str
     admin0: _CodAdmin

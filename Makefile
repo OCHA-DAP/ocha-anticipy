@@ -5,6 +5,7 @@ BASE = "requirements"
 all: base dev docs tests
 
 base:
+	rm -f requirements.txt
 	pip-compile --output-file requirements.txt
 
 dev:
