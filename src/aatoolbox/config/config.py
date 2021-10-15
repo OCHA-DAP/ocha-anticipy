@@ -16,9 +16,8 @@ class Config(object):
     """
 
     def __init__(self, iso3: str):
-        self.iso3 = iso3
-        self.path = _PathConfig()
         self.country = country.CountryConfig(iso3)
+        self.path = _PathConfig()
 
 
 class _PathConfig(object):

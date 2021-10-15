@@ -5,7 +5,7 @@ from aatoolbox.utils.io import parse_yaml
 
 
 class _CodAdmin(object):
-    def __init__(self, base_layer: str = None, **kwargs):
+    def __init__(self, base_layer: str = None):
         self.base_layer = base_layer
 
 

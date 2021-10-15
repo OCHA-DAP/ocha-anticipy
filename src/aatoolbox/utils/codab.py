@@ -35,7 +35,7 @@ class CodAB(AaToolbox):
         >>> npl_admin0 = codab.get_admin0()
         """
         shapefile = (
-            self.get_public_raw_dir()
+            self.get_public_raw_base_dir()
             / self.config.country.codab.base_dir
             / f"{self.config.country.codab.base_zip}"
             f"!{self.config.country.codab.admin0.base_layer}"
