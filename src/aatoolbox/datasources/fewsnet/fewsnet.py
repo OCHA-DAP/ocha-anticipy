@@ -8,12 +8,18 @@ import logging
 import zipfile
 from datetime import datetime
 from pathlib import Path
-
-from requests.exceptions import HTTPError
+from typing import Union
 
 from aatools.utils.io import download_url, unzip
+from requests.exceptions import HTTPError
 
 logger = logging.getLogger(__name__)
+
+BASE_URL_COUNTRY = "https://fdw.fews.net/api/ipcpackage/"
+BASE_URL_REGION = (
+    "https://fews.net/data_portal_download/download?"
+    "data_file_path=http://shapefiles.fews.net.s3.amazonaws.com/HFIC/"
+)
 
 
 def download_zip(
@@ -93,14 +99,13 @@ def _download_fewsnet_country(
     country_data : bool
         if True, country data for the given date and iso2 exists
     """
-    base_url_country = "https://fdw.fews.net/api/ipcpackage/"
     url_country = (
-        f"{base_url_country}?country_code={iso2}"
+        f"{BASE_URL_COUNTRY}?country_code={iso2}"
         f"&collection_date={date.strftime('%Y-%m')}-01"
     )
 
-    zip_path_country = output_dir / f"{iso2}{date.strftime('%Y%m')}.zip"
-    output_dir_country = output_dir / zip_path_country.stem
+    output_dir_country = output_dir / f"{iso2}{date.strftime('%Y%m')}"
+    zip_path_country = Path(f"{output_dir_country}.zip")
     if not output_dir_country.exists() or use_cache is False:
         country_data = download_zip(
             url_country, zip_path_country, output_dir_country
@@ -142,16 +147,12 @@ def _download_fewsnet_region(
     region_data : bool
         if True, region data for the given date and region name exists
     """
-    base_url_region = (
-        "https://fews.net/data_portal_download/download?"
-        "data_file_path=http://shapefiles.fews.net.s3.amazonaws.com/HFIC/"
-    )
     url_region = (
-        f"{base_url_region}{region_code}/"
+        f"{BASE_URL_REGION}{region_code}/"
         f"{region_name}{date.strftime('%Y%m')}.zip"
     )
-    zip_path_region = output_dir / f"{region_code}{date.strftime('%Y%m')}.zip"
-    output_dir_region = output_dir / zip_path_region.stem
+    output_dir_region = output_dir / f"{region_code}{date.strftime('%Y%m')}"
+    zip_path_region = Path(f"{output_dir_region}.zip")
 
     if not output_dir_region.exists() or use_cache is False:
         region_data = download_zip(
@@ -167,7 +168,7 @@ def download_fewsnet(
     iso2: str,
     region_name: str,
     region_code: str,
-    output_dir: Path,
+    output_dir: Union[Path, str],
     use_cache=True,
 ):
     """
@@ -191,7 +192,7 @@ def download_fewsnet(
     region_code : str
         code that refers to the `region_name,
         e.g. "EA"
-    output_dir : Path
+    output_dir : Path or str
         path to dir to which the data should be written
     use_cache : bool
         if True, don't download if output_dir already exists
@@ -200,6 +201,9 @@ def download_fewsnet(
     # in fewsnet's url
     iso2 = iso2.upper()
     region_code = region_code.upper()
+    # convert to path object if str
+    if isinstance(output_dir, str):
+        output_dir = Path(output_dir)
 
     # we prefer the country data as this more nicely structured
     # thus first check if that is available
