@@ -27,6 +27,7 @@ repos:
           - flake8-implicit-str-concat==0.2.0
           - flake8-print==4.0.0
           - flake8-sfs==0.0.3
+          - flake8-keyword-arguments==0.1.0
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v0.910
     hooks:
