@@ -2,7 +2,7 @@
 from geopandas import GeoSeries
 from shapely.geometry import Polygon
 
-from aatools.cds.area import AreaFromShape, AreaFromStations, Station
+from aatoolbox.cds.area import AreaFromShape, AreaFromStations, Station
 
 FAKE_STATIONS = {
     "station_north": Station(lon=0, lat=1),

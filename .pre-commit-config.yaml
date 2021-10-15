@@ -4,9 +4,9 @@ repos:
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
-      - id: check-yaml
-      - id: check-json
       - id: check-ast
+      - id: check-toml
+      - id: check-yaml
   - repo: https://github.com/psf/black
     rev: 21.9b0
     hooks:
@@ -24,6 +24,7 @@ repos:
           - flake8-comprehensions==3.6.1
           - flake8-deprecated==1.3
           - flake8-docstrings==1.6.0
+          - flake8-implicit-str-concat==0.2.0
           - flake8-print==4.0.0
           - flake8-sfs==0.0.3
   - repo: https://github.com/pre-commit/mirrors-mypy
@@ -32,3 +33,8 @@ repos:
       - id: mypy
         additional_dependencies:
           - types-PyYAML==5.4.10
+          - types-setuptools==57.4.0
+  - repo: https://github.com/jumanjihouse/pre-commit-hooks
+    rev: 2.1.5
+    hooks:
+      - id: markdownlint
