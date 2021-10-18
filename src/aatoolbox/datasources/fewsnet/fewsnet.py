@@ -54,11 +54,11 @@ def download_zip(
     valid_file = False
 
     try:
-        download_url(url, zip_path)
+        download_url(url=url, save_path=zip_path)
         logger.info(f"Downloaded {url} to {zip_path}")
 
         try:
-            unzip(zip_path, output_dir)
+            unzip(zip_file_path=zip_path, save_dir=output_dir)
             logger.debug(f"Unzipped {zip_path}")
             valid_file = True
         except zipfile.BadZipFile:
@@ -113,7 +113,9 @@ def _download_fewsnet_country(
     zip_path_country = Path(f"{output_dir_country}.zip")
     if not output_dir_country.exists() or use_cache is False:
         country_data = download_zip(
-            url_country_date, zip_path_country, output_dir_country
+            url=url_country_date,
+            zip_path=zip_path_country,
+            output_dir=output_dir_country,
         )
     else:
         country_data = True
@@ -163,7 +165,9 @@ def _download_fewsnet_region(
 
     if not output_dir_region.exists() or use_cache is False:
         region_data = download_zip(
-            url_region_date, zip_path_region, output_dir_region
+            url=url_region_date,
+            zip_path=zip_path_region,
+            output_dir=output_dir_region,
         )
     else:
         region_data = True
@@ -214,10 +218,16 @@ def download_fewsnet(
 
     # we prefer the country data as this more nicely structured
     # thus first check if that is available
-    country_data = _download_fewsnet_country(date, iso2, output_dir, use_cache)
+    country_data = _download_fewsnet_country(
+        date=date, iso2=iso2, output_dir=output_dir, use_cache=use_cache
+    )
     if not country_data:
         region_data = _download_fewsnet_region(
-            date, region_name, region_code, output_dir, use_cache
+            date=date,
+            region_name=region_name,
+            region_code=region_code,
+            output_dir=output_dir,
+            use_cache=use_cache,
         )
         if not region_data:
             logger.info(f"No data found for {date.strftime('%Y-%m')}")

@@ -6,4 +6,4 @@ anticipatory action.
 """
 import pkg_resources
 
-__version__ = pkg_resources.get_distribution("aatoolbox").version
+__version__ = pkg_resources.get_distribution("aa-toolbox").version

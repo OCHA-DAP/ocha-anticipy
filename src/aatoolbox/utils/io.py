@@ -57,7 +57,7 @@ def unzip(
         dir path to which the content of the zip
         file should be saved
     """
-    with zipfile.ZipFile(zip_file_path, "r") as zip_ref:
+    with zipfile.ZipFile(file=zip_file_path, mode="r") as zip_ref:
         zip_ref.extractall(save_dir)
 
 
@@ -74,6 +74,6 @@ def parse_yaml(filename: Union[str, Path]) -> dict:
     -------
     A dictionary with the YAML file contents
     """
-    with open(filename, "r") as stream:
+    with open(file=filename, mode="r") as stream:
         config = yaml.safe_load(stream)
     return config
