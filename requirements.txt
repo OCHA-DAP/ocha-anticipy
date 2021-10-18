@@ -13,6 +13,11 @@ certifi==2021.10.8
     #   aa-toolbox (setup.py)
     #   fiona
     #   pyproj
+    #   requests
+charset-normalizer==2.0.7
+    # via
+    #   aa-toolbox (setup.py)
+    #   requests
 click==8.0.3
     # via
     #   aa-toolbox (setup.py)
@@ -31,8 +36,12 @@ fiona==1.8.20
     # via
     #   aa-toolbox (setup.py)
     #   geopandas
-geopandas==0.10.1
+geopandas==0.10.2
     # via aa-toolbox (setup.py)
+idna==3.3
+    # via
+    #   aa-toolbox (setup.py)
+    #   requests
 munch==2.5.0
     # via
     #   aa-toolbox (setup.py)
@@ -41,7 +50,7 @@ numpy==1.21.2
     # via
     #   aa-toolbox (setup.py)
     #   pandas
-pandas==1.3.3
+pandas==1.3.4
     # via
     #   aa-toolbox (setup.py)
     #   geopandas
@@ -59,6 +68,8 @@ pytz==2021.3
     # via
     #   aa-toolbox (setup.py)
     #   pandas
+requests==2.26.0
+    # via aa-toolbox (setup.py)
 shapely==1.7.1
     # via
     #   aa-toolbox (setup.py)
@@ -73,6 +84,10 @@ typing-extensions==3.10.0.2
     # via
     #   aa-toolbox (setup.py)
     #   pydantic
+urllib3==1.26.7
+    # via
+    #   aa-toolbox (setup.py)
+    #   requests
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
