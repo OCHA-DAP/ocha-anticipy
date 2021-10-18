@@ -9,6 +9,9 @@ and this project adheres to
 
 ## [Unreleased] - 2021-10-18
 
+<!-- markdownlint-disable MD024 -->
+### Added
+
 - functionality to download and save FewsNet data
 
 ## [0.2.1] - 2021-10-15
