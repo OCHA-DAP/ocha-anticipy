@@ -17,7 +17,7 @@ from typing import Dict, List, Union
 import geopandas as gpd
 import numpy as np
 
-Station = namedtuple("Station", "lon lat")  # noqa: FKA01
+Station = namedtuple("Station", "lon lat")
 
 Station.__doc__ = """
     The coordinates of a station, used to determine the boundaries of the
@@ -80,7 +80,7 @@ class Area:
 
         return [
             self._round_coord(
-                coord=getattr(self, coordinate),  # noqa: FKA01
+                coord=getattr(self, coordinate),
                 direction=direction,
                 offset_val=offset_val,
             )
