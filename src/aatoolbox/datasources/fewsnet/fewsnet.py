@@ -5,11 +5,10 @@ Download and save the data provided by FEWS NET.
 """
 
 import logging
-import shutil
-import tempfile
 import zipfile
 from datetime import datetime
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Union
 
 from requests.exceptions import HTTPError
@@ -17,16 +16,14 @@ from requests.exceptions import HTTPError
 from aatoolbox.utils.io import download_url, unzip
 
 logger = logging.getLogger(__name__)
-# YYYYMM of BASE_URL_COUNTRY should have a dash, i.e. YYYY-MM
 BASE_URL_COUNTRY = (
     "https://fdw.fews.net/api/ipcpackage/"
-    "?country_code={iso2}&collection_date={YYYYMM}-01"
+    "?country_code={iso2}&collection_date={YYYY}-{MM}-01"
 )
-# the BASE_URL_REGION doesnt require a dash between Y and M
 BASE_URL_REGION = (
     "https://fews.net/data_portal_download/download"
     "?data_file_path=http://shapefiles.fews.net.s3.amazonaws.com/"
-    "HFIC/{region_code}/{region_name}{YYYYMM}.zip"
+    "HFIC/{region_code}/{region_name}{YYYY}{MM}.zip"
 )
 
 
@@ -54,28 +51,26 @@ def download_zip(
 
     """
     valid_file = False
-    # create tempdir to write zipfile to
-    tempdir = Path(tempfile.mkdtemp())
 
     try:
-        zip_path = tempdir / zip_filename
-        download_url(url=url, save_path=zip_path)
-        logger.info(f"Downloaded {url} to {zip_path}")
+        # create tempdir to write zipfile to
+        with TemporaryDirectory() as temp_dir:
+            zip_path = Path(temp_dir) / zip_filename
+            download_url(url=url, save_path=zip_path)
+            logger.info(f"Downloaded {url} to {zip_path}")
 
-        try:
-            unzip(zip_file_path=zip_path, save_dir=output_dir)
-            logger.debug(f"Unzipped to {output_dir}")
-            valid_file = True
-        except zipfile.BadZipFile:
-            # indicates that the url returned something that wasn't a
-            # zip, happens often and indicates data for the given
-            # country - date is not available
-            logger.debug(
-                f"No zip data returned from url {url} "
-                f"check that the area and date exist."
-            )
-        # remove the temporary directory
-        shutil.rmtree(tempdir)
+            try:
+                unzip(zip_file_path=zip_path, save_dir=output_dir)
+                logger.debug(f"Unzipped to {output_dir}")
+                valid_file = True
+            except zipfile.BadZipFile:
+                # indicates that the url returned something that wasn't a
+                # zip, happens often and indicates data for the given
+                # country - date is not available
+                logger.debug(
+                    f"No zip data returned from url {url} "
+                    f"check that the area and date exist."
+                )
 
     except HTTPError as e:
         logger.info(e)
@@ -111,7 +106,7 @@ def _download_fewsnet_country(
         if True, country data for the given date and iso2 exists
     """
     url_country_date = BASE_URL_COUNTRY.format(
-        iso2=iso2, YYYYMM=date.strftime("%Y-%m")
+        iso2=iso2, YYYY=date.year, MM=date.month
     )
 
     output_dir_country = output_dir / f"{iso2}{date.strftime('%Y%m')}"
@@ -162,7 +157,8 @@ def _download_fewsnet_region(
     url_region_date = BASE_URL_REGION.format(
         region_code=region_code,
         region_name=region_name,
-        YYYYMM=date.strftime("%Y%m"),
+        YYYY=date.year,
+        MM=date.month,
     )
 
     output_dir_region = output_dir / f"{region_code}{date.strftime('%Y%m')}"
