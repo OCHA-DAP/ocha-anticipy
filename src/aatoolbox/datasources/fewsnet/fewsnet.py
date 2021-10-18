@@ -5,6 +5,8 @@ Download and save the data provided by FEWS NET.
 """
 
 import logging
+import shutil
+import tempfile
 import zipfile
 from datetime import datetime
 from pathlib import Path
@@ -30,7 +32,7 @@ BASE_URL_REGION = (
 
 def download_zip(
     url: str,
-    zip_path: Path,
+    zip_filename: str,
     output_dir: Path,
 ) -> bool:
     """
@@ -40,8 +42,8 @@ def download_zip(
     ----------
     url : str
         url that contains the zip file to be downloaded
-    zip_path : Path
-        path to which the content of the url should be downloaded
+    zip_filename : str
+        name of the zipfile
     output_dir : Path
         path of dir to which the zip content should be written
 
@@ -52,14 +54,17 @@ def download_zip(
 
     """
     valid_file = False
+    # create tempdir to write zipfile to
+    tempdir = Path(tempfile.mkdtemp())
 
     try:
+        zip_path = tempdir / zip_filename
         download_url(url=url, save_path=zip_path)
         logger.info(f"Downloaded {url} to {zip_path}")
 
         try:
             unzip(zip_file_path=zip_path, save_dir=output_dir)
-            logger.debug(f"Unzipped {zip_path}")
+            logger.debug(f"Unzipped to {output_dir}")
             valid_file = True
         except zipfile.BadZipFile:
             # indicates that the url returned something that wasn't a
@@ -69,8 +74,8 @@ def download_zip(
                 f"No zip data returned from url {url} "
                 f"check that the area and date exist."
             )
-        # remove the zip file
-        zip_path.unlink()
+        # remove the temporary directory
+        shutil.rmtree(tempdir)
 
     except HTTPError as e:
         logger.info(e)
@@ -110,11 +115,11 @@ def _download_fewsnet_country(
     )
 
     output_dir_country = output_dir / f"{iso2}{date.strftime('%Y%m')}"
-    zip_path_country = Path(f"{output_dir_country}.zip")
+    zip_filename = f"{output_dir_country.name}.zip"
     if not output_dir_country.exists() or use_cache is False:
         country_data = download_zip(
             url=url_country_date,
-            zip_path=zip_path_country,
+            zip_filename=zip_filename,
             output_dir=output_dir_country,
         )
     else:
@@ -161,12 +166,11 @@ def _download_fewsnet_region(
     )
 
     output_dir_region = output_dir / f"{region_code}{date.strftime('%Y%m')}"
-    zip_path_region = Path(f"{output_dir_region}.zip")
-
+    zip_filename_region = f"{output_dir_region.name}.zip"
     if not output_dir_region.exists() or use_cache is False:
         region_data = download_zip(
             url=url_region_date,
-            zip_path=zip_path_region,
+            zip_filename=zip_filename_region,
             output_dir=output_dir_region,
         )
     else:
