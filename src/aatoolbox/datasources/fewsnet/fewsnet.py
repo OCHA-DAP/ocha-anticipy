@@ -11,8 +11,6 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Union
 
-from requests.exceptions import HTTPError
-
 from aatoolbox.utils.io import download_url, unzip
 
 logger = logging.getLogger(__name__)
@@ -52,28 +50,24 @@ def _download_zip(
     """
     valid_file = False
 
-    try:
-        # create tempdir to write zipfile to
-        with TemporaryDirectory() as temp_dir:
-            zip_path = Path(temp_dir) / zip_filename
-            download_url(url=url, save_path=zip_path)
-            logger.info(f"Downloaded {url} to {zip_path}")
+    # create tempdir to write zipfile to
+    with TemporaryDirectory() as temp_dir:
+        zip_path = Path(temp_dir) / zip_filename
+        download_url(url=url, save_path=zip_path)
+        logger.info(f"Downloaded {url} to {zip_path}")
 
-            try:
-                unzip(zip_file_path=zip_path, save_dir=output_dir)
-                logger.debug(f"Unzipped to {output_dir}")
-                valid_file = True
-            except zipfile.BadZipFile:
-                # indicates that the url returned something that wasn't a
-                # zip, happens often and indicates data for the given
-                # country - date is not available
-                logger.debug(
-                    f"No zip data returned from url {url} "
-                    f"check that the area and date exist."
-                )
-
-    except HTTPError as e:
-        logger.info(e)
+        try:
+            unzip(zip_file_path=zip_path, save_dir=output_dir)
+            logger.debug(f"Unzipped to {output_dir}")
+            valid_file = True
+        except zipfile.BadZipFile:
+            # indicates that the url returned something that wasn't a
+            # zip, happens often and indicates data for the given
+            # country - date is not available
+            logger.debug(
+                f"No zip data returned from url {url} "
+                f"check that the area and date exist."
+            )
 
     return valid_file
 
@@ -230,4 +224,4 @@ def download_fewsnet(
             use_cache=use_cache,
         )
         if not region_data:
-            logger.info(f"No data found for {date.strftime('%Y-%m')}")
+            logger.warning(f"No data found for {date.strftime('%Y-%m')}")
