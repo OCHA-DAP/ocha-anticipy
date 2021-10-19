@@ -27,7 +27,7 @@ BASE_URL_REGION = (
 )
 
 
-def download_zip(
+def _download_zip(
     url: str,
     zip_filename: str,
     output_dir: Path,
@@ -112,7 +112,7 @@ def _download_fewsnet_country(
     output_dir_country = output_dir / f"{iso2}{date.strftime('%Y%m')}"
     zip_filename = f"{output_dir_country.name}.zip"
     if not output_dir_country.exists() or use_cache is False:
-        country_data = download_zip(
+        country_data = _download_zip(
             url=url_country_date,
             zip_filename=zip_filename,
             output_dir=output_dir_country,
@@ -164,7 +164,7 @@ def _download_fewsnet_region(
     output_dir_region = output_dir / f"{region_code}{date.strftime('%Y%m')}"
     zip_filename_region = f"{output_dir_region.name}.zip"
     if not output_dir_region.exists() or use_cache is False:
-        region_data = download_zip(
+        region_data = _download_zip(
             url=url_region_date,
             zip_filename=zip_filename_region,
             output_dir=output_dir_region,
