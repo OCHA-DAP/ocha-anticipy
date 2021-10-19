@@ -36,7 +36,7 @@ fiona==1.8.20
     # via
     #   aa-toolbox (setup.py)
     #   geopandas
-geopandas==0.10.2
+geopandas==0.10.1
     # via aa-toolbox (setup.py)
 idna==3.3
     # via
@@ -50,7 +50,7 @@ numpy==1.21.2
     # via
     #   aa-toolbox (setup.py)
     #   pandas
-pandas==1.3.4
+pandas==1.3.3
     # via
     #   aa-toolbox (setup.py)
     #   geopandas
