@@ -1,3 +1,5 @@
+<!-- markdownlint-disable-file MD024 -->
+
 # Changelog
 
 All notable changes to `aa-tools` will be documented in this file.
@@ -22,7 +24,6 @@ and this project adheres to
 
 ## [0.1.0] - 2021-10-12
 
-<!-- markdownlint-disable MD024 -->
 ### Added
 
 - CDS Area module
