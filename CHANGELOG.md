@@ -9,6 +9,12 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Changed
+
+- markdownlint pre-commit hook [switched to Node.js source](https://github.com/DavidAnson/markdownlint)
+
 ## [0.2.1] - 2021-10-15
 
 ### Fixed
