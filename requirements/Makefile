@@ -5,13 +5,13 @@ BASE = "requirements"
 all: base dev docs tests
 
 base:
-	pip-compile --output-file requirements.txt
+	pip-compile ../setup.cfg --output-file ${BASE}.txt
 
 dev:
-	pip-compile ${BASE}/dev.in --output-file ${BASE}/${BASE}-dev.txt
+	pip-compile dev.in --output-file ${BASE}-dev.txt
 
 docs:
-	pip-compile ${BASE}/docs.in --output-file ${BASE}/${BASE}-docs.txt
+	pip-compile docs.in --output-file ${BASE}-docs.txt
 
 tests:
-	pip-compile ${BASE}/tests.in --output-file ${BASE}/${BASE}-tests.txt
+	pip-compile tests.in --output-file ${BASE}-tests.txt
