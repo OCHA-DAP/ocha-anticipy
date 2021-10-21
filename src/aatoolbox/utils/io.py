@@ -18,6 +18,6 @@ def parse_yaml(filename: Union[str, Path]) -> dict:
     -------
     A dictionary with the YAML file contents
     """
-    with open(filename, "r") as stream:
+    with open(file=filename, mode="r") as stream:
         config = yaml.safe_load(stream)
     return config

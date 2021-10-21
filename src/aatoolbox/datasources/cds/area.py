@@ -18,7 +18,8 @@ import geopandas as gpd
 import numpy as np
 
 Station = namedtuple("Station", "lon lat")
-Station.__doc__ = """\
+
+Station.__doc__ = """
     The coordinates of a station, used to determine the boundaries of the
     area passed to the CDS API.
 

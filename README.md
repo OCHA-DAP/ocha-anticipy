@@ -13,7 +13,7 @@ Currently under development
 To setup the development environment, please install all packages
 from `requirements/requirements-dev.txt`:
 
-```
+```shell
 pip install -r requirements/requirements-dev.txt
 ```
 
@@ -21,7 +21,7 @@ pip install -r requirements/requirements-dev.txt
 
 To install in editable mode for development, execute:
 
-```
+```shell
 pip install -e .
 ```
 
@@ -29,7 +29,7 @@ pip install -e .
 
 To run the tests and view coverage, execute:
 
-```
+```shell
 pytest --cov=aatoolbox
 ```
 
@@ -37,7 +37,7 @@ pytest --cov=aatoolbox
 
 To build the docs, execute:
 
-```
+```shell
 python setup.py build_sphinx
 ```
 
@@ -55,7 +55,7 @@ Thereafter all commits will be checked against black and flake8 guidelines
 
 To check if your changes pass pre-commit without committing, run:
 
-```
+```shell
 pre-commit run --all-files
 ```
 
