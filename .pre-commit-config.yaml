@@ -35,7 +35,7 @@ repos:
         additional_dependencies:
           - types-PyYAML==5.4.10
           - types-setuptools==57.4.0
-  - repo: https://github.com/jumanjihouse/pre-commit-hooks
-    rev: 2.1.5
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.29.0
     hooks:
       - id: markdownlint
