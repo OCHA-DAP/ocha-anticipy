@@ -10,7 +10,8 @@ Currently under development
 
 ### Environment
 
-To setup the development environment, please install all packages from `requirements/requirements-dev.txt`:
+To setup the development environment, please install all packages
+from `requirements/requirements-dev.txt`:
 
 ```
 pip install -r requirements/requirements-dev.txt
@@ -18,10 +19,10 @@ pip install -r requirements/requirements-dev.txt
 
 ### Installation
 
-To install, execute:
+To install in editable mode for development, execute:
 
 ```
-python -m build .
+pip install -e .
 ```
 
 ### Testing
@@ -31,8 +32,6 @@ To run the tests and view coverage, execute:
 ```
 pytest --cov=aatoolbox
 ```
-
-Note that you first need to install the aatoolbox package.
 
 ### Documentation
 
