@@ -68,6 +68,7 @@ def _download_zip(
                 f"No zip data returned from url {url} "
                 f"check that the area and date exist."
             )
+            valid_file = False
 
     return valid_file
 
@@ -99,6 +100,9 @@ def _download_fewsnet_country(
     country_data : bool
         if True, country data for the given date and iso2 exists
     """
+    # url needs upper and filenames contain upper so name
+    # dirs with upper as well
+    iso2 = iso2.upper()
     url_country_date = BASE_URL_COUNTRY.format(
         iso2=iso2, YYYY=date.year, MM=date.month
     )
@@ -148,6 +152,10 @@ def _download_fewsnet_region(
     region_data : bool
         if True, region data for the given date and region name exists
     """
+    # url needs upper and filenames contain upper so name
+    # dirs with upper as well
+    region_code = region_code.upper()
+
     url_region_date = BASE_URL_REGION.format(
         region_code=region_code,
         region_name=region_name,
@@ -202,10 +210,6 @@ def download_fewsnet(
     use_cache : bool
         if True, don't download if output_dir already exists
     """
-    # upper case iso2 and region_code since they are upper-cased
-    # in fewsnet's url
-    iso2 = iso2.upper()
-    region_code = region_code.upper()
     # convert to path object if str
     if isinstance(output_dir, str):
         output_dir = Path(output_dir)
@@ -224,4 +228,4 @@ def download_fewsnet(
             use_cache=use_cache,
         )
         if not region_data:
-            logger.warning(f"No data found for {date.strftime('%Y-%m')}")
+            raise RuntimeError(f"No data found for {date.strftime('%Y-%m')}")
