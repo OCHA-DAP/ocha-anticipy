@@ -11,9 +11,22 @@ and this project adheres to
 
 ## Unreleased
 
+### Added
+
+- [`pip-compile`](https://github.com/jazzband/pip-tools#version-control-integration)
+  pre-commit hook
+- version number is now specified in `src/aatoolbox/_version.py`
+
 ### Changed
 
 - markdownlint pre-commit hook [switched to Node.js source](https://github.com/DavidAnson/markdownlint)
+- `requirements.txt` moved to `requirements` directory
+
+### Removed
+
+- `pbr` for automated git tag versioning (which also allowed the removal
+  of `setup.py`)
+- `Makefile` for generating requirements files
 
 ## [0.2.1] - 2021-10-15
 
