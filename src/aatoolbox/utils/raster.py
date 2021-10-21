@@ -1,9 +1,12 @@
 """Utilities to manipulate and analyze raster data."""
 
 import logging
-from typing import Union
+from typing import Any, Dict, List, Union
 
+import geopandas as gpd
 import numpy as np
+import pandas as pd
+import rioxarray
 import xarray as xr
 
 logger = logging.getLogger(__name__)
@@ -199,3 +202,123 @@ def correct_calendar(ds: Union[xr.DataArray, xr.Dataset], time_coord: str):
             ds[time_coord].attrs["calendar"] = "360_day"
 
     return ds
+
+
+def compute_raster_statistics(
+    gdf: gpd.GeoDataFrame,
+    feature_col: str,
+    da: xr.DataArray,
+    lon_coord: str = "x",
+    lat_coord: str = "y",
+    stats_list: List[str] = None,
+    percentile_list: List[int] = None,
+    all_touched: bool = False,
+    geom_col: str = "geometry",
+):
+    """Compute raster statistics for polygon geometry.
+
+    ``compute_raster_statistics()`` is designed to
+    quickly compute raster statistics across a polygon
+    and its features.
+
+    Parameters
+    ----------
+    gdf : geopandas.GeoDataFrame
+        Geodataframe with row per area for stats computation.
+    feature_col : str
+        Column in ``gdf`` to use as row/feature identifier.
+    da : xarray.DataArray
+        Raster array for computation. Must have a CRS.
+    lon_coord : str, optional
+        Longitude coordinate in ``da``, by default "x".
+    lat_coord : str, optional
+        Longitude coordinate in ``da``, by default "y".
+    stats_list : List[str], optional
+        List of statistics to calculate, by default None.
+        Passed to ``get_attr()``.
+    percentile_list : List[int], optional
+        List of percentiles to compute, by default None.
+    all_touched : bool, optional
+        If ``True`` all cells touching the region will be
+        included, by default False.
+    geom_col : str, optional
+        Column in ``gdf`` with geometry, by default "geometry".
+
+    Returns
+    -------
+    pandas.DataFrame
+        Dataframe with computed statistics.
+    """
+    if da.rio.crs is None:
+        raise rioxarray.exceptions.MissingCRS(
+            "No CRS found, set CRS before computation."
+        )
+
+    df_list = []
+
+    if stats_list is None:
+        stats_list = ["mean", "std", "min", "max", "sum", "count"]
+
+    for feature in gdf[feature_col].unique():
+        gdf_adm = gdf[gdf[feature_col] == feature]
+
+        da_clip = da.rio.set_spatial_dims(x_dim=lon_coord, y_dim=lat_coord)
+
+        # clip returns error if no overlapping raster cells for geometry
+        # so catching this and skipping rest of iteration so no stats computed
+        try:
+            da_clip = da_clip.rio.clip(
+                gdf_adm[geom_col], all_touched=all_touched
+            )
+        except rioxarray.exceptions.NoDataInBounds:
+            logger.warning(
+                "No overlapping raster cells for %s, skipping.", feature
+            )
+            continue
+
+        grid_stat_all = []
+        for stat in stats_list:
+            # count automatically ignores NaNs
+            # therefore skipna can also not be given as an argument
+            # implemented count cause needed for computing percentages
+            kwargs: Dict[str, Any] = {}
+            if stat != "count":
+                kwargs["skipna"] = True
+            # makes sum return NaN instead of 0 if array
+            # only contains NaNs
+            if stat == "sum":
+                kwargs["min_count"] = 1
+            grid_stat = getattr(da_clip, stat)(
+                dim=[lon_coord, lat_coord], **kwargs
+            ).rename(f"{stat}_{feature_col}")
+            grid_stat_all.append(grid_stat)
+
+        if percentile_list is not None:
+            grid_quant = [
+                da_clip.quantile(quant / 100, dim=[lon_coord, lat_coord])
+                .drop("quantile")
+                .rename(f"{quant}quant_{feature_col}")
+                for quant in percentile_list
+            ]
+            grid_stat_all.extend(grid_quant)
+
+        # if dims is 0, it throws an error when merging
+        # and then converting to a df
+        # this occurs when the input da is 2D
+        if not grid_stat_all[0].dims:
+            df_adm = pd.DataFrame(
+                {da_stat.name: [da_stat.values] for da_stat in grid_stat_all}
+            )
+
+        else:
+            zonal_stats_xr = xr.merge(grid_stat_all)
+            df_adm = (
+                zonal_stats_xr.to_dataframe()
+                .drop("spatial_ref", axis=1)
+                .reset_index()
+            )
+        df_adm[feature_col] = feature
+        df_list.append(df_adm)
+
+    df_zonal_stats = pd.concat(df_list).reset_index(drop=True)
+    return df_zonal_stats
