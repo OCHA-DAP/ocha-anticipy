@@ -72,8 +72,9 @@ For adding packages for development, documentation, or tests,
 add them to the relevant `.in` file in the `requirements` directory.
 When you modify any of these lists, please try to keep them alphabetical!
 
-After adding any new packages, please execute `make` from the `requirements` directory
-which will update all the `requirements*.txt` files.
+Any changes to the `requirements*.txt` files will be generated with `pre-commit`.
+If you want to check any changes ahead of time by hand, use
+the commands specified at the top of each requirements file.
 
 For other functionality such as updating specific package versions, refer to the
 `pip-tools` documentation.
