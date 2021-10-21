@@ -32,7 +32,7 @@ def invert_coordinates(
 
     Parameters
     ----------
-        ds : Union[xr.DataArray, xr.Dataset]
+        ds : Union[xarray.DataArray, xarray.Dataset]
             Dataset with values and coordinates.
         lon_coord : str
             Longitude coordinate in ``ds``.
@@ -41,16 +41,16 @@ def invert_coordinates(
 
     Returns
     -------
-    Union[xr.DataArray, xr.Dataset]
+    Union[xarray.DataArray, xarray.Dataset]
         Dataset or data array with correct coordinate ordering.
 
     Examples
     --------
-    >>> da = xr.DataArray(
-    ...     np.arange(16).reshape(4,4),
-    ...     coords={"lat":np.array([87, 88, 89, 90]),
-    ...             "lon":np.array([70, 69, 68, 67])}
-    ... )
+    >>> da = xarray.DataArray(
+         numpy.arange(16).reshape(4,4),
+         coords={"lat":numpy.array([87, 88, 89, 90]),
+                 "lon":numpy.array([70, 69, 68, 67])}
+    )
     >>> invert_coordinates(ds, "lon", "lat")
     """
     lon_inv, lat_inv = _check_coords_inverted(
@@ -103,23 +103,23 @@ def change_longitude_range(
 
     Parameters
     ----------
-    ds : Union[xr.DataArray, xr.Dataset]
+    ds : Union[xarray.DataArray, xarray.Dataset]
         Dataset with values and coordinates.
     lon_coord : str
         Longitude coordinate in ``ds``.
 
     Returns
     -------
-    Union[xr.DataArray, xr.Dataset]
+    Union[xarray.DataArray, xarray.Dataset]
         Dataset with transformed longitude coordinates.
 
     Examples
     --------
-    >>> da = xr.DataArray(
-    ...     np.arange(16).reshape(4,4),
-    ...     coords={"lat":np.array([87, 88, 89, 90]),
-    ...             "lon":np.array([5, 120, 199, 360])}
-    ... )
+    >>> da = xarray.DataArray(
+         numpy.arange(16).reshape(4,4),
+         coords={"lat":numpy.array([87, 88, 89, 90]),
+                 "lon":numpy.array([5, 120, 199, 360])}
+    )
     >>> change_longitude_range(ds, "lon")
     """
     lon_min = ds.indexes[lon_coord].min()
@@ -147,5 +147,55 @@ def change_longitude_range(
 
     else:
         logger.info("Indeterminate longitude range and no need to convert.")
+
+    return ds
+
+
+def correct_calendar(ds: Union[xr.DataArray, xr.Dataset], time_coord: str):
+    """Correct calendar attribute for recognition by xarray.
+
+    Some datasets come with a wrong calendar attribute that isn't
+    recognized by xarray. This function corrects the coordinate
+    attribute to ensure that a ``calendar`` attribute exists
+    and specifies a calendar alias that is supportable by
+    ``xarray.cftime_range``.
+
+    Currently ensures that calendar attributes that are either
+    specified with ``units="months since"`` or ``calendar="360"``
+    explicitly have ``calendar="360_day"``. If and when further
+    issues are found with calendar attributes, support for
+    conversion will be added here.
+
+    Parameters
+    ----------
+    ds : Union[xarray.DataArray, xarray.Dataset]
+        Dataset with values and coordinates.
+    lon_coord : str
+        Longitude coordinate in ``ds``.
+
+    Returns
+    -------
+    Union[xarray.DataArray, xarray.Dataset]
+        Dataset with transformed calendar coordinate.
+
+    Examples
+    --------
+    >>> da = xarray.DataArray(
+         numpy.arange(64).reshape(4,4,4),
+         coords={"lat":numpy.array([87, 88, 89, 90]),
+                 "lon":numpy.array([5, 120, 199, 360]),
+                 "t":numpy.array([10,11,12,13])}
+    )
+    >>> da["t"].attrs["units"] = "months since 1960-01-01"
+    >>> da = correct_calendar(da, "t")
+    >>> da["t"].attrs["calendar"]
+    """
+    if "calendar" in ds[time_coord].attrs.keys():
+        if ds[time_coord].attrs["calendar"] == "360":
+            ds[time_coord].attrs["calendar"] = "360_day"
+
+    elif "units" in ds[time_coord].attrs.keys():
+        if "months since" in ds[time_coord].attrs["units"]:
+            ds[time_coord].attrs["calendar"] = "360_day"
 
     return ds
