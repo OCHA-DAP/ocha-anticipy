@@ -70,6 +70,16 @@ def _download_zip(
             )
             valid_file = False
 
+        # check that dir contains files
+        # haven't seen it happen that this went wrong but
+        # is an useful double-check
+        if not any(Path(output_dir).iterdir()):
+            logger.info(
+                f"Empty directory returned by url {url}. "
+                f"Check that the the area and date exist."
+            )
+            valid_file = False
+
     return valid_file
 
 
