@@ -35,12 +35,6 @@ pytest --cov=aatoolbox
 
 ### Documentation
 
-To build the docs, execute:
-
-```shell
-python setup.py build_sphinx
-```
-
 To view the docs, open up `docs/build/html/index.html` in your browser.
 
 ### pre-commit
@@ -70,10 +64,6 @@ version constraints.
 For adding packages for development, documentation, or tests,
 add them to the relevant `.in` file in the `requirements` directory.
 When you modify any of these lists, please try to keep them alphabetical!
-
 Any changes to the `requirements*.txt` files will be generated with `pre-commit`.
-If you want to check any changes ahead of time by hand, use
-the commands specified at the top of each requirements file.
-
 For other functionality such as updating specific package versions, refer to the
 `pip-tools` documentation.
