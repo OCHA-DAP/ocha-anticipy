@@ -11,6 +11,10 @@ and this project adheres to
 
 ## Unreleased
 
+### Added
+
+- Pre-commit hook to check Sphinx documentation can be built
+
 ### Changed
 
 - markdownlint pre-commit hook [switched to Node.js source](https://github.com/DavidAnson/markdownlint)
