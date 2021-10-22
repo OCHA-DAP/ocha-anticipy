@@ -5,4 +5,4 @@ codab:
   base_dir: npl_admbnda_ocha_20201117
   base_zip: npl_admbnda_nd_20201117_shp.zip
   admin0:
-    base_layer: npl_admbnda_adm0_nd_20201117.shp
+    base_layer: npl_admbnda_adm0_nd_20201117

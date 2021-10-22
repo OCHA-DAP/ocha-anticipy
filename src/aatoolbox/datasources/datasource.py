@@ -4,7 +4,7 @@ from pathlib import Path
 from aatoolbox.config.config import Config
 
 
-class AaToolboxBase(object):
+class DataSource(object):
     """
     Base class object that contains path convenience functions.
 
@@ -36,6 +36,6 @@ class AaToolboxBase(object):
             / self.module_base_dir
         )
 
-    def get_public_raw_base_dir(self) -> Path:
+    def _get_public_raw_base_dir(self) -> Path:
         """Get the data source public raw directory."""
         return self._get_base_dir(is_public=True, is_raw=True)

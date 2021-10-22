@@ -1,5 +1,7 @@
 """Use HDX python API to download data."""
 import logging
+import shutil
+import tempfile
 from pathlib import Path
 
 from hdx.data.dataset import Dataset
@@ -12,7 +14,7 @@ Configuration.create(user_agent=USER_AGENT, hdx_read_only=True)
 
 
 def get_dataset_from_hdx(
-    hdx_address: str, hdx_dataset_name: str, output_directory: Path
+    hdx_address: str, hdx_dataset_name: str, output_filepath: Path
 ) -> Path:
     """
     Use the HDX API to download a dataset based on the address and dataset ID.
@@ -25,8 +27,8 @@ def get_dataset_from_hdx(
     hdx_dataset_name : str
         Dataset name on HDX. Can be found by taking the filename as it
         appears on the dataset page.
-    output_directory : Path
-        Target directory for the dataset
+    output_filepath : Path
+        Target filepath for the dataset
 
     Returns
     -------
@@ -38,9 +40,11 @@ def get_dataset_from_hdx(
     for resource in resources:
         if resource["name"] == hdx_dataset_name:
             logger.info(f"Downloading dataset {hdx_dataset_name}")
-            _, output_filename = resource.download(folder=output_directory)
-            logger.info(f"Saved to {output_filename}")
-            return Path(output_filename)
+            with tempfile.TemporaryDirectory() as tempdir:
+                _, downloaded_filepath = resource.download(folder=tempdir)
+                shutil.copy(downloaded_filepath, output_filepath)
+            logger.info(f"Saved to {output_filepath}")
+            return Path(output_filepath)
     raise FileNotFoundError(
         f'HDX dataset with address "{hdx_address}" and name '
         f'"{hdx_dataset_name}" not found'
