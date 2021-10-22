@@ -52,13 +52,13 @@ repos:
     hooks:
       - id: pip-compile
         name: pip-compile requirements.txt
-        files: setup.cfg|requirements/requirements.txt
+        files: setup.cfg
         args: [setup.cfg, -q, --no-header, --output-file=requirements/requirements.txt]
       - id: pip-compile
         name: pip-compile requirements-dev.txt
-        files: requirements/(dev.in|requirements-dev.txt)
+        files: requirements/(dev.in|tests.in|requirements.txt)
         args: [requirements/dev.in, -q, --no-header, --output-file=requirements/requirements-dev.txt]
       - id: pip-compile
         name: pip-compile requirements-tests.txt
-        files: requirements/(tests.in|requirements-tests.txt)
+        files: requirements/tests.in
         args: [requirements/tests.in, -q, --no-header, --output-file=requirements/requirements-tests.txt]
