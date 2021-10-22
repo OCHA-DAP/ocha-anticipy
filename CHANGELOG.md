@@ -1,3 +1,5 @@
+<!-- markdownlint-disable-file MD024 -->
+
 # Changelog
 
 All notable changes to `aa-tools` will be documented in this file.
@@ -13,6 +15,10 @@ and this project adheres to
 
 - Pre-commit hook to check Sphinx documentation can be built
 
+### Changed
+
+- markdownlint pre-commit hook [switched to Node.js source](https://github.com/DavidAnson/markdownlint)
+
 ## [0.2.1] - 2021-10-15
 
 ### Fixed
@@ -21,7 +27,6 @@ and this project adheres to
 
 ## [0.2.0] - 2021-10-15
 
-<!-- markdownlint-disable MD024 -->
 ### Added
 
 - Configuration class
@@ -29,7 +34,6 @@ and this project adheres to
 
 ## [0.1.0] - 2021-10-12
 
-<!-- markdownlint-disable MD024 -->
 ### Added
 
 - CDS Area module
