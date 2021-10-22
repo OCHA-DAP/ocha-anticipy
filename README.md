@@ -35,6 +35,9 @@ pytest --cov=aatoolbox
 
 ### Documentation
 
+All public modules, classes and methods should be documented with
+[numpy-style](https://numpydoc.readthedocs.io/en/latest/format.html)
+docstrings, which are rendered into HTML using a pre-commit hook.
 To view the docs, open up `docs/build/html/index.html` in your browser.
 
 ### pre-commit

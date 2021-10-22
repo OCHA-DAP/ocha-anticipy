@@ -59,10 +59,6 @@ repos:
         files: requirements/(dev.in|requirements-dev.txt)
         args: [requirements/dev.in, -q, --no-header, --output-file=requirements/requirements-dev.txt]
       - id: pip-compile
-        name: pip-compile requirements-docs.txt
-        files: requirements/(docs.in|requirements-docs.txt)
-        args: [requirements/docs.in, -q, --no-header, --output-file=requirements/requirements-docs.txt]
-      - id: pip-compile
         name: pip-compile requirements-tests.txt
         files: requirements/(tests.in|requirements-tests.txt)
         args: [requirements/tests.in, -q, --no-header, --output-file=requirements/requirements-tests.txt]

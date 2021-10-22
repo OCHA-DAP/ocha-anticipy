@@ -27,6 +27,7 @@ and this project adheres to
 
 - `pbr` for automated git tag versioning (which also allowed the removal
   of `setup.py`)
+- Documentation generation with setup.py (now done with pre-commit hook)
 - `Makefile` for generating requirements files
 
 ## [0.2.1] - 2021-10-15
