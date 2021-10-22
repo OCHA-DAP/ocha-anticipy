@@ -1,3 +1,5 @@
+<!-- markdownlint-disable-file MD024 -->
+
 # Changelog
 
 All notable changes to `aa-tools` will be documented in this file.
@@ -7,12 +9,15 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - 2021-10-18
+## Unreleased
 
-<!-- markdownlint-disable MD024 -->
 ### Added
 
 - functionality to download and save FewsNet data
+
+### Changed
+
+- markdownlint pre-commit hook [switched to Node.js source](https://github.com/DavidAnson/markdownlint)
 
 ## [0.2.1] - 2021-10-15
 
@@ -29,7 +34,6 @@ and this project adheres to
 
 ## [0.1.0] - 2021-10-12
 
-<!-- markdownlint-disable MD024 -->
 ### Added
 
 - CDS Area module
