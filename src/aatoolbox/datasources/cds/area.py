@@ -18,7 +18,8 @@ import geopandas as gpd
 import numpy as np
 
 Station = namedtuple("Station", "lon lat")
-Station.__doc__ = """\
+
+Station.__doc__ = """
     The coordinates of a station, used to determine the boundaries of the
     area passed to the CDS API.
 
@@ -99,10 +100,10 @@ class Area:
         round_val: int = 1,
     ) -> float:
         if direction == "up":
-            function = np.ceil
+            function = np.ceil.__call__  # needed for mypy
             offset_factor = 1
         elif direction == "down":
-            function = np.floor
+            function = np.floor.__call__  # needed for mypy
             offset_factor = -1
         return (
             function(coord / round_val) * round_val

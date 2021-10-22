@@ -10,11 +10,35 @@ Currently under development
 
 ### Environment
 
-To setup the development environment, please install all packages from `requirements/requirements-dev.txt`:
+To setup the development environment, please install all packages
+from `requirements/requirements-dev.txt`:
 
-```
+```shell
 pip install -r requirements/requirements-dev.txt
 ```
+
+### Installation
+
+To install in editable mode for development, execute:
+
+```shell
+pip install -e .
+```
+
+### Testing
+
+To run the tests and view coverage, execute:
+
+```shell
+pytest --cov=aatoolbox
+```
+
+### Documentation
+
+All public modules, classes and methods should be documented with
+[numpy-style](https://numpydoc.readthedocs.io/en/latest/format.html)
+docstrings, which are rendered into HTML using a pre-commit hook.
+To view the docs, open up `docs/build/html/index.html` in your browser.
 
 ### pre-commit
 
@@ -28,37 +52,9 @@ Thereafter all commits will be checked against black and flake8 guidelines
 
 To check if your changes pass pre-commit without committing, run:
 
-```
+```shell
 pre-commit run --all-files
 ```
-
-### Installation
-
-To install, execute:
-
-```
-python setup.py develop
-```
-
-### Testing
-
-To run the tests and view coverage, execute:
-
-```
-pytest --cov=aatoolbox
-```
-
-Note that you first need to install the aatoolbox package.
-
-### Documentation
-
-To build the docs, execute:
-
-```
-python setup.py build_sphinx
-```
-
-To view the docs, open up `docs/build/html/index.html` in your browser.
 
 ### Packages
 
@@ -71,9 +67,6 @@ version constraints.
 For adding packages for development, documentation, or tests,
 add them to the relevant `.in` file in the `requirements` directory.
 When you modify any of these lists, please try to keep them alphabetical!
-
-After adding any new packages, please execute `make` in the top-level directory,
-which will update all the `requirements*.txt` files.
-
+Any changes to the `requirements*.txt` files will be generated with `pre-commit`.
 For other functionality such as updating specific package versions, refer to the
 `pip-tools` documentation.
