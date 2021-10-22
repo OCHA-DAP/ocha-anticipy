@@ -47,3 +47,18 @@ repos:
           - sphinxcontrib-apidoc
         args: ['--cache-dir', 'docs/build/doctrees', '--html-dir', 'docs/build/html', '--source-dir', 'docs/source']
         language_version: python3
+  - repo: https://github.com/jazzband/pip-tools
+    rev: 6.3.0
+    hooks:
+      - id: pip-compile
+        name: pip-compile requirements.txt
+        files: setup.cfg|requirements/requirements.txt
+        args: [setup.cfg, -q, --no-header, --output-file=requirements/requirements.txt]
+      - id: pip-compile
+        name: pip-compile requirements-dev.txt
+        files: requirements/(dev.in|requirements-dev.txt)
+        args: [requirements/dev.in, -q, --no-header, --output-file=requirements/requirements-dev.txt]
+      - id: pip-compile
+        name: pip-compile requirements-tests.txt
+        files: requirements/(tests.in|requirements-tests.txt)
+        args: [requirements/tests.in, -q, --no-header, --output-file=requirements/requirements-tests.txt]
