@@ -48,8 +48,6 @@ def _download_zip(
         if True, the url contains a valid zip file
 
     """
-    valid_file = False
-
     # create tempdir to write zipfile to
     with TemporaryDirectory() as temp_dir:
         zip_path = Path(temp_dir) / zip_filename
@@ -70,15 +68,15 @@ def _download_zip(
             )
             valid_file = False
 
-        # check that dir contains files
-        # haven't seen it happen that this went wrong but
-        # is an useful double-check
-        if not any(Path(output_dir).iterdir()):
-            logger.info(
-                f"Empty directory returned by url {url}. "
-                f"Check that the the area and date exist."
-            )
-            valid_file = False
+    # check that dir contains files
+    # haven't seen it happen that this went wrong but
+    # is an useful double-check
+    if not any(Path(output_dir).iterdir()):
+        logger.info(
+            f"Empty directory returned by url {url}. "
+            f"Check that the the area and date exist."
+        )
+        valid_file = False
 
     return valid_file
 
@@ -110,14 +108,12 @@ def _download_fewsnet_country(
     country_data : bool
         if True, country data for the given date and iso2 exists
     """
-    # url needs upper and filenames contain upper so name
-    # dirs with upper as well
-    iso2 = iso2.upper()
     url_country_date = BASE_URL_COUNTRY.format(
-        iso2=iso2, YYYY=date.year, MM=date.month
+        iso2=iso2.upper(), YYYY=date.year, MM=date.month
     )
 
-    output_dir_country = output_dir / f"{iso2}{date.strftime('%Y%m')}"
+    # filenames have upper iso2, so use that for dirs as well
+    output_dir_country = output_dir / f"{iso2.upper()}{date.strftime('%Y%m')}"
     zip_filename = f"{output_dir_country.name}.zip"
     if not output_dir_country.exists() or use_cache is False:
         country_data = _download_zip(
@@ -162,18 +158,16 @@ def _download_fewsnet_region(
     region_data : bool
         if True, region data for the given date and region name exists
     """
-    # url needs upper and filenames contain upper so name
-    # dirs with upper as well
-    region_code = region_code.upper()
-
     url_region_date = BASE_URL_REGION.format(
-        region_code=region_code,
+        region_code=region_code.upper(),
         region_name=region_name,
         YYYY=date.year,
         MM=date.month,
     )
 
-    output_dir_region = output_dir / f"{region_code}{date.strftime('%Y%m')}"
+    output_dir_region = (
+        output_dir / f"{region_code.upper()}{date.strftime('%Y%m')}"
+    )
     zip_filename_region = f"{output_dir_region.name}.zip"
     if not output_dir_region.exists() or use_cache is False:
         region_data = _download_zip(
