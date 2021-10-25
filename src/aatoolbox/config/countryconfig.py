@@ -36,7 +36,7 @@ def get_country_config(iso3: str):
     -------
     CountryConfig instance
     """
-    # TODO: validate iso3
+    # TODO: validate _iso3
     parameters = parse_yaml(
         Path(__file__).parent.resolve() / f"countries/{iso3}.yaml"
     )

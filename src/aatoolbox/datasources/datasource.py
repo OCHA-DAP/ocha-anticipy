@@ -18,23 +18,25 @@ class DataSource(object):
 
     def __init__(self, iso3: str, module_base_dir: str):
 
-        self.iso3 = iso3
-        self.module_base_dir = module_base_dir
-        self.path_config = PathConfig()
+        self._iso3 = iso3
+        self._module_base_dir = module_base_dir
+        self._path_config = PathConfig()
 
     def _get_base_dir(self, is_public=False, is_raw=False):
         public_dir = (
-            self.path_config.public if is_public else self.path_config.private
+            self._path_config.public
+            if is_public
+            else self._path_config.private
         )
         raw_dir = (
-            self.path_config.raw if is_raw else self.path_config.processed
+            self._path_config.raw if is_raw else self._path_config.processed
         )
         return (
-            self.path_config.base_path
+            self._path_config.base_path
             / public_dir
             / raw_dir
-            / self.iso3
-            / self.module_base_dir
+            / self._iso3
+            / self._module_base_dir
         )
 
     def _get_public_raw_base_dir(self) -> Path:
