@@ -17,7 +17,7 @@ class Pipeline(object):
 
     def __init__(self, iso3_unvalidated: str):
         self._config = get_country_config(iso3_unvalidated)
-        self._codab = CodAB(self._config._iso3)
+        self._codab = CodAB(self._config.iso3)
 
     def get_codab(self, download: bool = True) -> gpd.GeoDataFrame:
         """
