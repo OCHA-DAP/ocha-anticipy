@@ -13,12 +13,12 @@ logger = logging.getLogger(__name__)
 
 
 def invert_coordinates(
-    ds: Union[xr.Dataset, xr.DataArray],
+    da: Union[xr.Dataset, xr.DataArray],
     lon_coord: str,
     lat_coord: str,
 ):
     """
-    Invert latitude and longitude in ``ds``.
+    Invert latitude and longitude in ``da``.
 
     This function checks for inversion of latitude and longitude
     and inverts them if needed. Datasets with inverted coordinates
@@ -29,18 +29,18 @@ def invert_coordinates(
     * latitude: Largest to smallest.
     * longitude: Smallest to largest.
 
-    If ``ds`` already has correct coordinate ordering, it is
+    If ``da`` already has correct coordinate ordering, it is
     directly returned. Function largely copied from
     https://github.com/perrygeo/python-rasterstats/issues/218.
 
     Parameters
     ----------
-        ds : Union[xarray.DataArray, xarray.Dataset]
+        da : Union[xarray.DataArray, xarray.Dataset]
             Dataset with values and coordinates.
         lon_coord : str
-            Longitude coordinate in ``ds``.
+            Longitude coordinate in ``da``.
         lat_coord : str
-            Latitude coordinate in ``ds``.
+            Latitude coordinate in ``da``.
 
     Returns
     -------
@@ -49,15 +49,17 @@ def invert_coordinates(
 
     Examples
     --------
+    >>> import xarray
+    >>> import numpy
     >>> da = xarray.DataArray(
-         numpy.arange(16).reshape(4,4),
-         coords={"lat":numpy.array([87, 88, 89, 90]),
-                 "lon":numpy.array([70, 69, 68, 67])}
-    )
-    >>> invert_coordinates(ds, "lon", "lat")
+    ...  numpy.arange(16).reshape(4,4),
+    ...  coords={"lat":numpy.array([87, 88, 89, 90]),
+    ...          "lon":numpy.array([70, 69, 68, 67])}
+    ... )
+    >>> da_inv = invert_coordinates(da, "lon", "lat")
     """
     lon_inv, lat_inv = _check_coords_inverted(
-        ds=ds, lon_coord=lon_coord, lat_coord=lat_coord
+        da=da, lon_coord=lon_coord, lat_coord=lat_coord
     )
 
     # Flip the raster as necessary (based on the flags)
@@ -65,29 +67,29 @@ def invert_coordinates(
 
     if lon_inv:
         logger.info("Longitude was inverted, reversing coordinates.")
-        inv_dict[lon_coord] = ds[lon_coord][::-1]
+        inv_dict[lon_coord] = da[lon_coord][::-1]
 
     if lat_inv:
         logger.info("Latitude was inverted, reversing coordinates.")
-        inv_dict[lat_coord] = ds[lat_coord][::-1]
+        inv_dict[lat_coord] = da[lat_coord][::-1]
 
     if inv_dict:
-        ds = ds.reindex(inv_dict)
+        da = da.reindex(inv_dict)
 
-    return ds
+    return da
 
 
-def _check_coords_inverted(ds, lon_coord, lat_coord):
+def _check_coords_inverted(da, lon_coord, lat_coord):
     """Check if latitude and longitude inverted."""
-    lat_start = ds[lat_coord][0].item()
-    lat_end = ds[lat_coord][ds.dims[lat_coord] - 1].item()
-    lon_start = ds[lon_coord][0].item()
-    lon_end = ds[lon_coord][ds.dims[lon_coord] - 1].item()
+    lat = da.get_index(lat_coord)
+    lat_start = lat[0]
+    lat_end = lat[-1]
+    lon = da.get_index(lon_coord)
+    lon_start = lon[0]
+    lon_end = lon[-1]
     return lon_start > lon_end, lat_start < lat_end
 
 
-# TODO: understand when to change longitude range for rasterstats
-# to work and when not!!!
 def change_longitude_range(
     ds: Union[xr.DataArray, xr.Dataset],
     lon_coord: str,
@@ -118,12 +120,16 @@ def change_longitude_range(
 
     Examples
     --------
+    >>> import xarray
+    >>> import numpy
     >>> da = xarray.DataArray(
-         numpy.arange(16).reshape(4,4),
-         coords={"lat":numpy.array([87, 88, 89, 90]),
-                 "lon":numpy.array([5, 120, 199, 360])}
-    )
-    >>> change_longitude_range(ds, "lon")
+    ...  numpy.arange(16).reshape(4,4),
+    ...  coords={"lat":numpy.array([87, 88, 89, 90]),
+    ...          "lon":numpy.array([5, 120, 199, 360])}
+    ... )
+    >>> da_inv = change_longitude_range(da, "lon")
+    >>> da_inv.get_index("lon")
+    Int64Index([-161, 0, 5, 120], dtype='int64', name='lon')
     """
     lon_min = ds.indexes[lon_coord].min()
     lon_max = ds.indexes[lon_coord].max()
@@ -183,15 +189,18 @@ def correct_calendar(ds: Union[xr.DataArray, xr.Dataset], time_coord: str):
 
     Examples
     --------
+    >>> import xarray
+    >>> import numpy
     >>> da = xarray.DataArray(
-         numpy.arange(64).reshape(4,4,4),
-         coords={"lat":numpy.array([87, 88, 89, 90]),
-                 "lon":numpy.array([5, 120, 199, 360]),
-                 "t":numpy.array([10,11,12,13])}
-    )
+    ...  numpy.arange(64).reshape(4,4,4),
+    ...  coords={"lat":numpy.array([87, 88, 89, 90]),
+    ...          "lon":numpy.array([5, 120, 199, 360]),
+    ...          "t":numpy.array([10,11,12,13])}
+    ... )
     >>> da["t"].attrs["units"] = "months since 1960-01-01"
-    >>> da = correct_calendar(da, "t")
-    >>> da["t"].attrs["calendar"]
+    >>> da_crct = correct_calendar(da, "t")
+    >>> da_crct["t"].attrs["calendar"]
+    '360_day'
     """
     if "calendar" in ds[time_coord].attrs.keys():
         if ds[time_coord].attrs["calendar"] == "360":
@@ -224,7 +233,7 @@ def compute_raster_statistics(
     Parameters
     ----------
     gdf : geopandas.GeoDataFrame
-        Geodataframe with row per area for stats computation.
+        GeoDataFrame with row per area for stats computation.
     feature_col : str
         Column in ``gdf`` to use as row/feature identifier.
     da : xarray.DataArray
