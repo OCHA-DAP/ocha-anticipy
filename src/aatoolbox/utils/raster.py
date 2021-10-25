@@ -84,7 +84,21 @@ def invert_coordinates(
 
 
 def _check_coords_inverted(da, lon_coord, lat_coord):
-    """Check if latitude and longitude inverted."""
+    """
+    Check if latitude and longitude inverted.
+
+    Examples
+    --------
+    >>> import xarray
+    >>> import numpy
+    >>> da = xarray.DataArray(
+    ...  numpy.arange(16).reshape(4,4),
+    ...  coords={"lat":numpy.array([90, 89, 88, 87]),
+    ...          "lon":numpy.array([70, 69, 68, 67])}
+    ... )
+    >>> _check_coords_inverted(da, "lon", "lat")
+    (True, False)
+    """
     lat = da.get_index(lat_coord)
     lat_start = lat[0]
     lat_end = lat[-1]
