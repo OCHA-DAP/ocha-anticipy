@@ -11,7 +11,8 @@ and this project adheres to
 
 ### Added
 
-- Raster processing module to invert incorrect coordinates
+- Raster processing module
+- doctest support to use docstring examples as tests
 
 ## [0.2.1] - 2021-10-15
 

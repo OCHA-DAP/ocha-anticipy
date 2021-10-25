@@ -126,7 +126,7 @@ class AreaFromStations(Area):
     Examples
     --------
     >>> stations = {"station1": Station(lon=1.0, lat=2.0),
-    >>>             "station2": Station(lon=3.0, lat=4.0)}
+    ...             "station2": Station(lon=3.0, lat=4.0)}
     >>> area = AreaFromStations(stations)
     """
 
@@ -154,8 +154,8 @@ class AreaFromShape(Area):
     Examples
     --------
     >>> import geopandas as gpd
-    >>> df_admin_boundaries = gpd.read_file("admin0_boundaries.gpkg")
-    >>> area = AreaFromShape(df_admin_boundaries.iloc[0].geometry)
+    >>> df_admin_boundaries = gpd.read_file(gpd.datasets.get_path('nybb'))
+    >>> area = AreaFromShape(df_admin_boundaries)
     """
 
     def __init__(self, shape: Union[gpd.GeoSeries, gpd.GeoDataFrame]):
