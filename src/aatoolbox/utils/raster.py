@@ -57,6 +57,10 @@ def invert_coordinates(
     ...          "lon":numpy.array([70, 69, 68, 67])}
     ... )
     >>> da_inv = invert_coordinates(da, "lon", "lat")
+    >>> da_inv.get_index("lon")
+    Int64Index([67, 68, 69, 70], dtype='int64', name='lon')
+    >>> da_inv.get_index("lat")
+    Int64Index([90, 89, 88, 87], dtype='int64', name='lat')
     """
     lon_inv, lat_inv = _check_coords_inverted(
         da=da, lon_coord=lon_coord, lat_coord=lat_coord
