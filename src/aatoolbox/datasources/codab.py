@@ -54,9 +54,9 @@ class CodAB(DataSource):
             / f"{self._iso3}_{MODULE_BASE}.shp.zip"
         )
 
-    def get_admin0(self, layer_name: str):
+    def get_admin_layer(self, layer_name: str):
         """
-        Get the admin level 0 COD AB for a country.
+        Get an admin level by layer name.
 
         Parameters
         ----------
@@ -65,13 +65,13 @@ class CodAB(DataSource):
 
         Returns
         -------
-        geopandas dataframe with COD AB admin 0
+        geopandas dataframe with COD AB admin information
 
         Examples
         --------
         >>> from aatoolbox.datasources.codab import CodAB
         >>> # Get admin 0 boundaries for Nepal
         >>> codab = CodAB("npl")
-        >>> npl_admin0 = codab.get_admin0()
+        >>> npl_admin0 = codab.get_admin_layer()
         """
         return gpd.read_file(f"zip:///{self._get_raw_filepath() / layer_name}")

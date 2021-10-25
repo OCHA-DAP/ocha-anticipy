@@ -14,6 +14,7 @@ class _CodABConfig(BaseModel):
     hdx_address: str
     hdx_dataset_name: str
     admin0: _CodAdmin
+    admin1: _CodAdmin
 
 
 class CountryConfig(BaseModel):
