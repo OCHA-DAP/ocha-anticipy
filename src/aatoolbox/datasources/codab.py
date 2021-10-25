@@ -2,7 +2,7 @@
 import geopandas as gpd
 
 from aatoolbox.datasources.datasource import DataSource
-from aatoolbox.utils.hdx_download import get_dataset_from_hdx
+from aatoolbox.utils.hdx_api import get_dataset_from_hdx
 
 MODULE_BASE = "cod_ab"
 
