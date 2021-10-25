@@ -74,5 +74,4 @@ class CodAB(DataSource):
         >>> codab = CodAB("npl")
         >>> npl_admin0 = codab.get_admin0()
         """
-        shapefile = f"{self._get_raw_filepath()}/!{layer_name}"
-        return gpd.read_file(f"zip:///{shapefile}")
+        return gpd.read_file(f"zip:///{self._get_raw_filepath() / layer_name}")
