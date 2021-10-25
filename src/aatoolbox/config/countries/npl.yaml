@@ -3,4 +3,4 @@ codab:
   hdx_address: administrative-bounadries-of-nepal
   hdx_dataset_name: npl_admbnda_nd_20201117_SHP.zip
   admin0:
-    base_layer: npl_admbnda_adm0_nd_20201117.shp
+    layer_name: npl_admbnda_adm0_nd_20201117.shp

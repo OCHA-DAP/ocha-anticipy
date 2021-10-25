@@ -7,7 +7,7 @@ from aatoolbox.utils.io import parse_yaml
 
 
 class _CodAdmin(BaseModel):
-    base_layer: str
+    layer_name: str
 
 
 class _CodABConfig(BaseModel):

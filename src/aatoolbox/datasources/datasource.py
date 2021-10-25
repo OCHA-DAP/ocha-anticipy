@@ -1,7 +1,7 @@
 """Base class for aatoolbox data manipulation."""
 from pathlib import Path
 
-from aatoolbox.config.config import Config
+from aatoolbox.config.pathconfig import PathConfig
 
 
 class DataSource(object):
@@ -10,7 +10,7 @@ class DataSource(object):
 
     Parameters
     ----------
-    iso3 : str
+    iso3: str
         Country ISO3
     module_base_dir : str
         Module directory name (usually correspond to data source)
@@ -18,21 +18,22 @@ class DataSource(object):
 
     def __init__(self, iso3: str, module_base_dir: str):
 
-        self.config = Config(iso3)
+        self.iso3 = iso3
         self.module_base_dir = module_base_dir
+        self.path_config = PathConfig()
 
     def _get_base_dir(self, is_public=False, is_raw=False):
         public_dir = (
-            self.config.path.public if is_public else self.config.path.private
+            self.path_config.public if is_public else self.path_config.private
         )
         raw_dir = (
-            self.config.path.raw if is_raw else self.config.path.processed
+            self.path_config.raw if is_raw else self.path_config.processed
         )
         return (
-            self.config.path.base
+            self.path_config.base_path
             / public_dir
             / raw_dir
-            / self.config.country.iso3
+            / self.iso3
             / self.module_base_dir
         )
 

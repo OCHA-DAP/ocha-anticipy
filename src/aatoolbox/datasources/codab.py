@@ -20,12 +20,18 @@ class CodAB(DataSource):
     def __init__(self, iso3: str):
         super().__init__(iso3=iso3, module_base_dir=MODULE_BASE)
 
-    def download(self, use_cache=True):
+    def download(
+        self, hdx_address: str, hdx_dataset_name: str, use_cache=True
+    ):
         """
         Download COD AB file from HDX.
 
         Parameters
         ----------
+        hdx_address: str
+            URL suffix of dataset page on HDX
+        hdx_dataset_name: str
+            Name of dataset on HDX
         use_cache : bool
             Whether to check for cached downloaded data
 
@@ -37,20 +43,25 @@ class CodAB(DataSource):
         if use_cache and filepath.exists():
             return filepath
         return get_dataset_from_hdx(
-            hdx_address=self.config.country.codab.hdx_address,
-            hdx_dataset_name=self.config.country.codab.hdx_dataset_name,
+            hdx_address=hdx_address,
+            hdx_dataset_name=hdx_dataset_name,
             output_filepath=self._get_raw_filepath(),
         )
 
     def _get_raw_filepath(self):
         return (
             self._get_public_raw_base_dir()
-            / f"{self.config.country.iso3}_{MODULE_BASE}.shp.zip"
+            / f"{self.iso3}_{MODULE_BASE}.shp.zip"
         )
 
-    def get_admin0(self):
+    def get_admin0(self, layer_name: str):
         """
         Get the admin level 0 COD AB for a country.
+
+        Parameters
+        ----------
+        layer_name: str
+            The admin layer name
 
         Returns
         -------
@@ -63,8 +74,5 @@ class CodAB(DataSource):
         >>> codab = CodAB("npl")
         >>> npl_admin0 = codab.get_admin0()
         """
-        shapefile = (
-            f"{self._get_raw_filepath()}"
-            f"!{self.config.country.codab.admin0.base_layer}"
-        )
+        shapefile = f"{self._get_raw_filepath()}/!{layer_name}"
         return gpd.read_file(f"zip:///{shapefile}")
