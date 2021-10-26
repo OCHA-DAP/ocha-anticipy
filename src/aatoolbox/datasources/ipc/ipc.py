@@ -34,8 +34,8 @@ IPC_URL = (
 IPC_COLUMN_NAME_MAPPING = {
     "Country": "ADMIN0",
     "Level 1 Name": "ADMIN1",
-    "Area": "area",
-    "Area ID": "area_id",
+    "Area": "AREA",
+    "Area ID": "AREA_ID",
     "Date of Analysis": "date",
     "#": "reported_pop_CS",
     "Area Phase": "CS_phase",
@@ -165,5 +165,6 @@ def download_ipc(iso3: str, iso2: str, output_dir: Union[Path, str]):
     except HTTPError:
         raise RuntimeError(f"Cannot download IPC data for {iso3} from {url}")
 
+    # TODO: should this already go to the processed dir?
     preprocessed_output_path = output_dir / f"{iso3}_ipc_preprocessed.csv"
     _preprocess_raw_data(raw_output_path, preprocessed_output_path)
