@@ -142,6 +142,8 @@ python-slugify==5.0.2
     # via ckanapi
 pytz==2021.3
     # via pandas
+pyyaml==6.0
+    # via aa-toolbox (setup.cfg)
 quantulum3==0.7.9
     # via hdx-python-api
 ratelimit==2.2.1

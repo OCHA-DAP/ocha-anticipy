@@ -277,8 +277,10 @@ pytz==2021.3
     # via
     #   -r requirements/requirements.txt
     #   pandas
-pyyaml==5.4.1
-    # via pre-commit
+pyyaml==6.0
+    # via
+    #   -r requirements/requirements.txt
+    #   pre-commit
 quantulum3==0.7.9
     # via
     #   -r requirements/requirements.txt
