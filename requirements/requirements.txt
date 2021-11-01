@@ -13,6 +13,8 @@ click-plugins==1.1.1
     # via fiona
 cligj==0.7.2
     # via fiona
+datetime==4.3
+    # via aa-toolbox (setup.cfg)
 fiona==1.8.20
     # via geopandas
 geopandas==0.10.1
@@ -32,7 +34,9 @@ pyproj==3.2.1
 python-dateutil==2.8.2
     # via pandas
 pytz==2021.3
-    # via pandas
+    # via
+    #   datetime
+    #   pandas
 shapely==1.7.1
     # via geopandas
 six==1.16.0
@@ -42,6 +46,8 @@ six==1.16.0
     #   python-dateutil
 typing-extensions==3.10.0.2
     # via pydantic
+zope.interface==5.4.0
+    # via datetime
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
