@@ -14,6 +14,7 @@ and this project adheres to
 ### Added
 
 - functionality to download and save FewsNet data
+- unittests for downloading FewsNet data
 
 ### Changed
 
