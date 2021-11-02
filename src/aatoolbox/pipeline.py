@@ -39,12 +39,16 @@ class Pipeline(object):
         >>> pipeline = Pipeline("npl")
         >>> npl_admin0 = pipeline.get_codab(0)
         """
+        admin_level_config = getattr(self._config.codab, f"admin{admin_level}")
+        if admin_level_config is None:
+            raise AttributeError(
+                f"Admin level {admin_level} not implemented in "
+                f"{self._config.iso3} config file"
+            )
         self._codab.download(
             hdx_address=self._config.codab.hdx_address,
             hdx_dataset_name=self._config.codab.hdx_dataset_name,
         )
         return self._codab.get_admin_layer(
-            layer_name=getattr(
-                self._config.codab, f"admin{admin_level}"
-            ).layer_name
+            layer_name=admin_level_config.layer_name
         )

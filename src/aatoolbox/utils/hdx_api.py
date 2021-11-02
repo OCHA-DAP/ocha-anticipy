@@ -42,6 +42,7 @@ def get_dataset_from_hdx(
             logger.info(f"Downloading dataset {hdx_dataset_name}")
             with tempfile.TemporaryDirectory() as tempdir:
                 _, downloaded_filepath = resource.download(folder=tempdir)
+                output_filepath.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy(downloaded_filepath, output_filepath)
             logger.info(f"Saved to {output_filepath}")
             return Path(output_filepath)

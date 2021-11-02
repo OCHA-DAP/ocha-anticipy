@@ -1,5 +1,6 @@
 """Country configuration setting base class."""
 from pathlib import Path
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -16,6 +17,8 @@ class _CodABConfig(BaseModel):
     admin0: _CodAdmin
     admin1: _CodAdmin
     admin2: _CodAdmin
+    admin3: Optional[_CodAdmin]
+    admin4: Optional[_CodAdmin]
 
 
 class CountryConfig(BaseModel):
