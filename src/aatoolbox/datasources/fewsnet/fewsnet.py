@@ -6,10 +6,10 @@ Download and save the data provided by FEWS NET.
 
 import logging
 import zipfile
-from datetime import datetime
+from datetime import date
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Union
+from typing import Optional, Union
 
 from aatoolbox.utils.io import download_url, unzip
 
@@ -29,7 +29,7 @@ def _download_zip(
     url: str,
     zip_filename: str,
     output_dir: Path,
-) -> bool:
+) -> Optional[Path]:
     """
     Download and unzip the file at the url.
 
@@ -44,8 +44,7 @@ def _download_zip(
 
     Returns
     -------
-    valid_file: bool
-        if True, the url contains a valid zip file
+    None if no valid file, else output_dir
 
     """
     # create tempdir to write zipfile to
@@ -57,17 +56,6 @@ def _download_zip(
         try:
             unzip(zip_file_path=zip_path, save_dir=output_dir)
             logger.debug(f"Unzipped to {output_dir}")
-            valid_file = True
-
-            # check that dir contains files
-            # haven't seen it happen that this went wrong but
-            # is an useful double-check
-            if not any(Path(output_dir).iterdir()):
-                logger.info(
-                    f"Empty directory returned by url {url}. "
-                    f"Check that the the area and date exist."
-                )
-                valid_file = False
 
         except zipfile.BadZipFile:
             # indicates that the url returned something that wasn't a
@@ -77,23 +65,23 @@ def _download_zip(
                 f"No zip data returned from url {url} "
                 f"check that the area and date exist."
             )
-            valid_file = False
+            return None
 
-    return valid_file
+    return output_dir
 
 
 def _download_fewsnet_country(
-    date: datetime,
+    date_pub: date,
     iso2: str,
     output_dir: Path,
     use_cache: bool,
-) -> bool:
+) -> Optional[Path]:
     """
     Download fewsnet data that covers the iso2 country.
 
     Parameters
     ----------
-    date : datetime
+    date_pub : date
         date for which the data should be downloaded
         only the year and month part are used
         this commonly refers to the month of the Current Situation period
@@ -106,15 +94,17 @@ def _download_fewsnet_country(
 
     Returns
     -------
-    country_data : bool
-        if True, country data for the given date and iso2 exists
+    country_data : str
+        if data found return the output_dir, else return None
     """
     url_country_date = BASE_URL_COUNTRY.format(
-        iso2=iso2.upper(), YYYY=date.year, MM=date.month
+        iso2=iso2.upper(), YYYY=date_pub.year, MM=date_pub.month
     )
 
     # filenames have upper iso2, so use that for dirs as well
-    output_dir_country = output_dir / f"{iso2.upper()}{date.strftime('%Y%m')}"
+    output_dir_country = (
+        output_dir / f"{iso2.upper()}{date_pub.strftime('%Y%m')}"
+    )
     zip_filename = f"{output_dir_country.name}.zip"
     if not output_dir_country.exists() or use_cache is False:
         country_data = _download_zip(
@@ -123,23 +113,23 @@ def _download_fewsnet_country(
             output_dir=output_dir_country,
         )
     else:
-        country_data = True
+        country_data = output_dir_country
     return country_data
 
 
 def _download_fewsnet_region(
-    date: datetime,
+    date_pub: date,
     region_name: str,
     region_code: str,
     output_dir: Path,
     use_cache: bool,
-) -> bool:
+) -> Optional[Path]:
     """
     Download fewsnet data that covers `region_name`.
 
     Parameters
     ----------
-    date : datetime
+    date_pub : date
         date for which the data should be downloaded
         only the year and month part are used
         this commonly refers to the month of the Current Situation period
@@ -156,18 +146,18 @@ def _download_fewsnet_region(
 
     Returns
     -------
-    region_data : bool
-        if True, region data for the given date and region name exists
+    region_data : str
+        If region data exists, return the saved dir else return None
     """
     url_region_date = BASE_URL_REGION.format(
         region_code=region_code.upper(),
         region_name=region_name,
-        YYYY=date.year,
-        MM=date.month,
+        YYYY=date_pub.year,
+        MM=date_pub.month,
     )
 
     output_dir_region = (
-        output_dir / f"{region_code.upper()}{date.strftime('%Y%m')}"
+        output_dir / f"{region_code.upper()}{date_pub.strftime('%Y%m')}"
     )
     zip_filename_region = f"{output_dir_region.name}.zip"
     if not output_dir_region.exists() or use_cache is False:
@@ -177,28 +167,28 @@ def _download_fewsnet_region(
             output_dir=output_dir_region,
         )
     else:
-        region_data = True
+        region_data = output_dir_region
     return region_data
 
 
 def download_fewsnet(
-    date: datetime,
+    date_pub: Union[date, str],
     iso2: str,
     region_name: str,
     region_code: str,
     output_dir: Union[Path, str],
     use_cache=True,
-):
+) -> Path:
     """
     Retrieve the raw fewsnet data.
 
     Depending on the region and date, this data is published per region or
     per country. This function retrieves the country data
-    if it exists, and else the regional data for `date` and `iso2`.
+    if it exists, and else the regional data for `date_pub` and `iso2`.
 
     Parameters
     ----------
-    date : datetime
+    date_pub : date or str
         date for which the data should be downloaded
         only the year and month part are used
         this commonly refers to the month of the Current Situation period
@@ -216,24 +206,31 @@ def download_fewsnet(
         if True, don't download if output_dir already exists
     """
     # convert to datetime if str
-    if not isinstance(date, datetime):
-        date = datetime.fromisoformat(date)
+    if not isinstance(date_pub, date):
+        date_pub = date.fromisoformat(date_pub)
     # convert to path object if str
     if isinstance(output_dir, str):
         output_dir = Path(output_dir)
 
     # we prefer the country data as this more nicely structured
     # thus first check if that is available
-    country_data = _download_fewsnet_country(
-        date=date, iso2=iso2, output_dir=output_dir, use_cache=use_cache
+    country_path = _download_fewsnet_country(
+        date_pub=date_pub,
+        iso2=iso2,
+        output_dir=output_dir,
+        use_cache=use_cache,
     )
-    if not country_data:
-        region_data = _download_fewsnet_region(
-            date=date,
+    if country_path is not None:
+        return country_path
+    else:
+        region_path = _download_fewsnet_region(
+            date_pub=date_pub,
             region_name=region_name,
             region_code=region_code,
             output_dir=output_dir,
             use_cache=use_cache,
         )
-        if not region_data:
-            raise RuntimeError(f"No data found for {date.strftime('%Y-%m')}")
+    if region_path is not None:
+        return region_path
+    else:
+        raise RuntimeError(f"No data found for {date_pub.strftime('%Y-%m')}")

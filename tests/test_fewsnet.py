@@ -1,89 +1,74 @@
 """Tests for the FewsNet module."""
-
-from pathlib import Path
-
 import pytest
 
 from aatoolbox.datasources.fewsnet.fewsnet import download_fewsnet
 
-# do we also want feature tests?
 
-
-# I think there should be a neater way to do this with
-# indirect parameterization, but dont fully understand
-# https://stackoverflow.com/questions/18011902/pass-a-parameter-to-a-fixture-function
 @pytest.fixture
-def mock_download_call(mocker):
+def _mock_download_call(mocker, tmp_path):
     """
-    Run download_fewsnet with mocker objects and return the url.
+    Call the download_fewsnet function.
 
-    Parameters
-    ----------
-    mocker: hmm not sure what to say here
-    also can kind of input the `country_data` argument, should
-    that go here as well?
-
-    Returns
-    -------
-    url
+    Use mocked url and unzip call and have option to set output
+    of country and region download functions
     """
     FakeDownloadUrl = mocker.patch(
         "aatoolbox.datasources.fewsnet.fewsnet.download_url"
     )
     mocker.patch("aatoolbox.datasources.fewsnet.fewsnet.unzip")
-    # !! Only working if using an output dir that already exists..
-    # this is because we are mocking, when running the
-    # function normally it works
-    output_dir = Path("bla")
 
-    def _method(country_data):
+    # this enables us to set the output of the _download_fewsnet_country()
+    # and _download_fewsnet_region functions
+    # the country_data and region_data arguments can be passed
+    # as arg when calling _mock_download_call
+    def _method(country_data, region_data):
         if not country_data:
             mocker.patch(
                 "aatoolbox.datasources.fewsnet.fewsnet."
                 "_download_fewsnet_country",
-                return_value=False,
+                return_value=None,
             )
-        download_fewsnet(
-            date="2020-10-01",
+        if not region_data:
+            mocker.patch(
+                "aatoolbox.datasources.fewsnet.fewsnet."
+                "_download_fewsnet_region",
+                return_value=None,
+            )
+        output_path = download_fewsnet(
+            date_pub="2020-10-01",
             iso2="et",
             region_name="east-africa",
             region_code="EA",
-            output_dir=output_dir,
+            output_dir=tmp_path,
             use_cache=False,
         )
 
         _, kwargs_download_url = FakeDownloadUrl.call_args
 
-        return kwargs_download_url["url"]
+        return kwargs_download_url["url"], output_path, tmp_path
 
     return _method
 
 
-def test_download_fewsnet_country(mock_download_call):
-    """
-    Test that the correct country url is returned.
-
-    Parameters
-    ----------
-    mock_download_call
-    """
-    url = mock_download_call(True)
+def test_download_fewsnet_country(_mock_download_call):
+    """Test that the correct country url and path is returned."""
+    url, output_path, tmp_path = _mock_download_call(
+        country_data=True, region_data=True
+    )
 
     assert (
         url == "https://fdw.fews.net/api/ipcpackage/"
         "?country_code=ET&collection_date=2020-10-01"
     )
 
+    assert output_path == tmp_path / "ET202010"
 
-def test_download_fewsnet_region(mock_download_call):
-    """
-    Test that the correct region url is returned.
 
-    Parameters
-    ----------
-    mock_download_call
-    """
-    url = mock_download_call(False)
+def test_download_fewsnet_region(_mock_download_call):
+    """Test that the correct region url is returned."""
+    url, output_path, tmp_path = _mock_download_call(
+        country_data=False, region_data=True
+    )
 
     assert (
         url == "https://fews.net/data_portal_download/download?"
@@ -91,90 +76,14 @@ def test_download_fewsnet_region(mock_download_call):
         "HFIC/EA/east-africa202010.zip"
     )
 
-
-# should we also mock if there is no country nor regional data?
-
-
-# Old stuff
-# def test_download_fewsnet_country(mocker):
-#     FakeDownloadUrl = mocker.patch(
-#         "aatoolbox.datasources.fewsnet.fewsnet.download_url"
-#     )
-#     mocker.patch("aatoolbox.datasources.fewsnet.fewsnet.unzip")
-#     output_dir = Path("bla")
-#     download_fewsnet(
-#         date="2020-10-01",
-#         iso2="et",
-#         region_name="east-africa",
-#         region_code="EA",
-#         output_dir=output_dir,
-#         use_cache=False,
-#     )
-#     _, kwargs_download_url = FakeDownloadUrl.call_args
-#     print(kwargs_download_url)
-#     assert (
-#         kwargs_download_url["url"] == "https://fdw.fews.net/api/ipcpackage/"
-#         "?country_code=ET&collection_date=2020-10-01"
-#     )
-#
-#
-# def test_download_fewsnet_region(mocker):
-#     mocker.patch(
-#         "aatoolbox.datasources.fewsnet.fewsnet._download_fewsnet_country",
-#         return_value=False,
-#     )
-#     FakeDownloadUrl = mocker.patch(
-#         "aatoolbox.datasources.fewsnet.fewsnet.download_url"
-#     )
-#     mocker.patch("aatoolbox.datasources.fewsnet.fewsnet.unzip")
-#     #!! Only working if using an output dir that already exists..
-#     # this is because we are mocking,
-#     # when running the function normally it works
-#     output_dir = Path("bla")
-#     download_fewsnet(
-#         date="2020-10-01",
-#         iso2="et",
-#         region_name="east-africa",
-#         region_code="EA",
-#         output_dir=output_dir,
-#         use_cache=False,
-#     )
-#     _, kwargs_download_url = FakeDownloadUrl.call_args
-#     assert (
-#         kwargs_download_url["url"]
-#         == "https://fews.net/data_portal_download/download?data_file_path"
-#         "=http://shapefiles.fews.net.s3.amazonaws.com/"
-#         "HFIC/EA/east-africa202010.zip"
-#     )
+    assert output_path == tmp_path / "EA202010"
 
 
-#
-#
-# @mock.patch("aatoolbox.datasources.fewsnet.fewsnet.download_url")
-# @mock.patch("aatoolbox.datasources.fewsnet.fewsnet.unzip")
-# def test_download_country(FakeUnzip, FakeDownloadUrl):
-#     """
-#     Test to check the call to _download_fewsnet_country().
-#
-#     :param FakeUnzip: Mock object for unzipping
-#     :param FakeDownloadUrl: Mock object for downloading url
-#     """
-#     output_dir = Path("tmp")
-#     _download_fewsnet_country(
-#         date=datetime(year=2020,month=10,day=1),
-#         iso2="et",
-#         output_dir=output_dir,
-#         use_cache=False,
-#     )
-#     _, kwargs_download_url = FakeDownloadUrl.call_args
-#     assert (
-#         kwargs_download_url["url"] == "https://fdw.fews.net/api/ipcpackage/"
-#         "?country_code=ET&collection_date=2020-10-01"
-#     )
-#
-#     #what is there to test with the unzip?..
-#     # _, kwargs_unzip = FakeUnzip.call_args
-#     # print(kwargs_unzip)
-#     #
-#     # jkf
-#
+def test_download_fewsnet_nodata(_mock_download_call):
+    """Test that RuntimeError is returned when no data exists."""
+    with pytest.raises(RuntimeError) as e:
+        url, output_path, tmp_path = _mock_download_call(
+            country_data=False, region_data=False
+        )
+        assert output_path is None
+    assert "No data found for 2020-10" in str(e.value)
