@@ -1,6 +1,4 @@
-"""Base class for aatoolbox data manipulation."""
-from pathlib import Path
-
+"""Base class for aatoolbox data source."""
 from aatoolbox.config.pathconfig import PathConfig
 
 
@@ -14,15 +12,24 @@ class DataSource(object):
         Country ISO3
     module_base_dir : str
         Module directory name (usually correspond to data source)
+    is_public: bool, default = False
+        Whether the dataset is public or private. Determines top-level
+        directory structure.
     """
 
-    def __init__(self, iso3: str, module_base_dir: str):
+    def __init__(self, iso3: str, module_base_dir: str, is_public=False):
 
         self._iso3 = iso3
         self._module_base_dir = module_base_dir
         self._path_config = PathConfig()
+        self._raw_base_dir = self._get_base_dir(
+            is_public=is_public, is_raw=True
+        )
+        self._processed_base_dir = self._get_base_dir(
+            is_public=is_public, is_raw=False
+        )
 
-    def _get_base_dir(self, is_public=False, is_raw=False):
+    def _get_base_dir(self, is_public, is_raw):
         public_dir = (
             self._path_config.public
             if is_public
@@ -38,7 +45,3 @@ class DataSource(object):
             / self._iso3
             / self._module_base_dir
         )
-
-    def _get_public_raw_base_dir(self) -> Path:
-        """Get the data source public raw directory."""
-        return self._get_base_dir(is_public=True, is_raw=True)

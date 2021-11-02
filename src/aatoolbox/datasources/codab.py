@@ -18,7 +18,9 @@ class CodAB(DataSource):
     """
 
     def __init__(self, iso3: str):
-        super().__init__(iso3=iso3, module_base_dir=MODULE_BASE)
+        super().__init__(
+            iso3=iso3, module_base_dir=MODULE_BASE, is_public=True
+        )
 
     def download(
         self, hdx_address: str, hdx_dataset_name: str, use_cache=True
@@ -49,10 +51,7 @@ class CodAB(DataSource):
         )
 
     def _get_raw_filepath(self):
-        return (
-            self._get_public_raw_base_dir()
-            / f"{self._iso3}_{MODULE_BASE}.shp.zip"
-        )
+        return self._raw_base_dir / f"{self._iso3}_{MODULE_BASE}.shp.zip"
 
     def get_admin_layer(self, layer_name: str):
         """

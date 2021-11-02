@@ -6,3 +6,5 @@ codab:
     layer_name: npl_admbnda_adm0_nd_20201117.shp
   admin1:
     layer_name: npl_admbnda_adm1_nd_20201117.shp
+  admin2:
+    layer_name: npl_admbnda_adm2_nd_20201117.shp

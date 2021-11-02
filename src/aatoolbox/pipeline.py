@@ -32,6 +32,12 @@ class Pipeline(object):
         -------
         COD AB geodataframe
 
+        Examples
+        --------
+        >>> from aatoolbox.pipeline import Pipeline
+        >>> # Get admin 0 boundaries for Nepal
+        >>> pipeline = Pipeline("npl")
+        >>> npl_admin0 = pipeline.get_codab(0)
         """
         self._codab.download(
             hdx_address=self._config.codab.hdx_address,
