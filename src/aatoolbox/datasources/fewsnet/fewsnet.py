@@ -58,6 +58,17 @@ def _download_zip(
             unzip(zip_file_path=zip_path, save_dir=output_dir)
             logger.debug(f"Unzipped to {output_dir}")
             valid_file = True
+
+            # check that dir contains files
+            # haven't seen it happen that this went wrong but
+            # is an useful double-check
+            if not any(Path(output_dir).iterdir()):
+                logger.info(
+                    f"Empty directory returned by url {url}. "
+                    f"Check that the the area and date exist."
+                )
+                valid_file = False
+
         except zipfile.BadZipFile:
             # indicates that the url returned something that wasn't a
             # zip, happens often and indicates data for the given
@@ -67,16 +78,6 @@ def _download_zip(
                 f"check that the area and date exist."
             )
             valid_file = False
-
-    # check that dir contains files
-    # haven't seen it happen that this went wrong but
-    # is an useful double-check
-    if not any(Path(output_dir).iterdir()):
-        logger.info(
-            f"Empty directory returned by url {url}. "
-            f"Check that the the area and date exist."
-        )
-        valid_file = False
 
     return valid_file
 
@@ -214,6 +215,9 @@ def download_fewsnet(
     use_cache : bool
         if True, don't download if output_dir already exists
     """
+    # convert to datetime if str
+    if not isinstance(date, datetime):
+        date = datetime.fromisoformat(date)
     # convert to path object if str
     if isinstance(output_dir, str):
         output_dir = Path(output_dir)
