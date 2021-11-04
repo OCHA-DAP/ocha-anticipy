@@ -1,0 +1,12 @@
+iso3: mwi
+codab:
+  hdx_address: malawi-administrative-level-0-3-boundaries
+  hdx_dataset_name: mwi_adm_nso_20181016_SHP.zip
+  admin0:
+    layer_name: mwi_admbnda_adm0_nso_20181016.shp
+  admin1:
+    layer_name: mwi_admbnda_adm1_nso_20181016.shp
+  admin2:
+    layer_name: mwi_admbnda_adm2_nso_20181016.shp
+  admin3:
+    layer_name: mwi_admbnda_adm3_nso_20181016.shp
