@@ -29,16 +29,25 @@ IPC_URL = (
 )
 
 
-def download_ipc(iso3: str, iso2: str, output_dir: Union[Path, str]):
+def download_ipc(
+    iso3: str,
+    iso2: str,
+    raw_output_dir: Union[Path, str],
+    preprocess_output_dir: Union[Path, str],
+):
     """
     Retrieve the IPC data from their Population Tracking Tool.
 
-    Also do some preprocessing and save the outputs
-    Since the data size per country is very small, we always
-    download all data for the given country
-    :param iso3: iso3 code of country of interest
-    :param iso2: iso2 code of country of interest
-    :param output_dir: path to directory the file should be saved to
+    Parameters
+    ----------
+    iso3: str
+        iso3 code of country of interest
+    iso2: str
+        iso2 code of country of interest
+    raw_output_dir: Path or str
+        path to directory the raw file should be saved to
+    preprocess_output_dir: Path or str
+        path to directory the precprocessed file should be saved to
 
     Examples
     --------
@@ -46,8 +55,10 @@ def download_ipc(iso3: str, iso2: str, output_dir: Union[Path, str]):
     >>> download_fewsnet(iso3="som",iso2="so",output_dir=TemporaryDirectory())
     """
     # convert to path object if str
-    if isinstance(output_dir, str):
-        output_dir = Path(output_dir)
+    if isinstance(raw_output_dir, str):
+        raw_output_dir = Path(raw_output_dir)
+    if isinstance(preprocess_output_dir, str):
+        preprocess_output_dir = Path(preprocess_output_dir)
     # last year to retrieve data for
     # URL also works if this is in the future
     max_year = datetime.now().year
@@ -55,15 +66,16 @@ def download_ipc(iso3: str, iso2: str, output_dir: Union[Path, str]):
         max_year=max_year,
         iso2=iso2,
     )
-    raw_output_path = output_dir / f"{iso3}_ipc_raw.xlsx"
+    raw_output_path = raw_output_dir / f"{iso3}_ipc_raw.xlsx"
 
     # have one file with all data per country, so also download if file already
     # exists to make sure it contains the newest data (contrary to
     # fewsnet)
     download_url(url, raw_output_path)
 
-    # TODO: should this already go to the processed dir?
-    preprocessed_output_path = output_dir / f"{iso3}_ipc_preprocessed.csv"
+    preprocessed_output_path = (
+        preprocess_output_dir / f"{iso3}_ipc_preprocessed.csv"
+    )
     _preprocess_raw_data(raw_output_path, preprocessed_output_path)
 
 
@@ -74,9 +86,12 @@ def _preprocess_raw_data(
     """
     Preprocess the downloaded data by checking.
 
-    if the file contains data and changing column names
-    :param raw_file_path: path to the file with the data to read
-    :param output_path: path to write the preprocessed file to
+    Parameters
+    ----------
+    raw_file_path : Path
+        path to the file with the data to read
+    output_path : Path
+        path to write the preprocessed file to
     """
     df = pd.read_excel(
         raw_file_path,
