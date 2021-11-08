@@ -25,60 +25,65 @@ BASE_URL_REGION = (
 )
 
 
-def _download_zip(
-    url: str,
-    zip_filename: str,
-    output_dir: Path,
-) -> bool:
+def download_fewsnet(
+    date: datetime,
+    iso2: str,
+    region_name: str,
+    region_code: str,
+    output_dir: Union[Path, str],
+    use_cache=True,
+):
     """
-    Download and unzip the file at the url.
+    Retrieve the raw fewsnet data.
+
+    Depending on the region and date, this data is published per region or
+    per country. This function retrieves the country data
+    if it exists, and else the regional data for `date` and `iso2`.
 
     Parameters
     ----------
-    url : str
-        url that contains the zip file to be downloaded
-    zip_filename : str
-        name of the zipfile
-    output_dir : Path
-        path of dir to which the zip content should be written
+    date : datetime
+        date for which the data should be downloaded
+        only the year and month part are used
+        this commonly refers to the month of the Current Situation period
+    iso2 : str
+        iso2 code of the country of interest
+    region_name : str
+        name of the region to which the `iso2` belongs,
+        e.g. "east-africa"
+    region_code : str
+        code that refers to the `region_name,
+        e.g. "EA"
+    output_dir : Path or str
+        path to dir to which the data should be written
+    use_cache : bool
+        if True, don't download if output_dir already exists
 
-    Returns
-    -------
-    valid_file: bool
-        if True, the url contains a valid zip file
-
+    Examples
+    --------
+    >>> download_fewsnet(date_pub="2020-10-01",iso2="et",
+    ... region_code="east-africa", region_name="EA",
+    ... output_dir="tmp",use_cache=False)
     """
-    # create tempdir to write zipfile to
-    with TemporaryDirectory() as temp_dir:
-        zip_path = Path(temp_dir) / zip_filename
-        download_url(url=url, save_path=zip_path)
-        logger.info(f"Downloaded {url} to {zip_path}")
+    # convert to path object if str
+    if isinstance(output_dir, str):
+        output_dir = Path(output_dir)
 
-        try:
-            unzip(zip_file_path=zip_path, save_dir=output_dir)
-            logger.debug(f"Unzipped to {output_dir}")
-            valid_file = True
-        except zipfile.BadZipFile:
-            # indicates that the url returned something that wasn't a
-            # zip, happens often and indicates data for the given
-            # country - date is not available
-            logger.debug(
-                f"No zip data returned from url {url} "
-                f"check that the area and date exist."
-            )
-            valid_file = False
-
-    # check that dir contains files
-    # haven't seen it happen that this went wrong but
-    # is an useful double-check
-    if not any(Path(output_dir).iterdir()):
-        logger.info(
-            f"Empty directory returned by url {url}. "
-            f"Check that the the area and date exist."
+    # we prefer the country data as this more nicely structured
+    # thus first check if that is available
+    country_data = _download_fewsnet_country(
+        date=date, iso2=iso2, output_dir=output_dir, use_cache=use_cache
+    )
+    if not country_data:
+        region_data = _download_fewsnet_region(
+            date=date,
+            region_name=region_name,
+            region_code=region_code,
+            output_dir=output_dir,
+            use_cache=use_cache,
         )
-        valid_file = False
-
-    return valid_file
+        if not region_data:
+            raise RuntimeError(f"No data found for {date.strftime('%Y-%m')}")
 
 
 def _download_fewsnet_country(
@@ -180,56 +185,57 @@ def _download_fewsnet_region(
     return region_data
 
 
-def download_fewsnet(
-    date: datetime,
-    iso2: str,
-    region_name: str,
-    region_code: str,
-    output_dir: Union[Path, str],
-    use_cache=True,
-):
+def _download_zip(
+    url: str,
+    zip_filename: str,
+    output_dir: Path,
+) -> bool:
     """
-    Retrieve the raw fewsnet data.
-
-    Depending on the region and date, this data is published per region or
-    per country. This function retrieves the country data
-    if it exists, and else the regional data for `date` and `iso2`.
+    Download and unzip the file at the url.
 
     Parameters
     ----------
-    date : datetime
-        date for which the data should be downloaded
-        only the year and month part are used
-        this commonly refers to the month of the Current Situation period
-    iso2 : str
-        iso2 code of the country of interest
-    region_name : str
-        name of the region to which the `iso2` belongs,
-        e.g. "east-africa"
-    region_code : str
-        code that refers to the `region_name,
-        e.g. "EA"
-    output_dir : Path or str
-        path to dir to which the data should be written
-    use_cache : bool
-        if True, don't download if output_dir already exists
-    """
-    # convert to path object if str
-    if isinstance(output_dir, str):
-        output_dir = Path(output_dir)
+    url : str
+        url that contains the zip file to be downloaded
+    zip_filename : str
+        name of the zipfile
+    output_dir : Path
+        path of dir to which the zip content should be written
 
-    # we prefer the country data as this more nicely structured
-    # thus first check if that is available
-    country_data = _download_fewsnet_country(
-        date=date, iso2=iso2, output_dir=output_dir, use_cache=use_cache
-    )
-    if not country_data:
-        region_data = _download_fewsnet_region(
-            date=date,
-            region_name=region_name,
-            region_code=region_code,
-            output_dir=output_dir,
-            use_cache=use_cache,
+    Returns
+    -------
+    valid_file: bool
+        if True, the url contains a valid zip file
+
+    """
+    # create tempdir to write zipfile to
+    with TemporaryDirectory() as temp_dir:
+        zip_path = Path(temp_dir) / zip_filename
+        download_url(url=url, save_path=zip_path)
+        logger.info(f"Downloaded {url} to {zip_path}")
+
+        try:
+            unzip(zip_file_path=zip_path, save_dir=output_dir)
+            logger.debug(f"Unzipped to {output_dir}")
+            valid_file = True
+        except zipfile.BadZipFile:
+            # indicates that the url returned something that wasn't a
+            # zip, happens often and indicates data for the given
+            # country - date is not available
+            logger.debug(
+                f"No zip data returned from url {url} "
+                f"check that the area and date exist."
+            )
+            valid_file = False
+
+    # check that dir contains files
+    # haven't seen it happen that this went wrong but
+    # is an useful double-check
+    if not any(Path(output_dir).iterdir()):
+        logger.info(
+            f"Empty directory returned by url {url}. "
+            f"Check that the the area and date exist."
         )
-        if not region_data:
-            raise RuntimeError(f"No data found for {date.strftime('%Y-%m')}")
+        valid_file = False
+
+    return valid_file

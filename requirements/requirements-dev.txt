@@ -10,8 +10,13 @@ certifi==2021.10.8
     #   -r requirements/requirements.txt
     #   fiona
     #   pyproj
+    #   requests
 cfgv==3.3.1
     # via pre-commit
+charset-normalizer==2.0.7
+    # via
+    #   -r requirements/requirements.txt
+    #   requests
 click==8.0.3
     # via
     #   -r requirements/requirements.txt
@@ -41,6 +46,10 @@ geopandas==0.10.1
     # via -r requirements/requirements.txt
 identify==2.3.0
     # via pre-commit
+idna==3.3
+    # via
+    #   -r requirements/requirements.txt
+    #   requests
 iniconfig==1.1.1
     # via pytest
 munch==2.5.0
@@ -95,6 +104,8 @@ pytz==2021.3
     #   pandas
 pyyaml==5.4.1
     # via pre-commit
+requests==2.26.0
+    # via -r requirements/requirements.txt
 shapely==1.7.1
     # via
     #   -r requirements/requirements.txt
@@ -118,6 +129,10 @@ typing-extensions==3.10.0.2
     # via
     #   -r requirements/requirements.txt
     #   pydantic
+urllib3==1.26.7
+    # via
+    #   -r requirements/requirements.txt
+    #   requests
 virtualenv==20.8.1
     # via pre-commit
 wheel==0.37.0
