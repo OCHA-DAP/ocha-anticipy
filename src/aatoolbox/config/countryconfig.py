@@ -24,7 +24,7 @@ class CodABConfig(BaseModel):
         contain {admin_level} in place of the custom_layer_number.
     admin_level_max: int
         The maximum admin level available in the shapefile.
-    custom_layer_names: list
+    custom_layer_names: list, optional
         Any additional layer names that don't fit into the admin level paradigm
     """
 
