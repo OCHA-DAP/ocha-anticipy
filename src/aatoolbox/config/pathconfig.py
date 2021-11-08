@@ -8,7 +8,7 @@ BASE_DIR_ENV = "AA_DATA_DIR"
 
 
 @dataclass
-class PathConfig(object):
+class PathConfig:
     """Global directory parameters."""
 
     public: str = "public"

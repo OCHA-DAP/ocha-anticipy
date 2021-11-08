@@ -2,7 +2,7 @@
 from aatoolbox.config.pathconfig import PathConfig
 
 
-class DataSource(object):
+class DataSource:
     """
     Base class object that contains path convenience functions.
 

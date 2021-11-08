@@ -5,7 +5,7 @@ from aatoolbox.config.countryconfig import get_country_config
 from aatoolbox.datasources.codab import CodAB
 
 
-class Pipeline(object):
+class Pipeline:
     """
     Initialize a configured pipeline.
 
