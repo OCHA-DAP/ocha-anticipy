@@ -82,7 +82,7 @@ def check_file_existence(filepath_attribute_name: str) -> Callable[[F], F]:
 
     def decorator(func: F) -> F:
         @wraps(func)
-        def wrapper(self: Any, *args, **kwargs):
+        def wrapper(self, *args, **kwargs):
             clobber = kwargs.get("clobber", False)
             filepath = getattr(self, filepath_attribute_name)
             if filepath.exists() and not clobber:

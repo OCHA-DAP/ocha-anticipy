@@ -16,7 +16,7 @@ class CodAB(DataSource):
     Parameters
     ----------
     iso3 : (str)
-        country _iso3
+        country iso3
     """
 
     def __init__(self, iso3: str):
