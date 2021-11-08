@@ -16,7 +16,6 @@ from pathlib import Path
 from typing import Union
 
 import pandas as pd
-from requests import HTTPError
 
 from aatoolbox.utils.io import download_url, parse_yaml
 
@@ -61,10 +60,7 @@ def download_ipc(iso3: str, iso2: str, output_dir: Union[Path, str]):
     # have one file with all data per country, so also download if file already
     # exists to make sure it contains the newest data (contrary to
     # fewsnet)
-    try:
-        download_url(url, raw_output_path)
-    except HTTPError:
-        raise RuntimeError(f"Cannot download IPC data for {iso3} from {url}")
+    download_url(url, raw_output_path)
 
     # TODO: should this already go to the processed dir?
     preprocessed_output_path = output_dir / f"{iso3}_ipc_preprocessed.csv"
