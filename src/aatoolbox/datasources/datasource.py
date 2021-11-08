@@ -1,5 +1,10 @@
 """Base class for aatoolbox data source."""
+import logging
+from functools import wraps
+
 from aatoolbox.config.pathconfig import PathConfig
+
+logger = logging.getLogger(__name__)
 
 
 class DataSource:
@@ -29,7 +34,7 @@ class DataSource:
             is_public=is_public, is_raw=False
         )
 
-    def _get_base_dir(self, is_public, is_raw):
+    def _get_base_dir(self, is_public: bool, is_raw: bool):
         public_dir = (
             self._path_config.public
             if is_public
@@ -45,3 +50,40 @@ class DataSource:
             / self._iso3
             / self._module_base_dir
         )
+
+
+def file_clobber(filepath_attribute_name: str):
+    """
+    Toggle data clobber.
+
+    Avoid recreating data if it already exists and if clobber not
+    toggled by user. Only works on class instance methods where the target
+    filepath is an attribute.
+
+    Parameters
+    ----------
+    filepath_attribute_name : str
+        The name of the instance attribute that contains the filepath to cache
+
+    Returns
+    -------
+    If filepath exists, returns filepath. Otherwise, returns the result of
+    the decorated function.
+
+    """
+
+    def decorator(func):
+        @wraps(func)
+        def wrapper(self, *args, clobber: bool = False, **kwargs):
+            filepath = getattr(self, filepath_attribute_name)
+            if filepath.exists() and not clobber:
+                logger.debug(
+                    "File {filepath} exists and clobber set to False, "
+                    "not downloading"
+                )
+                return filepath
+            return func(self, *args, **kwargs)
+
+        return wrapper
+
+    return decorator

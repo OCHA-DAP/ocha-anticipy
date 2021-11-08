@@ -1,7 +1,7 @@
 """Retrieve COD administrative boundaries."""
 import geopandas as gpd
 
-from aatoolbox.datasources.datasource import DataSource
+from aatoolbox.datasources.datasource import DataSource, file_clobber
 from aatoolbox.utils.hdx_api import get_dataset_from_hdx
 
 MODULE_BASE = "cod_ab"
@@ -21,10 +21,12 @@ class CodAB(DataSource):
         super().__init__(
             iso3=iso3, module_base_dir=MODULE_BASE, is_public=True
         )
+        self._raw_filepath = (
+            self._raw_base_dir / f"{self._iso3}_{MODULE_BASE}.shp.zip"
+        )
 
-    def download(
-        self, hdx_address: str, hdx_dataset_name: str, use_cache=True
-    ):
+    @file_clobber(filepath_attribute_name="_raw_filepath")
+    def download(self, hdx_address: str, hdx_dataset_name: str, clobber=False):
         """
         Download COD AB file from HDX.
 
@@ -34,24 +36,18 @@ class CodAB(DataSource):
             URL suffix of dataset page on HDX
         hdx_dataset_name: str
             Name of dataset on HDX
-        use_cache : bool
-            Whether to check for cached downloaded data
+        clobber : bool, default = False
+            If True, overwrites existing download
 
         Returns
         -------
         The downloaded filepath
         """
-        filepath = self._get_raw_filepath()
-        if use_cache and filepath.exists():
-            return filepath
         return get_dataset_from_hdx(
             hdx_address=hdx_address,
             hdx_dataset_name=hdx_dataset_name,
-            output_filepath=self._get_raw_filepath(),
+            output_filepath=self._raw_filepath,
         )
-
-    def _get_raw_filepath(self):
-        return self._raw_base_dir / f"{self._iso3}_{MODULE_BASE}.shp.zip"
 
     def get_admin_layer(self, layer_name: str):
         """
@@ -73,4 +69,4 @@ class CodAB(DataSource):
         >>> codab = CodAB("npl")
         >>> npl_admin0 = codab.get_admin_layer()
         """
-        return gpd.read_file(f"zip:///{self._get_raw_filepath() / layer_name}")
+        return gpd.read_file(f"zip:///{self._raw_filepath / layer_name}")

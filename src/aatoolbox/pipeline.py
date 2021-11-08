@@ -43,7 +43,7 @@ class Pipeline:
         if admin_level_config is None:
             raise AttributeError(
                 f"Admin level {admin_level} not implemented in "
-                f"{self._config.iso3} config file"
+                f"{self._config.iso3.upper()} config file"
             )
         self._codab.download(
             hdx_address=self._config.codab.hdx_address,
