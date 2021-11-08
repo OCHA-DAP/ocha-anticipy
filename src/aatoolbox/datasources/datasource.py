@@ -52,9 +52,9 @@ class DataSource:
         )
 
 
-def file_clobber(filepath_attribute_name: str):
+def check_file_existence(filepath_attribute_name: str):
     """
-    Toggle data clobber.
+    Don't overwrite existing data.
 
     Avoid recreating data if it already exists and if clobber not
     toggled by user. Only works on class instance methods where the target

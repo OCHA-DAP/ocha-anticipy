@@ -1,7 +1,7 @@
 """Retrieve COD administrative boundaries."""
 import geopandas as gpd
 
-from aatoolbox.datasources.datasource import DataSource, file_clobber
+from aatoolbox.datasources.datasource import DataSource, check_file_existence
 from aatoolbox.utils.hdx_api import get_dataset_from_hdx
 
 MODULE_BASE = "cod_ab"
@@ -25,7 +25,7 @@ class CodAB(DataSource):
             self._raw_base_dir / f"{self._iso3}_{MODULE_BASE}.shp.zip"
         )
 
-    @file_clobber(filepath_attribute_name="_raw_filepath")
+    @check_file_existence(filepath_attribute_name="_raw_filepath")
     def download(self, hdx_address: str, hdx_dataset_name: str, clobber=False):
         """
         Download COD AB file from HDX.
