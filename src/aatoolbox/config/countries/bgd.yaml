@@ -2,13 +2,5 @@ iso3: bgd
 codab:
   hdx_address: administrative-boundaries-of-bangladesh-as-of-2015
   hdx_dataset_name: bgd_adm_bbs_20201113_SHP.zip
-  admin0:
-    layer_name: bgd_adm_bbs_20201113_SHP/bgd_admbnda_adm0_bbs_20201113.shp
-  admin1:
-    layer_name: bgd_adm_bbs_20201113_SHP/bgd_admbnda_adm1_bbs_20201113.shp
-  admin2:
-    layer_name: bgd_adm_bbs_20201113_SHP/bgd_admbnda_adm2_bbs_20201113.shp
-  admin3:
-    layer_name: bgd_adm_bbs_20201113_SHP/bgd_admbnda_adm3_bbs_20201113.shp
-  admin4:
-    layer_name: bgd_adm_bbs_20201113_SHP/bgd_admbnda_adm4_bbs_20201113.shp
+  layer_base_name: bgd_adm_bbs_20201113_SHP/bgd_admbnda_adm{admin_level}_bbs_20201113.shp
+  admin_level_max: 4

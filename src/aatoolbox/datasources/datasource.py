@@ -86,9 +86,9 @@ def check_file_existence(filepath_attribute_name: str) -> Callable[[F], F]:
             clobber = kwargs.get("clobber", False)
             filepath = getattr(self, filepath_attribute_name)
             if filepath.exists() and not clobber:
-                logger.info(
-                    "File {filepath} exists and clobber set to False, "
-                    "using existing files"
+                logger.debug(
+                    f"File {filepath} exists and clobber set to False, "
+                    f"using existing files"
                 )
                 return filepath
             return func(self, *args, **kwargs)

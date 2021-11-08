@@ -7,25 +7,39 @@ from pydantic import BaseModel
 from aatoolbox.utils.io import parse_yaml
 
 
-class _CodAdmin(BaseModel):
-    layer_name: str
+class CodABConfig(BaseModel):
+    """COD AB configuration.
 
+    Parameters
+    ----------
+    hdx_address: str
+        The page where the COD AB dataset resides on on HDX. Can be found
+        by taking the portion of the url after ``data.humdata.org/dataset/``
+    hdx_dataset_name: str
+        COD AB dataset name on HDX. Can be found by taking the filename as it
+        appears on the dataset page.
+    layer_base_name: str
+        The base name of the different admin layers, that presumably only
+        change by a single custom_layer_number depending on the level. Should
+        contain {admin_level} in place of the custom_layer_number.
+    admin_level_max: int
+        The maximum admin level available in the shapefile.
+    custom_layer_names: list
+        Any additional layer names that don't fit into the admin level paradigm
+    """
 
-class _CodABConfig(BaseModel):
     hdx_address: str
     hdx_dataset_name: str
-    admin0: _CodAdmin
-    admin1: _CodAdmin
-    admin2: _CodAdmin
-    admin3: Optional[_CodAdmin]
-    admin4: Optional[_CodAdmin]
+    layer_base_name: str  # TODO: validate that it has {admin_level}
+    admin_level_max: int
+    custom_layer_names: Optional[list]
 
 
 class CountryConfig(BaseModel):
     """Country configuration."""
 
     iso3: str
-    codab: _CodABConfig
+    codab: CodABConfig
 
 
 def get_country_config(iso3: str) -> CountryConfig:

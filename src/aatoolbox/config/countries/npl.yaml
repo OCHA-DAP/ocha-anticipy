@@ -2,9 +2,7 @@ iso3: npl
 codab:
   hdx_address: administrative-bounadries-of-nepal
   hdx_dataset_name: npl_admbnda_nd_20201117_SHP.zip
-  admin0:
-    layer_name: npl_admbnda_adm0_nd_20201117.shp
-  admin1:
-    layer_name: npl_admbnda_adm1_nd_20201117.shp
-  admin2:
-    layer_name: npl_admbnda_adm2_nd_20201117.shp
+  layer_base_name: npl_admbnda_adm{admin_level}_nd_20201117.shp
+  admin_level_max: 2
+  custom_layer_names:
+    - npl_admbnda_districts_nd_20201117
