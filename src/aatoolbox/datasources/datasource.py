@@ -1,6 +1,8 @@
 """Base class for aatoolbox data source."""
 import logging
 from functools import wraps
+from pathlib import Path
+from typing import Any, Callable, TypeVar, cast
 
 from aatoolbox.config.pathconfig import PathConfig
 
@@ -22,7 +24,9 @@ class DataSource:
         directory structure.
     """
 
-    def __init__(self, iso3: str, module_base_dir: str, is_public=False):
+    def __init__(
+        self, iso3: str, module_base_dir: str, is_public: bool = False
+    ):
 
         self._iso3 = iso3
         self._module_base_dir = module_base_dir
@@ -34,7 +38,7 @@ class DataSource:
             is_public=is_public, is_raw=False
         )
 
-    def _get_base_dir(self, is_public: bool, is_raw: bool):
+    def _get_base_dir(self, is_public: bool, is_raw: bool) -> Path:
         public_dir = (
             self._path_config.public
             if is_public
@@ -52,7 +56,11 @@ class DataSource:
         )
 
 
-def check_file_existence(filepath_attribute_name: str):
+# For typing the decorator
+F = TypeVar("F", bound=Callable[..., Any])
+
+
+def check_file_existence(filepath_attribute_name: str) -> Callable[[F], F]:
     """
     Don't overwrite existing data.
 
@@ -72,9 +80,9 @@ def check_file_existence(filepath_attribute_name: str):
 
     """
 
-    def decorator(func):
+    def decorator(func: F) -> F:
         @wraps(func)
-        def wrapper(self, *args, clobber: bool = False, **kwargs):
+        def wrapper(self: Any, *args, clobber: bool = False, **kwargs):
             filepath = getattr(self, filepath_attribute_name)
             if filepath.exists() and not clobber:
                 logger.debug(
@@ -84,6 +92,6 @@ def check_file_existence(filepath_attribute_name: str):
                 return filepath
             return func(self, *args, **kwargs)
 
-        return wrapper
+        return cast(F, wrapper)
 
     return decorator

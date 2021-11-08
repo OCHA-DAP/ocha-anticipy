@@ -1,5 +1,7 @@
 """Retrieve COD administrative boundaries."""
-import geopandas as gpd
+from pathlib import Path
+
+import geopandas as gpd  # type: ignore
 
 from aatoolbox.datasources.datasource import DataSource, check_file_existence
 from aatoolbox.utils.hdx_api import get_dataset_from_hdx
@@ -26,7 +28,9 @@ class CodAB(DataSource):
         )
 
     @check_file_existence(filepath_attribute_name="_raw_filepath")
-    def download(self, hdx_address: str, hdx_dataset_name: str, clobber=False):
+    def download(
+        self, hdx_address: str, hdx_dataset_name: str, clobber: bool = False
+    ) -> Path:
         """
         Download COD AB file from HDX.
 
@@ -49,7 +53,7 @@ class CodAB(DataSource):
             output_filepath=self._raw_filepath,
         )
 
-    def get_admin_layer(self, layer_name: str):
+    def get_admin_layer(self, layer_name: str) -> gpd.GeoDataFrame:
         """
         Get an admin level by layer name.
 

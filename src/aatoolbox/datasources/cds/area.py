@@ -14,7 +14,7 @@ The ``Area`` object should then be passed to the CDS ``download`` method.
 from collections import namedtuple
 from typing import Dict, List, Union
 
-import geopandas as gpd
+import geopandas as gpd  # type: ignore
 import numpy as np
 
 Station = namedtuple("Station", "lon lat")

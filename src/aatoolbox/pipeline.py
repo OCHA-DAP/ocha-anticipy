@@ -1,5 +1,5 @@
 """Pipeline initializer."""
-import geopandas as gpd
+import geopandas as gpd  # type: ignore
 
 from aatoolbox.config.countryconfig import get_country_config
 from aatoolbox.datasources.codab import CodAB

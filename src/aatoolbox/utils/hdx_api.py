@@ -4,8 +4,8 @@ import shutil
 import tempfile
 from pathlib import Path
 
-from hdx.data.dataset import Dataset
-from hdx.hdx_configuration import Configuration
+from hdx.data.dataset import Dataset  # type: ignore
+from hdx.hdx_configuration import Configuration  # type: ignore
 
 USER_AGENT = "aa-toolbox"
 

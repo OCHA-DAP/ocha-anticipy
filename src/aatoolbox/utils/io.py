@@ -1,11 +1,11 @@
 """Function for I/O."""
 from pathlib import Path
-from typing import Union
+from typing import Any, Dict, Union
 
 import yaml
 
 
-def parse_yaml(filename: Union[str, Path]) -> dict:
+def parse_yaml(filename: Union[str, Path]) -> Dict[Any, Any]:
     """
     Read in a yaml file.
 
