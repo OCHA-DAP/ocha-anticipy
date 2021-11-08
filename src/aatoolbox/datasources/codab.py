@@ -1,7 +1,7 @@
 """Retrieve COD administrative boundaries."""
 from pathlib import Path
 
-import geopandas as gpd  # type: ignore
+import geopandas as gpd
 
 from aatoolbox.datasources.datasource import DataSource, check_file_existence
 from aatoolbox.utils.hdx_api import get_dataset_from_hdx
