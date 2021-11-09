@@ -12,6 +12,7 @@ ISO3 = "abc"
 @pytest.fixture
 def codab(mocker):
     """Fixture for CodAB with AA_DATA_DIR mocked."""
+    # TODO: move this to the main file for all tests
     mocker.patch.dict(
         "aatoolbox.config.pathconfig.os.environ", {"AA_DATA_DIR": FAKE_AA_DIR}
     )

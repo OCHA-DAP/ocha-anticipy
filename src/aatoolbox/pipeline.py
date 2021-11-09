@@ -46,7 +46,9 @@ class Pipeline:
                 f"{admin_level_max} in {self._config.iso3.upper()} config file"
             )
         return self._get_codab(
-            layer_name=self._config.codab.layer_base_name.format()
+            layer_name=self._config.codab.layer_base_name.format(
+                admin_level=admin_level
+            )
         )
 
     def get_codab_custom(self, custom_layer_number: int = 0):

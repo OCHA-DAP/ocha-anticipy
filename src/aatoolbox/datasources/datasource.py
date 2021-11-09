@@ -1,12 +1,7 @@
 """Base class for aatoolbox data source."""
-import logging
-from functools import wraps
 from pathlib import Path
-from typing import Any, Callable, TypeVar, cast
 
 from aatoolbox.config.pathconfig import PathConfig
-
-logger = logging.getLogger(__name__)
 
 
 class DataSource:
@@ -54,45 +49,3 @@ class DataSource:
             / self._iso3
             / self._module_base_dir
         )
-
-
-# For typing the decorator
-F = TypeVar("F", bound=Callable[..., Any])
-
-
-def check_file_existence(filepath_attribute_name: str) -> Callable[[F], F]:
-    """
-    Don't overwrite existing data.
-
-    Avoid recreating data if it already exists and if clobber not
-    toggled by user. Only works on class instance methods where the target
-    filepath is an attribute.
-
-    Parameters
-    ----------
-    filepath_attribute_name : str
-        The name of the instance attribute that contains the filepath to cache
-
-    Returns
-    -------
-    If filepath exists, returns filepath. Otherwise, returns the result of
-    the decorated function.
-
-    """
-
-    def decorator(func: F) -> F:
-        @wraps(func)
-        def wrapper(self, *args, **kwargs):
-            clobber = kwargs.get("clobber", False)
-            filepath = getattr(self, filepath_attribute_name)
-            if filepath.exists() and not clobber:
-                logger.debug(
-                    f"File {filepath} exists and clobber set to False, "
-                    f"using existing files"
-                )
-                return filepath
-            return func(self, *args, **kwargs)
-
-        return cast(F, wrapper)
-
-    return decorator

@@ -3,8 +3,9 @@ from pathlib import Path
 
 import geopandas as gpd
 
-from aatoolbox.datasources.datasource import DataSource, check_file_existence
+from aatoolbox.datasources.datasource import DataSource
 from aatoolbox.utils.hdx_api import get_dataset_from_hdx
+from aatoolbox.utils.io import check_file_existence
 
 MODULE_BASE = "cod_ab"
 
@@ -27,7 +28,6 @@ class CodAB(DataSource):
             self._raw_base_dir / f"{self._iso3}_{MODULE_BASE}.shp.zip"
         )
 
-    @check_file_existence(filepath_attribute_name="_raw_filepath")
     def download(
         self, hdx_address: str, hdx_dataset_name: str, clobber: bool = False
     ) -> Path:
@@ -47,10 +47,22 @@ class CodAB(DataSource):
         -------
         The downloaded filepath
         """
+        return self._download(
+            filepath=self._raw_filepath,
+            hdx_address=hdx_address,
+            hdx_dataset_name=hdx_dataset_name,
+            clobber=clobber,
+        )
+
+    @staticmethod
+    @check_file_existence
+    def _download(
+        filepath: Path, hdx_address: str, hdx_dataset_name: str, clobber: bool
+    ):
         return get_dataset_from_hdx(
             hdx_address=hdx_address,
             hdx_dataset_name=hdx_dataset_name,
-            output_filepath=self._raw_filepath,
+            output_filepath=filepath,
         )
 
     def get_admin_layer(self, layer_name: str) -> gpd.GeoDataFrame:
