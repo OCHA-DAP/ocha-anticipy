@@ -2,10 +2,11 @@
 from pathlib import Path
 
 import pytest
-from conftest import CONFIG_FILE, FAKE_AA_DATA_DIR, ISO3
 
 from aatoolbox.datasources.codab import MODULE_BASENAME
 from aatoolbox.utils.io import parse_yaml
+from tests.conftest import FAKE_AA_DATA_DIR
+from tests.pipeline.conftest import CONFIG_FILE, ISO3
 
 
 @pytest.fixture(autouse=True)
