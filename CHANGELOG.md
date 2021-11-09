@@ -14,7 +14,6 @@ and this project adheres to
 ### Added
 
 - functionality to download and save FewsNet data
-- unittests for downloading FewsNet data
 - Pre-commit hook to check Sphinx documentation can be built
 - [`pip-compile`](https://github.com/jazzband/pip-tools#version-control-integration)
   pre-commit hook to update requirements files

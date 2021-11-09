@@ -1,7 +1,7 @@
 """
 FEWS NET processing.
 
-Download and save the data provided by FEWS NET.
+Download and save the data provided by FEWS NET as provided on .
 """
 
 import logging
@@ -9,7 +9,7 @@ import zipfile
 from datetime import date
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Optional, Union
+from typing import Literal, Optional, Union
 
 from aatoolbox.utils.io import download_url, unzip
 
@@ -24,12 +24,27 @@ BASE_URL_REGION = (
     "HFIC/{region_code}/{region_name}{YYYY}{MM}.zip"
 )
 
+VALID_REGION_NAMES = [
+    "caribbean-central-america",
+    "central-asia",
+    "east-africa",
+    "southern-africa",
+    "west-africa",
+]
+VALID_REGION_CODES = ["LAC", "EA", "CA", "SA", "WA"]
+
 
 def download_fewsnet(
     date_pub: Union[date, str],
     iso2: str,
-    region_name: str,
-    region_code: str,
+    region_name: Literal[
+        "caribbean-central-america",
+        "central-asia",
+        "east-africa",
+        "southern-africa",
+        "west-africa",
+    ],
+    region_code: Literal["LAC", "EA", "CA", "SA", "WA"],
     output_dir: Union[Path, str],
     use_cache=True,
 ) -> Path:
@@ -46,17 +61,21 @@ def download_fewsnet(
         date for which the data should be downloaded
         only the year and month part are used
         this commonly refers to the month of the Current Situation period
+        if str, it should be in ISO 8601 format, e.g. '2021-10-01'
     iso2 : str
-        iso2 code of the country of interest
-    region_name : str
-        name of the region to which the `iso2` belongs,
-        e.g. "east-africa"
-    region_code : str
-        code that refers to the `region_name,
-        e.g. "EA"
+        iso2 code of the country of interest.
+        See https://fews.net/ for a list of countries that are
+        included by FewsNet
+    region_name : {'caribbean-central-america', 'central-asia',
+        'east-africa', 'southern-africa', 'west-africa'}
+        name of the region to which the `iso2` belongs.
+        Only regions for which FewsNet provides data can be given as input
+    region_code : {'LAC','EA','CA','SA','WA'}
+        code that refers to the `region_name`
+        These are defined by FewsNet
     output_dir : Path or str
         path to dir to which the data should be written
-    use_cache : bool
+    use_cache : bool, default True
         if True, don't download if output_dir already exists
 
     Examples
@@ -65,6 +84,11 @@ def download_fewsnet(
     ... region_code="east-africa", region_name="EA",
     ... output_dir="tmp",use_cache=False)
     """
+    if region_name not in VALID_REGION_NAMES:
+        raise ValueError(f"Invalid region name {region_name}")
+    if region_code not in VALID_REGION_CODES:
+        raise ValueError(f"Invalid region code {region_code}")
+
     # convert to datetime if str
     if not isinstance(date_pub, date):
         date_pub = date.fromisoformat(date_pub)
