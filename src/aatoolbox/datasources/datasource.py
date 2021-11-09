@@ -34,18 +34,18 @@ class DataSource:
         )
 
     def _get_base_dir(self, is_public: bool, is_raw: bool) -> Path:
-        public_dir = (
+        permission_dir = (
             self._path_config.public
             if is_public
             else self._path_config.private
         )
-        raw_dir = (
+        state_dir = (
             self._path_config.raw if is_raw else self._path_config.processed
         )
         return (
             self._path_config.base_path
-            / public_dir
-            / raw_dir
+            / permission_dir
+            / state_dir
             / self._iso3
             / self._module_base_dir
         )

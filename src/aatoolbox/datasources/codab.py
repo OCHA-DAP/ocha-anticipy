@@ -1,4 +1,14 @@
-"""Retrieve COD administrative boundaries."""
+"""Retrieve COD administrative boundaries.
+
+`Common Operational Datasets <https://cod.unocha.org>`
+(CODs) are definitive reference datasets governed by OCHA Field Information
+Section (FIS) and designed
+to support decision making during a humanitarian response.
+The Administrative Boundary (AB) CODs are geospatial datasets that
+delineate a country's borders and internal regions.
+A key feature of the COD AB datasets are P-codes, which are unique
+alphanumeric identifiers for each geographic region.
+"""
 from pathlib import Path
 
 import geopandas as gpd
@@ -83,6 +93,7 @@ class CodAB(DataSource):
         >>> from aatoolbox.datasources.codab import CodAB
         >>> # Get admin 0 boundaries for Nepal
         >>> codab = CodAB("npl")
-        >>> npl_admin0 = codab.get_admin_layer()
+        >>> npl_admin0 = codab.get_admin_layer(
+        >>>     layer_name="npl_admbnda_adm2_20201117.shp")
         """
         return gpd.read_file(f"zip:///{self._raw_filepath / layer_name}")
