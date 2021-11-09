@@ -17,7 +17,7 @@ from aatoolbox.datasources.datasource import DataSource
 from aatoolbox.utils.hdx_api import get_dataset_from_hdx
 from aatoolbox.utils.io import check_file_existence
 
-MODULE_BASENAME = "cod_ab"
+_MODULE_BASENAME = "cod_ab"
 
 
 class CodAB(DataSource):
@@ -32,10 +32,10 @@ class CodAB(DataSource):
 
     def __init__(self, iso3: str):
         super().__init__(
-            iso3=iso3, module_base_dir=MODULE_BASENAME, is_public=True
+            iso3=iso3, module_base_dir=_MODULE_BASENAME, is_public=True
         )
         self._raw_filepath = (
-            self._raw_base_dir / f"{self._iso3}_{MODULE_BASENAME}.shp.zip"
+            self._raw_base_dir / f"{self._iso3}_{_MODULE_BASENAME}.shp.zip"
         )
 
     def download(

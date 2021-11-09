@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from aatoolbox.datasources.codab import MODULE_BASENAME
+from aatoolbox.datasources.codab import _MODULE_BASENAME
 from aatoolbox.utils.io import parse_yaml
 from tests.conftest import FAKE_AA_DATA_DIR
 from tests.pipeline.conftest import CONFIG_FILE, ISO3
@@ -29,8 +29,8 @@ def test_codab_download(pipeline_caller, downloader):
         hdx_address=pipeline._config.codab.hdx_address,
         hdx_dataset_name=pipeline._config.codab.hdx_dataset_name,
         output_filepath=Path(FAKE_AA_DATA_DIR)
-        / f"public/raw/{ISO3}/{MODULE_BASENAME}/"
-        f"{ISO3}_{MODULE_BASENAME}.shp.zip",
+        / f"public/raw/{ISO3}/{_MODULE_BASENAME}/"
+        f"{ISO3}_{_MODULE_BASENAME}.shp.zip",
     )
 
 
@@ -45,8 +45,8 @@ def test_codab_get_admin_level(pipeline_caller, gpd_read_file):
     pipeline.get_codab(admin_level=admin_level)
 
     gpd_read_file.assert_called_with(
-        f"zip:///{FAKE_AA_DATA_DIR}/public/raw/{ISO3}/{MODULE_BASENAME}/"
-        f"{ISO3}_{MODULE_BASENAME}.shp.zip/{expected_layer_name}"
+        f"zip:///{FAKE_AA_DATA_DIR}/public/raw/{ISO3}/{_MODULE_BASENAME}/"
+        f"{ISO3}_{_MODULE_BASENAME}.shp.zip/{expected_layer_name}"
     )
 
 
@@ -67,8 +67,8 @@ def test_codab_custom(pipeline_caller, gpd_read_file):
         custom_layer_number
     )
     gpd_read_file.assert_called_with(
-        f"zip:///{FAKE_AA_DATA_DIR}/public/raw/{ISO3}/{MODULE_BASENAME}/"
-        f"{ISO3}_{MODULE_BASENAME}.shp.zip/"
+        f"zip:///{FAKE_AA_DATA_DIR}/public/raw/{ISO3}/{_MODULE_BASENAME}/"
+        f"{ISO3}_{_MODULE_BASENAME}.shp.zip/"
         f"{custom_layer_name_list[custom_layer_number]}"
     )
 
