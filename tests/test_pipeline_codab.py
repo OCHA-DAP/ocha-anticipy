@@ -2,45 +2,25 @@
 from pathlib import Path
 
 import pytest
-from conftest import FAKE_AA_DATA_DIR
+from conftest import CONFIG_FILE, FAKE_AA_DATA_DIR, ISO3
 
 from aatoolbox.datasources.codab import MODULE_BASENAME
-from aatoolbox.pipeline import Pipeline
 from aatoolbox.utils.io import parse_yaml
 
-ISO3 = "abc"
-FAKE_CONFIG_FILE = "tests/fake_config.yaml"
 
-
-@pytest.fixture
-def pipeline_caller(mocker):
-    """Fixture for pipeline with test config params."""
-
-    def _pipeline_caller(config_dict: dict = None):
-        if config_dict is None:
-            config_dict = parse_yaml(FAKE_CONFIG_FILE)
-        mocker.patch(
-            "aatoolbox.config.countryconfig.parse_yaml",
-            return_value=config_dict,
-        )
-        return Pipeline(iso3_unvalidated=ISO3)
-
-    return _pipeline_caller
-
-
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def downloader(mocker):
     """Mock the HDX download function."""
     return mocker.patch("aatoolbox.datasources.codab.get_dataset_from_hdx")
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def gpd_read_file(mocker):
     """Mock GeoPandas file reading function."""
     return mocker.patch("aatoolbox.datasources.codab.gpd.read_file")
 
 
-def test_codab_download(pipeline_caller, downloader, gpd_read_file):
+def test_codab_download(pipeline_caller, downloader):
     """Test that get_codab calls the HDX API to download."""
     pipeline = pipeline_caller()
     pipeline.get_codab(admin_level=2)
@@ -53,7 +33,7 @@ def test_codab_download(pipeline_caller, downloader, gpd_read_file):
     )
 
 
-def test_codab_get_admin_level(pipeline_caller, downloader, gpd_read_file):
+def test_codab_get_admin_level(pipeline_caller, gpd_read_file):
     """Test that get_codab retrieves expected file and layer name."""
     pipeline = pipeline_caller()
     admin_level = 2
@@ -61,7 +41,7 @@ def test_codab_get_admin_level(pipeline_caller, downloader, gpd_read_file):
         admin_level=admin_level
     )
 
-    pipeline_caller().get_codab(admin_level=admin_level)
+    pipeline.get_codab(admin_level=admin_level)
 
     gpd_read_file.assert_called_with(
         f"zip:///{FAKE_AA_DATA_DIR}/public/raw/{ISO3}/{MODULE_BASENAME}/"
@@ -69,9 +49,15 @@ def test_codab_get_admin_level(pipeline_caller, downloader, gpd_read_file):
     )
 
 
-def test_codab_custom(pipeline_caller, downloader, gpd_read_file):
+def test_codab_too_high_admin_level(pipeline_caller):
+    """Test raised error when too high admin level requested."""
+    with pytest.raises(AttributeError):
+        pipeline_caller().get_codab(admin_level=10)
+
+
+def test_codab_custom(pipeline_caller, gpd_read_file):
     """Test that get_codab_custom retrieves expected file and layer name."""
-    config_dict = parse_yaml(FAKE_CONFIG_FILE)
+    config_dict = parse_yaml(CONFIG_FILE)
     custom_layer_name_list = ["custom_layer_A", "custom_layer_B"]
     config_dict["codab"]["custom_layer_names"] = custom_layer_name_list
     custom_layer_number = 1
@@ -84,3 +70,9 @@ def test_codab_custom(pipeline_caller, downloader, gpd_read_file):
         f"{ISO3}_{MODULE_BASENAME}.shp.zip/"
         f"{custom_layer_name_list[custom_layer_number]}"
     )
+
+
+def test_codab_custom_missing(pipeline_caller, gpd_read_file):
+    """Test raised error when custom COD AB missing."""
+    with pytest.raises(AttributeError):
+        pipeline_caller().get_codab_custom(0)

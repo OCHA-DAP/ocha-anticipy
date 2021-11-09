@@ -34,7 +34,7 @@ class Pipeline:
 
         Examples
         --------
-        >>> from aatoolbox.pipeline_caller import Pipeline
+        >>> from aatoolbox.pipeline import Pipeline
         >>> # Get admin 0 boundaries for Nepal
         >>> pipeline = Pipeline("npl")
         >>> npl_admin0 = pipeline.get_codab(admin_level=2)
@@ -67,7 +67,7 @@ class Pipeline:
 
         Examples
         --------
-        >>> from aatoolbox.pipeline_caller import Pipeline
+        >>> from aatoolbox.pipeline import Pipeline
         >>> # Get district boundaries for Nepal
         >>> pipeline = Pipeline("npl")
         >>> npl_admin0 = pipeline.get_codab_custom(custom_layer_number=0)
