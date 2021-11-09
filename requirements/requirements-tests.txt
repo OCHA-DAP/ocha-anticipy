@@ -16,7 +16,10 @@ pytest==6.2.5
     # via
     #   -r requirements/tests.in
     #   pytest-cov
+    #   pytest-mock
 pytest-cov==3.0.0
+    # via -r requirements/tests.in
+pytest-mock==3.6.1
     # via -r requirements/tests.in
 toml==0.10.2
     # via pytest
