@@ -2,20 +2,16 @@
 from pathlib import Path
 
 import pytest
+from conftest import FAKE_AA_DATA_DIR
 
 from aatoolbox.datasources.codab import CodAB
 
-FAKE_AA_DIR = "fake_aa_dir"
 ISO3 = "abc"
 
 
 @pytest.fixture
-def codab(mocker):
-    """Fixture for CodAB with AA_DATA_DIR mocked."""
-    # TODO: move this to the main file for all tests
-    mocker.patch.dict(
-        "aatoolbox.config.pathconfig.os.environ", {"AA_DATA_DIR": FAKE_AA_DIR}
-    )
+def codab():
+    """Fixture for CodAB mocked."""
     return CodAB(iso3=ISO3)
 
 
@@ -34,6 +30,6 @@ def test_codab_download(codab, mocker):
     assert call_args["hdx_dataset_name"] == fake_hdx_dataset_name
     assert (
         call_args["output_filepath"]
-        == Path(FAKE_AA_DIR)
+        == Path(FAKE_AA_DATA_DIR)
         / f"public/raw/{ISO3}/cod_ab/{ISO3}_cod_ab.shp.zip"
     )
