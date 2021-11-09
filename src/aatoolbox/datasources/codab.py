@@ -51,7 +51,7 @@ class CodAB(DataSource):
         hdx_dataset_name: str
             Name of dataset on HDX
         clobber : bool, default = False
-            If True, overwrites existing download
+            If True, overwrites existing COD AB files
 
         Returns
         -------

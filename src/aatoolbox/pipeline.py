@@ -19,7 +19,9 @@ class Pipeline:
         self._config = get_country_config(iso3_unvalidated)
         self._codab = CodAB(self._config.iso3)
 
-    def get_codab(self, admin_level: int) -> gpd.GeoDataFrame:
+    def get_codab(
+        self, admin_level: int, clobber: bool = False
+    ) -> gpd.GeoDataFrame:
         """
         Get the COD AB data by admin level.
 
@@ -27,6 +29,8 @@ class Pipeline:
         ----------
         admin_level: int
             The administrative level
+        clobber: bool
+            If true, overwrite existing COD AB files
 
         Returns
         -------
@@ -48,10 +52,13 @@ class Pipeline:
         return self._get_codab(
             layer_name=self._config.codab.layer_base_name.format(
                 admin_level=admin_level
-            )
+            ),
+            clobber=clobber,
         )
 
-    def get_codab_custom(self, custom_layer_number: int = 0):
+    def get_codab_custom(
+        self, custom_layer_number: int = 0, clobber: bool = False
+    ):
         """
         Get the COD AB data from a custom (non-level) layer.
 
@@ -60,6 +67,8 @@ class Pipeline:
         custom_layer_number: int
             The 0-indexed number of the layer listed in the custom_layer_names
             parameter of the country's config file
+        clobber: bool
+            If true, overwrite existing COD AB files
 
         Returns
         -------
@@ -83,11 +92,12 @@ class Pipeline:
                 f"{custom_layer_number}th custom layer requested but not "
                 f"available in {self._config.iso3.upper()} config file"
             )
-        return self._get_codab(layer_name=layer_name)
+        return self._get_codab(layer_name=layer_name, clobber=clobber)
 
-    def _get_codab(self, layer_name):
+    def _get_codab(self, layer_name: str, clobber: bool):
         self._codab.download(
             hdx_address=self._config.codab.hdx_address,
             hdx_dataset_name=self._config.codab.hdx_dataset_name,
+            clobber=clobber,
         )
         return self._codab.get_admin_layer(layer_name=layer_name)
