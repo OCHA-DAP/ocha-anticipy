@@ -31,6 +31,8 @@ pyproj==3.2.1
     # via geopandas
 python-dateutil==2.8.2
     # via pandas
+python-dotenv==0.19.1
+    # via aa-toolbox (setup.cfg)
 pytz==2021.3
     # via pandas
 shapely==1.7.1
