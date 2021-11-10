@@ -14,7 +14,7 @@ from pathlib import Path
 import geopandas as gpd
 
 from aatoolbox.datasources.datasource import DataSource
-from aatoolbox.utils.hdx_api import get_dataset_from_hdx
+from aatoolbox.utils.hdx_api import load_dataset_from_hdx
 from aatoolbox.utils.io import check_file_existence
 
 _MODULE_BASENAME = "cod_ab"
@@ -69,13 +69,13 @@ class CodAB(DataSource):
     def _download(
         filepath: Path, hdx_address: str, hdx_dataset_name: str, clobber: bool
     ):
-        return get_dataset_from_hdx(
+        return load_dataset_from_hdx(
             hdx_address=hdx_address,
             hdx_dataset_name=hdx_dataset_name,
             output_filepath=filepath,
         )
 
-    def get_admin_layer(self, layer_name: str) -> gpd.GeoDataFrame:
+    def load_admin_layer(self, layer_name: str) -> gpd.GeoDataFrame:
         """
         Get an admin level by layer name.
 
@@ -93,7 +93,7 @@ class CodAB(DataSource):
         >>> from aatoolbox.datasources.codab import CodAB
         >>> # Get admin 0 boundaries for Nepal
         >>> codab = CodAB("npl")
-        >>> npl_admin0 = codab.get_admin_layer(
+        >>> npl_admin0 = codab.load_admin_layer(
         >>>     layer_name="npl_admbnda_adm2_20201117.shp")
         """
         return gpd.read_file(f"zip:///{self._raw_filepath / layer_name}")

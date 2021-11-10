@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 Configuration.create(user_agent=USER_AGENT, hdx_read_only=True)
 
 
-def get_dataset_from_hdx(
+def load_dataset_from_hdx(
     hdx_address: str, hdx_dataset_name: str, output_filepath: Path
 ) -> Path:
     """

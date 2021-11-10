@@ -19,7 +19,7 @@ class Pipeline:
         self._config = get_country_config(iso3_unvalidated)
         self._codab = CodAB(self._config.iso3)
 
-    def get_codab(
+    def load_codab(
         self, admin_level: int, clobber: bool = False
     ) -> gpd.GeoDataFrame:
         """
@@ -41,7 +41,7 @@ class Pipeline:
         >>> from aatoolbox.pipeline import Pipeline
         >>> # Get admin 0 boundaries for Nepal
         >>> pipeline = Pipeline("npl")
-        >>> npl_admin0 = pipeline.get_codab(admin_level=2)
+        >>> npl_admin0 = pipeline.load_codab(admin_level=2)
         """
         admin_level_max = self._config.codab.admin_level_max
         if admin_level > admin_level_max:
@@ -49,14 +49,14 @@ class Pipeline:
                 f"Admin level {admin_level} requested, but maximum set to "
                 f"{admin_level_max} in {self._config.iso3.upper()} config file"
             )
-        return self._get_codab(
+        return self._load_codab(
             layer_name=self._config.codab.layer_base_name.format(
                 admin_level=admin_level
             ),
             clobber=clobber,
         )
 
-    def get_codab_custom(
+    def load_codab_custom(
         self, custom_layer_number: int = 0, clobber: bool = False
     ):
         """
@@ -79,7 +79,7 @@ class Pipeline:
         >>> from aatoolbox.pipeline import Pipeline
         >>> # Get district boundaries for Nepal
         >>> pipeline = Pipeline("npl")
-        >>> npl_admin0 = pipeline.get_codab_custom(custom_layer_number=0)
+        >>> npl_admin0 = pipeline.load_codab_custom(custom_layer_number=0)
         """
         try:
             # Ignore mypy for this line because custom_layer_names could be
@@ -92,12 +92,12 @@ class Pipeline:
                 f"{custom_layer_number}th custom layer requested but not "
                 f"available in {self._config.iso3.upper()} config file"
             )
-        return self._get_codab(layer_name=layer_name, clobber=clobber)
+        return self._load_codab(layer_name=layer_name, clobber=clobber)
 
-    def _get_codab(self, layer_name: str, clobber: bool):
+    def _load_codab(self, layer_name: str, clobber: bool):
         self._codab.download(
             hdx_address=self._config.codab.hdx_address,
             hdx_dataset_name=self._config.codab.hdx_dataset_name,
             clobber=clobber,
         )
-        return self._codab.get_admin_layer(layer_name=layer_name)
+        return self._codab.load_admin_layer(layer_name=layer_name)
