@@ -1,17 +1,65 @@
+appdirs==1.4.4
+    # via
+    #   -r requirements/requirements.txt
+    #   requests-cache
 attrs==21.2.0
     # via
     #   -r requirements/requirements.txt
+    #   cattrs
     #   fiona
     #   pytest
+    #   requests-cache
 backports.entry-points-selectable==1.1.0
     # via virtualenv
+basicauth==0.4.1
+    # via
+    #   -r requirements/requirements.txt
+    #   hdx-python-utilities
+beautifulsoup4==4.10.0
+    # via
+    #   -r requirements/requirements.txt
+    #   hdx-python-utilities
+boto3==1.19.1
+    # via
+    #   -r requirements/requirements.txt
+    #   tabulator
+botocore==1.22.1
+    # via
+    #   -r requirements/requirements.txt
+    #   boto3
+    #   s3transfer
+cattrs==1.8.0
+    # via
+    #   -r requirements/requirements.txt
+    #   requests-cache
+cchardet==2.1.7
+    # via
+    #   -r requirements/requirements.txt
+    #   tabulator
 certifi==2021.10.8
     # via
     #   -r requirements/requirements.txt
     #   fiona
     #   pyproj
+    #   requests
+cffi==1.15.0
+    # via
+    #   -r requirements/requirements.txt
+    #   cryptography
 cfgv==3.3.1
     # via pre-commit
+chardet==4.0.0
+    # via
+    #   -r requirements/requirements.txt
+    #   tabulator
+charset-normalizer==2.0.7
+    # via
+    #   -r requirements/requirements.txt
+    #   requests
+ckanapi==4.6
+    # via
+    #   -r requirements/requirements.txt
+    #   hdx-python-api
 click==8.0.3
     # via
     #   -r requirements/requirements.txt
@@ -19,6 +67,7 @@ click==8.0.3
     #   cligj
     #   fiona
     #   pip-tools
+    #   tabulator
 click-plugins==1.1.1
     # via
     #   -r requirements/requirements.txt
@@ -27,10 +76,43 @@ cligj==0.7.2
     # via
     #   -r requirements/requirements.txt
     #   fiona
+colorlog==6.5.0
+    # via
+    #   -r requirements/requirements.txt
+    #   hdx-python-utilities
 coverage[toml]==6.0.2
     # via pytest-cov
+cryptography==35.0.0
+    # via
+    #   -r requirements/requirements.txt
+    #   pyopenssl
+decorator==5.1.0
+    # via
+    #   -r requirements/requirements.txt
+    #   jsonpath-ng
 distlib==0.3.3
     # via virtualenv
+dnspython==2.1.0
+    # via
+    #   -r requirements/requirements.txt
+    #   email-validator
+docopt==0.6.2
+    # via
+    #   -r requirements/requirements.txt
+    #   ckanapi
+    #   num2words
+email-validator==1.1.3
+    # via
+    #   -r requirements/requirements.txt
+    #   hdx-python-utilities
+et-xmlfile==1.1.0
+    # via
+    #   -r requirements/requirements.txt
+    #   openpyxl
+exchangerates==0.3.4
+    # via
+    #   -r requirements/requirements.txt
+    #   hdx-python-country
 filelock==3.3.0
     # via virtualenv
 fiona==1.8.20
@@ -39,20 +121,88 @@ fiona==1.8.20
     #   geopandas
 geopandas==0.10.1
     # via -r requirements/requirements.txt
+greenlet==1.1.2
+    # via
+    #   -r requirements/requirements.txt
+    #   sqlalchemy
+hdx-python-api==5.3.2
+    # via -r requirements/requirements.txt
+hdx-python-country==3.0.2
+    # via
+    #   -r requirements/requirements.txt
+    #   hdx-python-api
+hdx-python-utilities==3.0.3
+    # via
+    #   -r requirements/requirements.txt
+    #   hdx-python-country
+html5lib==1.1
+    # via
+    #   -r requirements/requirements.txt
+    #   hdx-python-utilities
 identify==2.3.0
     # via pre-commit
+idna==3.3
+    # via
+    #   -r requirements/requirements.txt
+    #   email-validator
+    #   requests
+ijson==3.1.4
+    # via
+    #   -r requirements/requirements.txt
+    #   tabulator
+inflect==5.3.0
+    # via
+    #   -r requirements/requirements.txt
+    #   quantulum3
 iniconfig==1.1.1
     # via pytest
+jmespath==0.10.0
+    # via
+    #   -r requirements/requirements.txt
+    #   boto3
+    #   botocore
+jsonlines==2.0.0
+    # via
+    #   -r requirements/requirements.txt
+    #   tabulator
+jsonpath-ng==1.5.3
+    # via
+    #   -r requirements/requirements.txt
+    #   libhxl
+libhxl==4.24.1
+    # via
+    #   -r requirements/requirements.txt
+    #   hdx-python-country
+linear-tsv==1.1.0
+    # via
+    #   -r requirements/requirements.txt
+    #   tabulator
+lxml==4.6.3
+    # via
+    #   -r requirements/requirements.txt
+    #   exchangerates
 munch==2.5.0
     # via
     #   -r requirements/requirements.txt
     #   fiona
+ndg-httpsclient==0.5.1
+    # via
+    #   -r requirements/requirements.txt
+    #   hdx-python-api
 nodeenv==1.6.0
     # via pre-commit
+num2words==0.5.10
+    # via
+    #   -r requirements/requirements.txt
+    #   quantulum3
 numpy==1.21.2
     # via
     #   -r requirements/requirements.txt
     #   pandas
+openpyxl==3.0.9
+    # via
+    #   -r requirements/requirements.txt
+    #   tabulator
 packaging==21.0
     # via pytest
 pandas==1.3.3
@@ -67,14 +217,37 @@ platformdirs==2.4.0
     # via virtualenv
 pluggy==1.0.0
     # via pytest
+ply==3.11
+    # via
+    #   -r requirements/requirements.txt
+    #   jsonpath-ng
+    #   libhxl
 pre-commit==2.15.0
     # via -r requirements/dev.in
 py==1.10.0
     # via pytest
+pyasn1==0.4.8
+    # via
+    #   -r requirements/requirements.txt
+    #   hdx-python-api
+    #   ndg-httpsclient
+pycparser==2.20
+    # via
+    #   -r requirements/requirements.txt
+    #   cffi
 pydantic==1.8.2
     # via -r requirements/requirements.txt
+pyopenssl==21.0.0
+    # via
+    #   -r requirements/requirements.txt
+    #   hdx-python-api
+    #   ndg-httpsclient
 pyparsing==2.4.7
     # via packaging
+pyphonetics==0.5.3
+    # via
+    #   -r requirements/requirements.txt
+    #   hdx-python-country
 pyproj==3.2.1
     # via
     #   -r requirements/requirements.txt
@@ -88,13 +261,63 @@ pytest-cov==3.0.0
 python-dateutil==2.8.2
     # via
     #   -r requirements/requirements.txt
+    #   botocore
+    #   hdx-python-utilities
+    #   libhxl
     #   pandas
+python-io-wrapper==0.2
+    # via
+    #   -r requirements/requirements.txt
+    #   libhxl
+python-slugify==5.0.2
+    # via
+    #   -r requirements/requirements.txt
+    #   ckanapi
 pytz==2021.3
     # via
     #   -r requirements/requirements.txt
     #   pandas
-pyyaml==5.4.1
-    # via pre-commit
+pyyaml==6.0
+    # via
+    #   -r requirements/requirements.txt
+    #   pre-commit
+quantulum3==0.7.9
+    # via
+    #   -r requirements/requirements.txt
+    #   hdx-python-api
+ratelimit==2.2.1
+    # via
+    #   -r requirements/requirements.txt
+    #   hdx-python-utilities
+requests==2.26.0
+    # via
+    #   -r requirements/requirements.txt
+    #   ckanapi
+    #   exchangerates
+    #   libhxl
+    #   requests-cache
+    #   requests-file
+    #   tabulator
+requests-cache==0.8.1
+    # via
+    #   -r requirements/requirements.txt
+    #   libhxl
+requests-file==1.5.1
+    # via
+    #   -r requirements/requirements.txt
+    #   hdx-python-utilities
+ruamel.yaml==0.17.16
+    # via
+    #   -r requirements/requirements.txt
+    #   hdx-python-utilities
+ruamel.yaml.clib==0.2.6
+    # via
+    #   -r requirements/requirements.txt
+    #   ruamel.yaml
+s3transfer==0.5.0
+    # via
+    #   -r requirements/requirements.txt
+    #   boto3
 shapely==1.7.1
     # via
     #   -r requirements/requirements.txt
@@ -102,10 +325,36 @@ shapely==1.7.1
 six==1.16.0
     # via
     #   -r requirements/requirements.txt
+    #   basicauth
+    #   ckanapi
+    #   exchangerates
     #   fiona
+    #   html5lib
+    #   jsonpath-ng
+    #   linear-tsv
     #   munch
+    #   pyopenssl
     #   python-dateutil
+    #   requests-file
+    #   tabulator
+    #   url-normalize
     #   virtualenv
+soupsieve==2.2.1
+    # via
+    #   -r requirements/requirements.txt
+    #   beautifulsoup4
+sqlalchemy==1.4.26
+    # via
+    #   -r requirements/requirements.txt
+    #   tabulator
+tabulator[cchardet]==1.53.5
+    # via
+    #   -r requirements/requirements.txt
+    #   hdx-python-utilities
+text-unidecode==1.3
+    # via
+    #   -r requirements/requirements.txt
+    #   python-slugify
 toml==0.10.2
     # via
     #   pre-commit
@@ -118,10 +367,44 @@ typing-extensions==3.10.0.2
     # via
     #   -r requirements/requirements.txt
     #   pydantic
+unicodecsv==0.14.1
+    # via
+    #   -r requirements/requirements.txt
+    #   tabulator
+unidecode==1.3.2
+    # via
+    #   -r requirements/requirements.txt
+    #   libhxl
+    #   pyphonetics
+url-normalize==1.4.3
+    # via
+    #   -r requirements/requirements.txt
+    #   requests-cache
+urllib3==1.26.7
+    # via
+    #   -r requirements/requirements.txt
+    #   botocore
+    #   requests
+    #   requests-cache
 virtualenv==20.8.1
     # via pre-commit
+webencodings==0.5.1
+    # via
+    #   -r requirements/requirements.txt
+    #   html5lib
 wheel==0.37.0
-    # via pip-tools
+    # via
+    #   -r requirements/requirements.txt
+    #   libhxl
+    #   pip-tools
+xlrd==2.0.1
+    # via
+    #   -r requirements/requirements.txt
+    #   tabulator
+xlrd3==1.1.0
+    # via
+    #   -r requirements/requirements.txt
+    #   libhxl
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip

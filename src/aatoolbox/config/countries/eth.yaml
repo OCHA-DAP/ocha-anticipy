@@ -1,0 +1,6 @@
+iso3: eth
+codab:
+  hdx_address: ethiopia-cod-ab
+  hdx_dataset_name: ETH Administrative Divisions Shapefiles.zip
+  layer_base_name: eth_admbnda_adm{admin_level}_csa_bofed_20201008.shp
+  admin_level_max: 2
