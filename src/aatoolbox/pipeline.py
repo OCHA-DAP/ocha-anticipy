@@ -2,7 +2,7 @@
 import geopandas as gpd
 
 from aatoolbox.config.countryconfig import get_country_config
-from aatoolbox.datasources.codab import CodAB
+from aatoolbox.datasources.codab.codab import CodAB
 
 
 class Pipeline:

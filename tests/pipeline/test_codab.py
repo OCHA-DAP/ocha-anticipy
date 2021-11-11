@@ -4,19 +4,21 @@ from pathlib import Path
 import pytest
 from conftest import FAKE_AA_DATA_DIR, ISO3
 
-from aatoolbox.datasources.codab import _MODULE_BASENAME
+from aatoolbox.datasources.codab.codab import _MODULE_BASENAME
 
 
 @pytest.fixture(autouse=True)
 def downloader(mocker):
     """Mock the HDX download function."""
-    return mocker.patch("aatoolbox.datasources.codab.load_dataset_from_hdx")
+    return mocker.patch(
+        "aatoolbox.datasources.codab.codab.load_dataset_from_hdx"
+    )
 
 
 @pytest.fixture(autouse=True)
 def gpd_read_file(mocker):
     """Mock GeoPandas file reading function."""
-    return mocker.patch("aatoolbox.datasources.codab.gpd.read_file")
+    return mocker.patch("aatoolbox.datasources.codab.codab.gpd.read_file")
 
 
 def test_codab_download(pipeline, downloader):
