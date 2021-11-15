@@ -39,7 +39,6 @@ and this project adheres to
 
 ## [0.2.0] - 2021-10-15
 
-<!-- markdownlint-disable MD024 -->
 ### Added
 
 - Configuration class
