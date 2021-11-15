@@ -28,9 +28,11 @@ from typing import Any, Callable, Dict, List, Union
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-import rioxarray
+import rioxarray  # noqa: F401
 import xarray as xr
+from rioxarray.exceptions import DimensionError, MissingCRS, NoDataInBounds
 from rioxarray.raster_array import RasterArray
+from rioxarray.raster_dataset import RasterDataset
 from rioxarray.rioxarray import _get_data_var_message
 
 logger = logging.getLogger(__name__)
@@ -43,6 +45,8 @@ class AatRasterMixin:
     # https://stackoverflow.com/questions/53120262/mypy-how-to-
     # ignore-missing-attribute-errors-in-mixins/53228204#53228204
     _get_obj: Callable
+    x_dim: str
+    y_dim: str
 
     def __init__(self, xarray_obj):
         super().__init__(xarray_obj)
@@ -54,7 +58,7 @@ class AatRasterMixin:
 
         # Managing time coordinate default dims
         self._t_dim = None
-        for t in ["t", "T"]:
+        for t in ["t", "T", "time"]:
             if t in self._obj.dims:
                 self._t_dim = t
 
@@ -64,7 +68,7 @@ class AatRasterMixin:
         """str: The dimension for time."""
         if self._t_dim is not None:
             return self._t_dim
-        raise rioxarray.exceptions.DimensionError(
+        raise DimensionError(
             "Time dimension not found. 'aat.set_time_dim()' or "
             "using 'rename()' to change the dimension name to "
             f"'t' can address this.{_get_data_var_message(self._obj)}"
@@ -95,17 +99,17 @@ class AatRasterMixin:
         ...  numpy.arange(64).reshape(4,4,4),
         ...  coords={"lat":numpy.array([87, 88, 89, 90]),
         ...          "lon":numpy.array([5, 120, 199, 360]),
-        ...          "time":numpy.array([10,11,12,13])}
+        ...          "F":numpy.array([10,11,12,13])}
         ... )
-        >>> da.aat.set_time_dim(t_dim="time", inplace=True)
+        >>> da.aat.set_time_dim(t_dim="F", inplace=True)
         >>> da.aat.t_dim
-        'time'
+        'F'
         """
         data_obj = self._get_obj(inplace=inplace)
         if t_dim in data_obj.dims:
             data_obj.aat._t_dim = t_dim
             return data_obj if not inplace else None
-        raise rioxarray.exceptions.DimensionError(
+        raise DimensionError(
             "Time dimension ({t_dim}) not found."
             f"{_get_data_var_message(data_obj)}"
         )
@@ -163,14 +167,6 @@ class AatRasterMixin:
                 data_obj[self.t_dim].attrs["calendar"] = "360_day"
 
         return data_obj if not inplace else None
-
-
-@xr.register_dataarray_accessor("aat")
-class AatRasterArray(AatRasterMixin, RasterArray):
-    """AA toolbox extension for xarray.DataArray."""
-
-    def __init__(self, xarray_object):
-        super().__init__(xarray_object)
 
     def invert_coordinates(self, inplace: bool = False) -> xr.DataArray:
         """
@@ -258,7 +254,9 @@ class AatRasterArray(AatRasterMixin, RasterArray):
         lon_end = lon[-1]
         return lon_start > lon_end, lat_start < lat_end
 
-    def change_longitude_range(self, inplace: bool = False) -> xr.DataArray:
+    def change_longitude_range(
+        self, inplace: bool = False
+    ) -> Union[xr.DataArray, xr.Dataset]:
         """Convert longitude range between -180 to 180 and 0 to 360.
 
         For some raster data, outputs are incorrect if longitude ranges
@@ -278,20 +276,28 @@ class AatRasterArray(AatRasterMixin, RasterArray):
 
         Returns
         -------
-        xarray.DataArray
+        Union[xarray.DataArray, xarray.Dataset]
             Dataset with transformed longitude coordinates.
 
         Examples
         --------
         >>> import xarray
         >>> import numpy
-        >>> da = xarray.DataArray(
-        ...  numpy.arange(16).reshape(4,4),
-        ...  coords={"lat":numpy.array([87, 88, 89, 90]),
-        ...          "lon":numpy.array([5, 120, 199, 360])}
+        >>> temp = 15 + 8 * numpy.random.randn(4, 4, 3)
+        >>> precip = 10 * np.random.rand(4, 4, 3)
+        >>> ds = xarray.Dataset(
+        ...   {
+        ...     "temperature": (["lat", "lon", "time"], temp),
+        ...     "precipitation": (["lat", "lon", "time"], precip)
+        ...   },
+        ...   coords={
+        ...     "lat":numpy.array([87, 88, 89, 90]),
+        ...     "lon":numpy.array([5, 120, 199, 360]),
+        ...     "time": pd.date_range("2014-09-06", periods=3)
+        ...   }
         ... )
-        >>> da_inv = da.aat.change_longitude_range()
-        >>> da_inv.get_index("lon")
+        >>> ds_inv = ds.aat.change_longitude_range()
+        >>> ds_inv.get_index("lon")
         Int64Index([-161, 0, 5, 120], dtype='int64', name='lon')
         """
         data_obj = self._get_obj(inplace=inplace)
@@ -325,6 +331,14 @@ class AatRasterArray(AatRasterMixin, RasterArray):
 
         return data_obj if not inplace else None
 
+
+@xr.register_dataarray_accessor("aat")
+class AatRasterArray(AatRasterMixin, RasterArray):
+    """AA toolbox extension for xarray.DataArray."""
+
+    def __init__(self, xarray_object):
+        super().__init__(xarray_object)
+
     def compute_raster_statistics(
         self,
         gdf: gpd.GeoDataFrame,
@@ -353,7 +367,9 @@ class AatRasterArray(AatRasterMixin, RasterArray):
             List of percentiles to compute, by default None.
         all_touched : bool, optional
             If ``True`` all cells touching the region will be
-            included, by default False.
+            included, by default False. If ``False``, only
+            cells with their centre in the region will be
+            included.
         geom_col : str, optional
             Column in ``gdf`` with geometry, by default "geometry".
 
@@ -364,9 +380,7 @@ class AatRasterArray(AatRasterMixin, RasterArray):
         """
         data_obj = self._get_obj(inplace=False)
         if data_obj.rio.crs is None:
-            raise rioxarray.exceptions.MissingCRS(
-                "No CRS found, set CRS before computation."
-            )
+            raise MissingCRS("No CRS found, set CRS before computation.")
 
         df_list = []
 
@@ -386,7 +400,7 @@ class AatRasterArray(AatRasterMixin, RasterArray):
                 da_clip = da_clip.rio.clip(
                     gdf_adm[geom_col], all_touched=all_touched
                 )
-            except rioxarray.exceptions.NoDataInBounds:
+            except NoDataInBounds:
                 logger.warning(
                     "No overlapping raster cells for %s, skipping.", feature
                 )
@@ -441,3 +455,76 @@ class AatRasterArray(AatRasterMixin, RasterArray):
 
         df_zonal_stats = pd.concat(df_list).reset_index(drop=True)
         return df_zonal_stats
+
+
+@xr.register_dataset_accessor("aat")
+class AatRasterDataset(AatRasterMixin, RasterDataset):
+    """AA toolbox extension for xarray.Dataset."""
+
+    def __init__(self, xarray_object):
+        super().__init__(xarray_object)
+
+    def get_raster_array(self, var: str) -> xr.DataArray:
+        """Get xarray.DataArray from variable and keep dimensions.
+
+        Accessing a component xarray.DataArray using the
+        non-coordinate variable name loses and dimensions set
+        through ``rio`` or ``aat``. This includes ``x_dim``,
+        ``y_dim``, and ``t_dim`` that have to be specifically
+        set using ``rio.set_spatial_dims()`` or
+        ``aat.set_time_dim()`` respectively. For any dataset
+        ``ds``, ``ds.get_raster_array("var")`` will retrieve
+        the data array without losing the dimensions. Using
+        ``ds["var"]`` will lose the dimensions.
+
+        Parameters
+        ----------
+        var : str
+            Name of variable.
+
+        Returns
+        -------
+        xarray.DataArray
+
+        Examples
+        --------
+        >>> import xarray
+        >>> import numpy
+        >>> temp = 15 + 8 * numpy.random.randn(4, 4, 3)
+        >>> precip = 10 * np.random.rand(4, 4, 3)
+        >>> ds = xarray.Dataset(
+        ...   {
+        ...     "temperature": (["lat", "lon", "F"], temp),
+        ...     "precipitation": (["lat", "lon", "F"], precip)
+        ...   },
+        ...   coords={
+        ...     "lat":numpy.array([87, 88, 89, 90]),
+        ...     "lon":numpy.array([5, 120, 199, 360]),
+        ...     "F": pd.date_range("2014-09-06", periods=3)
+        ...   }
+        ... )
+        >>> ds.aat.set_time_dim("F", inplace=True)
+        >>> da = ds.aat.get_raster_array("temperature")
+        >>> da.aat.t_dim
+        'F'
+        >>> # directly accessing array loses set dimensions
+        >>> ds['temperature'].aat.t_dim # doctest: +NORMALIZE_WHITESPACE
+        Traceback (most recent call last):
+            ...
+        rioxarray.exceptions.DimensionError: Time dimension not found.
+            'aat.set_time_dim()' or using 'rename()' to change the
+            dimension name to 't' can address this.
+        Data variable: temperature
+        """
+        obj = self._obj[var]
+        # rioxarray attributes
+        obj.rio._x_dim = self._x_dim
+        obj.rio._y_dim = self._y_dim
+        obj.rio._width = self._width
+        obj.rio._height = self._height
+        obj.rio._crs = self._crs
+
+        # raster module attributes
+        obj.aat._t_dim = self._t_dim
+
+        return obj
