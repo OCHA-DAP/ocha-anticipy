@@ -15,7 +15,7 @@ cleaner code in the module as ``rio`` methods are
 available immediately, but also means a couple of
 design decisions are followed.
 
-The xarray.DataArray and xarray.DataSet
+The xarray.DataArray and xarray.Dataset
 extensions here inherit from rioxarray base classes.
 Thus, methods that are identical for both objects
 are defined in a mixin class ``AatRasterMixin`` which
@@ -27,10 +27,8 @@ from typing import Any, Callable, Dict, List, Union
 
 import geopandas as gpd
 import numpy as np
-import pandas
 import pandas as pd
 import rioxarray
-import xarray
 import xarray as xr
 from rioxarray.raster_array import RasterArray
 from rioxarray.rioxarray import _get_data_var_message
@@ -74,7 +72,7 @@ class AatRasterMixin:
 
     def set_time_dim(
         self, t_dim: str, inplace: bool = False
-    ) -> Union[xarray.DataArray, xarray.DataSet]:
+    ) -> Union[xr.DataArray, xr.Dataset]:
         """Set the time dimension of the dataset.
 
         Parameters
@@ -87,7 +85,7 @@ class AatRasterMixin:
 
         Returns
         -------
-        Union[xarray.DataArray, xarray.DataSet]
+        Union[xarray.DataArray, xarray.Dataset]
 
         Examples
         --------
@@ -114,7 +112,7 @@ class AatRasterMixin:
 
     def correct_calendar(
         self, inplace: bool = False
-    ) -> Union[xarray.DataArray, xarray.DataSet]:
+    ) -> Union[xr.DataArray, xr.Dataset]:
         """Correct calendar attribute for recognition by xarray.
 
         Some datasets come with a wrong calendar attribute that isn't
@@ -167,14 +165,14 @@ class AatRasterMixin:
         return data_obj if not inplace else None
 
 
-@xarray.register_dataarray_accessor("aat")
+@xr.register_dataarray_accessor("aat")
 class AatRasterArray(AatRasterMixin, RasterArray):
     """AA toolbox extension for xarray.DataArray."""
 
     def __init__(self, xarray_object):
         super().__init__(xarray_object)
 
-    def invert_coordinates(self, inplace: bool = False) -> xarray.DataArray:
+    def invert_coordinates(self, inplace: bool = False) -> xr.DataArray:
         """
         Invert latitude and longitude in data array.
 
@@ -260,9 +258,7 @@ class AatRasterArray(AatRasterMixin, RasterArray):
         lon_end = lon[-1]
         return lon_start > lon_end, lat_start < lat_end
 
-    def change_longitude_range(
-        self, inplace: bool = False
-    ) -> xarray.DataArray:
+    def change_longitude_range(self, inplace: bool = False) -> xr.DataArray:
         """Convert longitude range between -180 to 180 and 0 to 360.
 
         For some raster data, outputs are incorrect if longitude ranges
@@ -337,7 +333,7 @@ class AatRasterArray(AatRasterMixin, RasterArray):
         percentile_list: List[int] = None,
         all_touched: bool = False,
         geom_col: str = "geometry",
-    ) -> pandas.DataFrame:
+    ) -> pd.DataFrame:
         """Compute raster statistics for polygon geometry.
 
         ``compute_raster_statistics()`` is designed to
