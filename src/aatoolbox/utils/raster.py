@@ -327,13 +327,7 @@ class AatRasterMixin:
         elif lon_min < 0:
             logger.info("Converting longitude from -180 to 180 to 0 to 360.")
 
-            data_obj[self.x_dim] = np.sort(
-                np.where(  # noqa: FKA01
-                    data_obj[self.x_dim] < 0,
-                    data_obj[self.x_dim] + 360,
-                    data_obj[self.x_dim],
-                )
-            )
+            data_obj[self.x_dim] = np.sort(data_obj[self.x_dim] % 360)
 
         else:
             logger.info(
