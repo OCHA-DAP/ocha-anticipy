@@ -4,8 +4,6 @@ import unittest  # noqa: F401
 
 from aatoolbox.utils import raster
 
-
-def load_tests(loader, tests, ignore):
-    """Allow discovery of raster module doctests."""
-    tests.addTests(doctest.DocTestSuite(raster))
-    return tests
+suite = unittest.TestSuite()
+suite.addTest(doctest.DocTestSuite(raster))
+unittest.TextTestRunner().run(suite)
