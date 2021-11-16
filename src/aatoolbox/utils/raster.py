@@ -89,6 +89,7 @@ class AatRasterMixin:
         Returns
         -------
         Union[xarray.DataArray, xarray.Dataset]
+            Data array or dataset with time dimension.
 
         Examples
         --------
@@ -141,7 +142,8 @@ class AatRasterMixin:
         Returns
         -------
         Union[xarray.DataArray, xarray.Dataset]
-            Dataset with transformed calendar coordinate.
+            Data array or dataset with transformed calendar
+            coordinate.
 
         Examples
         --------
@@ -206,7 +208,7 @@ class AatRasterMixin:
         Returns
         -------
         Union[xarray.DataArray, xarray.Dataset]
-            Dataset or data array with correct coordinate ordering.
+            Data array or dataset with correct coordinate ordering.
 
         Examples
         --------
@@ -344,7 +346,7 @@ class AatRasterArray(AatRasterMixin, RasterArray):
     def __init__(self, xarray_object):
         super().__init__(xarray_object)
 
-    def compute_raster_statistics(
+    def compute_raster_stats(
         self,
         gdf: gpd.GeoDataFrame,
         feature_col: str,
@@ -355,7 +357,7 @@ class AatRasterArray(AatRasterMixin, RasterArray):
     ) -> pd.DataFrame:
         """Compute raster statistics for polygon geometry.
 
-        ``compute_raster_statistics()`` is designed to
+        ``compute_raster_stats()`` is designed to
         quickly compute raster statistics across a polygon
         and its features.
 
@@ -490,6 +492,7 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
         Returns
         -------
         xarray.DataArray
+            A data array.
 
         Examples
         --------
@@ -535,3 +538,31 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
             obj.aat.set_time_dim(self._t_dim, inplace=True)
 
         return obj
+
+    def compute_raster_stats(
+        self, vars: Union[List[str], None] = None, **kwargs: Any
+    ):
+        """Compute raster statistics across dataset arrays.
+
+        ``compute_raster_stats()`` calculates raster statistics on
+        component data arrays of a dataset. By default, calculates on all
+        non-coordinate variables, unless a list of variable names is
+        passed in, which then have statistics calculated for them.
+
+        Parameters
+        ----------
+        vars : Union[List[str], None], optional
+            Dataset data array variables to calculate raster statistics on.
+
+        kwargs : Any
+            Keyword arguments passed to the array method
+            :meth:`~AatRasterArray.compute_raster_stats`
+
+        Returns
+        -------
+        List[pandas.DataFrame]
+            List of raster statistics data frames.
+        """
+        vars = self.vars if vars is None else vars
+        stats = [self._obj[var].compute_raster_stats(**kwargs) for var in vars]
+        return stats
