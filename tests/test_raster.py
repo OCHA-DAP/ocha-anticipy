@@ -1,6 +1,6 @@
 """Tests for the raster utilities module."""
 import doctest
-import unittest  # noqa: F401
+import unittest
 
 from aatoolbox.utils import raster
 
