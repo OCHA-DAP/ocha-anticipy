@@ -159,20 +159,22 @@ class AatRasterMixin:
         '360_day'
         """
         data_obj = self._get_obj(inplace=inplace)
-        if "calendar" in data_obj[self.t_dim].attrs.keys():
-            if data_obj[self.t_dim].attrs["calendar"] == "360":
-                data_obj[self.t_dim].attrs["calendar"] = "360_day"
-                logger.info(
-                    "Calendar attribute changed from '360' to '360_day'."
-                )
+        if (
+            "calendar" in data_obj[self.t_dim].attrs.keys()
+            and data_obj[self.t_dim].attrs["calendar"] == "360"
+        ):
+            data_obj[self.t_dim].attrs["calendar"] = "360_day"
+            logger.info("Calendar attribute changed from '360' to '360_day'.")
 
-        elif "units" in data_obj[self.t_dim].attrs.keys():
-            if "months since" in data_obj[self.t_dim].attrs["units"]:
-                data_obj[self.t_dim].attrs["calendar"] = "360_day"
-                logger.info(
-                    "Calendar attribute '360_day' added, "
-                    "equivalent of 'units' 'months since'."
-                )
+        elif (
+            "units" in data_obj[self.t_dim].attrs.keys()
+            and "months since" in data_obj[self.t_dim].attrs["units"]
+        ):
+            data_obj[self.t_dim].attrs["calendar"] = "360_day"
+            logger.info(
+                "Calendar attribute '360_day' added, "
+                "equivalent of 'units' 'months since'."
+            )
 
         else:
             logger.info("No 'units' or 'calendar' attributes to correct.")
