@@ -1,3 +1,7 @@
+affine==2.3.0
+    # via
+    #   -r requirements/requirements.txt
+    #   rasterio
 appdirs==1.4.4
     # via
     #   -r requirements/requirements.txt
@@ -8,6 +12,7 @@ attrs==21.2.0
     #   cattrs
     #   fiona
     #   pytest
+    #   rasterio
     #   requests-cache
 backports.entry-points-selectable==1.1.0
     # via virtualenv
@@ -41,6 +46,7 @@ certifi==2021.10.8
     #   -r requirements/requirements.txt
     #   fiona
     #   pyproj
+    #   rasterio
     #   requests
 cffi==1.15.0
     # via
@@ -67,15 +73,18 @@ click==8.0.3
     #   cligj
     #   fiona
     #   pip-tools
+    #   rasterio
     #   tabulator
 click-plugins==1.1.1
     # via
     #   -r requirements/requirements.txt
     #   fiona
+    #   rasterio
 cligj==0.7.2
     # via
     #   -r requirements/requirements.txt
     #   fiona
+    #   rasterio
 colorlog==6.5.0
     # via
     #   -r requirements/requirements.txt
@@ -199,16 +208,23 @@ numpy==1.21.2
     # via
     #   -r requirements/requirements.txt
     #   pandas
+    #   rasterio
+    #   snuggs
+    #   xarray
 openpyxl==3.0.9
     # via
     #   -r requirements/requirements.txt
     #   tabulator
-packaging==21.0
-    # via pytest
+packaging==21.2
+    # via
+    #   -r requirements/requirements.txt
+    #   pytest
+    #   rioxarray
 pandas==1.3.3
     # via
     #   -r requirements/requirements.txt
     #   geopandas
+    #   xarray
 pep517==0.11.0
     # via pip-tools
 pip-tools==6.3.1
@@ -243,6 +259,10 @@ pyopenssl==21.0.0
     #   hdx-python-api
     #   ndg-httpsclient
 pyparsing==2.4.7
+    # via
+    #   -r requirements/requirements.txt
+    #   packaging
+    #   snuggs
     # via packaging
 pyphonetics==0.5.3
     # via
@@ -252,6 +272,7 @@ pyproj==3.2.1
     # via
     #   -r requirements/requirements.txt
     #   geopandas
+    #   rioxarray
 pytest==6.2.5
     # via
     #   -r requirements/tests.in
@@ -281,6 +302,10 @@ pyyaml==6.0
     # via
     #   -r requirements/requirements.txt
     #   pre-commit
+rasterio==1.2.10
+    # via
+    #   -r requirements/requirements.txt
+    #   rioxarray
 quantulum3==0.7.9
     # via
     #   -r requirements/requirements.txt
@@ -306,6 +331,8 @@ requests-file==1.5.1
     # via
     #   -r requirements/requirements.txt
     #   hdx-python-utilities
+rioxarray==0.8.0
+    # via -r requirements/requirements.txt
 ruamel.yaml==0.17.16
     # via
     #   -r requirements/requirements.txt
@@ -339,6 +366,10 @@ six==1.16.0
     #   tabulator
     #   url-normalize
     #   virtualenv
+snuggs==1.4.7
+    # via
+    #   -r requirements/requirements.txt
+    #   rasterio
 soupsieve==2.2.1
     # via
     #   -r requirements/requirements.txt
@@ -393,6 +424,11 @@ webencodings==0.5.1
     #   -r requirements/requirements.txt
     #   html5lib
 wheel==0.37.0
+    # via pip-tools
+xarray==0.20.1
+    # via
+    #   -r requirements/requirements.txt
+    #   rioxarray
     # via
     #   -r requirements/requirements.txt
     #   libhxl
