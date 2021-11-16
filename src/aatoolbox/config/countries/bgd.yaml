@@ -1,0 +1,6 @@
+iso3: bgd
+codab:
+  hdx_address: administrative-boundaries-of-bangladesh-as-of-2015
+  hdx_dataset_name: bgd_adm_bbs_20201113_SHP.zip
+  layer_base_name: bgd_adm_bbs_20201113_SHP/bgd_admbnda_adm{admin_level}_bbs_20201113.shp
+  admin_level_max: 4

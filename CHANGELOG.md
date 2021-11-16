@@ -17,7 +17,17 @@ and this project adheres to
 - Pre-commit hook to check Sphinx documentation can be built
 - [`pip-compile`](https://github.com/jazzband/pip-tools#version-control-integration)
   pre-commit hook to update requirements files
-- version number is now specified in `src/aatoolbox/_version.py`
+- Version number is now specified in `src/aatoolbox/_version.py`
+- `DataSource` class as a base for all data sources
+- `CodAB` data source class for manipulating COD administrative boundaries
+- `Pipeline` class to serve as main API
+- Configuration files for:
+  - Bangladesh
+  - Ethiopia
+  - Malawi
+  - Nepal
+- HDX API utility
+- Caching decorator in IO utility
 
 ### Changed
 
