@@ -4,9 +4,8 @@ Utilities to manipulate and analyze raster data.
 This module extends xarray and rioxarray to provide
 additional functionality for raster processing and
 post-processing. The extension is based on the
-guidance for how to extend xarray:
-
-http://xarray.pydata.org/en/stable/internals/extending-xarray.html
+guidance for how to `extend xarray
+<http://xarray.pydata.org/en/stable/internals/extending-xarray.html>`_:
 
 However, since rioxarray already extends xarray, this
 modules extensions inherit from the RasterArray and
@@ -66,13 +65,13 @@ class AatRasterMixin:
     @property
     def t_dim(self):
         """str: The dimension for time."""
-        if self._t_dim is not None:
-            return self._t_dim
-        raise DimensionError(
-            "Time dimension not found. 'aat.set_time_dim()' or "
-            "using 'rename()' to change the dimension name to "
-            f"'t' can address this.{_get_data_var_message(self._obj)}"
-        )
+        if self._t_dim is None:
+            raise DimensionError(
+                "Time dimension not found. 'aat.set_time_dim()' or "
+                "using 'rename()' to change the dimension name to "
+                f"'t' can address this.{_get_data_var_message(self._obj)}"
+            )
+        return self._t_dim
 
     def set_time_dim(
         self, t_dim: str, inplace: bool = False
@@ -106,13 +105,13 @@ class AatRasterMixin:
         'F'
         """
         data_obj = self._get_obj(inplace=inplace)
-        if t_dim in data_obj.dims:
-            data_obj.aat._t_dim = t_dim
-            return data_obj if not inplace else None
-        raise DimensionError(
-            "Time dimension ({t_dim}) not found."
-            f"{_get_data_var_message(data_obj)}"
-        )
+        if t_dim not in data_obj.dims:
+            raise DimensionError(
+                "Time dimension ({t_dim}) not found."
+                f"{_get_data_var_message(data_obj)}"
+            )
+        data_obj.aat._t_dim = t_dim
+        return data_obj if not inplace else None
 
     def correct_calendar(
         self, inplace: bool = False
@@ -123,13 +122,15 @@ class AatRasterMixin:
         recognized by xarray. This function corrects the coordinate
         attribute to ensure that a ``calendar`` attribute exists
         and specifies a calendar alias that is supportable by
-        ``xarray.cftime_range``.
+        ``xarray.cftime_range`` and NetCDF in general.
 
         Currently ensures that calendar attributes that are either
         specified with ``units="months since"`` or ``calendar="360"``
-        explicitly have ``calendar="360_day"``. If and when further
-        issues are found with calendar attributes, support for
-        conversion will be added here.
+        explicitly have ``calendar="360_day"``. This is based on
+        discussions in `this GitHub issue
+        <https://github.com/Unidata/netcdf4-python/issues/434>`_.
+        If and when further issues are found with calendar
+        attributes, support for conversion will be added here.
 
         Parameters
         ----------
@@ -161,10 +162,20 @@ class AatRasterMixin:
         if "calendar" in data_obj[self.t_dim].attrs.keys():
             if data_obj[self.t_dim].attrs["calendar"] == "360":
                 data_obj[self.t_dim].attrs["calendar"] = "360_day"
+                logger.info(
+                    "Calendar attribute changed from '360' to '360_day'."
+                )
 
         elif "units" in data_obj[self.t_dim].attrs.keys():
             if "months since" in data_obj[self.t_dim].attrs["units"]:
                 data_obj[self.t_dim].attrs["calendar"] = "360_day"
+                logger.info(
+                    "Calendar attribute '360_day' added, "
+                    "equivalent of 'units' 'months since'."
+                )
+
+        else:
+            logger.info("No 'units' or 'calendar' attributes to correct.")
 
         return data_obj if not inplace else None
 
@@ -247,12 +258,8 @@ class AatRasterMixin:
         """
         data_obj = self._get_obj(inplace=False)
         lat = data_obj.get_index(self.y_dim)
-        lat_start = lat[0]
-        lat_end = lat[-1]
         lon = data_obj.get_index(self.x_dim)
-        lon_start = lon[0]
-        lon_end = lon[-1]
-        return lon_start > lon_end, lat_start < lat_end
+        return lon[0] > lon[-1], lat[0] < lat[-1]
 
     def change_longitude_range(
         self, inplace: bool = False
@@ -299,6 +306,10 @@ class AatRasterMixin:
         >>> ds_inv = ds.aat.change_longitude_range()
         >>> ds_inv.get_index("lon")
         Int64Index([-161, 0, 5, 120], dtype='int64', name='lon')
+        >>> # invert coordinates back to original, in place
+        >>> ds_inv.aat.change_longitude_range(inplace=True)
+        >>> ds_inv.get_index("lon")
+        Int64Index([0, 5, 120, 199], dtype='int64', name='lon')
         """
         data_obj = self._get_obj(inplace=inplace)
         lon_min = data_obj.indexes[self.x_dim].min()
@@ -307,22 +318,20 @@ class AatRasterMixin:
         if lon_max > 180:
             logger.info("Converting longitude from 0 360 to -180 to 180.")
 
-            data_obj = data_obj.assign_coords(
-                {self.x_dim: ((data_obj[self.x_dim] + 180) % 360) - 180}
-            ).sortby(self.x_dim)
+            data_obj[self.x_dim] = np.sort(
+                ((data_obj[self.x_dim] + 180) % 360) - 180
+            )
 
         elif lon_min < 0:
             logger.info("Converting longitude from -180 to 180 to 0 to 360.")
 
-            data_obj = data_obj.assign_coords(
-                {
-                    self.x_dim: np.where(  # noqa: FKA01
-                        data_obj[self.x_dim] < 0,
-                        data_obj[self.x_dim] + 360,
-                        data_obj[self.x_dim],
-                    )
-                }
-            ).sortby(self.x_dim)
+            data_obj[self.x_dim] = np.sort(
+                np.where(  # noqa: FKA01
+                    data_obj[self.x_dim] < 0,
+                    data_obj[self.x_dim] + 360,
+                    data_obj[self.x_dim],
+                )
+            )
 
         else:
             logger.info(
@@ -518,13 +527,15 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
         """
         obj = self._obj[var]
         # rioxarray attributes
-        obj.rio._x_dim = self._x_dim
-        obj.rio._y_dim = self._y_dim
-        obj.rio._width = self._width
-        obj.rio._height = self._height
-        obj.rio._crs = self._crs
+        if self._x_dim is not None and self._y_dim is not None:
+            obj.rio.set_spatial_dims(
+                x_dim=self._x_dim, y_dim=self._y_dim, inplace=True
+            )
+        if self._crs is not None:
+            obj.rio.set_crs(self._crs, inplace=True)
 
         # raster module attributes
-        obj.aat._t_dim = self._t_dim
+        if self._t_dim is not None:
+            obj.aat.set_time_dim(self._t_dim, inplace=True)
 
         return obj
