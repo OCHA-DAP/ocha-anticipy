@@ -10,7 +10,7 @@ Currently under development
 
 ### Environment
 
-To setup the development environment, please install all packages
+To set up the development environment, please install all packages
 from `requirements/requirements-dev.txt`:
 
 ```shell
@@ -37,7 +37,12 @@ pytest --cov=aatoolbox
 
 All public modules, classes and methods should be documented with
 [numpy-style](https://numpydoc.readthedocs.io/en/latest/format.html)
-docstrings, which are rendered into HTML using a pre-commit hook.
+docstrings, which can be rendered into HTML using the following command:
+
+```shell
+sphinx-build -b html -d docs/build/doctrees docs/source docs/build/html
+```
+
 To view the docs, open up `docs/build/html/index.html` in your browser.
 
 ### pre-commit
@@ -68,5 +73,12 @@ For adding packages for development, documentation, or tests,
 add them to the relevant `.in` file in the `requirements` directory.
 When you modify any of these lists, please try to keep them alphabetical!
 Any changes to the `requirements*.txt` files will be generated with `pre-commit`.
+
+To run this without commiting, execute:
+
+```shell
+pre-commit run pip-compile --all-files
+```
+
 For other functionality such as updating specific package versions, refer to the
 `pip-tools` documentation.

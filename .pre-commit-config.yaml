@@ -40,15 +40,6 @@ repos:
     rev: v0.29.0
     hooks:
       - id: markdownlint
-  - repo: https://github.com/thclark/pre-commit-sphinx
-    rev: 0.0.1
-    hooks:
-      - id: build-docs
-        additional_dependencies:
-          - sphinxcontrib-apidoc
-        args: ['--cache-dir', 'docs/build/doctrees', '--html-dir',
-               'docs/build/html', '--source-dir', 'docs/source']
-        language_version: python3
   - repo: https://github.com/jazzband/pip-tools
     rev: 6.3.0
     hooks:
@@ -59,9 +50,14 @@ repos:
                -o, requirements/requirements.txt]
       - id: pip-compile
         name: pip-compile requirements-dev.txt
-        files: requirements/(dev.in|tests.in|requirements.txt)
+        files: requirements/(dev.in|docs.in|tests.in|requirements.txt)
         args: [requirements/dev.in, -q, --no-header,
                -o, requirements/requirements-dev.txt]
+      - id: pip-compile
+        name: pip-compile requirements-docs.txt
+        files: requirements/docs.in
+        args: [ requirements/docs.in, -q, --no-header,
+                -o, requirements/requirements-docs.txt ]
       - id: pip-compile
         name: pip-compile requirements-tests.txt
         files: requirements/tests.in
