@@ -263,7 +263,6 @@ pyparsing==2.4.7
     #   -r requirements/requirements.txt
     #   packaging
     #   snuggs
-    # via packaging
 pyphonetics==0.5.3
     # via
     #   -r requirements/requirements.txt
@@ -302,14 +301,14 @@ pyyaml==6.0
     # via
     #   -r requirements/requirements.txt
     #   pre-commit
-rasterio==1.2.10
-    # via
-    #   -r requirements/requirements.txt
-    #   rioxarray
 quantulum3==0.7.9
     # via
     #   -r requirements/requirements.txt
     #   hdx-python-api
+rasterio==1.2.10
+    # via
+    #   -r requirements/requirements.txt
+    #   rioxarray
 ratelimit==2.2.1
     # via
     #   -r requirements/requirements.txt
@@ -424,15 +423,14 @@ webencodings==0.5.1
     #   -r requirements/requirements.txt
     #   html5lib
 wheel==0.37.0
-    # via pip-tools
-xarray==0.20.1
-    # via
-    #   -r requirements/requirements.txt
-    #   rioxarray
     # via
     #   -r requirements/requirements.txt
     #   libhxl
     #   pip-tools
+xarray==0.20.1
+    # via
+    #   -r requirements/requirements.txt
+    #   rioxarray
 xlrd==2.0.1
     # via
     #   -r requirements/requirements.txt

@@ -51,7 +51,6 @@ cligj==0.7.2
     # via
     #   fiona
     #   rasterio
-    # via fiona
 colorlog==6.5.0
     # via hdx-python-utilities
 cryptography==35.0.0
@@ -165,7 +164,6 @@ python-slugify==5.0.2
     # via ckanapi
 pytz==2021.3
     # via pandas
-
 pyyaml==6.0
     # via aa-toolbox (setup.cfg)
 quantulum3==0.7.9
@@ -208,6 +206,9 @@ six==1.16.0
     #   munch
     #   pyopenssl
     #   python-dateutil
+    #   requests-file
+    #   tabulator
+    #   url-normalize
 snuggs==1.4.7
     # via rasterio
 soupsieve==2.2.1
@@ -240,10 +241,7 @@ wheel==0.37.0
 xarray==0.20.1
     # via
     #   aa-toolbox (setup.cfg)
-    #   requests-file
     #   rioxarray
-    #   tabulator
-    #   url-normalize
 xlrd==2.0.1
     # via tabulator
 xlrd3==1.1.0

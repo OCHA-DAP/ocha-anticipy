@@ -10,7 +10,7 @@ Currently under development
 
 ### Environment
 
-To setup the development environment, please install all packages
+To set up the development environment, please install all packages
 from `requirements/requirements-dev.txt`:
 
 ```shell
