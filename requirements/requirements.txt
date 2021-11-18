@@ -12,9 +12,9 @@ basicauth==0.4.1
     # via hdx-python-utilities
 beautifulsoup4==4.10.0
     # via hdx-python-utilities
-boto3==1.19.1
+boto3==1.20.8
     # via tabulator
-botocore==1.22.1
+botocore==1.23.8
     # via
     #   boto3
     #   s3transfer
@@ -51,7 +51,7 @@ cligj==0.7.2
     # via
     #   fiona
     #   rasterio
-colorlog==6.5.0
+colorlog==6.6.0
     # via hdx-python-utilities
 cryptography==35.0.0
     # via pyopenssl
@@ -71,15 +71,15 @@ exchangerates==0.3.4
     # via hdx-python-country
 fiona==1.8.20
     # via geopandas
-geopandas==0.10.1
+geopandas==0.10.2
     # via aa-toolbox (setup.cfg)
 greenlet==1.1.2
     # via sqlalchemy
-hdx-python-api==5.3.2
+hdx-python-api==5.4.1
     # via aa-toolbox (setup.cfg)
-hdx-python-country==3.0.2
+hdx-python-country==3.0.5
     # via hdx-python-api
-hdx-python-utilities==3.0.3
+hdx-python-utilities==3.0.6
     # via hdx-python-country
 html5lib==1.1
     # via hdx-python-utilities
@@ -103,7 +103,7 @@ libhxl==4.24.1
     # via hdx-python-country
 linear-tsv==1.1.0
     # via tabulator
-lxml==4.6.3
+lxml==4.6.4
     # via exchangerates
 munch==2.5.0
     # via fiona
@@ -111,7 +111,7 @@ ndg-httpsclient==0.5.1
     # via hdx-python-api
 num2words==0.5.10
     # via quantulum3
-numpy==1.21.2
+numpy==1.21.4
     # via
     #   aa-toolbox (setup.cfg)
     #   pandas
@@ -120,9 +120,9 @@ numpy==1.21.2
     #   xarray
 openpyxl==3.0.9
     # via tabulator
-packaging==21.2
+packaging==21.3
     # via rioxarray
-pandas==1.3.3
+pandas==1.3.4
     # via
     #   geopandas
     #   xarray
@@ -134,7 +134,7 @@ pyasn1==0.4.8
     # via
     #   hdx-python-api
     #   ndg-httpsclient
-pycparser==2.20
+pycparser==2.21
     # via cffi
 pydantic==1.8.2
     # via aa-toolbox (setup.cfg)
@@ -142,13 +142,13 @@ pyopenssl==21.0.0
     # via
     #   hdx-python-api
     #   ndg-httpsclient
-pyparsing==2.4.7
+pyparsing==3.0.6
     # via
     #   packaging
     #   snuggs
 pyphonetics==0.5.3
     # via hdx-python-country
-pyproj==3.2.1
+pyproj==3.3.0
     # via
     #   geopandas
     #   rioxarray
@@ -174,6 +174,7 @@ ratelimit==2.2.1
     # via hdx-python-utilities
 requests==2.26.0
     # via
+    #   aa-toolbox (setup.cfg)
     #   ckanapi
     #   exchangerates
     #   libhxl
@@ -186,13 +187,13 @@ requests-file==1.5.1
     # via hdx-python-utilities
 rioxarray==0.8.0
     # via aa-toolbox (setup.cfg)
-ruamel.yaml==0.17.16
+ruamel.yaml==0.17.17
     # via hdx-python-utilities
 ruamel.yaml.clib==0.2.6
     # via ruamel.yaml
 s3transfer==0.5.0
     # via boto3
-shapely==1.7.1
+shapely==1.8.0
     # via geopandas
 six==1.16.0
     # via
@@ -211,15 +212,15 @@ six==1.16.0
     #   url-normalize
 snuggs==1.4.7
     # via rasterio
-soupsieve==2.2.1
+soupsieve==2.3.1
     # via beautifulsoup4
-sqlalchemy==1.4.26
+sqlalchemy==1.4.27
     # via tabulator
 tabulator[cchardet]==1.53.5
     # via hdx-python-utilities
 text-unidecode==1.3
     # via python-slugify
-typing-extensions==3.10.0.2
+typing-extensions==4.0.0
     # via pydantic
 unicodecsv==0.14.1
     # via tabulator

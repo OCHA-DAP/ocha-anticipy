@@ -13,6 +13,7 @@ and this project adheres to
 
 ### Added
 
+- functionality to download and save FewsNet data
 - Raster processing module
 - Pre-commit hook to check Sphinx documentation can be built
 - [`pip-compile`](https://github.com/jazzband/pip-tools#version-control-integration)
