@@ -73,7 +73,7 @@ class AreaFromStations(Area):
     Examples
     --------
     >>> stations = {"station1": Station(lon=1.0, lat=2.0),
-    >>>             "station2": Station(lon=3.0, lat=4.0)}
+    ...             "station2": Station(lon=3.0, lat=4.0)}
     >>> area = AreaFromStations(stations)
     """
 
