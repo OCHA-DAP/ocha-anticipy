@@ -12,6 +12,8 @@ basicauth==0.4.1
     # via hdx-python-utilities
 beautifulsoup4==4.10.0
     # via hdx-python-utilities
+bokeh==2.4.2
+    # via dask
 boto3==1.20.8
     # via tabulator
 botocore==1.23.8
@@ -42,6 +44,7 @@ click==8.0.3
     # via
     #   click-plugins
     #   cligj
+    #   distributed
     #   fiona
     #   rasterio
     #   tabulator
@@ -53,12 +56,22 @@ cligj==0.7.2
     # via
     #   fiona
     #   rasterio
+cloudpickle==2.0.0
+    # via
+    #   dask
+    #   distributed
 colorlog==6.6.0
     # via hdx-python-utilities
 cryptography==35.0.0
     # via pyopenssl
+dask==2021.11.2
+    # via
+    #   distributed
+    #   xarray
 decorator==5.1.0
     # via jsonpath-ng
+distributed==2021.11.2
+    # via dask
 dnspython==2.1.0
     # via email-validator
 docopt==0.6.2
@@ -75,6 +88,8 @@ exchangerates==0.3.4
     # via hdx-python-country
 fiona==1.8.20
     # via geopandas
+fsspec==2021.11.0
+    # via dask
 geopandas==0.10.2
     # via aa-toolbox (setup.cfg)
 greenlet==1.1.2
@@ -85,6 +100,8 @@ hdx-python-country==3.0.5
     # via hdx-python-api
 hdx-python-utilities==3.0.6
     # via hdx-python-country
+heapdict==1.0.1
+    # via zict
 html5lib==1.1
     # via hdx-python-utilities
 idna==3.3
@@ -95,6 +112,11 @@ ijson==3.1.4
     # via tabulator
 inflect==5.3.0
     # via quantulum3
+jinja2==3.0.3
+    # via
+    #   bokeh
+    #   dask
+    #   distributed
 jmespath==0.10.0
     # via
     #   boto3
@@ -107,8 +129,14 @@ libhxl==4.24.1
     # via hdx-python-country
 linear-tsv==1.1.0
     # via tabulator
+locket==0.2.1
+    # via partd
 lxml==4.6.4
     # via exchangerates
+markupsafe==2.0.1
+    # via jinja2
+msgpack==1.0.2
+    # via distributed
 munch==2.5.0
     # via fiona
 ndg-httpsclient==0.5.1
@@ -120,7 +148,9 @@ num2words==0.5.10
 numpy==1.21.4
     # via
     #   aa-toolbox (setup.cfg)
+    #   bokeh
     #   cftime
+    #   dask
     #   netcdf4
     #   pandas
     #   rasterio
@@ -129,15 +159,25 @@ numpy==1.21.4
 openpyxl==3.0.9
     # via tabulator
 packaging==21.3
-    # via rioxarray
+    # via
+    #   bokeh
+    #   dask
+    #   rioxarray
 pandas==1.3.4
     # via
+    #   dask
     #   geopandas
     #   xarray
+partd==1.2.0
+    # via dask
+pillow==8.4.0
+    # via bokeh
 ply==3.11
     # via
     #   jsonpath-ng
     #   libhxl
+psutil==5.8.0
+    # via distributed
 pyasn1==0.4.8
     # via
     #   hdx-python-api
@@ -173,7 +213,11 @@ python-slugify==5.0.2
 pytz==2021.3
     # via pandas
 pyyaml==6.0
-    # via aa-toolbox (setup.cfg)
+    # via
+    #   aa-toolbox (setup.cfg)
+    #   bokeh
+    #   dask
+    #   distributed
 quantulum3==0.7.9
     # via hdx-python-api
 rasterio==1.2.10
@@ -220,16 +264,31 @@ six==1.16.0
     #   url-normalize
 snuggs==1.4.7
     # via rasterio
+sortedcontainers==2.4.0
+    # via distributed
 soupsieve==2.3.1
     # via beautifulsoup4
 sqlalchemy==1.4.27
     # via tabulator
 tabulator[cchardet]==1.53.5
     # via hdx-python-utilities
+tblib==1.7.0
+    # via distributed
 text-unidecode==1.3
     # via python-slugify
+toolz==0.11.2
+    # via
+    #   dask
+    #   distributed
+    #   partd
+tornado==6.1
+    # via
+    #   bokeh
+    #   distributed
 typing-extensions==4.0.0
-    # via pydantic
+    # via
+    #   bokeh
+    #   pydantic
 unicodecsv==0.14.1
     # via tabulator
 unidecode==1.3.2
@@ -247,7 +306,7 @@ webencodings==0.5.1
     # via html5lib
 wheel==0.37.0
     # via libhxl
-xarray==0.20.1
+xarray[parallel]==0.20.1
     # via
     #   aa-toolbox (setup.cfg)
     #   rioxarray
@@ -255,6 +314,8 @@ xlrd==2.0.1
     # via tabulator
 xlrd3==1.1.0
     # via libhxl
+zict==2.0.0
+    # via distributed
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

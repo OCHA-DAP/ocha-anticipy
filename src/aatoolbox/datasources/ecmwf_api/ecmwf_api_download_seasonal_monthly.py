@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Union
 
 import geopandas as gpd
+import xarray as xr
 from ecmwfapi import ECMWFService
 
 from aatoolbox.utils.area import Area, AreaFromShape
@@ -82,9 +83,6 @@ def download_date(
     if not isinstance(date_forec, date):
         date_forec = date.fromisoformat(date_forec)
 
-    if not isinstance(ecmwf_dir, Path):
-        ecmwf_dir = Path(ecmwf_dir)
-
     # retrieve coord boundaries for which to download data
     if not area:
         area = AreaFromShape(iso3_gdf)
@@ -98,7 +96,7 @@ def download_date(
     output_filename = (
         f"{iso3}_{SEAS_DIR}_{PRATE_DIR}_{date_forec.strftime('%Y-%m')}.nc"
     )
-    output_path = ecmwf_dir / SEAS_DIR / PRATE_DIR / output_filename
+    output_path = _get_output_path(ecmwf_dir) / output_filename
     output_path.parent.mkdir(exist_ok=True, parents=True)
     # the data till 2016 is hindcast data, which only includes 25 members
     # data from 2017 contains 50 members
@@ -138,3 +136,54 @@ def download_date(
         },
         output_path,
     )
+
+
+def _get_output_path(ecmwf_dir: Union[str, Path]):
+    return Path(ecmwf_dir) / SEAS_DIR / PRATE_DIR
+
+
+def process(
+    iso3: str, raw_dir: Union[str, Path], processed_dir: Union[str, Path]
+) -> Path:
+    """
+    Combine the ECMWF seasonal forecast data into a single NetCDF file.
+
+    Parameters
+    ----------
+    iso3 : str
+        ISO3 code of country of interest
+    raw_dir : Union[str, Path]
+        Directory where raw data was downloaded
+    processed_dir :
+        Directory to write processed data
+
+    Returns
+    -------
+    Path to processed NetCDF file
+    """
+    # TODO: Just list the files for now, should probably compute
+    #  them explicitly by looping over dates
+    filepath_list = [
+        filename
+        for filename in _get_output_path(raw_dir).iterdir()
+        if filename.is_file()
+    ]
+    output_filepath = (
+        _get_output_path(processed_dir) / f"{iso3}_{SEAS_DIR}_{PRATE_DIR}.nc"
+    )
+
+    def _preprocess_monthly_mean_dataset(ds: xr.Dataset):
+        return (
+            ds.rename({"time": "step"})
+            .assign_coords(
+                {"time": ds.time.values[0], "step": [0, 1, 2, 3, 4, 5, 6]}
+            )
+            .expand_dims("time")
+        )
+
+    with xr.open_mfdataset(
+        filepath_list, preprocess=lambda d: _preprocess_monthly_mean_dataset(d)
+    ) as ds:
+
+        ds.to_netcdf(output_filepath)
+    return output_filepath
