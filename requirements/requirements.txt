@@ -68,8 +68,6 @@ dask[complete]==2021.11.2
     # via
     #   distributed
     #   xarray
-datetime==4.3
-    # via aa-toolbox (setup.cfg)
 decorator==5.1.0
     # via jsonpath-ng
 distributed==2021.11.2
@@ -213,9 +211,7 @@ python-io-wrapper==0.2
 python-slugify==5.0.2
     # via ckanapi
 pytz==2021.3
-    # via
-    #   datetime
-    #   pandas
+    # via pandas
 pyyaml==6.0
     # via
     #   aa-toolbox (setup.cfg)
@@ -320,8 +316,6 @@ xlrd3==1.1.0
     # via libhxl
 zict==2.0.0
     # via distributed
-zope.interface==5.4.0
-    # via datetime
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

@@ -118,8 +118,6 @@ dask[complete]==2021.11.2
     #   -r requirements/requirements.txt
     #   distributed
     #   xarray
-datetime==4.3
-    # via -r requirements/requirements.txt
 decorator==5.1.0
     # via
     #   -r requirements/requirements.txt
@@ -390,7 +388,6 @@ pytz==2021.3
     # via
     #   -r requirements/requirements.txt
     #   babel
-    #   datetime
     #   pandas
 pyyaml==6.0
     # via
@@ -585,10 +582,6 @@ zict==2.0.0
     # via
     #   -r requirements/requirements.txt
     #   distributed
-zope.interface==5.4.0
-    # via
-    #   -r requirements/requirements.txt
-    #   datetime
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
