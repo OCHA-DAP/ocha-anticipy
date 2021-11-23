@@ -20,7 +20,6 @@ from pathlib import Path
 from typing import Union
 
 import geopandas as gpd
-import pandas as pd
 import xarray as xr
 from ecmwfapi import ECMWFService
 
@@ -184,8 +183,7 @@ def process(
             ds_month.rename({"time": "step"})
             .assign_coords(
                 {
-                    "time": pd.to_datetime(ds_month.time.values[0])
-                    - pd.offsets.DateOffset(months=1),
+                    "time": ds_month.time.values[0],
                     "step": [1, 2, 3, 4, 5, 6, 7],
                 }
             )
