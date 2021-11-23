@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Union
 
 import geopandas as gpd
+import pandas as pd
 import xarray as xr
 from ecmwfapi import ECMWFService
 
@@ -172,11 +173,20 @@ def process(
         _get_output_path(processed_dir) / f"{iso3}_{SEAS_DIR}_{PRATE_DIR}.nc"
     )
 
-    def _preprocess_monthly_mean_dataset(ds: xr.Dataset):
+    def _preprocess_monthly_mean_dataset(ds_month: xr.Dataset):
+        # The individual ECMWF datasets only have a single time parameter,
+        # that represents the time of the forecast, which have lead times
+        # from 1 to 7 months. This method changes the time parameter to
+        # the month the forecast was run, and the step parameter to the
+        # lead time in months.
         return (
-            ds.rename({"time": "step"})
+            ds_month.rename({"time": "step"})
             .assign_coords(
-                {"time": ds.time.values[0], "step": [0, 1, 2, 3, 4, 5, 6]}
+                {
+                    "time": pd.to_datetime(ds_month.time.values[0])
+                    - pd.offsets.DateOffset(months=1),
+                    "step": [1, 2, 3, 4, 5, 6, 7],
+                }
             )
             .expand_dims("time")
         )
@@ -184,6 +194,5 @@ def process(
     with xr.open_mfdataset(
         filepath_list, preprocess=lambda d: _preprocess_monthly_mean_dataset(d)
     ) as ds:
-
         ds.to_netcdf(output_filepath)
     return output_filepath
