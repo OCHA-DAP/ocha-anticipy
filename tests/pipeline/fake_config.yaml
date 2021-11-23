@@ -1,0 +1,6 @@
+iso3: abc
+codab:
+  hdx_address: fake_hdx_address
+  hdx_dataset_name: fake_hdx_dataset_name
+  layer_base_name: fake_layer_base_name_level{admin_level}
+  admin_level_max: 2
