@@ -172,6 +172,7 @@ def process(
     output_filepath = (
         _get_output_path(processed_dir) / f"{iso3}_{SEAS_DIR}_{PRATE_DIR}.nc"
     )
+    output_filepath.parent.mkdir(exist_ok=True, parents=True)
 
     def _preprocess_monthly_mean_dataset(ds_month: xr.Dataset):
         # The individual ECMWF datasets only have a single time parameter,
