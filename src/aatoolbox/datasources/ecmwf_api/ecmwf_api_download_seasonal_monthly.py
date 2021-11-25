@@ -54,6 +54,7 @@ def download_date(
     iso3_gdf: gpd.GeoDataFrame,
     area: Area = None,
     clobber: bool = True,
+    grid: float = 0.4,
 ):
     """
     Download the seasonal forecast precipitation for one date.
@@ -75,6 +76,8 @@ def download_date(
     area : Area, default = None
         Area object containing the boundary coordinates of the area that
         should be downloaded. If None, retrieved from iso3_gdf
+    grid: float, default = 0.4
+        Grid resolution in degrees
 
     Examples
     --------
@@ -133,7 +136,7 @@ def download_date(
             "system": "5",
             "time": "00:00:00",
             "type": "fcmean",
-            "grid": "0.4/0.4",
+            "grid": f"{grid}/{grid}",
             "area": f"{area.south}/{area.west}/{area.north}/{area.east}",
             "format": "netcdf",
         },
