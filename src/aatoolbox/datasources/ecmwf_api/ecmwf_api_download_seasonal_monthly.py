@@ -17,9 +17,10 @@ https://www.ecmwf.int/en/forecasts/access-forecasts/ecmwf-web-api
 
 from datetime import date
 from pathlib import Path
-from typing import Union
+from typing import List, Union
 
 import geopandas as gpd
+import pandas as pd
 import xarray as xr
 from ecmwfapi import ECMWFService
 
@@ -44,16 +45,15 @@ SEAS_DIR = "seasonal-monthly-individual-members"
 PRATE_DIR = "prate"
 
 
-@check_file_existence
-def download_date(
+def download(
     # question: do we want to assume an iso3 here?
     # might want to e.g. download for a multi-country region or only a city
     iso3: str,
-    date_forec: Union[str, date],
     ecmwf_dir: Union[str, Path],
     iso3_gdf: gpd.GeoDataFrame,
+    date_list: List[Union[str, date]] = None,
     area: Area = None,
-    clobber: bool = True,
+    clobber: bool = False,
     grid: float = 0.4,
 ):
     """
@@ -66,13 +66,13 @@ def download_date(
     ----------
     iso3 : str
         iso3 code of country of interest
-    date_forec : Union[str, date]
-        date the forecast is released. Only the year and month
-        are of importance
     ecmwf_dir : Union[str, Path]
         path to the ecmwf dir to which the data should be written
     iso3_gdf : gpd.GeoDataFrame
         GeoDataFrame which contains geometries describing the area
+    date_list : List[Union[str, date]]
+        list of dates the forecasts should be downloaded for.
+        If None, all forecasts are downloaded
     area : Area, default = None
         Area object containing the boundary coordinates of the area that
         should be downloaded. If None, retrieved from iso3_gdf
@@ -83,12 +83,9 @@ def download_date(
     --------
     >>> import geopandas as gpd
     >>> df_admin_boundaries = gpd.read_file(gpd.datasets.get_path('nybb'))
-    >>> download_date(iso3="nybb",date_forec=date(1999,1,1),
-    ... ecmwf_dir=ecmwf_dir,iso3_gdf=df_admin_boundaries.to_crs("epsg:4326"))
+    >>> download(iso3="nybb",ecmwf_dir=ecmwf_dir,
+    ... iso3_gdf=df_admin_boundaries.to_crs("epsg:4326"))
     """
-    if not isinstance(date_forec, date):
-        date_forec = date.fromisoformat(date_forec)
-
     # retrieve coord boundaries for which to download data
     if not area:
         area = AreaFromShape(iso3_gdf)
@@ -96,14 +93,47 @@ def download_date(
         # will lead to more correspondence to the grid that ecmwf
         # publishes its data on
         area.round_area_coords()
+    if date_list is None:
+        # TODO: the end date should be updated dynamically
+        # or catch the APIException for dates that don't exist
+        date_list = [
+            d.strftime("%Y-%m-%d")
+            for d in pd.date_range(
+                start="1992-01-01", end="2021-04-01", freq="MS"
+            )
+        ]
+    for date_forec in date_list:
+        if not isinstance(date_forec, date):
+            date_forec = date.fromisoformat(date_forec)
+        # TODO: it would probably be safer to also include the boundary coords
+        # in the filename.. Just that the filename then gets massive
+        output_filename = (
+            f"{iso3}_{SEAS_DIR}_{PRATE_DIR}_{date_forec.strftime('%Y-%m')}.nc"
+        )
+        output_path = _get_output_path(ecmwf_dir) / output_filename
+        output_path.parent.mkdir(exist_ok=True, parents=True)
 
-    # TODO: it would probably be safer to also include the boundary coords
-    # in the filename.. Just that the filename then gets massive
-    output_filename = (
-        f"{iso3}_{SEAS_DIR}_{PRATE_DIR}_{date_forec.strftime('%Y-%m')}.nc"
-    )
-    output_path = _get_output_path(ecmwf_dir) / output_filename
-    output_path.parent.mkdir(exist_ok=True, parents=True)
+        _download_date(
+            filepath=output_path,
+            date_forec=date_forec,
+            area=area,
+            grid=grid,
+            clobber=clobber,
+        )
+
+
+def _get_output_path(ecmwf_dir: Union[str, Path]):
+    return Path(ecmwf_dir) / SEAS_DIR / PRATE_DIR
+
+
+@check_file_existence
+def _download_date(
+    filepath: Path,
+    date_forec: Union[date],
+    area: Area,
+    clobber: bool,
+    grid: float = 0.4,
+):
     # the data till 2016 is hindcast data, which only includes 25 members
     # data from 2017 contains 50 members
     if date_forec.year <= 2016:
@@ -140,12 +170,8 @@ def download_date(
             "area": f"{area.south}/{area.west}/{area.north}/{area.east}",
             "format": "netcdf",
         },
-        output_path,
+        filepath,
     )
-
-
-def _get_output_path(ecmwf_dir: Union[str, Path]):
-    return Path(ecmwf_dir) / SEAS_DIR / PRATE_DIR
 
 
 def process(
