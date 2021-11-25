@@ -24,6 +24,7 @@ import xarray as xr
 from ecmwfapi import ECMWFService
 
 from aatoolbox.utils.area import Area, AreaFromShape
+from aatoolbox.utils.io import check_file_existence
 
 # Questions:
 # - Now written specifically for seasonal forecast,
@@ -43,6 +44,7 @@ SEAS_DIR = "seasonal-monthly-individual-members"
 PRATE_DIR = "prate"
 
 
+@check_file_existence
 def download_date(
     # question: do we want to assume an iso3 here?
     # might want to e.g. download for a multi-country region or only a city
@@ -51,6 +53,7 @@ def download_date(
     ecmwf_dir: Union[str, Path],
     iso3_gdf: gpd.GeoDataFrame,
     area: Area = None,
+    clobber: bool = True,
 ):
     """
     Download the seasonal forecast precipitation for one date.
