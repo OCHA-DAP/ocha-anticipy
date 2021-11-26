@@ -15,17 +15,21 @@ can be found at
 https://www.ecmwf.int/en/forecasts/access-forecasts/ecmwf-web-api
 """
 
+import logging
 from datetime import date
 from pathlib import Path
-from typing import List, Union
+from typing import Union
 
 import geopandas as gpd
 import pandas as pd
 import xarray as xr
 from ecmwfapi import ECMWFService
+from ecmwfapi.api import APIException
 
 from aatoolbox.utils.area import Area, AreaFromShape
 from aatoolbox.utils.io import check_file_existence
+
+logger = logging.getLogger(__name__)
 
 # Questions:
 # - Now written specifically for seasonal forecast,
@@ -34,8 +38,6 @@ from aatoolbox.utils.io import check_file_existence
 # but doubt how much is generalizable
 # - how much detail should be included in the filenames?
 # e.g. coordinates, grid size
-# - is it correct that ecmwf provides one more month
-# in the future compared to cds?
 # - when downloading the ecmwf data on a 1/1 grid,
 # it is not exactly the same as CDS data. Is this supposed to be?
 
@@ -46,18 +48,17 @@ PRATE_DIR = "prate"
 
 
 def download(
-    # question: do we want to assume an iso3 here?
-    # might want to e.g. download for a multi-country region or only a city
     iso3: str,
     ecmwf_dir: Union[str, Path],
-    iso3_gdf: gpd.GeoDataFrame,
-    date_list: List[Union[str, date]] = None,
+    iso3_gdf: gpd.GeoDataFrame = None,
+    min_date: Union[str, date] = None,
+    max_date: Union[str, date] = None,
     area: Area = None,
     clobber: bool = False,
     grid: float = 0.4,
 ):
     """
-    Download the seasonal forecast precipitation for one date.
+    Download the seasonal forecast precipitation by ECMWF from its API.
 
     From the ECMWF API retrieve the mean forecasted monthly precipitation
     per ensemble member
@@ -70,9 +71,13 @@ def download(
         path to the ecmwf dir to which the data should be written
     iso3_gdf : gpd.GeoDataFrame
         GeoDataFrame which contains geometries describing the area
-    date_list : List[Union[str, date]]
-        list of dates the forecasts should be downloaded for.
-        If None, all forecasts are downloaded
+    min_date : Union[str,date], default = None
+        The first date to download data for.
+        If None, set to the first available date
+    max_date : Union[str,date], default = None
+        The last date to download dat for.
+        If None, set to the last available date
+        All dates between min_date and max_date are downloaded
     area : Area, default = None
         Area object containing the boundary coordinates of the area that
         should be downloaded. If None, retrieved from iso3_gdf
@@ -87,24 +92,20 @@ def download(
     ... iso3_gdf=df_admin_boundaries.to_crs("epsg:4326"))
     """
     # retrieve coord boundaries for which to download data
-    if not area:
+    if area is not None and iso3_gdf is not None:
         area = AreaFromShape(iso3_gdf)
         # prefer to round the coordinates to integers as this
         # will lead to more correspondence to the grid that ecmwf
         # publishes its data on
         area.round_area_coords()
-    if date_list is None:
-        # TODO: the end date should be updated dynamically
-        # or catch the APIException for dates that don't exist
-        date_list = [
-            d.strftime("%Y-%m-%d")
-            for d in pd.date_range(
-                start="1992-01-01", end="2021-04-01", freq="MS"
-            )
-        ]
+    if min_date is None:
+        min_date = "1992-01-01"
+    if max_date is None:
+        max_date = date.today().replace(day=1)
+    # TODO: the end date should be updated dynamically
+    # or catch the APIException for dates that don't exist
+    date_list = pd.date_range(start=min_date, end=max_date, freq="MS")
     for date_forec in date_list:
-        if not isinstance(date_forec, date):
-            date_forec = date.fromisoformat(date_forec)
         # TODO: it would probably be safer to also include the boundary coords
         # in the filename.. Just that the filename then gets massive
         output_filename = (
@@ -129,7 +130,7 @@ def _get_output_path(ecmwf_dir: Union[str, Path]):
 @check_file_existence
 def _download_date(
     filepath: Path,
-    date_forec: Union[date],
+    date_forec: pd.Timestamp,
     area: Area,
     clobber: bool,
     grid: float = 0.4,
@@ -141,37 +142,43 @@ def _download_date(
     else:
         number_str = "/".join(str(i) for i in range(0, 51))
 
-    # reformat to format needed for API
-    # only released once a month, API expects day to be set to 01
-    date_str = f"{date_forec.strftime('%Y-%m')}-01"
-
     server = ECMWFService("mars")
     # question: should this call be explained more?
     # call to server which downloads file
     # meaning of inputs can be found in the links in the
     # top of this script
-    server.execute(
-        {
-            "class": "od",
-            # get an error if several dates at once, so do one at a time
-            "date": date_str,
-            "expver": "1",
-            "fcmonth": "1/2/3/4/5/6/7",
-            "levtype": "sfc",
-            "method": "1",
-            "number": number_str,
-            "origin": "ecmf",
-            "param": "228.172",
-            "stream": "msmm",
-            "system": "5",
-            "time": "00:00:00",
-            "type": "fcmean",
-            "grid": f"{grid}/{grid}",
-            "area": f"{area.south}/{area.west}/{area.north}/{area.east}",
-            "format": "netcdf",
-        },
-        filepath,
-    )
+    server_dict = {
+        "class": "od",
+        # get an error if several dates at once, so do one at a time
+        "date": date_forec.strftime("%Y-%m-%d"),
+        "expver": "1",
+        "fcmonth": "1/2/3/4/5/6/7",
+        "levtype": "sfc",
+        "method": "1",
+        "number": number_str,
+        "origin": "ecmf",
+        "param": "228.172",
+        "stream": "msmm",
+        "system": "5",
+        "time": "00:00:00",
+        "type": "fcmean",
+        "grid": f"{grid}/{grid}",
+        "format": "netcdf",
+    }
+    if area is not None:
+        server_dict[
+            "area"
+        ] = f"{area.south}/{area.west}/{area.north}/{area.east}"
+    try:
+        server.execute(
+            server_dict,
+            filepath,
+        )
+    except APIException:
+        logger.warning(
+            f"No data found for {date_forec.strftime('%Y-%m-%d')}. "
+            f"Skipping to next date."
+        )
 
 
 def process(
