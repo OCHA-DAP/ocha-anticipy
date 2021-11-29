@@ -119,9 +119,7 @@ def download(
         output_filename += ".nc"
         output_path = _get_output_path(ecmwf_dir) / output_filename
         output_path.parent.mkdir(exist_ok=True, parents=True)
-
-        logger.warning(f"{area}")
-        logger.warning(f"Downloading file to {output_path}")
+        logger.info(f"Downloading file to {output_path}")
         _download_date(
             filepath=output_path,
             date_forec=date_forec,
@@ -177,6 +175,7 @@ def _download_date(
         server_dict[
             "area"
         ] = f"{area.south}/{area.west}/{area.north}/{area.east}"
+    logger.debug(f"Querying API with parameters {server_dict}")
     try:
         server.execute(
             server_dict,
