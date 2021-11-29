@@ -113,7 +113,7 @@ cryptography==35.0.0
     # via
     #   -r requirements/requirements.txt
     #   pyopenssl
-dask[complete]==2021.11.2
+dask==2021.11.2
     # via
     #   -r requirements/requirements.txt
     #   distributed

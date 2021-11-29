@@ -18,7 +18,7 @@ https://www.ecmwf.int/en/forecasts/access-forecasts/ecmwf-web-api
 import logging
 from datetime import date
 from pathlib import Path
-from typing import Union
+from typing import Optional, Union
 
 import geopandas as gpd
 import pandas as pd
@@ -45,6 +45,7 @@ logger = logging.getLogger(__name__)
 SEAS_DIR = "seasonal-monthly-individual-members"
 # question: should prate be its own dir?
 PRATE_DIR = "prate"
+GRID_RESOLUTION = 0.4  # degrees
 
 
 def download(
@@ -55,7 +56,7 @@ def download(
     max_date: Union[str, date] = None,
     area: Area = None,
     clobber: bool = False,
-    grid: float = 0.4,
+    grid: float = GRID_RESOLUTION,
 ):
     """
     Download the seasonal forecast precipitation by ECMWF from its API.
@@ -81,6 +82,8 @@ def download(
     area : Area, default = None
         Area object containing the boundary coordinates of the area that
         should be downloaded. If None, retrieved from iso3_gdf
+    clobber: bool, default = False
+        If True, overwrite downloaded files if they already exist
     grid: float, default = 0.4
         Grid resolution in degrees
 
@@ -92,12 +95,12 @@ def download(
     ... iso3_gdf=df_admin_boundaries.to_crs("epsg:4326"))
     """
     # retrieve coord boundaries for which to download data
-    if area is not None and iso3_gdf is not None:
+    if area is None and iso3_gdf is not None:
         area = AreaFromShape(iso3_gdf)
         # prefer to round the coordinates to integers as this
         # will lead to more correspondence to the grid that ecmwf
         # publishes its data on
-        area.round_area_coords()
+        area.round_area_coords(round_val=GRID_RESOLUTION)
     if min_date is None:
         min_date = "1992-01-01"
     if max_date is None:
@@ -109,11 +112,16 @@ def download(
         # TODO: it would probably be safer to also include the boundary coords
         # in the filename.. Just that the filename then gets massive
         output_filename = (
-            f"{iso3}_{SEAS_DIR}_{PRATE_DIR}_{date_forec.strftime('%Y-%m')}.nc"
+            f"{iso3}_{SEAS_DIR}_{PRATE_DIR}_{date_forec.strftime('%Y-%m')}"
         )
+        if area is not None:
+            output_filename += "_{area.get_filename_repr()}"
+        output_filename += ".nc"
         output_path = _get_output_path(ecmwf_dir) / output_filename
         output_path.parent.mkdir(exist_ok=True, parents=True)
 
+        logger.warning(f"{area}")
+        logger.warning(f"Downloading file to {output_path}")
         _download_date(
             filepath=output_path,
             date_forec=date_forec,
@@ -131,7 +139,7 @@ def _get_output_path(ecmwf_dir: Union[str, Path]):
 def _download_date(
     filepath: Path,
     date_forec: pd.Timestamp,
-    area: Area,
+    area: Optional[Area],
     clobber: bool,
     grid: float = 0.4,
 ):

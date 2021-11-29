@@ -31,10 +31,16 @@ class Area:
         self.east = east
         self.west = west
 
+    def __repr__(self):
+        return (
+            f"N: {self.north}\nS: {self.south}\n"
+            f"E: {self.east}\nW: {self.west}"
+        )
+
     def round_area_coords(
         self,
         offset_val: float = 0.0,
-        round_val: int = 1,
+        round_val: Union[int, float] = 1,
     ):
         """
         Round the area coordinates.
@@ -60,6 +66,25 @@ class Area:
                 + offset_factor * offset_val
             )
             setattr(self, direction, rounded_coord)  # noqa: FKA01
+
+    def get_filename_repr(self, p: int = 0) -> str:
+        """
+        Get succinct boundary representation for usage in filenames.
+
+        Parameters
+        ----------
+        p : int, default = 1
+            Precision, i.e. number of decimal places to round to. Default is
+            1 for ints.
+
+        Returns
+        -------
+        String containing N, S, E and W coordinates.
+        """
+        return (
+            f"N{self.north:.{p}f}S{self.south:.{p}f}"
+            f"E{self.east:.{p}f}W{self.west:.{p}f}"
+        )
 
 
 class AreaFromShape(Area):

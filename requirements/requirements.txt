@@ -64,7 +64,7 @@ colorlog==6.6.0
     # via hdx-python-utilities
 cryptography==35.0.0
     # via pyopenssl
-dask[complete]==2021.11.2
+dask==2021.11.2
     # via
     #   distributed
     #   xarray
