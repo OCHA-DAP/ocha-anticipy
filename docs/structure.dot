@@ -1,0 +1,59 @@
+digraph D {
+  # Packages
+  node [shape=oval];
+  package
+  aatoolbox
+  datasources
+  utils
+  config
+  codab
+
+  # Modules
+  node [shape=box];
+  module
+  pipeline
+  # Config
+  countryconfig
+  pathconfig
+  # Utils
+  io
+  hdx_api
+  # Datasources
+  codab_module[label="codab"]
+  datasource
+
+  # Misc
+  node [shape=diamond];
+  misc
+  countries
+
+  # Structure connections
+  edge [arrowhead=none];
+  # Main dir
+  datasources-> aatoolbox
+  config -> aatoolbox
+  utils -> aatoolbox
+  pipeline -> aatoolbox
+  # Config dir
+  countries -> config
+  countryconfig -> config
+  pathconfig -> config
+  # Utils dir
+  io -> utils
+  hdx_api -> utils
+  # Datasources
+  codab -> datasources
+  codab_module -> codab
+  datasource -> datasources
+
+  # Import connections
+  edge[arrowhead=normal, style=dashed]
+  countryconfig -> pipeline
+  codab_module -> pipeline
+  pathconfig -> datasource
+  countries -> countryconfig
+  io -> countryconfig
+  io -> codab_module
+  hdx_api -> codab_module
+  datasource -> codab_module
+}
