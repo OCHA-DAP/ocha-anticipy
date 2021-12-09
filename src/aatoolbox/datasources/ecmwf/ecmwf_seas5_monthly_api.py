@@ -1,7 +1,7 @@
 """
 Functions to download the seasonal forecast data from the ECMWF API.
 
-The model that produces this forecast is named Sea5. More info on
+The model that produces this forecast is named SEAS5. More info on
 this model can be found in the user guide:
 https://www.ecmwf.int/sites/default/files/medialibrary/2017-10/System5_guide.pdf
 This also explains the variables used in the server request.
@@ -16,13 +16,13 @@ https://www.ecmwf.int/en/forecasts/access-forecasts/ecmwf-web-api
 """
 
 import logging
+import os
 from datetime import date
 from pathlib import Path
-from typing import Optional, Union
+from typing import Union
 
 import geopandas as gpd
 import pandas as pd
-import xarray as xr
 from ecmwfapi import ECMWFService
 from ecmwfapi.api import APIException
 
@@ -31,16 +31,6 @@ from aatoolbox.utils.io import check_file_existence
 
 logger = logging.getLogger(__name__)
 
-# Questions:
-# - Now written specifically for seasonal forecast,
-# monthly mean, precipitation.
-# could also write a more general ecmwf function,
-# but doubt how much is generalizable
-# - how much detail should be included in the filenames?
-# e.g. coordinates, grid size
-# - when downloading the ecmwf data on a 1/1 grid,
-# it is not exactly the same as CDS data. Is this supposed to be?
-
 # question: where should we define the folder names + structure?
 SEAS_DIR = "seasonal-monthly-individual-members"
 # question: should prate be its own dir?
@@ -48,13 +38,12 @@ PRATE_DIR = "prate"
 GRID_RESOLUTION = 0.4  # degrees
 
 
-def download(
+def download_api(
     iso3: str,
-    ecmwf_dir: Union[str, Path],
+    area: Area = None,
     iso3_gdf: gpd.GeoDataFrame = None,
     min_date: Union[str, date] = None,
     max_date: Union[str, date] = None,
-    area: Area = None,
     clobber: bool = False,
     grid: float = GRID_RESOLUTION,
 ):
@@ -68,10 +57,11 @@ def download(
     ----------
     iso3 : str
         iso3 code of country of interest
-    ecmwf_dir : Union[str, Path]
-        path to the ecmwf dir to which the data should be written
     iso3_gdf : gpd.GeoDataFrame
         GeoDataFrame which contains geometries describing the area
+    area : Area, default = None
+        Area object containing the boundary coordinates of the area that
+        should be downloaded. If None, retrieved from iso3_gdf
     min_date : Union[str,date], default = None
         The first date to download data for.
         If None, set to the first available date
@@ -79,9 +69,6 @@ def download(
         The last date to download dat for.
         If None, set to the last available date
         All dates between min_date and max_date are downloaded
-    area : Area, default = None
-        Area object containing the boundary coordinates of the area that
-        should be downloaded. If None, retrieved from iso3_gdf
     clobber: bool, default = False
         If True, overwrite downloaded files if they already exist
     grid: float, default = 0.4
@@ -95,29 +82,28 @@ def download(
     ... iso3_gdf=df_admin_boundaries.to_crs("epsg:4326"))
     """
     # retrieve coord boundaries for which to download data
-    if area is None and iso3_gdf is not None:
-        area = AreaFromShape(iso3_gdf)
-        # prefer to round the coordinates to integers as this
-        # will lead to more correspondence to the grid that ecmwf
-        # publishes its data on
-        area.round_area_coords(round_val=GRID_RESOLUTION)
+    if area is None:
+        if iso3_gdf is not None:
+            area = AreaFromShape(iso3_gdf)
+        else:
+            area = Area(north=90, south=-90, east=0, west=360)
+
+    # question: is it valid to do this rounding always or
+    # should it be optional?
+
+    # prefer to round the coordinates to integers as this
+    # will lead to more correspondence to the grid that ecmwf
+    # publishes its data on
+    area.round_area_coords(round_val=GRID_RESOLUTION)
     if min_date is None:
         min_date = "1992-01-01"
     if max_date is None:
         max_date = date.today().replace(day=1)
-    # TODO: the end date should be updated dynamically
-    # or catch the APIException for dates that don't exist
     date_list = pd.date_range(start=min_date, end=max_date, freq="MS")
     for date_forec in date_list:
-        # TODO: it would probably be safer to also include the boundary coords
-        # in the filename.. Just that the filename then gets massive
-        output_filename = (
-            f"{iso3}_{SEAS_DIR}_{PRATE_DIR}_{date_forec.strftime('%Y-%m')}"
+        output_path = get_raw_path_api(
+            iso3=iso3, date_forec=date_forec, area=area
         )
-        if area is not None:
-            output_filename += "_{area.get_filename_repr()}"
-        output_filename += ".nc"
-        output_path = _get_output_path(ecmwf_dir) / output_filename
         output_path.parent.mkdir(exist_ok=True, parents=True)
         logger.info(f"Downloading file to {output_path}")
         _download_date(
@@ -129,15 +115,48 @@ def download(
         )
 
 
-def _get_output_path(ecmwf_dir: Union[str, Path]):
-    return Path(ecmwf_dir) / SEAS_DIR / PRATE_DIR
+def get_raw_path_api(iso3, date_forec: pd.Timestamp, area: Area):
+    """
+    Get the path to the raw api data for a given `date_forec`.
+
+    Parameters
+    ----------
+    iso3 : str
+        iso3 code of country of interest
+    date_forec: pd.Timestamp
+        publication date of the data
+    area : Area
+        Area object containing the boundary coordinates of the area that
+        should be downloaded.
+
+    Returns
+    -------
+    path where the raw api data for `date_forec` is saved
+
+    """
+    output_dir = (
+        Path(os.environ["AA_DATA_DIR"])
+        / "private"
+        / "raw"
+        / iso3
+        / "ecmwf"
+        / SEAS_DIR
+        / PRATE_DIR
+    )
+    output_filename = (
+        f"{iso3}_{SEAS_DIR}_{PRATE_DIR}_{date_forec.strftime('%Y-%m')}"
+    )
+    if area is not None:
+        output_filename += f"_{area.get_filename_repr()}"
+    output_filename += ".nc"
+    return output_dir / output_filename
 
 
 @check_file_existence
 def _download_date(
     filepath: Path,
     date_forec: pd.Timestamp,
-    area: Optional[Area],
+    area: Area,
     clobber: bool,
     grid: float = 0.4,
 ):
@@ -168,13 +187,14 @@ def _download_date(
         "system": "5",
         "time": "00:00:00",
         "type": "fcmean",
+        "area": f"{area.south}/{area.west}/{area.north}/{area.east}",
         "grid": f"{grid}/{grid}",
+        # question: we now download as netcdf
+        # we can also download as grib and then there is more info
+        # in the file but we do need to use cfgrib
+        # which do we prefer?
         "format": "netcdf",
     }
-    if area is not None:
-        server_dict[
-            "area"
-        ] = f"{area.south}/{area.west}/{area.north}/{area.east}"
     logger.debug(f"Querying API with parameters {server_dict}")
     try:
         server.execute(
@@ -186,58 +206,3 @@ def _download_date(
             f"No data found for {date_forec.strftime('%Y-%m-%d')}. "
             f"Skipping to next date."
         )
-
-
-def process(
-    iso3: str, raw_dir: Union[str, Path], processed_dir: Union[str, Path]
-) -> Path:
-    """
-    Combine the ECMWF seasonal forecast data into a single NetCDF file.
-
-    Parameters
-    ----------
-    iso3 : str
-        ISO3 code of country of interest
-    raw_dir : Union[str, Path]
-        Directory where raw data was downloaded
-    processed_dir :
-        Directory to write processed data
-
-    Returns
-    -------
-    Path to processed NetCDF file
-    """
-    # TODO: Just list the files for now, should probably compute
-    #  them explicitly by looping over dates
-    filepath_list = [
-        filename
-        for filename in _get_output_path(raw_dir).iterdir()
-        if filename.is_file()
-    ]
-    output_filepath = (
-        _get_output_path(processed_dir) / f"{iso3}_{SEAS_DIR}_{PRATE_DIR}.nc"
-    )
-    output_filepath.parent.mkdir(exist_ok=True, parents=True)
-
-    def _preprocess_monthly_mean_dataset(ds_month: xr.Dataset):
-        # The individual ECMWF datasets only have a single time parameter,
-        # that represents the time of the forecast, which have lead times
-        # from 1 to 7 months. This method changes the time parameter to
-        # the month the forecast was run, and the step parameter to the
-        # lead time in months.
-        return (
-            ds_month.rename({"time": "step"})
-            .assign_coords(
-                {
-                    "time": ds_month.time.values[0],
-                    "step": [1, 2, 3, 4, 5, 6, 7],
-                }
-            )
-            .expand_dims("time")
-        )
-
-    with xr.open_mfdataset(
-        filepath_list, preprocess=lambda d: _preprocess_monthly_mean_dataset(d)
-    ) as ds:
-        ds.to_netcdf(output_filepath)
-    return output_filepath

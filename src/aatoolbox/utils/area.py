@@ -73,17 +73,25 @@ class Area:
 
         Parameters
         ----------
-        p : int, default = 1
+        p : int, default = 0
             Precision, i.e. number of decimal places to round to. Default is
-            1 for ints.
+            0 for ints.
 
         Returns
         -------
         String containing N, S, E and W coordinates.
         """
+
+        def _str_format(coord):
+            """Add m indicating minus value and p indicating positive value."""
+            if coord < 0:
+                return f"m{abs(coord):.{p}f}"
+            else:
+                return f"p{coord:.{p}f}"
+
         return (
-            f"N{self.north:.{p}f}S{self.south:.{p}f}"
-            f"E{self.east:.{p}f}W{self.west:.{p}f}"
+            f"N{_str_format(self.north)}S{_str_format(self.south)}"
+            f"E{_str_format(self.east)}W{_str_format(self.west)}"
         )
 
 
