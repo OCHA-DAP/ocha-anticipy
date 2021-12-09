@@ -16,7 +16,7 @@ import geopandas as gpd
 import pandas as pd
 import xarray as xr
 
-from aatoolbox.datasources.ecmwf.ecmwf_seas5_monthly_api import (
+from aatoolbox.datasources.ecmwf.download_ecmwf_seas5_monthly import (
     download_api,
     get_raw_path_api,
 )
