@@ -34,6 +34,7 @@ from aatoolbox.utils.io import check_file_existence
 
 logger = logging.getLogger(__name__)
 _MODULE_BASENAME = "ecmwf"
+# folder structure within the ecmwf dir
 SEAS_DIR = "seasonal-monthly-individual-members"
 PRATE_DIR = "prate"
 GRID_RESOLUTION = 0.4  # degrees
@@ -41,7 +42,7 @@ GRID_RESOLUTION = 0.4  # degrees
 
 class EcmwfApi(DataSource):
     """
-    Work with ECMWF private data.
+    Work with ECMWF's API data.
 
     Parameters
     ----------
@@ -62,9 +63,8 @@ class EcmwfApi(DataSource):
             self._area = AreaFromShape(area)
         else:
             self._area = Area(north=90, south=-90, east=0, west=360)
-        # prefer to round the coordinates to integers as this
-        # will lead to more correspondence to the grid that ecmwf
-        # publishes its data on
+        # round coordinates to correspond with the grid ecmwf publishes
+        # its data on
         self._area.round_area_coords(round_val=GRID_RESOLUTION)
 
     def download(
@@ -132,12 +132,12 @@ class EcmwfApi(DataSource):
         raw_path = self._get_raw_path_api(date_forec=None)
         filepath_list = list(raw_path.parents[0].glob(raw_path.name))
 
-        output_filepath = self._get_processed_path()
+        output_filepath = self.get_processed_path()
         output_filepath.parent.mkdir(exist_ok=True, parents=True)
 
         with xr.open_mfdataset(
             filepath_list,
-            preprocess=lambda d: self._preprocess_seas_forec_api(d),
+            preprocess=lambda d: self._preprocess(d),
         ) as ds:
             ds.to_netcdf(output_filepath)
         return output_filepath
@@ -245,7 +245,8 @@ class EcmwfApi(DataSource):
             filepath,
         )
 
-    def _get_processed_path(self):
+    def get_processed_path(self):
+        """Return the path to the processed file."""
         output_dir = self._processed_base_dir / SEAS_DIR / PRATE_DIR
         output_filename = (
             f"{self._iso3}_{SEAS_DIR}_{PRATE_DIR}_api"
@@ -254,7 +255,7 @@ class EcmwfApi(DataSource):
         return output_dir / output_filename
 
     @staticmethod
-    def _preprocess_seas_forec_api(ds_month: xr.Dataset):
+    def _preprocess(ds_month: xr.Dataset):
         """Preprocess individual files before combining.
 
         The individual ECMWF datasets only have a single time parameter,
