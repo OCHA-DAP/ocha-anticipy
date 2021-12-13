@@ -1,8 +1,9 @@
 """
 Retrieve boundary coordinates for an area and modify them.
 
-It is possible to create an ``Area`` object either from a dictionary of
-stations, or from a shapefile that has been read in with geopandas.
+It is possible to create an ``GeographicBoundingBox`` object either from
+north, south, east, west coordinates,
+or from a shapefile that has been read in with geopandas.
 """
 from typing import Union
 
@@ -10,7 +11,7 @@ import geopandas as gpd
 import numpy as np
 
 
-class Area:
+class GeographicBoundingBox:
     """Create an object containing the bounds of an area.
 
     Parameters
@@ -96,7 +97,7 @@ class Area:
         )
 
 
-class AreaFromShape(Area):
+class GeographicBoundingBoxFromShape(GeographicBoundingBox):
     """
     Retrieve north,south,west, and eastern bounds from a geopandas object.
 
@@ -109,7 +110,7 @@ class AreaFromShape(Area):
     --------
     >>> import geopandas as gpd
     >>> df_admin_boundaries = gpd.read_file("admin0_boundaries.gpkg")
-    >>> area = AreaFromShape(df_admin_boundaries)
+    >>> area = GeographicBoundingBoxFromShape(df_admin_boundaries)
     """
 
     def __init__(self, shape: Union[gpd.GeoSeries, gpd.GeoDataFrame]):
