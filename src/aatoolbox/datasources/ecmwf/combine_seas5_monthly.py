@@ -39,7 +39,7 @@ class Ecmwf(DataSource):
     Combination of the API and realtime data.
     """
 
-    def __init__(self, iso3: str, area):
+    def __init__(self, iso3: str, area=None):
         super().__init__(
             iso3=iso3, module_base_dir=_MODULE_BASENAME, is_public=False
         )

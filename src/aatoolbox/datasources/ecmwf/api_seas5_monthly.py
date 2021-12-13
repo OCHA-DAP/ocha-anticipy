@@ -142,6 +142,10 @@ class EcmwfApi(DataSource):
             ds.to_netcdf(output_filepath)
         return output_filepath
 
+    def load(self):
+        """Load the api ecmwf dataset."""
+        return xr.load_dataset(self.get_processed_path())
+
     def _set_min_max_date(self, min_date, max_date):
         if min_date is None:
             min_date = "1992-01-01"

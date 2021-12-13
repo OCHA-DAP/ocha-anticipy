@@ -81,16 +81,23 @@ class EcmwfRealtime(DataSource):
                 "No point mapping given or iso3 not found in default point "
                 "mappings. Input a point mapping or add the iso3 to defaults."
             )
-
-        if Area:
-            self._area = area
-        elif iso3 in ISO3_AREA_MAPPING:
-            self._area = ISO3_AREA_MAPPING[iso3]
+        # question: doubting if should even allow custom area or
+        # that it should always be a default
+        # if not using default, the filename might not represent
+        # the actual content
+        if area is not None:
+            if type(area) == Area:
+                self._area = area
+            else:
+                logger.error("Inputted area has to be of type Area.")
         else:
-            logger.error(
-                "No area given or iso3 not found in default area map. "
-                "Input an area or add the iso3 to defaults."
-            )
+            if iso3 in ISO3_AREA_MAPPING:
+                self._area = ISO3_AREA_MAPPING[iso3]
+            else:
+                logger.error(
+                    "No area given or iso3 not found in default area map. "
+                    "Input an area or add the iso3 to defaults."
+                )
 
     def process(self, datavar: str = "fcmean") -> Path:
         """
@@ -141,6 +148,10 @@ class EcmwfRealtime(DataSource):
             ds.to_netcdf(output_filepath)
 
         return output_filepath
+
+    def load(self):
+        """Load the realtime ecmwf dataset."""
+        return xr.load_dataset(self.get_processed_path())
 
     def get_processed_path(self):
         """Return the path to the processed file."""
