@@ -32,6 +32,7 @@ class Area:
         self.west = west
 
     def __repr__(self):
+        """Print area string."""
         return (
             f"N: {self.north}\nS: {self.south}\n"
             f"E: {self.east}\nW: {self.west}"
