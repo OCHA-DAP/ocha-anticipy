@@ -18,7 +18,7 @@ import xarray as xr
 from aatoolbox.datasources.datasource import DataSource
 from aatoolbox.datasources.ecmwf.api_seas5_monthly import EcmwfApi
 from aatoolbox.datasources.ecmwf.realtime_seas5_monthly import EcmwfRealtime
-from aatoolbox.utils.area import Area, AreaFromShape
+from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,9 @@ _MODULE_BASENAME = "ecmwf"
 SEAS_DIR = "seasonal-monthly-individual-members"
 PRATE_DIR = "prate"
 
-ISO3_AREA_MAPPING = {"mwi": Area(north=-5, south=-17, east=37, west=33)}
+ISO3_GEOBB_MAPPING = {
+    "mwi": GeoBoundingBox(north=-5, south=-17, east=37, west=33)
+}
 GRID_RESOLUTION = 0.4  # degrees
 
 
@@ -39,24 +41,24 @@ class Ecmwf(DataSource):
     Combination of the API and realtime data.
     """
 
-    def __init__(self, iso3: str, area=None):
+    def __init__(self, iso3: str, geobb=None):
         super().__init__(
             iso3=iso3, module_base_dir=_MODULE_BASENAME, is_public=False
         )
 
-        # the area indicates the boundaries for which data is
+        # the geobb indicates the boundaries for which data is
         # downloaded and processed
-        if type(area) == Area:
-            self._area = area
-        elif type(area) == gpd.GeoDataFrame:
-            self._area = AreaFromShape(area)
-        elif iso3 in ISO3_AREA_MAPPING:
-            self._area = ISO3_AREA_MAPPING[iso3]
+        if type(geobb) == GeoBoundingBox:
+            self._geobb = geobb
+        elif type(geobb) == gpd.GeoDataFrame:
+            self._geobb = GeoBoundingBox.from_shape(geobb)
+        elif iso3 in ISO3_GEOBB_MAPPING:
+            self._geobb = ISO3_GEOBB_MAPPING[iso3]
         else:
-            self._area = Area(north=90, south=-90, east=0, west=360)
+            self._geobb = GeoBoundingBox(north=90, south=-90, east=0, west=360)
         # round coordinates to correspond with the grid ecmwf publishes
         # its data on
-        self._area.round_area_coords(round_val=GRID_RESOLUTION)
+        self._geobb.round_coords(round_val=GRID_RESOLUTION)
 
     # question: should we have a download function here as well?
 
@@ -65,15 +67,16 @@ class Ecmwf(DataSource):
         Combine the datasets from the two retrieval methods.
 
         I.e. from the realtime folder and the api
-        In order to combine the two datasets, the area should be the same
+        In order to combine the two datasets,
+        the geoboundingbox should be the same
 
         Returns
         -------
         Path to processed NetCDF file
 
         """
-        ecmwf_rt = EcmwfRealtime(iso3=self._iso3, area=self._area)
-        ecmwf_api = EcmwfApi(iso3=self._iso3, area=self._area)
+        ecmwf_rt = EcmwfRealtime(iso3=self._iso3, geobb=self._geobb)
+        ecmwf_api = EcmwfApi(iso3=self._iso3, geobb=self._geobb)
         # question: should we even do this?
         if process_sources:
             ecmwf_rt.process()
@@ -95,6 +98,6 @@ class Ecmwf(DataSource):
         output_dir = self._processed_base_dir / SEAS_DIR / PRATE_DIR
         output_filename = (
             f"{self._iso3}_{SEAS_DIR}_{PRATE_DIR}_comb"
-            f"_{self._area.get_filename_repr()}.nc"
+            f"_{self._geobb.get_filename_repr()}.nc"
         )
         return output_dir / output_filename

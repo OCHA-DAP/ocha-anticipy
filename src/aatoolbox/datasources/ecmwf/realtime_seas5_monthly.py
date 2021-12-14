@@ -20,7 +20,7 @@ from pathlib import Path
 import xarray as xr
 
 from aatoolbox.datasources.datasource import DataSource
-from aatoolbox.utils.area import Area
+from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +36,9 @@ ECMWF_REALTIME_RAW_DIR = (
 )
 
 ISO3_POINTS_MAPPING = {"mwi": 384}
-ISO3_AREA_MAPPING = {"mwi": Area(north=-5, south=-17, east=37, west=33)}
+ISO3_GEOBB_MAPPING = {
+    "mwi": GeoBoundingBox(north=-5, south=-17, east=37, west=33)
+}
 
 
 class EcmwfRealtime(DataSource):
@@ -54,14 +56,17 @@ class EcmwfRealtime(DataSource):
         It thus serves as a sort of ID.
         If None, the `points_mapping` will be retrieved from the default
         list if available for the given iso3
-    area: Area
+    geobb: GeoBoundingBox
         the bounding coordinates of the area that is included in the data.
         If None, it will be retrieved from the default list if available
         for the given iso3
     """
 
     def __init__(
-        self, iso3: str, points_mapping: int = None, area: Area = None
+        self,
+        iso3: str,
+        points_mapping: int = None,
+        geobb: GeoBoundingBox = None,
     ):
         super().__init__(
             iso3=iso3, module_base_dir=_MODULE_BASENAME, is_public=False
@@ -81,22 +86,25 @@ class EcmwfRealtime(DataSource):
                 "No point mapping given or iso3 not found in default point "
                 "mappings. Input a point mapping or add the iso3 to defaults."
             )
-        # question: doubting if should even allow custom area or
+        # question: doubting if should even allow custom geobb or
         # that it should always be a default
         # if not using default, the filename might not represent
         # the actual content
-        if area is not None:
-            if type(area) == Area:
-                self._area = area
-            else:
-                logger.error("Inputted area has to be of type Area.")
-        else:
-            if iso3 in ISO3_AREA_MAPPING:
-                self._area = ISO3_AREA_MAPPING[iso3]
+        if geobb is not None:
+            if type(geobb) == GeoBoundingBox:
+                self._geobb = geobb
             else:
                 logger.error(
-                    "No area given or iso3 not found in default area map. "
-                    "Input an area or add the iso3 to defaults."
+                    "Inputted bounding box has to be of type GeoBoundingBox."
+                )
+        else:
+            if iso3 in ISO3_GEOBB_MAPPING:
+                self._geobb = ISO3_GEOBB_MAPPING[iso3]
+            else:
+                logger.error(
+                    "No bounding box given or iso3 not found in default "
+                    "bounding box map. Input a bounding box "
+                    "or add the iso3 to defaults."
                 )
 
     def process(self, datavar: str = "fcmean") -> Path:
@@ -158,7 +166,7 @@ class EcmwfRealtime(DataSource):
         output_dir = self._processed_base_dir / SEAS_DIR / PRATE_DIR
         output_filename = (
             f"{self._iso3}_{SEAS_DIR}_{PRATE_DIR}_realtime"
-            f"_{self._area.get_filename_repr()}.nc"
+            f"_{self._geobb.get_filename_repr()}.nc"
         )
         return output_dir / output_filename
 

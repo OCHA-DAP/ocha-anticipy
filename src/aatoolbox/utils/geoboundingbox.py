@@ -62,7 +62,7 @@ class GeoBoundingBox:
             west=shape.total_bounds[0],
         )
 
-    def round_boundingbox_coords(
+    def round_coords(
         self,
         offset_val: float = 0.0,
         round_val: Union[int, float] = 1,

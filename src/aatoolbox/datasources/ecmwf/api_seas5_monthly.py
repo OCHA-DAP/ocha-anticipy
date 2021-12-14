@@ -29,7 +29,7 @@ from ecmwfapi import ECMWFService
 from ecmwfapi.api import APIException
 
 from aatoolbox.datasources.datasource import DataSource
-from aatoolbox.utils.area import Area, AreaFromShape
+from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 from aatoolbox.utils.io import check_file_existence
 
 logger = logging.getLogger(__name__)
@@ -50,22 +50,22 @@ class EcmwfApi(DataSource):
         country iso3
     """
 
-    def __init__(self, iso3: str, area):
+    def __init__(self, iso3: str, geobb):
         super().__init__(
             iso3=iso3, module_base_dir=_MODULE_BASENAME, is_public=False
         )
 
-        # the area indicates the boundaries for which data is
+        # the geobb indicates the boundaries for which data is
         # downloaded and processed
-        if type(area) == Area:
-            self._area = area
-        elif type(area) == gpd.GeoDataFrame:
-            self._area = AreaFromShape(area)
+        if type(geobb) == GeoBoundingBox:
+            self._geobb = geobb
+        elif type(geobb) == gpd.GeoDataFrame:
+            self._geobb = GeoBoundingBox.from_shape(geobb)
         else:
-            self._area = Area(north=90, south=-90, east=0, west=360)
+            self._geobb = GeoBoundingBox(north=90, south=-90, east=0, west=360)
         # round coordinates to correspond with the grid ecmwf publishes
         # its data on
-        self._area.round_area_coords(round_val=GRID_RESOLUTION)
+        self._geobb.round_coords(round_val=GRID_RESOLUTION)
 
     def download(
         self,
@@ -162,7 +162,7 @@ class EcmwfApi(DataSource):
             output_filename += "*"
         else:
             output_filename += f"{date_forec.strftime('%Y-%m')}"
-        output_filename += f"_{self._area.get_filename_repr()}"
+        output_filename += f"_{self._geobb.get_filename_repr()}"
         output_filename += ".nc"
         return output_dir / output_filename
 
@@ -217,9 +217,9 @@ class EcmwfApi(DataSource):
             # fcmean refercs to forecast (fc) mean
             # can also be em = ensemble mean
             "type": "fcmean",
-            # boundaries of area to download
-            "area": f"{self._area.south}/{self._area.west}"
-            f"/{self._area.north}/{self._area.east}",
+            # boundaries of geobb to download
+            "area": f"{self._geobb.south}/{self._geobb.west}"
+            f"/{self._geobb.north}/{self._geobb.east}",
             # resolution of the grid
             "grid": f"{grid}/{grid}",
             # other option is to download as grib.
@@ -254,7 +254,7 @@ class EcmwfApi(DataSource):
         output_dir = self._processed_base_dir / SEAS_DIR / PRATE_DIR
         output_filename = (
             f"{self._iso3}_{SEAS_DIR}_{PRATE_DIR}_api"
-            f"_{self._area.get_filename_repr()}.nc"
+            f"_{self._geobb.get_filename_repr()}.nc"
         )
         return output_dir / output_filename
 
