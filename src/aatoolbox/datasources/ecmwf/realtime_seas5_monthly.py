@@ -173,7 +173,7 @@ class EcmwfRealtime(DataSource):
     @staticmethod
     def _preprocess(ds_date: xr.Dataset):
         """Set coordinate types and remove irrelevant dimensions."""
-        ds_date = ds_date.assign_coords(
+        ds_date = ds_date.rename({"forecastMonth": "step"}).assign_coords(
             {
                 # original type is float64
                 # type of api data is float32
@@ -186,5 +186,6 @@ class EcmwfRealtime(DataSource):
         return (
             ds_date.expand_dims("time")
             # surface is empty
-            .drop_vars("surface")
+            # TODO: not sure why forecastMonth is set as a var as well..
+            .drop_vars(["surface", "forecastMonth"])
         )
