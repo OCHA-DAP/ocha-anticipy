@@ -34,6 +34,7 @@ and this project adheres to
 
 - markdownlint pre-commit hook [switched to Node.js source](https://github.com/DavidAnson/markdownlint)
 - `requirements.txt` moved to `requirements` directory
+- `Area` class moved to utils
 
 ### Removed
 
