@@ -1,7 +1,7 @@
 """
-Retrieve boundary coordinates for an area and modify them.
+Functionality to retrieve and modify boundary coordinates.
 
-It is possible to create an ``GeographicBoundingBox`` object either from
+It is possible to create an ``GeoBoundingBox`` object either from
 north, south, east, west coordinates,
 or from a shapefile that has been read in with geopandas.
 """
@@ -11,7 +11,7 @@ import geopandas as gpd
 import numpy as np
 
 
-class GeographicBoundingBox:
+class GeoBoundingBox:
     """Create an object containing the bounds of an area.
 
     Parameters
@@ -33,25 +33,51 @@ class GeographicBoundingBox:
         self.west = west
 
     def __repr__(self):
-        """Print area string."""
+        """Print bounding box string."""
         return (
             f"N: {self.north}\nS: {self.south}\n"
             f"E: {self.east}\nW: {self.west}"
         )
 
-    def round_area_coords(
+    @classmethod
+    def from_shape(cls, shape: Union[gpd.GeoSeries, gpd.GeoDataFrame]):
+        """
+        Create `GeoBoundingBox` from a geopandas object.
+
+        Parameters
+        ----------
+        shape : geopandas.GeoSeries, geopandas.GeoDataFrame
+            A shape whose bounds will be retrieved
+
+        Examples
+        --------
+        >>> import geopandas as gpd
+        >>> df_admin_boundaries = gpd.read_file("admin0_boundaries.gpkg")
+        >>> geobb = GeoBoundingBox.from_shape(df_admin_boundaries)
+        """
+        return cls(
+            north=shape.total_bounds[3],
+            south=shape.total_bounds[1],
+            east=shape.total_bounds[2],
+            west=shape.total_bounds[0],
+        )
+
+    def round_boundingbox_coords(
         self,
         offset_val: float = 0.0,
         round_val: Union[int, float] = 1,
     ):
         """
-        Round the area coordinates.
+        Round the bounding box coordinates.
+
+        Rounding is always done outside the original bounding box.
+        I.e. the resulting bounding box is always equal or larger
+        than the original bounding box.
 
         Parameters
         ----------
         offset_val : float, default = 0.0
-            Offset the coordinates by this factor. Some CDS datasets require
-            coordinates that end in 0.5.
+            Offset the coordinates by this factor.
         round_val : int, default = 1
             The decimal to round to. If 1, round to integers
         """
@@ -94,29 +120,4 @@ class GeographicBoundingBox:
         return (
             f"N{_str_format(self.north)}S{_str_format(self.south)}"
             f"E{_str_format(self.east)}W{_str_format(self.west)}"
-        )
-
-
-class GeographicBoundingBoxFromShape(GeographicBoundingBox):
-    """
-    Retrieve north,south,west, and eastern bounds from a geopandas object.
-
-    Parameters
-    ----------
-    shape : geopandas.GeoSeries, geopandas.GeoDataFrame
-        A shape whose bounds will be retrieved
-
-    Examples
-    --------
-    >>> import geopandas as gpd
-    >>> df_admin_boundaries = gpd.read_file("admin0_boundaries.gpkg")
-    >>> area = GeographicBoundingBoxFromShape(df_admin_boundaries)
-    """
-
-    def __init__(self, shape: Union[gpd.GeoSeries, gpd.GeoDataFrame]):
-        super().__init__(
-            north=shape.total_bounds[3],
-            south=shape.total_bounds[1],
-            east=shape.total_bounds[2],
-            west=shape.total_bounds[0],
         )

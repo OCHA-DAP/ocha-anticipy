@@ -1,35 +1,32 @@
-"""Tests for the CDS GeographicBoundingBox module."""
+"""Tests for the CDS GeoBoundingBox module."""
 from geopandas import GeoSeries
 from shapely.geometry import Polygon
 
-from aatoolbox.utils.geoboundingbox import (
-    GeographicBoundingBox,
-    GeographicBoundingBoxFromShape,
-)
+from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
 
 def test_geoboundingbox_round_coords():
     """Test that coordinates are correctly rounded and offset."""
-    area = GeographicBoundingBox(north=1.05, south=-2.2, east=3.6, west=-4)
-    area.round_area_coords(offset_val=0.4)
-    assert area.north == 2.4
-    assert area.south == -3.4
-    assert area.east == 4.4
-    assert area.west == -4.4
+    geobb = GeoBoundingBox(north=1.05, south=-2.2, east=3.6, west=-4)
+    geobb.round_boundingbox_coords(offset_val=0.4)
+    assert geobb.north == 2.4
+    assert geobb.south == -3.4
+    assert geobb.east == 4.4
+    assert geobb.west == -4.4
 
 
 def test_geoboundingbox_filename():
     """Test that correct file string is returned."""
-    area = GeographicBoundingBox(north=1, south=-2, east=3, west=-4)
-    assert area.get_filename_repr() == "Np1Sm2Ep3Wm4"
+    geobb = GeoBoundingBox(north=1, south=-2, east=3, west=-4)
+    assert geobb.get_filename_repr() == "Np1Sm2Ep3Wm4"
 
 
-def test_get_geoboundingbox_from_shape():
-    """Test that getting the area from a polygon works as expected."""
+def test_geoboundingbox_from_shape():
+    """Test that getting the geobb from a polygon works as expected."""
     n, s, e, w = (1, -2, 3, -4)
     shape = GeoSeries([Polygon([(e, n), (e, s), (w, s), (w, n)])])
-    area = GeographicBoundingBoxFromShape(shape)
-    assert area.north == n
-    assert area.south == s
-    assert area.east == e
-    assert area.west == w
+    geobb = GeoBoundingBox.from_shape(shape)
+    assert geobb.north == n
+    assert geobb.south == s
+    assert geobb.east == e
+    assert geobb.west == w
