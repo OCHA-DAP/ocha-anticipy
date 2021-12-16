@@ -151,7 +151,9 @@ class EcmwfRealtime(DataSource):
             preprocess=lambda d: self._preprocess(d),
             # time refers to the publication month
             # forecastMonth to the leadtime in months, which is indexed 1-7
-            backend_kwargs={"time_dims": ("time", "forecastMonth")},
+            backend_kwargs={
+                "time_dims": ("time", "forecastMonth", "verifying_time")
+            },
         ) as ds:
             ds.to_netcdf(output_filepath)
 
@@ -173,7 +175,18 @@ class EcmwfRealtime(DataSource):
     @staticmethod
     def _preprocess(ds_date: xr.Dataset):
         """Set coordinate types and remove irrelevant dimensions."""
-        ds_date = ds_date.rename({"forecastMonth": "step"}).assign_coords(
+        ds_date = ds_date.rename(
+            {
+                "forecastMonth": "step",
+                # arghh because we only have one time step
+                # till now, this doesn't work nicely since
+                # it is then only dependent on step instead
+                # of time and step. This then gives errors
+                # when trying to merge with the api data
+                # TODO: help I don't know how to solve this..
+                # "verifying_time":"start_forecast_time"
+            }
+        ).assign_coords(
             {
                 # original type is float64
                 # type of api data is float32
@@ -186,6 +199,7 @@ class EcmwfRealtime(DataSource):
         return (
             ds_date.expand_dims("time")
             # surface is empty
-            # TODO: not sure why forecastMonth is set as a var as well..
-            .drop_vars(["surface", "forecastMonth"])
+            # TODO: not sure why forecastMonth and verifying_time is
+            #  set as a var as well..
+            .drop_vars(["surface", "forecastMonth", "verifying_time"])
         )

@@ -280,9 +280,21 @@ class EcmwfApi(DataSource):
             + 12 * (ds_month.time.dt.year - pub_date.dt.year)
             + 1
         )
+        # start_forecast_time = ds_month.time.values
         ds_month = (
             ds_month.rename({"time": "step"})
-            .assign_coords({"time": pub_date, "step": steps.values})
+            .assign_coords(
+                {
+                    "time": pub_date,
+                    "step": steps.values,
+                    # just renaming time to start_forecast_time doesn't
+                    # work cause want it to be dependent on the step
+                    # parameter instead of having its own dimension
+                    # TODO: now getting messed up when merging with the
+                    # realtime data. So find solution for that.
+                    # "start_forecast_time":("step",start_forecast_time)
+                }
+            )
             .expand_dims("time")
         )
         return ds_month
