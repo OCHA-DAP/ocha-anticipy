@@ -4,8 +4,8 @@ import shutil
 import tempfile
 from pathlib import Path
 
+from hdx.api.configuration import Configuration
 from hdx.data.dataset import Dataset
-from hdx.hdx_configuration import Configuration
 
 USER_AGENT = "aa-toolbox"
 
