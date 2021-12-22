@@ -16,6 +16,6 @@ _MAIN_GIT_BRANCH = "main"
 # upload of all builds to TestPyPI
 try:
     if git.get_branch_name() != _MAIN_GIT_BRANCH:
-        __version__ += f"-{git.get_short_hash()}"
+        __version__ += f".{git.get_short_hash()}"
 except CalledProcessError:
     pass
