@@ -1,6 +1,9 @@
 [build-system]
-requires = ["setuptools>=43", "wheel"]
+requires = ["setuptools>=45", "wheel", "setuptools_scm>=6.2"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+write_to = "src/aatoolbox/_version.py"
 
 [tool.black]
 line-length = 79
