@@ -35,13 +35,13 @@ and this project adheres to
 - markdownlint pre-commit hook [switched to Node.js source](https://github.com/DavidAnson/markdownlint)
 - `requirements.txt` moved to `requirements` directory
 - `Area` class moved to utils
+- Switched from `pbr` to `setuptools_scm` for automated git tag versioning
 
 ### Removed
 
-- `pbr` for automated git tag versioning (which also allowed the removal
-  of `setup.py`)
 - Documentation generation with setup.py (now done with pre-commit hook)
 - `Makefile` for generating requirements files
+- `setup.py` as it was only required for `scm`
 
 ## [0.2.1] - 2021-10-15
 
