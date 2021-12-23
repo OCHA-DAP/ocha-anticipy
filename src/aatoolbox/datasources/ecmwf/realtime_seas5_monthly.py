@@ -3,14 +3,14 @@ Functions to process ECMWF's realtime seasonal forecast data.
 
 The realtime data is not publicly available.
 A data sharing agreement with ECMWF has to be
-established to gain access to this data. See more information
-https://www.ecmwf.int/en/forecasts/access-forecasts/data-delivery
+established to gain access to this data. See more information `here
+<https://www.ecmwf.int/en/forecasts/access-forecasts/data-delivery>`_
 This script assumes that the user has access to
-this data and that this is saved at `ECMWF_REALTIME_RAW_DIR`.
+this data and that this is saved at `_ECMWF_REALTIME_RAW_DIR`.
 
 This script processess the seasonal forecast named SEAS5. More info on
-this model can be found in the user guide:
-https://www.ecmwf.int/sites/default/files/medialibrary/2017-10/System5_guide.pdf
+this model can be found in the `user guide
+<https://www.ecmwf.int/sites/default/files/medialibrary/2017-10/System5_guide.pdf>`_
 """
 
 import logging
@@ -26,19 +26,20 @@ logger = logging.getLogger(__name__)
 
 _MODULE_BASENAME = "ecmwf"
 # folder structure within the ecmwf dir
-SEAS_DIR = "seasonal-monthly-individual-members"
-PRATE_DIR = "prate"
+_SEAS_DIR = "seasonal-monthly-individual-members"
+_PRATE_DIR = "prate"
 
 # is it best to set this here or as a default value ina  config or so?
 # contains all the realtime data, not only seas forecast
-ECMWF_REALTIME_RAW_DIR = (
+_ECMWF_REALTIME_RAW_DIR = (
     Path(os.environ["AA_DATA_DIR"]) / "private" / "raw" / "glb" / "ecmwf"
 )
 
-ISO3_POINTS_MAPPING = {"mwi": 384}
-ISO3_GEOBB_MAPPING = {
+_ISO3_POINTS_MAPPING = {"mwi": 384}
+_ISO3_GEOBB_MAPPING = {
     "mwi": GeoBoundingBox(north=-5, south=-17, east=37, west=33)
 }
+_GRID_RESOLUTION = 0.4  # degrees
 
 
 class EcmwfRealtime(DataSource):
@@ -56,7 +57,7 @@ class EcmwfRealtime(DataSource):
         It thus serves as a sort of ID.
         If None, the `points_mapping` will be retrieved from the default
         list if available for the given iso3
-    geobb: GeoBoundingBox
+    geo_bounding_box: GeoBoundingBox
         the bounding coordinates of the area that is included in the data.
         If None, it will be retrieved from the default list if available
         for the given iso3
@@ -66,7 +67,7 @@ class EcmwfRealtime(DataSource):
         self,
         iso3: str,
         points_mapping: int = None,
-        geobb: GeoBoundingBox = None,
+        geo_bounding_box: GeoBoundingBox = None,
     ):
         super().__init__(
             iso3=iso3, module_base_dir=_MODULE_BASENAME, is_public=False
@@ -75,12 +76,12 @@ class EcmwfRealtime(DataSource):
         # hardcoding it above?
         # overwrite the raw_base_dir assuming that the data lives
         # in the global directory instead of the country specific
-        self._raw_base_dir = ECMWF_REALTIME_RAW_DIR
+        self._raw_base_dir = _ECMWF_REALTIME_RAW_DIR
 
         if points_mapping:
             self._points_mapping = points_mapping
-        elif iso3 in ISO3_POINTS_MAPPING:
-            self._points_mapping = ISO3_POINTS_MAPPING[iso3]
+        elif iso3 in _ISO3_POINTS_MAPPING:
+            self._points_mapping = _ISO3_POINTS_MAPPING[iso3]
         else:
             logger.error(
                 "No point mapping given or iso3 not found in default point "
@@ -90,22 +91,20 @@ class EcmwfRealtime(DataSource):
         # that it should always be a default
         # if not using default, the filename might not represent
         # the actual content
-        if geobb is not None:
-            if type(geobb) == GeoBoundingBox:
-                self._geobb = geobb
-            else:
-                logger.error(
-                    "Inputted bounding box has to be of type GeoBoundingBox."
-                )
-        else:
-            if iso3 in ISO3_GEOBB_MAPPING:
-                self._geobb = ISO3_GEOBB_MAPPING[iso3]
+        if geo_bounding_box is None:
+            if iso3 in _ISO3_GEOBB_MAPPING:
+                geo_bounding_box = _ISO3_GEOBB_MAPPING[iso3]
             else:
                 logger.error(
                     "No bounding box given or iso3 not found in default "
                     "bounding box map. Input a bounding box "
                     "or add the iso3 to defaults."
                 )
+        elif type(geo_bounding_box) != GeoBoundingBox:
+            logger.error(
+                "Inputted bounding box has to be of type GeoBoundingBox."
+            )
+        self._geobb = geo_bounding_box.round_coords(round_val=_GRID_RESOLUTION)
 
     def process(self, datavar: str = "fcmean") -> Path:
         """
@@ -113,7 +112,7 @@ class EcmwfRealtime(DataSource):
 
         This data is private and thus is only shared if you have
         a license agreement with ECMWF.
-        The data lives in ECMWF_REALTIME_RAW_DIR
+        The data lives in _ECMWF_REALTIME_RAW_DIR
 
         Parameters
         ----------
@@ -137,7 +136,7 @@ class EcmwfRealtime(DataSource):
         # are nested in a 1-dimensional structure"
         # it seems to work thought when using concat_dim="time"
         # but would have to test once we have data from several dates..
-        output_filepath = self.get_processed_path()
+        output_filepath = self._get_processed_path()
         output_filepath.parent.mkdir(exist_ok=True, parents=True)
         with xr.open_mfdataset(
             filepath_list,
@@ -159,13 +158,13 @@ class EcmwfRealtime(DataSource):
 
     def load(self):
         """Load the realtime ecmwf dataset."""
-        return xr.load_dataset(self.get_processed_path())
+        return xr.load_dataset(self._get_processed_path())
 
-    def get_processed_path(self):
+    def _get_processed_path(self):
         """Return the path to the processed file."""
-        output_dir = self._processed_base_dir / SEAS_DIR / PRATE_DIR
+        output_dir = self._processed_base_dir / _SEAS_DIR / _PRATE_DIR
         output_filename = (
-            f"{self._iso3}_{SEAS_DIR}_{PRATE_DIR}_realtime"
+            f"{self._iso3}_{_SEAS_DIR}_{_PRATE_DIR}_realtime"
             f"_{self._geobb.get_filename_repr()}.nc"
         )
         return output_dir / output_filename

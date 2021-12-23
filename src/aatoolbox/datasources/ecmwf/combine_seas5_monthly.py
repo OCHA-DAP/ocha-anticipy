@@ -5,12 +5,13 @@ This data is retrieved from two sources: the API and realtime.
 This script combines these two sources.
 
 The model that produces this forecast is named SEAS5. More info on
-this model can be found in the user guide:
-https://www.ecmwf.int/sites/default/files/medialibrary/2017-10/System5_guide.pdf
+this model can be found in the `user guide
+<https://www.ecmwf.int/sites/default/files/medialibrary/2017-10/System5_guide.pdf>`_
 """
 
 import logging
 from pathlib import Path
+from typing import Union
 
 import geopandas as gpd
 import xarray as xr
@@ -24,13 +25,13 @@ logger = logging.getLogger(__name__)
 
 _MODULE_BASENAME = "ecmwf"
 # folder structure within the ecmwf dir
-SEAS_DIR = "seasonal-monthly-individual-members"
-PRATE_DIR = "prate"
+_SEAS_DIR = "seasonal-monthly-individual-members"
+_PRATE_DIR = "prate"
 
-ISO3_GEOBB_MAPPING = {
+_ISO3_GEOBB_MAPPING = {
     "mwi": GeoBoundingBox(north=-5, south=-17, east=37, west=33)
 }
-GRID_RESOLUTION = 0.4  # degrees
+_GRID_RESOLUTION = 0.4  # degrees
 
 
 # question: should Ecmwf be a super class of EcmwfApi and EcmwfRealtime?
@@ -39,26 +40,37 @@ class Ecmwf(DataSource):
     Work with ECMWF's data.
 
     Combination of the API and realtime data.
+
+    iso3: str
+        country iso3
+    geo_bounding_box: GeoBoundingBox | gpd.GeoDataFrame
+        the bounding coordinates of the area that is included in the data.
+        If None, it will be retrieved from the default list if available
+        for the given iso3 and else set to the global bounds
     """
 
-    def __init__(self, iso3: str, geobb=None):
+    def __init__(
+        self,
+        iso3: str,
+        geo_bounding_box: Union[GeoBoundingBox, gpd.GeoDataFrame, None] = None,
+    ):
         super().__init__(
             iso3=iso3, module_base_dir=_MODULE_BASENAME, is_public=False
         )
-
         # the geobb indicates the boundaries for which data is
         # downloaded and processed
-        if type(geobb) == GeoBoundingBox:
-            self._geobb = geobb
-        elif type(geobb) == gpd.GeoDataFrame:
-            self._geobb = GeoBoundingBox.from_shape(geobb)
-        elif iso3 in ISO3_GEOBB_MAPPING:
-            self._geobb = ISO3_GEOBB_MAPPING[iso3]
-        else:
-            self._geobb = GeoBoundingBox(north=90, south=-90, east=0, west=360)
+        if type(geo_bounding_box) == gpd.GeoDataFrame:
+            geo_bounding_box = GeoBoundingBox.from_shape(geo_bounding_box)
+        elif geo_bounding_box is None:
+            if iso3 in _ISO3_GEOBB_MAPPING:
+                geo_bounding_box = _ISO3_GEOBB_MAPPING[iso3]
+            else:
+                geo_bounding_box = GeoBoundingBox(
+                    north=90, south=-90, east=0, west=360
+                )
         # round coordinates to correspond with the grid ecmwf publishes
         # its data on
-        self._geobb.round_coords(round_val=GRID_RESOLUTION)
+        self._geobb = geo_bounding_box.round_coords(round_val=_GRID_RESOLUTION)
 
     # question: should we have a download function here as well?
 
@@ -81,8 +93,8 @@ class Ecmwf(DataSource):
         if process_sources:
             ecmwf_rt.process()
             ecmwf_api.process()
-        ds_api = xr.load_dataset(ecmwf_api.get_processed_path())
-        ds_realtime = xr.load_dataset(ecmwf_rt.get_processed_path())
+        ds_api = xr.load_dataset(ecmwf_api._get_processed_path())
+        ds_realtime = xr.load_dataset(ecmwf_rt._get_processed_path())
         # TODO: realtime and api can contain the same forecast dates
         # not sure yet how to handle that..
         ds_comb = ds_api.merge(ds_realtime)
@@ -95,9 +107,9 @@ class Ecmwf(DataSource):
         return xr.load_dataset(self._get_processed_path())
 
     def _get_processed_path(self):
-        output_dir = self._processed_base_dir / SEAS_DIR / PRATE_DIR
+        output_dir = self._processed_base_dir / _SEAS_DIR / _PRATE_DIR
         output_filename = (
-            f"{self._iso3}_{SEAS_DIR}_{PRATE_DIR}_comb"
+            f"{self._iso3}_{_SEAS_DIR}_{_PRATE_DIR}_comb"
             f"_{self._geobb.get_filename_repr()}.nc"
         )
         return output_dir / output_filename

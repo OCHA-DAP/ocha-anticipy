@@ -2,19 +2,21 @@
 Functions to download and process seasonal forecast data from the ECMWF API.
 
 The model that produces this forecast is named SEAS5. More info on
-this model can be found in the user guide:
-https://www.ecmwf.int/sites/default/files/medialibrary/2017-10/System5_guide.pdf
+this model can be found in the
+`user guide
+<https://www.ecmwf.int/sites/default/files/medialibrary/2017-10/System5_guide.pdf>`_
+
 This also explains the variables used in the server request.
-A better understanding of the available products and matching Mars requests can
-be found at
-https://apps.ecmwf.int/archive-catalogue/?class=od&stream=msmm&expver=1 with an
-explanation of all the keywords at
-https://confluence.ecmwf.int/display/UDOC/Identification+keywords
+An overview of the available products and matching Mars requests can
+be found `here
+<https://apps.ecmwf.int/archive-catalogue/?class=od&stream=msmm&expver=1>`_
+with an explanation of all the keywords `here
+<https://confluence.ecmwf.int/display/UDOC/Identification+keywords?`_
 
 To access the ECMWF API, you need an authorized account.
 More information on the ECMWF API and how to initialize the usage,
-can be found at
-https://www.ecmwf.int/en/forecasts/access-forecasts/ecmwf-web-api
+can be found
+`here <https://www.ecmwf.int/en/forecasts/access-forecasts/ecmwf-web-api>`_
 """
 
 import logging
@@ -35,9 +37,10 @@ from aatoolbox.utils.io import check_file_existence
 logger = logging.getLogger(__name__)
 _MODULE_BASENAME = "ecmwf"
 # folder structure within the ecmwf dir
-SEAS_DIR = "seasonal-monthly-individual-members"
-PRATE_DIR = "prate"
-GRID_RESOLUTION = 0.4  # degrees
+_SEAS_DIR = "seasonal-monthly-individual-members"
+_PRATE_DIR = "prate"
+_GRID_RESOLUTION = 0.4  # degrees
+_MIN_DATE = "1992-01-01"
 
 
 class EcmwfApi(DataSource):
@@ -46,33 +49,40 @@ class EcmwfApi(DataSource):
 
     Parameters
     ----------
-    iso3 : (str)
+    iso3 : str
         country iso3
+    geo_bounding_box: GeoBoundingBox | gpd.GeoDataFrame
+        the bounding coordinates of the area that is included in the data.
+        If None, it will be set to the global bounds
     """
 
-    def __init__(self, iso3: str, geobb):
+    def __init__(
+        self,
+        iso3: str,
+        geo_bounding_box: Union[GeoBoundingBox, gpd.GeoDataFrame, None] = None,
+    ):
         super().__init__(
             iso3=iso3, module_base_dir=_MODULE_BASENAME, is_public=False
         )
 
         # the geobb indicates the boundaries for which data is
         # downloaded and processed
-        if type(geobb) == GeoBoundingBox:
-            self._geobb = geobb
-        elif type(geobb) == gpd.GeoDataFrame:
-            self._geobb = GeoBoundingBox.from_shape(geobb)
-        else:
-            self._geobb = GeoBoundingBox(north=90, south=-90, east=0, west=360)
+        if type(geo_bounding_box) == gpd.GeoDataFrame:
+            geo_bounding_box = GeoBoundingBox.from_shape(geo_bounding_box)
+        elif geo_bounding_box is None:
+            geo_bounding_box = GeoBoundingBox(
+                north=90, south=-90, east=0, west=360
+            )
         # round coordinates to correspond with the grid ecmwf publishes
         # its data on
-        self._geobb.round_coords(round_val=GRID_RESOLUTION)
+        self._geobb = geo_bounding_box.round_coords(round_val=_GRID_RESOLUTION)
 
     def download(
         self,
         min_date: Union[str, date] = None,
         max_date: Union[str, date] = None,
         clobber: bool = False,
-        grid: float = GRID_RESOLUTION,
+        grid: float = _GRID_RESOLUTION,
     ):
         """
         Download the seasonal forecast precipitation by ECMWF from its API.
@@ -98,23 +108,24 @@ class EcmwfApi(DataSource):
         --------
         >>> import geopandas as gpd
         >>> df_admin_boundaries = gpd.read_file(gpd.datasets.get_path('nybb'))
-        >>> download(iso3="nybb",ecmwf_dir=ecmwf_dir,
-        ... iso3_gdf=df_admin_boundaries.to_crs("epsg:4326"))
+        >>> ecmwf_api = EcmwfApi(iso3="nybb",
+        >>> ... geo_bounding_box=df_admin_boundaries)
+        >>> ecmwf_api.download()
         """
         if min_date is None:
-            min_date = "1992-01-01"
+            min_date = _MIN_DATE
         if max_date is None:
             max_date = date.today().replace(day=1)
         date_list = pd.date_range(start=min_date, end=max_date, freq="MS")
-        for date_forec in date_list:
-            output_path = self._get_raw_path_api(date_forec=date_forec)
+        for date_forecast in date_list:
+            output_path = self._get_raw_path(date_forecast=date_forecast)
             output_path.parent.mkdir(exist_ok=True, parents=True)
             logger.info(f"Downloading file to {output_path}")
-            self._download_date(
+            self._download_forecast_from_date(
                 filepath=output_path,
-                date_forec=date_forec,
-                grid=grid,
+                date_forecast=date_forecast,
                 clobber=clobber,
+                grid=grid,
             )
 
     def process(
@@ -129,10 +140,10 @@ class EcmwfApi(DataSource):
         -------
         Path to processed NetCDF file
         """
-        raw_path = self._get_raw_path_api(date_forec=None)
+        raw_path = self._get_raw_path(date_forecast=None)
         filepath_list = list(raw_path.parents[0].glob(raw_path.name))
 
-        output_filepath = self.get_processed_path()
+        output_filepath = self._get_processed_path()
         output_filepath.parent.mkdir(exist_ok=True, parents=True)
 
         with xr.open_mfdataset(
@@ -144,38 +155,30 @@ class EcmwfApi(DataSource):
 
     def load(self):
         """Load the api ecmwf dataset."""
-        return xr.load_dataset(self.get_processed_path())
+        return xr.load_dataset(self._get_processed_path())
 
-    def _set_min_max_date(self, min_date, max_date):
-        if min_date is None:
-            min_date = "1992-01-01"
-        if max_date is None:
-            max_date = date.today().replace(day=1)
-        return min_date, max_date
-
-    def _get_raw_path_api(self, date_forec: Union[pd.Timestamp, None]):
-        """Get the path to the raw api data for a given `date_forec`."""
-        output_dir = self._raw_base_dir / SEAS_DIR / PRATE_DIR
-        output_filename = f"{self._iso3}_{SEAS_DIR}_{PRATE_DIR}_"
+    def _get_raw_path(self, date_forecast: Union[pd.Timestamp, None]):
+        """Get the path to the raw api data for a given `date_forecast`."""
+        output_dir = self._raw_base_dir / _SEAS_DIR / _PRATE_DIR
+        output_filename = f"{self._iso3}_{_SEAS_DIR}_{_PRATE_DIR}_"
         # wildcard date to extract non-date specific filepath name
-        if date_forec is None:
+        if date_forecast is None:
             output_filename += "*"
         else:
-            output_filename += f"{date_forec.strftime('%Y-%m')}"
-        output_filename += f"_{self._geobb.get_filename_repr()}"
-        output_filename += ".nc"
+            output_filename += f"{date_forecast.strftime('%Y-%m')}"
+        output_filename += f"_{self._geobb.get_filename_repr()}.nc"
         return output_dir / output_filename
 
-    def _download_date(
+    def _download_forecast_from_date(
         self,
         filepath: Path,
-        date_forec: pd.Timestamp,
+        date_forecast: pd.Timestamp,
         clobber: bool,
         grid: float,
     ):
         # the data till 2016 is hindcast data, which only includes 25 members
         # data from 2017 contains 50 members
-        if date_forec.year <= 2016:
+        if date_forecast.year <= 2016:
             number_str = "/".join(str(i) for i in range(0, 25))
         else:
             number_str = "/".join(str(i) for i in range(0, 51))
@@ -186,7 +189,7 @@ class EcmwfApi(DataSource):
             "class": "od",
             # publication date to retrieve forecast for
             # get an error if several dates at once, so do one at a time
-            "date": date_forec.strftime("%Y-%m-%d"),
+            "date": date_forecast.strftime("%Y-%m-%d"),
             # the experiment version. production data is always 1 or 2
             "expver": "1",
             # leadtime months
@@ -236,7 +239,7 @@ class EcmwfApi(DataSource):
             )
         except APIException:
             logger.warning(
-                f"No data found for {date_forec.strftime('%Y-%m-%d')}. "
+                f"No data found for {date_forecast.strftime('%Y-%m-%d')}. "
                 f"Skipping to next date."
             )
 
@@ -249,11 +252,11 @@ class EcmwfApi(DataSource):
             filepath,
         )
 
-    def get_processed_path(self):
+    def _get_processed_path(self):
         """Return the path to the processed file."""
-        output_dir = self._processed_base_dir / SEAS_DIR / PRATE_DIR
+        output_dir = self._processed_base_dir / _SEAS_DIR / _PRATE_DIR
         output_filename = (
-            f"{self._iso3}_{SEAS_DIR}_{PRATE_DIR}_api"
+            f"{self._iso3}_{_SEAS_DIR}_{_PRATE_DIR}_api"
             f"_{self._geobb.get_filename_repr()}.nc"
         )
         return output_dir / output_filename
