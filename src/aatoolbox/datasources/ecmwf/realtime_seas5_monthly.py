@@ -14,7 +14,6 @@ this model can be found in the `user guide
 """
 
 import logging
-import os
 from pathlib import Path
 
 import xarray as xr
@@ -28,12 +27,6 @@ _MODULE_BASENAME = "ecmwf"
 # folder structure within the ecmwf dir
 _SEAS_DIR = "seasonal-monthly-individual-members"
 _PRATE_DIR = "prate"
-
-# is it best to set this here or as a default value ina  config or so?
-# contains all the realtime data, not only seas forecast
-_ECMWF_REALTIME_RAW_DIR = (
-    Path(os.environ["AA_DATA_DIR"]) / "private" / "raw" / "glb" / "ecmwf"
-)
 
 _ISO3_POINTS_MAPPING = {"mwi": 384}
 _ISO3_GEOBB_MAPPING = {
@@ -72,11 +65,13 @@ class EcmwfRealtime(DataSource):
         super().__init__(
             iso3=iso3, module_base_dir=_MODULE_BASENAME, is_public=False
         )
-        # question: can I use the datasource class to retrieve this instead of
-        # hardcoding it above?
+
         # overwrite the raw_base_dir assuming that the data lives
         # in the global directory instead of the country specific
-        self._raw_base_dir = _ECMWF_REALTIME_RAW_DIR
+        glb_datasource_class = DataSource(
+            "glb", module_base_dir=_MODULE_BASENAME, is_public=False
+        )
+        self._raw_base_dir = glb_datasource_class._raw_base_dir
 
         if points_mapping:
             self._points_mapping = points_mapping
@@ -95,7 +90,7 @@ class EcmwfRealtime(DataSource):
             if iso3 in _ISO3_GEOBB_MAPPING:
                 geo_bounding_box = _ISO3_GEOBB_MAPPING[iso3]
             else:
-                logger.error(
+                raise Exception(
                     "No bounding box given or iso3 not found in default "
                     "bounding box map. Input a bounding box "
                     "or add the iso3 to defaults."
@@ -104,7 +99,10 @@ class EcmwfRealtime(DataSource):
             logger.error(
                 "Inputted bounding box has to be of type GeoBoundingBox."
             )
-        self._geobb = geo_bounding_box.round_coords(round_val=_GRID_RESOLUTION)
+        geo_bounding_box = geo_bounding_box.round_coords(
+            round_val=_GRID_RESOLUTION
+        )
+        self._geobb = geo_bounding_box
 
     def process(self, datavar: str = "fcmean") -> Path:
         """

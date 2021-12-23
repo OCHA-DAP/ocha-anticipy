@@ -89,7 +89,7 @@ class GeoBoundingBox:
             elif direction in ("south", "west"):
                 function = np.floor.__call__  # needed for mypy
                 offset_factor = -1
-            rounded_coord = (
+            rounded_coord = np.float32(
                 function(coord / round_val) * round_val
                 + offset_factor * offset_val
             )

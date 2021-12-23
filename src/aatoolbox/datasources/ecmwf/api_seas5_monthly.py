@@ -75,7 +75,8 @@ class EcmwfApi(DataSource):
             )
         # round coordinates to correspond with the grid ecmwf publishes
         # its data on
-        self._geobb = geo_bounding_box.round_coords(round_val=_GRID_RESOLUTION)
+        geo_bounding_box.round_coords(round_val=_GRID_RESOLUTION)
+        self._geobb = geo_bounding_box
 
     def download(
         self,
@@ -94,9 +95,11 @@ class EcmwfApi(DataSource):
         ----------
         min_date : Union[str,date], default = None
             The first date to download data for.
+            If string in ISO 8601 format, e.g. '2020-01-01'
             If None, set to the first available date
         max_date : Union[str,date], default = None
             The last date to download dat for.
+            If string in ISO 8601 format, e.g. '2020-01-01'
             If None, set to the last available date
             All dates between min_date and max_date are downloaded
         clobber: bool, default = False
@@ -140,6 +143,7 @@ class EcmwfApi(DataSource):
         -------
         Path to processed NetCDF file
         """
+        # get path structure with publication date as wildcard
         raw_path = self._get_raw_path(date_forecast=None)
         filepath_list = list(raw_path.parents[0].glob(raw_path.name))
 
@@ -150,6 +154,8 @@ class EcmwfApi(DataSource):
             filepath_list,
             preprocess=lambda d: self._preprocess(d),
         ) as ds:
+            # include the names of all files that are included in the ds
+            ds.attrs["included_files"] = [f.stem for f in filepath_list]
             ds.to_netcdf(output_filepath)
         return output_filepath
 
@@ -183,13 +189,11 @@ class EcmwfApi(DataSource):
         else:
             number_str = "/".join(str(i) for i in range(0, 51))
 
-        server_dict = {
+        # api request items that don't depend on input
+        server_dict_const = {
             # ecmwf classification of data
             # od refers to the the operational archive
             "class": "od",
-            # publication date to retrieve forecast for
-            # get an error if several dates at once, so do one at a time
-            "date": date_forecast.strftime("%Y-%m-%d"),
             # the experiment version. production data is always 1 or 2
             "expver": "1",
             # leadtime months
@@ -200,8 +204,6 @@ class EcmwfApi(DataSource):
             # method of generation, standard is 1
             # method 3 is 13 month ahead forecast
             "method": "1",
-            # ensemble numbers
-            "number": number_str,
             # origin of data
             # for seas5 always ecmwf
             "origin": "ecmf",
@@ -220,17 +222,29 @@ class EcmwfApi(DataSource):
             # fcmean refercs to forecast (fc) mean
             # can also be em = ensemble mean
             "type": "fcmean",
-            # boundaries of geobb to download
-            "area": f"{self._geobb.south}/{self._geobb.west}"
-            f"/{self._geobb.north}/{self._geobb.east}",
-            # resolution of the grid
-            "grid": f"{grid}/{grid}",
             # other option is to download as grib.
             # This is the default when not specifying format
             # we chose for netcdf as this is the newer format
             # the community is moving towards
             "format": "netcdf",
         }
+
+        # items that depend on inputs
+        server_dict_var = {
+            # publication date to retrieve forecast for
+            # get an error if several dates at once, so do one at a time
+            "date": date_forecast.strftime("%Y-%m-%d"),
+            # ensemble numbers
+            "number": number_str,
+            # boundaries of geobb to download
+            "area": f"{self._geobb.south}/{self._geobb.west}"
+            f"/{self._geobb.north}/{self._geobb.east}",
+            # resolution of the grid
+            "grid": f"{grid}/{grid}",
+        }
+
+        # merge the two dicts for the full server request
+        server_dict = {**server_dict_const, **server_dict_var}
         logger.debug(f"Querying API with parameters {server_dict}")
 
         try:
