@@ -112,8 +112,8 @@ class EcmwfApi(DataSource):
 
         Examples
         --------
-        >>> from src.aatoolbox.pipeline import Pipeline
-        >>> (from src.aatoolbox.datasources.ecmwf.api_seas5_monthly
+        >>> from aatoolbox.pipeline import Pipeline
+        >>> (from aatoolbox.datasources.ecmwf.api_seas5_monthly
         ... import EcmwfApi)
         >>> pipeline_mwi = Pipeline("mwi")
         >>> mwi_admin0 = pipeline_mwi.load_codab(admin_level=0)
@@ -150,8 +150,8 @@ class EcmwfApi(DataSource):
 
         Examples
         --------
-        >>> from src.aatoolbox.pipeline import Pipeline
-        >>> (from src.aatoolbox.datasources.ecmwf.api_seas5_monthly
+        >>> from aatoolbox.pipeline import Pipeline
+        >>> (from aatoolbox.datasources.ecmwf.api_seas5_monthly
         ... import EcmwfApi)
         >>> pipeline_mwi = Pipeline("mwi")
         >>> mwi_admin0 = pipeline_mwi.load_codab(admin_level=0)
@@ -180,8 +180,8 @@ class EcmwfApi(DataSource):
 
         Examples
         --------
-        >>> from src.aatoolbox.pipeline import Pipeline
-        >>> (from src.aatoolbox.datasources.ecmwf.api_seas5_monthly
+        >>> from aatoolbox.pipeline import Pipeline
+        >>> (from aatoolbox.datasources.ecmwf.api_seas5_monthly
         ... import EcmwfApi)
         >>> pipeline_mwi = Pipeline("mwi")
         >>> mwi_admin0 = pipeline_mwi.load_codab(admin_level=0)
