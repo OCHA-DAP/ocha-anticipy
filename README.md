@@ -17,6 +17,11 @@ from `requirements/requirements-dev.txt`:
 pip install -r requirements/requirements-dev.txt
 ```
 
+`aa-toolbox` makes use of [`geopandas`](https://geopandas.org/en/stable/),
+which depends on [`Fiona`](https://github.com/Toblerity/Fiona),
+so you will need to have [`GDAL`](https://github.com/Toblerity/Fiona#installation)
+installed.
+
 ### Installation
 
 To install in editable mode for development, execute:
