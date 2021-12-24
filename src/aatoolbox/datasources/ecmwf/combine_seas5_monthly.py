@@ -32,9 +32,11 @@ _ISO3_GEOBB_MAPPING = {
     "mwi": GeoBoundingBox(north=-5, south=-17, east=37, west=33)
 }
 _GRID_RESOLUTION = 0.4  # degrees
+# number of decimals to include in filename
+# data is on 0.4 grid so should be 1
+_FILENAME_PRECISION = 1
 
 
-# question: should Ecmwf be a super class of EcmwfApi and EcmwfRealtime?
 class Ecmwf(DataSource):
     """
     Work with ECMWF's data.
@@ -57,7 +59,7 @@ class Ecmwf(DataSource):
         super().__init__(
             iso3=iso3, module_base_dir=_MODULE_BASENAME, is_public=False
         )
-        # the geobb indicates the boundaries for which data is
+        # the geo_bounding_box indicates the boundaries for which data is
         # downloaded and processed
         if type(geo_bounding_box) == gpd.GeoDataFrame:
             geo_bounding_box = GeoBoundingBox.from_shape(geo_bounding_box)
@@ -70,9 +72,10 @@ class Ecmwf(DataSource):
                 )
         # round coordinates to correspond with the grid ecmwf publishes
         # its data on
-        self._geobb = geo_bounding_box.round_coords(round_val=_GRID_RESOLUTION)
+        geo_bounding_box.round_coords(round_val=_GRID_RESOLUTION)
+        self._geobb = geo_bounding_box
 
-    # question: should we have a download function here as well?
+        # question: should we have a download function here as well?
 
     def process(self, process_sources: bool = True) -> Path:
         """
@@ -87,8 +90,8 @@ class Ecmwf(DataSource):
         Path to processed NetCDF file
 
         """
-        ecmwf_rt = EcmwfRealtime(iso3=self._iso3, geobb=self._geobb)
-        ecmwf_api = EcmwfApi(iso3=self._iso3, geobb=self._geobb)
+        ecmwf_rt = EcmwfRealtime(iso3=self._iso3)
+        ecmwf_api = EcmwfApi(iso3=self._iso3, geo_bounding_box=self._geobb)
         # question: should we even do this?
         if process_sources:
             ecmwf_rt.process()
@@ -110,6 +113,6 @@ class Ecmwf(DataSource):
         output_dir = self._processed_base_dir / _SEAS_DIR / _PRATE_DIR
         output_filename = (
             f"{self._iso3}_{_SEAS_DIR}_{_PRATE_DIR}_comb"
-            f"_{self._geobb.get_filename_repr()}.nc"
+            f"_{self._geobb.get_filename_repr(p=_FILENAME_PRECISION)}.nc"
         )
         return output_dir / output_filename

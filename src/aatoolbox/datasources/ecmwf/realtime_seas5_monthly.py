@@ -33,6 +33,9 @@ _ISO3_GEOBB_MAPPING = {
     "mwi": GeoBoundingBox(north=-5, south=-17, east=37, west=33)
 }
 _GRID_RESOLUTION = 0.4  # degrees
+# number of decimals to include in filename
+# data is on 0.4 grid so should be 1
+_FILENAME_PRECISION = 1
 
 
 class EcmwfRealtime(DataSource):
@@ -50,17 +53,12 @@ class EcmwfRealtime(DataSource):
         It thus serves as a sort of ID.
         If None, the `points_mapping` will be retrieved from the default
         list if available for the given iso3
-    geo_bounding_box: GeoBoundingBox
-        the bounding coordinates of the area that is included in the data.
-        If None, it will be retrieved from the default list if available
-        for the given iso3
     """
 
     def __init__(
         self,
         iso3: str,
         points_mapping: int = None,
-        geo_bounding_box: GeoBoundingBox = None,
     ):
         super().__init__(
             iso3=iso3, module_base_dir=_MODULE_BASENAME, is_public=False
@@ -78,30 +76,18 @@ class EcmwfRealtime(DataSource):
         elif iso3 in _ISO3_POINTS_MAPPING:
             self._points_mapping = _ISO3_POINTS_MAPPING[iso3]
         else:
-            logger.error(
+            raise Exception(
                 "No point mapping given or iso3 not found in default point "
                 "mappings. Input a point mapping or add the iso3 to defaults."
             )
-        # question: doubting if should even allow custom geobb or
-        # that it should always be a default
-        # if not using default, the filename might not represent
-        # the actual content
-        if geo_bounding_box is None:
-            if iso3 in _ISO3_GEOBB_MAPPING:
-                geo_bounding_box = _ISO3_GEOBB_MAPPING[iso3]
-            else:
-                raise Exception(
-                    "No bounding box given or iso3 not found in default "
-                    "bounding box map. Input a bounding box "
-                    "or add the iso3 to defaults."
-                )
-        elif type(geo_bounding_box) != GeoBoundingBox:
-            logger.error(
-                "Inputted bounding box has to be of type GeoBoundingBox."
+        if iso3 in _ISO3_GEOBB_MAPPING:
+            geo_bounding_box = _ISO3_GEOBB_MAPPING[iso3]
+        else:
+            raise Exception(
+                "Iso3 not found in default bounding box map. "
+                "Add the iso3 bounding box to the defaults."
             )
-        geo_bounding_box = geo_bounding_box.round_coords(
-            round_val=_GRID_RESOLUTION
-        )
+        geo_bounding_box.round_coords(round_val=_GRID_RESOLUTION)
         self._geobb = geo_bounding_box
 
     def process(self, datavar: str = "fcmean") -> Path:
@@ -122,13 +108,19 @@ class EcmwfRealtime(DataSource):
         -------
         Path to processed NetCDF file
 
+        Examples
+        --------
+        >>> (from aatoolbox.datasources.ecmwf.realtime_seas5_monthly
+        ... import EcmwfRealtime)
+        >>> ecmwf_rt=EcmwfRealtime(iso3="mwi")
+        >>> ecmwf_rt.process()
         """
         # T4L indicates the seasonal forecast with the monthly mean
         # see here for a bit more explanation
         # https://confluence.ecmwf.int/pages/viewpage.action?pageId=111155348
-        # without the 1 you also get .idx files which we don't want
+        # the 1 is for extra security to not accidentally catch
+        # thrash (such as index) files
         filepath_list = list(self._raw_base_dir.glob("*T4L*1"))
-
         # i would think setting concat_dim=["time","step"] makes more sense
         # but get an error "concat_dims has length 2 but the datasets passed
         # are nested in a 1-dimensional structure"
@@ -148,14 +140,28 @@ class EcmwfRealtime(DataSource):
             preprocess=lambda d: self._preprocess(d),
             # time refers to the publication month
             # forecastMonth to the leadtime in months, which is indexed 1-7
-            backend_kwargs={"time_dims": ("time", "forecastMonth")},
+            backend_kwargs={
+                "time_dims": ("time", "forecastMonth"),
+                "indexpath": "",
+            },
         ) as ds:
+            ds.attrs["included_files"] = [f.stem for f in filepath_list]
             ds.to_netcdf(output_filepath)
 
         return output_filepath
 
     def load(self):
-        """Load the realtime ecmwf dataset."""
+        """
+        Load the realtime ecmwf dataset.
+
+        Examples
+        --------
+        >>> (from aatoolbox.datasources.ecmwf.realtime_seas5_monthly
+        ... import EcmwfRealtime)
+        >>> ecmwf_rt=EcmwfRealtime(iso3="mwi")
+        >>> ecmwf_rt.process()
+        >>> ecmwf_rt.load()
+        """
         return xr.load_dataset(self._get_processed_path())
 
     def _get_processed_path(self):
@@ -163,7 +169,7 @@ class EcmwfRealtime(DataSource):
         output_dir = self._processed_base_dir / _SEAS_DIR / _PRATE_DIR
         output_filename = (
             f"{self._iso3}_{_SEAS_DIR}_{_PRATE_DIR}_realtime"
-            f"_{self._geobb.get_filename_repr()}.nc"
+            f"_{self._geobb.get_filename_repr(p=_FILENAME_PRECISION)}.nc"
         )
         return output_dir / output_filename
 

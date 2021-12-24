@@ -40,6 +40,9 @@ _MODULE_BASENAME = "ecmwf"
 _SEAS_DIR = "seasonal-monthly-individual-members"
 _PRATE_DIR = "prate"
 _GRID_RESOLUTION = 0.4  # degrees
+# number of decimals to include in filename
+# data is on 0.4 grid so should be 1
+_FILENAME_PRECISION = 1
 _MIN_DATE = "1992-01-01"
 
 
@@ -109,10 +112,12 @@ class EcmwfApi(DataSource):
 
         Examples
         --------
-        >>> import geopandas as gpd
-        >>> df_admin_boundaries = gpd.read_file(gpd.datasets.get_path('nybb'))
-        >>> ecmwf_api = EcmwfApi(iso3="nybb",
-        >>> ... geo_bounding_box=df_admin_boundaries)
+        >>> from src.aatoolbox.pipeline import Pipeline
+        >>> (from src.aatoolbox.datasources.ecmwf.api_seas5_monthly
+        ... import EcmwfApi)
+        >>> pipeline_mwi = Pipeline("mwi")
+        >>> mwi_admin0 = pipeline_mwi.load_codab(admin_level=0)
+        >>> ecmwf_api=EcmwfApi(iso3="mwi",geo_bounding_box=mwi_admin0)
         >>> ecmwf_api.download()
         """
         if min_date is None:
@@ -142,6 +147,16 @@ class EcmwfApi(DataSource):
         Returns
         -------
         Path to processed NetCDF file
+
+        Examples
+        --------
+        >>> from src.aatoolbox.pipeline import Pipeline
+        >>> (from src.aatoolbox.datasources.ecmwf.api_seas5_monthly
+        ... import EcmwfApi)
+        >>> pipeline_mwi = Pipeline("mwi")
+        >>> mwi_admin0 = pipeline_mwi.load_codab(admin_level=0)
+        >>> ecmwf_api=EcmwfApi(iso3="mwi",geo_bounding_box=mwi_admin0)
+        >>> ecmwf_api.process()
         """
         # get path structure with publication date as wildcard
         raw_path = self._get_raw_path(date_forecast=None)
@@ -160,7 +175,21 @@ class EcmwfApi(DataSource):
         return output_filepath
 
     def load(self):
-        """Load the api ecmwf dataset."""
+        """
+        Load the api ecmwf dataset.
+
+        Examples
+        --------
+        >>> from src.aatoolbox.pipeline import Pipeline
+        >>> (from src.aatoolbox.datasources.ecmwf.api_seas5_monthly
+        ... import EcmwfApi)
+        >>> pipeline_mwi = Pipeline("mwi")
+        >>> mwi_admin0 = pipeline_mwi.load_codab(admin_level=0)
+        >>> ecmwf_api=EcmwfApi(iso3="mwi",geo_bounding_box=mwi_admin0)
+        >>> ecmwf_api.download()
+        >>> ecmwf_api.process()
+        >>> ecmwf_api.load()
+        """
         return xr.load_dataset(self._get_processed_path())
 
     def _get_raw_path(self, date_forecast: Union[pd.Timestamp, None]):
@@ -172,7 +201,9 @@ class EcmwfApi(DataSource):
             output_filename += "*"
         else:
             output_filename += f"{date_forecast.strftime('%Y-%m')}"
-        output_filename += f"_{self._geobb.get_filename_repr()}.nc"
+        output_filename += (
+            f"_{self._geobb.get_filename_repr(p=_FILENAME_PRECISION)}.nc"
+        )
         return output_dir / output_filename
 
     def _download_forecast_from_date(
@@ -271,7 +302,7 @@ class EcmwfApi(DataSource):
         output_dir = self._processed_base_dir / _SEAS_DIR / _PRATE_DIR
         output_filename = (
             f"{self._iso3}_{_SEAS_DIR}_{_PRATE_DIR}_api"
-            f"_{self._geobb.get_filename_repr()}.nc"
+            f"_{self._geobb.get_filename_repr(p=_FILENAME_PRECISION)}.nc"
         )
         return output_dir / output_filename
 
