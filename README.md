@@ -17,6 +17,11 @@ from `requirements/requirements-dev.txt`:
 pip install -r requirements/requirements-dev.txt
 ```
 
+`aa-toolbox` makes use of [`geopandas`](https://geopandas.org/en/stable/),
+which depends on [`Fiona`](https://github.com/Toblerity/Fiona),
+so you will need to have [`GDAL`](https://github.com/Toblerity/Fiona#installation)
+installed.
+
 ### Installation
 
 To install in editable mode for development, execute:
@@ -82,3 +87,25 @@ pre-commit run pip-compile --all-files
 
 For other functionality such as updating specific package versions, refer to the
 `pip-tools` documentation.
+
+### Package Release
+
+Features are developed on our `develop` branch, with changes tracked in the
+"Unreleased" section at the top of `CHANGELOG.md`. Upon release, the `develop`
+branch is merged  to `main` and the release is tagged according to
+[semantic versioning](https://semver.org/spec/v2.0.0.html).
+
+Versioning is handled by
+[`setuptools_scm`](https://github.com/pypa/setuptools_scm),
+and the configuration for this can be found in `pyproject.toml`
+
+The `aa-toolbox` package is built and published to
+[PyPI](https://pypi.org/project/aa-toolbox/)
+whenever a new tag is pushed.
+With each new commit, a development version is pushed to
+[TestPyPI](https://test.pypi.org/project/aa-toolbox)
+and is available to install for testing purposes by running:
+
+```shell
+pip install -i https://test.pypi.org/simple/ aa-toolbox==$VERSION
+```
