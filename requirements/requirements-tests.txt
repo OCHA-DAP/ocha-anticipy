@@ -2,9 +2,9 @@ attrs==21.2.0
     # via pytest
 coverage[toml]==6.1.2
     # via pytest-cov
-distlib==0.3.4
+distlib==0.3.3
     # via virtualenv
-filelock==3.4.2
+filelock==3.4.0
     # via
     #   tox
     #   virtualenv
@@ -14,7 +14,7 @@ packaging==21.3
     # via
     #   pytest
     #   tox
-platformdirs==2.4.1
+platformdirs==2.4.0
     # via virtualenv
 pluggy==1.0.0
     # via
@@ -47,5 +47,5 @@ tomli==1.2.2
     # via coverage
 tox==3.24.5
     # via -r requirements/tests.in
-virtualenv==20.13.0
+virtualenv==20.10.0
     # via tox
