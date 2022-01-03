@@ -9,7 +9,9 @@ import zipfile
 from datetime import date
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Literal, Optional, Union
+from typing import Optional, Union
+
+from typing_extensions import Literal
 
 from aatoolbox.utils.io import download_url, unzip
 
