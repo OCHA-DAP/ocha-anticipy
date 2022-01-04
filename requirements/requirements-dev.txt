@@ -144,13 +144,13 @@ greenlet==1.1.2
     # via
     #   -r requirements/requirements.txt
     #   sqlalchemy
-hdx-python-api==5.4.1
+hdx-python-api==5.4.9
     # via -r requirements/requirements.txt
-hdx-python-country==3.0.5
+hdx-python-country==3.0.6
     # via
     #   -r requirements/requirements.txt
     #   hdx-python-api
-hdx-python-utilities==3.0.6
+hdx-python-utilities==3.0.7
     # via
     #   -r requirements/requirements.txt
     #   hdx-python-country
