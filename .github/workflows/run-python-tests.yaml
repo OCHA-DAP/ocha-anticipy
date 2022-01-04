@@ -1,10 +1,11 @@
 name: Run unit tests
 on: push
 jobs:
-  build:
+  build-and-test:
     name: Run unit tests
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         python-version: ['3.6', '3.7', '3.8', '3.9']
     steps:
@@ -26,12 +27,29 @@ jobs:
     - name: Run tests
       run: |
         tox
-    - name: Publish test results to GitHub
-      uses: EnricoMi/publish-unit-test-result-action@v1
+    - name: Upload test results
       if: always()
+      uses: actions/upload-artifact@v2
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        files: .tox/*.xml
-    - name: Upload coverage results to Codecov
-      uses: codecov/codecov-action@v2
-      if: success()
+        name: Unit test results (Python ${{ matrix.python-version }})
+        path: pytest.xml
+
+  publish-test-results:
+    name: Publish unit test results
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          path: artifacts
+      - name: Publish test results to GitHub
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          files: artifacts/**/*.xml
+      - name: Upload coverage results to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          files: artifacts/**/*.xml
