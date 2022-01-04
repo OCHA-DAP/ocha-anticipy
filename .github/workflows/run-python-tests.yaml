@@ -31,7 +31,7 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v2
       with:
-        name: Unit test results (Python ${{ matrix.python-version }})
+        name: py${{ matrix.python-version }}
         path: pytest.xml
 
   publish-test-results:
@@ -54,4 +54,4 @@ jobs:
       - name: Upload coverage results to Codecov
         uses: codecov/codecov-action@v2
         with:
-          files: artifacts/**/*.xml
+          files: artifacts/py3.6/pytest.xml,artifacts/py3.7/pytest.xml,artifacts/py3.8/pytest.xml,artifacts/py3.9/pytest.xml
