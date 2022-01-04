@@ -33,11 +33,6 @@ jobs:
       with:
         name: py${{ matrix.python-version }}
         path: pytest.xml
-    - name: Upload coverage results to Codecov
-      uses: codecov/codecov-action@v2
-      if: matrix.python-version == '3.9'
-      with:
-        files: pytest.xml
 
   publish-test-results:
     name: Publish unit test results
@@ -49,10 +44,13 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           path: artifacts
-      - name: Display structure of downloaded files
-        run: ls -R
       - name: Publish test results to GitHub
         uses: EnricoMi/publish-unit-test-result-action@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           files: artifacts/**/*.xml
+      - name: Upload Python 3.9 coverage results to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          files: artifacts/py3.9/pytest.xml
+          verbose: true
