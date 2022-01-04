@@ -1,5 +1,9 @@
-name: Build and publish to PyPI and TestPyPI
-on: push
+name: PyPI
+on:
+  push:
+    branches:
+      - main
+      - develop
 jobs:
   build-and-publish:
     name: Build and publish to PyPI and TestPyPI

@@ -1,4 +1,4 @@
-name: Run unit tests
+name: tests
 on: push
 jobs:
   build-and-test:
