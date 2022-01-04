@@ -33,9 +33,6 @@ jobs:
       with:
         name: py${{ matrix.python-version }}
         path: .tox/test-results.xml
-    - name: Upload Coverage Results
-      uses: codecov/codecov-action@v2
-      if: success() && matrix.python-version == 3.9
 
   publish-test-results:
     name: Publish unit test results
@@ -52,3 +49,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           files: artifacts/**/*.xml
+      - name: Upload coverage results to codecov
+        uses: codecov/codecov-action@v2
+        with:
+          files: artifacts/py3.9/test-results.xml
