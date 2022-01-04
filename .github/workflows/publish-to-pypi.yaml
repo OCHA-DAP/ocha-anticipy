@@ -1,11 +1,11 @@
-name: Build and publish to PyPI and TestPyPI
+name: PyPI
 on:
   push:
     branches:
       - main
       - develop
 jobs:
-  build:
+  build-and-publish:
     name: Build and publish to PyPI and TestPyPI
     runs-on: ubuntu-20.04
     steps:
