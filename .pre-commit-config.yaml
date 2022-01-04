@@ -50,11 +50,6 @@ repos:
         args: [setup.cfg, -q, --no-header,
                -o, requirements/requirements.txt]
       - id: pip-compile
-        name: pip-compile requirements-dev.txt
-        files: requirements/(dev.in|docs.in|tests.in|requirements.txt)
-        args: [requirements/dev.in, -q, --no-header,
-               -o, requirements/requirements-dev.txt]
-      - id: pip-compile
         name: pip-compile requirements-docs.txt
         files: requirements/docs.in
         args: [ requirements/docs.in, -q, --no-header,
@@ -64,3 +59,8 @@ repos:
         files: requirements/tests.in
         args: [requirements/tests.in, -q, --no-header,
                -o, requirements/requirements-tests.txt]
+      - id: pip-compile
+        name: pip-compile requirements-dev.txt
+        files: requirements/(dev.in|docs.in|tests.in|requirements.txt)
+        args: [requirements/dev.in, -q, --no-header,
+               -o, requirements/requirements-dev.txt]

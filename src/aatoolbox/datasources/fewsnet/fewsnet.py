@@ -6,32 +6,35 @@ Download and save the data provided by FEWS NET as provided on .
 
 import logging
 import zipfile
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Literal, Optional, Union
+from typing import Optional, Union
+
+from typing_extensions import Literal
 
 from aatoolbox.utils.io import download_url, unzip
 
 logger = logging.getLogger(__name__)
-BASE_URL_COUNTRY = (
+_DATE_FORMAT = "%Y-%m-%d"
+_BASE_URL_COUNTRY = (
     "https://fdw.fews.net/api/ipcpackage/"
     "?country_code={iso2}&collection_date={YYYY}-{MM}-01"
 )
-BASE_URL_REGION = (
+_BASE_URL_REGION = (
     "https://fews.net/data_portal_download/download"
     "?data_file_path=http://shapefiles.fews.net.s3.amazonaws.com/"
     "HFIC/{region_code}/{region_name}{YYYY}{MM}.zip"
 )
 
-VALID_REGION_NAMES = [
+_VALID_REGION_NAMES = [
     "caribbean-central-america",
     "central-asia",
     "east-africa",
     "southern-africa",
     "west-africa",
 ]
-VALID_REGION_CODES = ["LAC", "EA", "CA", "SA", "WA"]
+_VALID_REGION_CODES = ["LAC", "EA", "CA", "SA", "WA"]
 
 
 def download_fewsnet(
@@ -84,14 +87,14 @@ def download_fewsnet(
     ... region_code="east-africa", region_name="EA",
     ... output_dir="tmp",use_cache=False)
     """
-    if region_name not in VALID_REGION_NAMES:
+    if region_name not in _VALID_REGION_NAMES:
         raise ValueError(f"Invalid region name {region_name}")
-    if region_code not in VALID_REGION_CODES:
+    if region_code not in _VALID_REGION_CODES:
         raise ValueError(f"Invalid region code {region_code}")
 
     # convert to datetime if str
     if not isinstance(date_pub, date):
-        date_pub = date.fromisoformat(date_pub)
+        date_pub = datetime.strptime(date_pub, _DATE_FORMAT)
     # convert to path object if str
     if isinstance(output_dir, str):
         output_dir = Path(output_dir)
@@ -147,7 +150,7 @@ def _download_fewsnet_country(
     country_data : str
         if data found return the output_dir, else return None
     """
-    url_country_date = BASE_URL_COUNTRY.format(
+    url_country_date = _BASE_URL_COUNTRY.format(
         iso2=iso2.upper(), YYYY=date_pub.year, MM=date_pub.month
     )
 
@@ -199,7 +202,7 @@ def _download_fewsnet_region(
     region_data : str
         If region data exists, return the saved dir else return None
     """
-    url_region_date = BASE_URL_REGION.format(
+    url_region_date = _BASE_URL_REGION.format(
         region_code=region_code.upper(),
         region_name=region_name,
         YYYY=date_pub.year,
