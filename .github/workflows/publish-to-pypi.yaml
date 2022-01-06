@@ -5,6 +5,8 @@ on:
       - main
       - release
       - develop
+    tags:
+      - '*'
 jobs:
   build-and-publish:
     name: Build and publish to PyPI and TestPyPI
