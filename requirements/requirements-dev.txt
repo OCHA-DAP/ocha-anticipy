@@ -45,6 +45,8 @@ cchardet==2.1.7
     # via
     #   -r requirements/requirements.txt
     #   tabulator
+cdsapi==0.5.1
+    # via -r requirements/requirements.txt
 certifi==2021.10.8
     # via
     #   -r requirements/requirements.txt
@@ -346,6 +348,7 @@ ratelimit==2.2.1
 requests==2.26.0
     # via
     #   -r requirements/requirements.txt
+    #   cdsapi
     #   ckanapi
     #   exchangerates
     #   libhxl
@@ -451,6 +454,10 @@ tomli==1.2.2
     #   pep517
 tox==3.24.5
     # via -r requirements/tests.in
+tqdm==4.62.3
+    # via
+    #   -r requirements/requirements.txt
+    #   cdsapi
 typing-extensions==4.0.0
     # via
     #   -r requirements/requirements.txt
