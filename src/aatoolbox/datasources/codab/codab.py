@@ -3,8 +3,8 @@ from pathlib import Path
 
 import geopandas as gpd
 
+from aatoolbox.dataproviders.hdx_api import load_dataset_from_hdx
 from aatoolbox.datasources.datasource import DataSource
-from aatoolbox.utils.hdx_api import load_dataset_from_hdx
 from aatoolbox.utils.io import check_file_existence
 
 _MODULE_BASENAME = "cod_ab"
