@@ -1,4 +1,5 @@
 -r docs.in
+-r requirements.txt
 -r tests.in
 pip-tools
 pre-commit

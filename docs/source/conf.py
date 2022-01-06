@@ -15,7 +15,6 @@ import sys
 
 sys.path.insert(0, os.path.abspath("../.."))
 
-
 # -- Project information -----------------------------------------------------
 
 copyright = "2021, Centre for Humanitarian Data Predictive Analytics Team"

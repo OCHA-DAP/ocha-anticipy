@@ -131,3 +131,9 @@ dmypy.json
 
 # PyCharm
 .idea/
+
+# Mac DSStore
+.DS_Store
+
+# build files
+src/aatoolbox/_version.py
