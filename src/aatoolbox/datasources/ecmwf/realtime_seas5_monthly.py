@@ -135,8 +135,7 @@ class EcmwfRealtime(DataSource):
                 "numberOfPoints": self._points_mapping,
                 "dataType": datavar,
             },
-            concat_dim=["step"],
-            combine="nested",
+            combine="by_coords",
             preprocess=lambda d: self._preprocess(d),
             # time refers to the publication month
             # forecastMonth to the leadtime in months, which is indexed 1-7
@@ -187,7 +186,7 @@ class EcmwfRealtime(DataSource):
             }
         )
         return (
-            ds_date.expand_dims("time")
+            ds_date.expand_dims(["time", "step"])
             # surface is empty
             # TODO: not sure why forecastMonth is set as a var as well..
             .drop_vars(["surface", "forecastMonth"])
