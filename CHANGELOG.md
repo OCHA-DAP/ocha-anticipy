@@ -2,33 +2,33 @@
 
 # Changelog
 
-All notable changes to `aa-tools` will be documented in this file.
+All notable changes to `aa-toolbox` will be documented in this file.
 
 The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [0.3.0] - 2022-01-06
 
 ### Added
 
-- functionality to download and save FewsNet data
-- Raster processing module
-- Pre-commit hook to check Sphinx documentation can be built
-- [`pip-compile`](https://github.com/jazzband/pip-tools#version-control-integration)
-  pre-commit hook to update requirements files
-- Version number is now specified in `src/aatoolbox/_version.py`
+- `Pipeline` class to serve as main API
 - `DataSource` class as a base for all data sources
 - `CodAB` data source class for manipulating COD administrative boundaries
-- `Pipeline` class to serve as main API
+- Functionality to download and save FewsNet data
+- Raster processing module
+- HDX API utility
+- Caching decorator in IO utility
 - Configuration files for:
   - Bangladesh
   - Ethiopia
   - Malawi
   - Nepal
-- HDX API utility
-- Caching decorator in IO utility
+- [`pip-compile`](https://github.com/jazzband/pip-tools#version-control-integration)
+  pre-commit hook to update requirements files
+- Version number is now specified in `src/aatoolbox/_version.py`
+- GitHub actions to run unit tests (using `tox.ini`) and push to PyPI
 
 ### Changed
 
@@ -36,10 +36,10 @@ and this project adheres to
 - `requirements.txt` moved to `requirements` directory
 - `Area` class moved to utils
 - Switched from `pbr` to `setuptools_scm` for automated git tag versioning
+- Documentation to be generated using `sphinx-build` rather than through `setup.py`
 
 ### Removed
 
-- Documentation generation with setup.py (now done with pre-commit hook)
 - `Makefile` for generating requirements files
 - `setup.py` as it was only required for `scm`
 
