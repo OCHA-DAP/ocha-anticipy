@@ -1,10 +1,6 @@
 name: PyPI
 on:
-  push:
-    branches:
-      - main
-      - release
-      - develop
+  push
 jobs:
   build-and-publish:
     name: Build and publish to PyPI and TestPyPI
@@ -24,6 +20,7 @@ jobs:
     - name: Build a binary wheel and a source tarball
       run: python -m build --sdist --wheel --outdir dist/ .
     - name: Publish to Test PyPI
+      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/release' || github.ref == 'refs/heads/develop'
       uses: pypa/gh-action-pypi-publish@master
       with:
         password: ${{ secrets.TEST_PYPI_API_TOKEN }}
