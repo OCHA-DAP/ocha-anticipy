@@ -9,6 +9,13 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- GitHub action to publish on PyPI should not be invoked for pushes to main
+  (using tags instead)
+
 ## [0.3.1] - 2022-01-06
 
 ### Fixed
