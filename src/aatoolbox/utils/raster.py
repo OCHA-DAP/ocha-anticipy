@@ -384,6 +384,31 @@ class AatRasterArray(AatRasterMixin, RasterArray):
         -------
         pandas.DataFrame
             Dataframe with computed statistics.
+
+        Examples
+        --------
+        >>> import geopandas as gpd
+        >>> import xarray as xr
+        >>> import rioxarray
+        >>> from shapely.geometry import Polygon
+        >>>
+        >>> # compute raster stats on simple data
+        >>> d = {
+        ...     "name": ["area_a", "area_b"],
+        ...     "geometry": [
+        ...         Polygon([(0, 0), (0, 2), (2, 2), (2, 0)]),
+        ...         Polygon([(2, 0), (2, 2), (3, 2), (3, 0)]),
+        ...     ],
+        ... }
+        >>> gdf = gpd.GeoDataFrame(d)
+        >>>
+        >>> da = xr.DataArray(
+        ...     [[1, 2, 3], [4, 5, 6]],
+        ...     dims=("y", "x"),
+        ...     coords={"y": [1.5, 0.5], "x": [0.5, 1.5, 2.5]},
+        ... ).rio.write_crs("EPSG:4326")
+        >>>
+        >>> da.aat.compute_raster_stats(gdf, "name")
         """
         data_obj = self._get_obj(inplace=False)
         if data_obj.rio.crs is None:
@@ -562,7 +587,34 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
         -------
         List[pandas.DataFrame]
             List of raster statistics data frames.
+
+        Examples
+        --------
+        >>> import geopandas as gpd
+        >>> import xarray as xr
+        >>> import rioxarray
+        >>> from shapely.geometry import Polygon
+        >>>
+        >>> # compute raster stats on simple data
+        >>> d = {
+        ...     "name": ["area_a", "area_b"],
+        ...     "geometry": [
+        ...         Polygon([(0, 0), (0, 2), (2, 2), (2, 0)]),
+        ...         Polygon([(2, 0), (2, 2), (3, 2), (3, 0)]),
+        ...     ],
+        ... }
+        >>> gdf = gpd.GeoDataFrame(d)
+        >>>
+        >>> ds = xr.DataArray(
+        ...     [[1, 2, 3], [4, 5, 6]],
+        ...     dims=("y", "x"),
+        ...     coords={"y": [1.5, 0.5], "x": [0.5, 1.5, 2.5]},
+        ... ).rio.write_crs("EPSG:4326").to_dataset(name="data")
+        >>>
+        >>> ds.aat.compute_raster_stats(["data"], gdf=gdf, feature_col="name")
         """
         vars = self.vars if vars is None else vars
-        stats = [self._obj[var].compute_raster_stats(**kwargs) for var in vars]
+        stats = [
+            self._obj[var].aat.compute_raster_stats(**kwargs) for var in vars
+        ]
         return stats
