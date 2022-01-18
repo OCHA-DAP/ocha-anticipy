@@ -62,16 +62,19 @@ class EcmwfApi(DataSource):
     def __init__(
         self,
         iso3: str,
-        geo_bounding_box: Union[GeoBoundingBox, gpd.GeoDataFrame, None] = None,
+        match_realtime: bool,
+        geo_bounding_box: Union[GeoBoundingBox, gpd.GeoDataFrame] = None,
     ):
         super().__init__(
             iso3=iso3, module_base_dir=_MODULE_BASENAME, is_public=False
         )
 
+        # TODO: move geobb declaration to pipeline
         # the geobb indicates the boundaries for which data is
         # downloaded and processed
         if type(geo_bounding_box) == gpd.GeoDataFrame:
             geo_bounding_box = GeoBoundingBox.from_shape(geo_bounding_box)
+        # TODO: think about default boundingbox being glb
         elif geo_bounding_box is None:
             geo_bounding_box = GeoBoundingBox(
                 north=90, south=-90, east=0, west=360

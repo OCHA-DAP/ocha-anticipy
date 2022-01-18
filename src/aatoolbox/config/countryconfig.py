@@ -35,11 +35,28 @@ class CodABConfig(BaseModel):
     custom_layer_names: Optional[list]
 
 
+class GeoBoundariesMapping(BaseModel):
+    """Geoboundaries configuration."""
+
+    north: int
+    south: int
+    east: int
+    west: int
+
+
+class EcmwfRealtime(BaseModel):
+    """Ecmwf realtime configuration."""
+
+    number_points_mapping: int
+    geoboundaries_mapping: GeoBoundariesMapping
+
+
 class CountryConfig(BaseModel):
     """Country configuration."""
 
     iso3: str
     codab: CodABConfig
+    ecmwf_realtime: Optional[EcmwfRealtime]
 
 
 def get_country_config(iso3: str) -> CountryConfig:
@@ -49,7 +66,7 @@ def get_country_config(iso3: str) -> CountryConfig:
     Parameters
     ----------
     iso3 : str
-        Country ISO3, must e exactly 3 characters long
+        Country ISO3, must be exactly 3 characters long
 
     Returns
     -------

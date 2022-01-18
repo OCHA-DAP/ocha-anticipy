@@ -4,3 +4,11 @@ codab:
   hdx_dataset_name: mwi_adm_nso_20181016_SHP.zip
   layer_base_name: mwi_admbnda_adm{admin_level}_nso_20181016.shp
   admin_level_max: 3
+ecmwf_realtime:
+  number_points_mapping: 384
+  geoboundaries_mapping:
+    #TODO: use unrounded coordinates instead
+    north: -5
+    south: -17
+    east: 37
+    west: 33

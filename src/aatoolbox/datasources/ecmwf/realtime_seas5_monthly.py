@@ -46,19 +46,11 @@ class EcmwfRealtime(DataSource):
     ----------
     iso3: str
         country iso3
-    points_mapping: int
-        The ECMWF data can contain several areas. These areas each have a
-        different number of points, which is indicated by `points_mapping`.
-        This number is needed to read the correct area.
-        It thus serves as a sort of ID.
-        If None, the `points_mapping` will be retrieved from the default
-        list if available for the given iso3
     """
 
     def __init__(
         self,
         iso3: str,
-        points_mapping: int = None,
     ):
         super().__init__(
             iso3=iso3, module_base_dir=_MODULE_BASENAME, is_public=False
@@ -71,15 +63,6 @@ class EcmwfRealtime(DataSource):
         )
         self._raw_base_dir = glb_datasource_class._raw_base_dir
 
-        if points_mapping:
-            self._points_mapping = points_mapping
-        elif iso3 in _ISO3_POINTS_MAPPING:
-            self._points_mapping = _ISO3_POINTS_MAPPING[iso3]
-        else:
-            raise Exception(
-                "No point mapping given or iso3 not found in default point "
-                "mappings. Input a point mapping or add the iso3 to defaults."
-            )
         if iso3 in _ISO3_GEOBB_MAPPING:
             geo_bounding_box = _ISO3_GEOBB_MAPPING[iso3]
         else:
@@ -90,7 +73,7 @@ class EcmwfRealtime(DataSource):
         geo_bounding_box.round_coords(round_val=_GRID_RESOLUTION)
         self._geobb = geo_bounding_box
 
-    def process(self, datavar: str = "fcmean") -> Path:
+    def process(self, points_mapping: int, datavar: str = "fcmean") -> Path:
         """
         Process the seasonal forecast by ECMWF that is shared in realtime.
 
@@ -103,6 +86,11 @@ class EcmwfRealtime(DataSource):
         datavar: str, default = fcmean
             variable to extract. fcmean contains the monthly mean
             per ensemble member. em the mean across all ensemble members
+        points_mapping: int
+            The ECMWF data can contain several areas. These areas each have a
+            different number of points, which is indicated by `points_mapping`.
+            This number is needed to read the correct area.
+            It thus serves as a sort of ID.
 
         Returns
         -------
@@ -113,7 +101,7 @@ class EcmwfRealtime(DataSource):
         >>> (from aatoolbox.datasources.ecmwf.realtime_seas5_monthly
         ... import EcmwfRealtime)
         >>> ecmwf_rt=EcmwfRealtime(iso3="mwi")
-        >>> ecmwf_rt.process()
+        >>> ecmwf_rt.process(points_mapping=384)
         """
         # T4L indicates the seasonal forecast with the monthly mean
         # see here for a bit more explanation
@@ -132,7 +120,7 @@ class EcmwfRealtime(DataSource):
             filepath_list,
             engine="cfgrib",
             filter_by_keys={
-                "numberOfPoints": self._points_mapping,
+                "numberOfPoints": points_mapping,
                 "dataType": datavar,
             },
             combine="by_coords",
@@ -168,6 +156,7 @@ class EcmwfRealtime(DataSource):
         output_dir = self._processed_base_dir / _SEAS_DIR / _PRATE_DIR
         output_filename = (
             f"{self._iso3}_{_SEAS_DIR}_{_PRATE_DIR}_realtime"
+            # TODO: remove geobb
             f"_{self._geobb.get_filename_repr(p=_FILENAME_PRECISION)}.nc"
         )
         return output_dir / output_filename

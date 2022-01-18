@@ -3,6 +3,7 @@ import geopandas as gpd
 
 from aatoolbox.config.countryconfig import get_country_config
 from aatoolbox.datasources.codab.codab import CodAB
+from aatoolbox.datasources.ecmwf.realtime_seas5_monthly import EcmwfRealtime
 
 
 class Pipeline:
@@ -101,3 +102,25 @@ class Pipeline:
             clobber=clobber,
         )
         return self._codab.load_admin_layer(layer_name=layer_name)
+
+    def load_ecmwf_realtime(self, process: bool = False):
+        """Load the realtime ecmwf data."""
+        self._ecmwf_realtime = EcmwfRealtime(self._config.iso3)
+        # TODO: add clobber
+        if process:
+            try:
+                # Ignore mypy for this line because _config.ecmwf_realtime
+                # could be None, but this is handled by the caught exceptions
+                number_points_mapping = (
+                    self._config.ecmwf_realtime.number_points_mapping  # type: ignore # noqa:E501
+                )
+            except (IndexError, TypeError):
+                raise AttributeError(
+                    f"ecmwf_realtime's number_points_mapping needed to "
+                    f"process data but not available in "
+                    f"{self._config.iso3.upper()} config file"
+                )
+            self._ecmwf_realtime.process(
+                number_points_mapping
+            )  # ,clobber=process)
+        return self._ecmwf_realtime.load()
