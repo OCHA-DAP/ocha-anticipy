@@ -353,7 +353,6 @@ class AatRasterArray(AatRasterMixin, RasterArray):
         stats_list: List[str] = None,
         percentile_list: List[int] = None,
         all_touched: bool = False,
-        geom_col: str = "geometry",
     ) -> pd.DataFrame:
         """Compute raster statistics for polygon geometry.
 
@@ -377,8 +376,6 @@ class AatRasterArray(AatRasterMixin, RasterArray):
             included, by default False. If ``False``, only
             cells with their centre in the region will be
             included.
-        geom_col : str, optional
-            Column in ``gdf`` with geometry, by default "geometry".
 
         Returns
         -------
@@ -430,7 +427,7 @@ class AatRasterArray(AatRasterMixin, RasterArray):
             # so catching and skipping rest of iteration so no stats computed
             try:
                 da_clip = da_clip.rio.clip(
-                    gdf_adm[geom_col], all_touched=all_touched
+                    gdf_adm.geometry, all_touched=all_touched
                 )
             except NoDataInBounds:
                 logger.warning(
