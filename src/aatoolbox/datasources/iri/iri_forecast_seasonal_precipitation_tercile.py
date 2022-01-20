@@ -12,7 +12,7 @@ import logging
 import requests
 import xarray as xr
 
-import aatoolbox.utils.raster as rt  # noqa: F401
+import aatoolbox.utils.raster  # noqa: F401
 from aatoolbox.datasources.datasource import DataSource
 from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
