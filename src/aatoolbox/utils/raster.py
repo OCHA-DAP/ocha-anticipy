@@ -350,8 +350,8 @@ class AatRasterArray(AatRasterMixin, RasterArray):
         self,
         gdf: gpd.GeoDataFrame,
         feature_col: str,
-        stats_list: List[str] = None,
-        percentile_list: List[int] = None,
+        stats_list: Optional[List[str]] = None,
+        percentile_list: Optional[List[int]] = None,
         all_touched: bool = False,
     ) -> pd.DataFrame:
         """Compute raster statistics for polygon geometry.
@@ -366,10 +366,10 @@ class AatRasterArray(AatRasterMixin, RasterArray):
             GeoDataFrame with row per area for stats computation.
         feature_col : str
             Column in ``gdf`` to use as row/feature identifier.
-        stats_list : List[str], optional
+        stats_list : Optional[List[str]], optional
             List of statistics to calculate, by default None.
             Passed to ``get_attr()``.
-        percentile_list : List[int], optional
+        percentile_list : Optional[List[int]], optional
             List of percentiles to compute, by default None.
         all_touched : bool, optional
             If ``True`` all cells touching the region will be
@@ -410,6 +410,9 @@ class AatRasterArray(AatRasterMixin, RasterArray):
         data_obj = self._get_obj(inplace=False)
         if data_obj.rio.crs is None:
             raise MissingCRS("No CRS found, set CRS before computation.")
+
+        if not isinstance(gdf, gpd.GeoDataFrame):
+            raise TypeError("`gdf` must be a geopandas.GeoDataFrame.")
 
         df_list = []
 
@@ -552,7 +555,8 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
             obj.rio.set_spatial_dims(
                 x_dim=self._x_dim, y_dim=self._y_dim, inplace=True
             )
-        if self._crs is not None:
+
+        if self.crs is not None:
             obj.rio.set_crs(self._crs, inplace=True)
 
         # raster module attributes
@@ -623,6 +627,3 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
             self._obj[var].aat.compute_raster_stats(**kwargs) for var in vars
         ]
         return stats
-
-
-TypeError
