@@ -22,7 +22,7 @@ can be inherited by the two respective extensions.
 """
 
 import logging
-from typing import Any, Callable, Dict, List, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 
 import geopandas as gpd
 import numpy as np
@@ -562,7 +562,7 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
         return obj
 
     def compute_raster_stats(
-        self, vars: Union[List[str], None] = None, **kwargs: Any
+        self, vars: Optional[List[str]] = None, **kwargs: Any
     ):
         """Compute raster statistics across dataset arrays.
 
@@ -573,7 +573,7 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
 
         Parameters
         ----------
-        vars : Union[List[str], None], optional
+        vars : Optional[List[str]], optional
             Dataset data array variables to calculate raster statistics on.
 
         kwargs : Any
@@ -610,8 +610,19 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
         >>>
         >>> ds.aat.compute_raster_stats(["data"], gdf=gdf, feature_col="name")
         """
-        vars = self.vars if vars is None else vars
+        if vars is None:
+            vars = self.vars
+        else:
+            if not isinstance(vars, list):
+                raise TypeError(
+                    "`vars` must be a list of strings if passed"
+                    "to `compute_raster_stats()`."
+                )
+
         stats = [
             self._obj[var].aat.compute_raster_stats(**kwargs) for var in vars
         ]
         return stats
+
+
+TypeError
