@@ -12,9 +12,9 @@ import logging
 import requests
 import xarray as xr
 
+import aatoolbox.utils.raster as rt  # noqa: F401
 from aatoolbox.datasources.datasource import DataSource
 from aatoolbox.utils.geoboundingbox import GeoBoundingBox
-from aatoolbox.utils.raster import AatRasterMixin  # noqa: F401
 
 logger = logging.getLogger(__name__)
 
@@ -168,16 +168,12 @@ class IriForecast(DataSource):
         # IRI downloads in the order you give the coordinates
         # and accepts both -180 to 180 longitudes and 0 to 360
         ds.aat.invert_coordinates(inplace=True)
+        # TODO: invest if we want -180 to 180 or 0-360
+        # and check first if it is already in correct range
+        # cause applying this function twice will return
+        # you the original range
         ds.aat.change_longitude_range(inplace=True)
 
-        # question: I now chose to rename the dims to imo more logical names
-        # however, this does mean it is not the original data anymore
-        # and we will have to change it in all analyses
-        # do you think it makes sense to rename?
-        rename_dict = {"X": "lon", "Y": "lat", "F": "pub_date"}
-        if not dominant:
-            rename_dict["C"] = "tercile"
-        ds = ds.rename(rename_dict)
         return ds.rio.write_crs("EPSG:4326", inplace=True)
 
     def _get_raw_path(self, dominant):
