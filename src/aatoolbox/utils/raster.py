@@ -364,6 +364,8 @@ class AatRasterArray(AatRasterMixin, RasterArray):
         ----------
         gdf : geopandas.GeoDataFrame
             GeoDataFrame with row per area for stats computation.
+            If ``pd.DataFrame`` is passed, geometry column must
+            have the name ``geometry``.
         feature_col : str
             Column in ``gdf`` to use as row/feature identifier.
         stats_list : Optional[List[str]], optional
@@ -416,9 +418,6 @@ class AatRasterArray(AatRasterMixin, RasterArray):
         data_obj = self._get_obj(inplace=False)
         if data_obj.rio.crs is None:
             raise MissingCRS("No CRS found, set CRS before computation.")
-
-        if not isinstance(gdf, gpd.GeoDataFrame):
-            raise TypeError("`gdf` must be a geopandas.GeoDataFrame.")
 
         df_list = []
 

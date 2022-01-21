@@ -14,8 +14,6 @@ from shapely.geometry import Polygon
 
 from aatoolbox.utils import raster
 
-logging.getLogger().setLevel(logging.INFO)
-
 suite = unittest.TestSuite()
 suite.addTest(doctest.DocTestSuite(raster))
 unittest.TextTestRunner().run(suite)
@@ -135,10 +133,6 @@ def test_compute_raster_stats_3d(ds_3d, gdf, expected_3d):
 
 def test_compute_raster_stats_da_assertions(da_3d, gdf):
     """Ensure error assertions working in compute raster stats."""
-    with pytest.raises(TypeError):
-        df = pd.DataFrame(gdf)
-        da_3d.aat.compute_raster_stats(gdf=df, feature_col="name")
-
     with pytest.raises(MissingCRS):
         da_3d.aat._crs = False
         da_3d.aat.compute_raster_stats(gdf=gdf, feature_col="name")
@@ -152,6 +146,7 @@ def test_set_time_dim(da_2d):
 
 def test_correct_calendar_change(da_3d, caplog):
     """Ensure calendar logs change from 360 to 360_day."""
+    caplog.set_level(logging.INFO)
     da_3d[da_3d.aat.t_dim].attrs["calendar"] = "360"
     da_3d.aat.correct_calendar()
     assert "Calendar attribute changed from '360' to '360_day'." in caplog.text
@@ -159,6 +154,7 @@ def test_correct_calendar_change(da_3d, caplog):
 
 def test_correct_calendar_add(da_3d, caplog):
     """Ensure calendar logs change from units to 360_day."""
+    caplog.set_level(logging.INFO)
     da_3d[da_3d.aat.t_dim].attrs["units"] = "months since 1960-01-01"
     da_3d.aat.correct_calendar()
     assert (
@@ -169,6 +165,7 @@ def test_correct_calendar_add(da_3d, caplog):
 
 def test_correct_calendar_no_change(da_3d, caplog):
     """Ensure calendar logs no change."""
+    caplog.set_level(logging.INFO)
     da_3d[da_3d.aat.t_dim].attrs["calendar"] = "360_day"
     da_3d.aat.correct_calendar()
     assert "No 'units' or 'calendar' attributes to correct." in caplog.text
@@ -176,6 +173,7 @@ def test_correct_calendar_no_change(da_3d, caplog):
 
 def test_change_longitude_range_no_change(da_2d, caplog):
     """Ensure change longitude logs no change."""
+    caplog.set_level(logging.INFO)
     da_2d.aat.change_longitude_range()
     assert (
         "Indeterminate longitude range and no need to convert." in caplog.text
@@ -186,6 +184,7 @@ def test_compute_raster_stats_no_data_in_bounds(
     da_2d, gdf_missing, expected_2d, caplog
 ):
     """Ensure compute stats skips non-overlapping areas correctly."""
+    caplog.set_level(logging.INFO)
     result = da_2d.aat.compute_raster_stats(
         gdf=gdf_missing, feature_col="name"
     )
