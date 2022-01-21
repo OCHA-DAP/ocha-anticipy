@@ -118,7 +118,7 @@ def test_compute_raster_stats_2d(da_2d, gdf, expected_2d):
 def test_compute_raster_stats_3d(ds_3d, gdf, expected_3d):
     """Compute raster stats with time dimensions."""
     result = ds_3d.aat.compute_raster_stats(
-        arrays=["val"], gdf=gdf, feature_col="name"
+        var_names=["val"], gdf=gdf, feature_col="name"
     )
     assert_frame_equal(result[0], expected_3d, check_dtype=False)
     result_all_vars = ds_3d.aat.compute_raster_stats(
@@ -126,7 +126,7 @@ def test_compute_raster_stats_3d(ds_3d, gdf, expected_3d):
     )
     assert_frame_equal(result_all_vars[0], expected_3d, check_dtype=False)
     result_str = ds_3d.aat.compute_raster_stats(
-        arrays="val", gdf=gdf, feature_col="name"
+        var_names="val", gdf=gdf, feature_col="name"
     )
     assert_frame_equal(result_str[0], expected_3d, check_dtype=False)
 

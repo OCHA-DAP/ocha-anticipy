@@ -501,7 +501,7 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
     def __init__(self, xarray_object):
         super().__init__(xarray_object)
 
-    def get_raster_array(self, array: str) -> xr.DataArray:
+    def get_raster_array(self, var_name: str) -> xr.DataArray:
         """Get xarray.DataArray from variable and keep dimensions.
 
         Accessing a component xarray.DataArray using the
@@ -516,7 +516,7 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
 
         Parameters
         ----------
-        array : str
+        var_name : str
             Name of variable.
 
         Returns
@@ -554,7 +554,7 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
             dimension name to 't' can address this.
         Data variable: temperature
         """
-        obj = self._obj[array]
+        obj = self._obj[var_name]
         # rioxarray attributes
         if self._x_dim is not None and self._y_dim is not None:
             obj.rio.set_spatial_dims(
@@ -571,7 +571,7 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
         return obj
 
     def compute_raster_stats(
-        self, arrays: Union[List[str], str, None] = None, **kwargs: Any
+        self, var_names: Union[List[str], str, None] = None, **kwargs: Any
     ):
         """Compute raster statistics across dataset arrays.
 
@@ -582,7 +582,7 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
 
         Parameters
         ----------
-        arrays : Union[List[str], str, None], optional
+        var_names : Union[List[str], str, None], optional
             Dataset data array variables to calculate raster statistics on.
 
         kwargs : Any
@@ -618,7 +618,7 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
         ... ).rio.write_crs("EPSG:4326").to_dataset(name="data")
         >>>
         >>> ds.aat.compute_raster_stats(
-        ...    arrays=["data"],
+        ...    var_names=["data"],
         ...    gdf=gdf,
         ...    feature_col="name"
         ... ) # doctest: +SKIP
@@ -626,12 +626,13 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
         0       3.0  1.5811388300841898        1        5     12.0          4  area_a  # noqa: E501
         1       4.5                 1.5        3        6      9.0          2  area_b] # noqa: E501
         """
-        if arrays is None:
-            arrays = self.vars
-        elif isinstance(arrays, str):
-            arrays = [arrays]
+        if var_names is None:
+            var_names = self.vars
+        elif isinstance(var_names, str):
+            var_names = [var_names]
 
         stats = [
-            self._obj[var].aat.compute_raster_stats(**kwargs) for var in arrays
+            self._obj[var].aat.compute_raster_stats(**kwargs)
+            for var in var_names
         ]
         return stats
