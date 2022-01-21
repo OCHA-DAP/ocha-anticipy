@@ -1,7 +1,7 @@
 """Base class for downloading and processing GloFAS raster data."""
 import logging
 from pathlib import Path
-from typing import Dict, List, Union
+from typing import Dict, List, NamedTuple, Union
 
 import cdsapi
 import numpy as np
@@ -11,11 +11,18 @@ from aatoolbox.datasources.datasource import DataSource
 from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
 _MODULE_BASENAME = "glofas"
-DEFAULT_VERSION = 3
-HYDROLOGICAL_MODELS = {2: "htessel_lisflood", 3: "lisflood"}
+VERSION = 3
+HYDROLOGICAL_MODEL = "lisflood"
 RIVER_DISCHARGE_VAR = "dis24"
 
 logger = logging.getLogger(__name__)
+
+
+class ReportingPoint(NamedTuple):
+    """GloFAS reporting point."""
+
+    lon: float
+    lat: float
 
 
 class Glofas(DataSource):
@@ -52,7 +59,7 @@ class Glofas(DataSource):
         self,
         iso3: str,
         area: GeoBoundingBox,
-        year_min: Union[int, Dict[int, int]],
+        year_min: int,
         year_max: int,
         cds_name: str,
         dataset: List[str],
@@ -63,6 +70,7 @@ class Glofas(DataSource):
         super().__init__(
             iso3=iso3, module_base_dir=_MODULE_BASENAME, is_public=True
         )
+        # The GloFAS API on CDS requires coordinates have the format x.x5
         area.round_boundingbox_coords(offset_val=0.5, round_val=1)
         self.area = area
         self.year_min = year_min
@@ -72,6 +80,18 @@ class Glofas(DataSource):
         self.dataset_variable_name = dataset_variable_name
         self.system_version_minor = system_version_minor
         self.date_variable_prefix = date_variable_prefix
+
+    def load(
+        self,
+        version: int = VERSION,  # TODO: only version 3
+        leadtime: Union[int, list] = None,
+    ):
+        """Load GloFAS data."""
+        filepath = self._get_processed_filepath(
+            version=version,
+            leadtime=leadtime,
+        )
+        return xr.load_dataset(filepath)
 
     def _download(
         self,
@@ -87,7 +107,7 @@ class Glofas(DataSource):
             month=month,
             leadtime=leadtime,
         )
-        # If caching is on and file already exists, don't downlaod again
+        # If caching is on and file already exists, don't download again
         if use_cache and filepath.exists():
             logger.debug(
                 f"{filepath} already exists and cache is set to True, skipping"
@@ -154,7 +174,7 @@ class Glofas(DataSource):
             "system_version": (
                 f"version_{version}_{self.system_version_minor[version]}"
             ),
-            "hydrological_model": HYDROLOGICAL_MODELS[version],
+            "hydrological_model": HYDROLOGICAL_MODEL[version],
         }
         if leadtime is not None:
             if isinstance(leadtime, int):
@@ -199,7 +219,6 @@ class Glofas(DataSource):
 
     def _write_to_processed_file(
         self,
-        country_iso3: str,
         version: int,
         ds: xr.Dataset,
         leadtime: Union[int, list] = None,
@@ -225,18 +244,6 @@ class Glofas(DataSource):
         filename += ".nc"
         return self._processed_base_dir / filename
 
-    def load(
-        self,
-        version: int = DEFAULT_VERSION,
-        leadtime: Union[int, list] = None,
-    ):
-        """Load GloFAS data."""
-        filepath = self._get_processed_filepath(
-            version=version,
-            leadtime=leadtime,
-        )
-        return xr.load_dataset(filepath)
-
 
 def expand_dims(
     ds: xr.Dataset, dataset_name: str, coord_names: list, expansion_dim: int
@@ -259,3 +266,73 @@ def expand_dims(
         coords=coords,
     )
     return ds
+
+
+class CoordsOutOfBounds(Exception):
+    """Reporting point coordinates out of bounds."""
+
+    def __init__(
+        self,
+        station_name: str,
+        param_name: str,
+        coord_station: float,
+        coord_min: float,
+        coord_max: float,
+    ):
+        message = (
+            f"ReportingPoint {station_name} has out-of-bounds {param_name} "
+            f"value of"
+            f" {coord_station} (GloFAS {param_name} ranges from {coord_min} to"
+            f" {coord_max})"
+        )
+        super().__init__(message)
+
+
+def get_reporting_point_dataset(
+    reporting_points: Dict[str, ReportingPoint],
+    ds: xr.Dataset,
+    coord_names: List[str],
+) -> xr.Dataset:
+    """
+    Create a dataset from a GloFAS raster based on the reporting points.
+
+    Parameters
+    ----------
+    reporting_points :
+    ds :
+    coord_names :
+
+    """
+    # Check that lat and lon are in the bounds
+    for station_name, station in reporting_points.items():
+        if not ds.longitude.min() < station.lon < ds.longitude.max():
+            raise CoordsOutOfBounds(
+                station_name=station_name,
+                param_name="longitude",
+                coord_station=station.lon,
+                coord_min=ds.longitude.min().values,
+                coord_max=ds.longitude.max().values,
+            )
+        if not ds.latitude.min() < station.lat < ds.latitude.max():
+            raise CoordsOutOfBounds(
+                station_name=station_name,
+                param_name="latitude",
+                coord_station=station.lat,
+                coord_min=ds.latitude.min().values,
+                coord_max=ds.latitude.max().values,
+            )
+    # If they are then return the correct pixel
+    return xr.Dataset(
+        data_vars={
+            station_name: (
+                coord_names,
+                ds.sel(
+                    longitude=station.lon,
+                    latitude=station.lat,
+                    method="nearest",
+                )[RIVER_DISCHARGE_VAR].data,
+            )
+            for station_name, station in reporting_points.items()
+        },
+        coords={coord_name: ds[coord_name] for coord_name in coord_names},
+    )

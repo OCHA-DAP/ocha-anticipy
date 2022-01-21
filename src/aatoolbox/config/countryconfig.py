@@ -1,6 +1,6 @@
 """Country configuration setting base class."""
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 from pydantic import BaseModel
 
@@ -35,11 +35,26 @@ class CodABConfig(BaseModel):
     custom_layer_names: Optional[list]
 
 
+class ReportingPoints(BaseModel):
+    """Coordinates of GloFAS reporting points."""
+
+    name: str
+    lon: float
+    lat: float
+
+
+class Glofas(BaseModel):
+    """GloFAS configuration."""
+
+    reporting_points: List[ReportingPoints]
+
+
 class CountryConfig(BaseModel):
     """Country configuration."""
 
     iso3: str
     codab: CodABConfig
+    glofas: Optional[Glofas]
 
 
 def get_country_config(iso3: str) -> CountryConfig:

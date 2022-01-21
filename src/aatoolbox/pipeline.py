@@ -3,6 +3,9 @@ import geopandas as gpd
 
 from aatoolbox.config.countryconfig import get_country_config
 from aatoolbox.datasources.codab.codab import CodAB
+from aatoolbox.datasources.glofas.glofas import ReportingPoint
+from aatoolbox.datasources.glofas.reanalysis import GlofasReanalysis
+from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
 
 class Pipeline:
@@ -17,24 +20,23 @@ class Pipeline:
 
     def __init__(self, iso3_unvalidated: str):
         self._config = get_country_config(iso3_unvalidated)
-        self._codab = CodAB(self._config.iso3)
 
     def load_codab(
-        self, admin_level: int, clobber: bool = False
+        self, admin_level: int = 0, clobber: bool = False
     ) -> gpd.GeoDataFrame:
         """
         Get the COD AB data by admin level.
 
         Parameters
         ----------
-        admin_level: int
+        admin_level: int, default = 0
             The administrative level
-        clobber: bool
-            If true, overwrite existing COD AB files
+        clobber: bool, default = False
+            If ``True``, overwrite existing COD AB files
 
         Returns
         -------
-        COD AB geodataframe with specified admin level
+        COD AB ``GeoDataframe`` with specified admin level
 
         Examples
         --------
@@ -95,9 +97,25 @@ class Pipeline:
         return self._load_codab(layer_name=layer_name, clobber=clobber)
 
     def _load_codab(self, layer_name: str, clobber: bool):
-        self._codab.download(
+        codab = CodAB(iso3=self._config.iso3)
+        codab.download(
             hdx_address=self._config.codab.hdx_address,
             hdx_dataset_name=self._config.codab.hdx_dataset_name,
             clobber=clobber,
         )
-        return self._codab.load_admin_layer(layer_name=layer_name)
+        return codab.load_admin_layer(layer_name=layer_name)
+
+    def load_glofas_reanalysis(self):
+        """Load GloFAS historical reanalysis data."""
+        # TODO: make a setup_geo method
+        area = GeoBoundingBox.from_shape(shape=self.load_codab())
+        # TODO: make GloFAS class just use the reporting point config class
+        #   Should reporting point be defined in GloFAS or config?
+        rps_dict = {
+            rp.name: ReportingPoint(lon=rp.lon, lat=rp.lat)
+            for rp in self._config.glofas.reporting_points
+        }
+        glofas = GlofasReanalysis(iso3=self._config.iso3, area=area)
+        glofas.download()
+        glofas.process(stations=rps_dict)
+        return glofas.load()

@@ -6,3 +6,38 @@ codab:
   admin_level_max: 2
   custom_layer_names:
     - npl_admbnda_districts_nd_20201117
+glofas:
+  reporting_points:
+  - name: Asaraghat
+    lat: 28.95
+    lon: 81.45
+  - name: Chatara_v3
+    lat: 26.85
+    lon: 87.15
+  - name: Chepang
+    lat: 28.35
+    lon: 81.75
+  - name: Chisapani
+    lat: 28.65
+    lon: 81.25
+  - name: Dipayal
+    lat: 29.25
+    lon: 80.95
+  - name: Kampughat
+    lat: 26.85
+    lon: 86.85
+  - name: Kusum
+    lat: 27.95
+    lon: 82.15
+  - name: Majhitar
+    lat: 26.95
+    lon: 87.45
+  - name: Rai_Gaon
+    lat: 27.25
+    lon: 85.45
+  - name: Samajhighat
+    lat: 28.55
+    lon: 81.65
+  - name: Simle
+    lat: 27.05
+    lon: 87.1
