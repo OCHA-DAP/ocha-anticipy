@@ -80,23 +80,21 @@ class IriForecast(DataSource):
         >>> from aatoolbox.utils.geoboundingbox import GeoBoundingBox
         >>> (from aatoolbox.datasources.iri.
         ... iri_forecast_seasonal_precipitation_tercile import IriForecast)
+        #retrieve the bounding box to download data for
         >>> iso3="bfa"
         >>> pipeline_iso = Pipeline(iso3)
         >>> codab_admin1 = pipeline_iso.load_codab(admin_level=1)
         >>> geo_bounding_box = GeoBoundingBox.from_shape(codab_admin1)
+        #initialize class and download data
         >>> iri=IriForecast(iso3,geo_bounding_box)
+        #the iri auth str can e.g. be saved as an env var
         >>> iri.download(os.getenv("IRI_AUTH"))
         """
-        # question: I chose to always remove the file and redownload
-        # for all dates instead of allowing a selection of dates.
-        # This because the file is <1MB and only takes about
-        # a minute to download. Do you think this makes sense?
-
         output_filepath = self._get_raw_path(dominant=dominant)
+        output_filepath.parent.mkdir(parents=True, exist_ok=True)
         # strange things happen when just overwriting the file, so delete it
         # first if it already exists
         output_filepath.unlink(missing_ok=True)
-        output_filepath.parent.mkdir(parents=True, exist_ok=True)
 
         url = self._get_url(dominant=dominant)
         logger.info("Downloading IRI NetCDF file.")
@@ -157,6 +155,11 @@ class IriForecast(DataSource):
             decode_times=False,
             drop_variables="C",
         )
+
+        ds = self._process(ds)
+        return ds.rio.write_crs("EPSG:4326", inplace=True)
+
+    def _process(self, ds):
         # fix dates
         ds.aat.set_time_dim(t_dim="F", inplace=True)
         ds.aat.correct_calendar(inplace=True)
@@ -174,7 +177,7 @@ class IriForecast(DataSource):
         # you the original range
         ds.aat.change_longitude_range(inplace=True)
 
-        return ds.rio.write_crs("EPSG:4326", inplace=True)
+        return ds
 
     def _get_raw_path(self, dominant):
         file_name = f"{self._iso3}_iri_forecast_seasonal_precipitation_tercile"
