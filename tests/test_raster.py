@@ -120,30 +120,28 @@ def test_compute_raster_stats_2d(da_2d, gdf, expected_2d):
 def test_compute_raster_stats_3d(ds_3d, gdf, expected_3d):
     """Compute raster stats with time dimensions."""
     result = ds_3d.aat.compute_raster_stats(
-        ["val"], gdf=gdf, feature_col="name"
+        arrays=["val"], gdf=gdf, feature_col="name"
     )
     assert_frame_equal(result[0], expected_3d, check_dtype=False)
     result_all_vars = ds_3d.aat.compute_raster_stats(
         gdf=gdf, feature_col="name"
     )
     assert_frame_equal(result_all_vars[0], expected_3d, check_dtype=False)
-
-
-def test_compute_raster_stats_ds_assertions(ds_3d, gdf):
-    """Assert arrays for stats passed as list."""
-    with pytest.raises(TypeError):
-        ds_3d.aat.compute_raster_stats("val", gdf=gdf, feature_col="name")
+    result_str = ds_3d.aat.compute_raster_stats(
+        arrays="val", gdf=gdf, feature_col="name"
+    )
+    assert_frame_equal(result_str[0], expected_3d, check_dtype=False)
 
 
 def test_compute_raster_stats_da_assertions(da_3d, gdf):
     """Ensure error assertions working in compute raster stats."""
     with pytest.raises(TypeError):
         df = pd.DataFrame(gdf)
-        da_3d.aat.compute_raster_stats(df, "name")
+        da_3d.aat.compute_raster_stats(gdf=df, feature_col="name")
 
     with pytest.raises(MissingCRS):
         da_3d.aat._crs = False
-        da_3d.aat.compute_raster_stats(gdf, "name")
+        da_3d.aat.compute_raster_stats(gdf=gdf, feature_col="name")
 
 
 def test_set_time_dim(da_2d):
@@ -188,7 +186,9 @@ def test_compute_raster_stats_no_data_in_bounds(
     da_2d, gdf_missing, expected_2d, caplog
 ):
     """Ensure compute stats skips non-overlapping areas correctly."""
-    result = da_2d.aat.compute_raster_stats(gdf_missing, "name")
+    result = da_2d.aat.compute_raster_stats(
+        gdf=gdf_missing, feature_col="name"
+    )
     assert "No overlapping raster cells for area_c, skipping." in caplog.text
     assert_frame_equal(result, expected_2d, check_dtype=False)
 

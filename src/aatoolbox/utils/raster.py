@@ -405,7 +405,13 @@ class AatRasterArray(AatRasterMixin, RasterArray):
         ...     coords={"y": [1.5, 0.5], "x": [0.5, 1.5, 2.5]},
         ... ).rio.write_crs("EPSG:4326")
         >>>
-        >>> da.aat.compute_raster_stats(gdf, "name")
+        >>> da.aat.compute_raster_stats(
+        ...     gdf=gdf,
+        ...     feature_col="name"
+        ... ) # doctest: +SKIP
+           mean_name            std_name min_name max_name sum_name count_name    name # noqa: E501
+        0       3.0  1.5811388300841898        1        5     12.0          4  area_a  # noqa: E501
+        1       4.5                 1.5        3        6      9.0          2  area_b  # noqa: E501
         """
         data_obj = self._get_obj(inplace=False)
         if data_obj.rio.crs is None:
@@ -496,7 +502,7 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
     def __init__(self, xarray_object):
         super().__init__(xarray_object)
 
-    def get_raster_array(self, var: str) -> xr.DataArray:
+    def get_raster_array(self, array: str) -> xr.DataArray:
         """Get xarray.DataArray from variable and keep dimensions.
 
         Accessing a component xarray.DataArray using the
@@ -511,7 +517,7 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
 
         Parameters
         ----------
-        var : str
+        array : str
             Name of variable.
 
         Returns
@@ -549,7 +555,7 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
             dimension name to 't' can address this.
         Data variable: temperature
         """
-        obj = self._obj[var]
+        obj = self._obj[array]
         # rioxarray attributes
         if self._x_dim is not None and self._y_dim is not None:
             obj.rio.set_spatial_dims(
@@ -566,7 +572,7 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
         return obj
 
     def compute_raster_stats(
-        self, vars: Optional[List[str]] = None, **kwargs: Any
+        self, arrays: Union[List[str], str, None] = None, **kwargs: Any
     ):
         """Compute raster statistics across dataset arrays.
 
@@ -577,7 +583,7 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
 
         Parameters
         ----------
-        vars : Optional[List[str]], optional
+        arrays : Union[List[str], str, None], optional
             Dataset data array variables to calculate raster statistics on.
 
         kwargs : Any
@@ -612,18 +618,21 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
         ...     coords={"y": [1.5, 0.5], "x": [0.5, 1.5, 2.5]},
         ... ).rio.write_crs("EPSG:4326").to_dataset(name="data")
         >>>
-        >>> ds.aat.compute_raster_stats(["data"], gdf=gdf, feature_col="name")
+        >>> ds.aat.compute_raster_stats(
+        ...    arrays=["data"],
+        ...    gdf=gdf,
+        ...    feature_col="name"
+        ... ) # doctest: +SKIP
+        [  mean_name            std_name min_name max_name sum_name count_name    name # noqa: E501
+        0       3.0  1.5811388300841898        1        5     12.0          4  area_a  # noqa: E501
+        1       4.5                 1.5        3        6      9.0          2  area_b] # noqa: E501
         """
-        if vars is None:
-            vars = self.vars
-        else:
-            if not isinstance(vars, list):
-                raise TypeError(
-                    "`vars` must be a list of strings if passed"
-                    "to `compute_raster_stats()`."
-                )
+        if arrays is None:
+            arrays = self.vars
+        elif isinstance(arrays, str):
+            arrays = [arrays]
 
         stats = [
-            self._obj[var].aat.compute_raster_stats(**kwargs) for var in vars
+            self._obj[var].aat.compute_raster_stats(**kwargs) for var in arrays
         ]
         return stats
