@@ -19,7 +19,6 @@ from pathlib import Path
 import xarray as xr
 
 from aatoolbox.datasources.datasource import DataSource
-from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
 logger = logging.getLogger(__name__)
 
@@ -28,10 +27,6 @@ _MODULE_BASENAME = "ecmwf"
 _SEAS_DIR = "seasonal-monthly-individual-members"
 _PRATE_DIR = "prate"
 
-_ISO3_POINTS_MAPPING = {"mwi": 384}
-_ISO3_GEOBB_MAPPING = {
-    "mwi": GeoBoundingBox(north=-5, south=-17, east=37, west=33)
-}
 _GRID_RESOLUTION = 0.4  # degrees
 # number of decimals to include in filename
 # data is on 0.4 grid so should be 1
@@ -62,16 +57,6 @@ class EcmwfRealtime(DataSource):
             "glb", module_base_dir=_MODULE_BASENAME, is_public=False
         )
         self._raw_base_dir = glb_datasource_class._raw_base_dir
-
-        if iso3 in _ISO3_GEOBB_MAPPING:
-            geo_bounding_box = _ISO3_GEOBB_MAPPING[iso3]
-        else:
-            raise Exception(
-                "Iso3 not found in default bounding box map. "
-                "Add the iso3 bounding box to the defaults."
-            )
-        geo_bounding_box.round_coords(round_val=_GRID_RESOLUTION)
-        self._geobb = geo_bounding_box
 
     def process(self, points_mapping: int, datavar: str = "fcmean") -> Path:
         """
@@ -146,7 +131,7 @@ class EcmwfRealtime(DataSource):
         >>> (from aatoolbox.datasources.ecmwf.realtime_seas5_monthly
         ... import EcmwfRealtime)
         >>> ecmwf_rt=EcmwfRealtime(iso3="mwi")
-        >>> ecmwf_rt.process()
+        >>> ecmwf_rt.process(points_mapping=384)
         >>> ecmwf_rt.load()
         """
         return xr.load_dataset(self._get_processed_path())
@@ -154,11 +139,7 @@ class EcmwfRealtime(DataSource):
     def _get_processed_path(self):
         """Return the path to the processed file."""
         output_dir = self._processed_base_dir / _SEAS_DIR / _PRATE_DIR
-        output_filename = (
-            f"{self._iso3}_{_SEAS_DIR}_{_PRATE_DIR}_realtime"
-            # TODO: remove geobb
-            f"_{self._geobb.get_filename_repr(p=_FILENAME_PRECISION)}.nc"
-        )
+        output_filename = f"{self._iso3}_{_SEAS_DIR}_{_PRATE_DIR}_realtime.nc"
         return output_dir / output_filename
 
     @staticmethod
@@ -177,6 +158,5 @@ class EcmwfRealtime(DataSource):
         return (
             ds_date.expand_dims(["time", "step"])
             # surface is empty
-            # TODO: not sure why forecastMonth is set as a var as well..
             .drop_vars(["surface", "forecastMonth"])
         )

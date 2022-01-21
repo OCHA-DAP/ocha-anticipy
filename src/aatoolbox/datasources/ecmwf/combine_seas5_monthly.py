@@ -54,6 +54,7 @@ class Ecmwf(DataSource):
     def __init__(
         self,
         iso3: str,
+        match_realtime: bool,
         geo_bounding_box: Union[GeoBoundingBox, gpd.GeoDataFrame, None] = None,
     ):
         super().__init__(

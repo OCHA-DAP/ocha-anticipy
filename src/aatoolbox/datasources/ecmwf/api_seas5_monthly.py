@@ -24,7 +24,6 @@ from datetime import date
 from pathlib import Path
 from typing import Union
 
-import geopandas as gpd
 import pandas as pd
 import xarray as xr
 from ecmwfapi import ECMWFService
@@ -54,31 +53,20 @@ class EcmwfApi(DataSource):
     ----------
     iso3 : str
         country iso3
-    geo_bounding_box: GeoBoundingBox | gpd.GeoDataFrame
+    geo_bounding_box: GeoBoundingBox
+        GeoBoundingBox object that indicates
         the bounding coordinates of the area that is included in the data.
-        If None, it will be set to the global bounds
     """
 
     def __init__(
         self,
         iso3: str,
-        match_realtime: bool,
-        geo_bounding_box: Union[GeoBoundingBox, gpd.GeoDataFrame] = None,
+        geo_bounding_box: GeoBoundingBox,
     ):
         super().__init__(
             iso3=iso3, module_base_dir=_MODULE_BASENAME, is_public=False
         )
 
-        # TODO: move geobb declaration to pipeline
-        # the geobb indicates the boundaries for which data is
-        # downloaded and processed
-        if type(geo_bounding_box) == gpd.GeoDataFrame:
-            geo_bounding_box = GeoBoundingBox.from_shape(geo_bounding_box)
-        # TODO: think about default boundingbox being glb
-        elif geo_bounding_box is None:
-            geo_bounding_box = GeoBoundingBox(
-                north=90, south=-90, east=0, west=360
-            )
         # round coordinates to correspond with the grid ecmwf publishes
         # its data on
         geo_bounding_box.round_coords(round_val=_GRID_RESOLUTION)
@@ -119,8 +107,9 @@ class EcmwfApi(DataSource):
         >>> (from aatoolbox.datasources.ecmwf.api_seas5_monthly
         ... import EcmwfApi)
         >>> pipeline_mwi = Pipeline("mwi")
-        >>> mwi_admin0 = pipeline_mwi.load_codab(admin_level=0)
-        >>> ecmwf_api=EcmwfApi(iso3="mwi",geo_bounding_box=mwi_admin0)
+        >>> mwi_geobb = pipeline_mwi.load_geoboundingbox(
+        ... from_codab=False, from_config=True)
+        >>> ecmwf_api=EcmwfApi(iso3="mwi",geo_bounding_box=mwi_geobb)
         >>> ecmwf_api.download()
         """
         if min_date is None:
@@ -157,8 +146,9 @@ class EcmwfApi(DataSource):
         >>> (from aatoolbox.datasources.ecmwf.api_seas5_monthly
         ... import EcmwfApi)
         >>> pipeline_mwi = Pipeline("mwi")
-        >>> mwi_admin0 = pipeline_mwi.load_codab(admin_level=0)
-        >>> ecmwf_api=EcmwfApi(iso3="mwi",geo_bounding_box=mwi_admin0)
+        >>> mwi_geobb = pipeline_mwi.load_geoboundingbox(
+        ... from_codab=False, from_config=True)
+        >>> ecmwf_api=EcmwfApi(iso3="mwi",geo_bounding_box=mwi_geobb)
         >>> ecmwf_api.process()
         """
         # get path structure with publication date as wildcard
@@ -187,8 +177,9 @@ class EcmwfApi(DataSource):
         >>> (from aatoolbox.datasources.ecmwf.api_seas5_monthly
         ... import EcmwfApi)
         >>> pipeline_mwi = Pipeline("mwi")
-        >>> mwi_admin0 = pipeline_mwi.load_codab(admin_level=0)
-        >>> ecmwf_api=EcmwfApi(iso3="mwi",geo_bounding_box=mwi_admin0)
+        >>> mwi_geobb = pipeline_mwi.load_geoboundingbox(
+        ... from_codab=False, from_config=True)
+        >>> ecmwf_api=EcmwfApi(iso3="mwi",geo_bounding_box=mwi_geobb)
         >>> ecmwf_api.download()
         >>> ecmwf_api.process()
         >>> ecmwf_api.load()

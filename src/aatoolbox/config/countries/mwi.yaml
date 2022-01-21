@@ -7,8 +7,7 @@ codab:
 ecmwf_realtime:
   number_points_mapping: 384
   geoboundaries_mapping:
-    #TODO: use unrounded coordinates instead
-    north: -5
-    south: -17
-    east: 37
-    west: 33
+    north: -4.8
+    south: -17.2
+    west: 32.8
+    east: 37.2

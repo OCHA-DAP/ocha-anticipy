@@ -1,9 +1,12 @@
 """Pipeline initializer."""
+from typing import TypedDict
+
 import geopandas as gpd
 
 from aatoolbox.config.countryconfig import get_country_config
 from aatoolbox.datasources.codab.codab import CodAB
 from aatoolbox.datasources.ecmwf.realtime_seas5_monthly import EcmwfRealtime
+from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
 
 class Pipeline:
@@ -102,6 +105,82 @@ class Pipeline:
             clobber=clobber,
         )
         return self._codab.load_admin_layer(layer_name=layer_name)
+
+    class Coordinates(TypedDict):
+        """Create dict of coordinates."""
+
+        north: float
+        south: float
+        west: float
+        east: float
+
+    def load_geoboundingbox(
+        self,
+        from_codab: bool = True,
+        from_config: bool = False,
+        coordinates: Coordinates = None,
+    ):
+        """Create a boundingbox object.
+
+        Parameters
+        ----------
+        from_codab: bool
+            Retrieve the geoboundingbox from the outer boundaries
+            of the codab shapefile
+        from_config
+            Retrieve the geoboundingbox from the coordinates
+            in the country config in
+            ecmwf_realtime.geoboundaries_mapping
+        from_coordinates: Coordinates
+            Retrieve the geoboundingbox based on given
+            boundingbox coorinates
+
+        Returns
+        -------
+        GeoBoundingBox object
+
+        Examples
+        --------
+        >>> from aatoolbox.pipeline import Pipeline
+        >>> # Get boundingbox of npl codab boundaries
+        >>> pipeline = Pipeline("npl")
+        >>> npl_geobb = pipeline.load_geoboundingbox()
+        """
+        if from_codab:
+            # doesn't matter which admin level as it takes the outer boundaries
+            gdf = self.load_codab(admin_level=0)
+            return GeoBoundingBox.from_shape(gdf)
+        elif from_config:
+            try:
+                # Ignore mypy for this line because _config.ecmwf_realtime
+                # could be None, but this is handled by the caught exceptions
+                geobb_mapping = (
+                    self._config.ecmwf_realtime.geoboundaries_mapping  # type: ignore # noqa:E501
+                )
+                return GeoBoundingBox(
+                    north=geobb_mapping.north,
+                    south=geobb_mapping.south,
+                    east=geobb_mapping.east,
+                    west=geobb_mapping.west,
+                )
+            except (IndexError, TypeError):
+                raise AttributeError(
+                    f"Cannot load geoboundaries mapping from "
+                    f"{self._config.iso3.upper()} config file. "
+                    f"ecmwf_realtime.geoboundaries_mapping "
+                    f"attribute not found."
+                )
+        elif coordinates is not None:
+            return GeoBoundingBox(
+                north=coordinates["north"],
+                south=coordinates["south"],
+                east=coordinates["east"],
+                west=coordinates["west"],
+            )
+        else:
+            raise AttributeError(
+                "None of the options given to retrieve a geoboundingbox."
+            )
 
     def load_ecmwf_realtime(self, process: bool = False):
         """Load the realtime ecmwf data."""
