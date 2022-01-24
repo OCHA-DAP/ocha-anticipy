@@ -22,7 +22,7 @@ can be inherited by the two respective extensions.
 """
 
 import logging
-from typing import Any, Callable, Dict, List, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 
 import geopandas as gpd
 import numpy as np
@@ -350,10 +350,9 @@ class AatRasterArray(AatRasterMixin, RasterArray):
         self,
         gdf: gpd.GeoDataFrame,
         feature_col: str,
-        stats_list: List[str] = None,
-        percentile_list: List[int] = None,
+        stats_list: Optional[List[str]] = None,
+        percentile_list: Optional[List[int]] = None,
         all_touched: bool = False,
-        geom_col: str = "geometry",
     ) -> pd.DataFrame:
         """Compute raster statistics for polygon geometry.
 
@@ -365,25 +364,56 @@ class AatRasterArray(AatRasterMixin, RasterArray):
         ----------
         gdf : geopandas.GeoDataFrame
             GeoDataFrame with row per area for stats computation.
+            If ``pd.DataFrame`` is passed, geometry column must
+            have the name ``geometry``.
         feature_col : str
             Column in ``gdf`` to use as row/feature identifier.
-        stats_list : List[str], optional
+        stats_list : Optional[List[str]], optional
             List of statistics to calculate, by default None.
             Passed to ``get_attr()``.
-        percentile_list : List[int], optional
+        percentile_list : Optional[List[int]], optional
             List of percentiles to compute, by default None.
         all_touched : bool, optional
             If ``True`` all cells touching the region will be
             included, by default False. If ``False``, only
             cells with their centre in the region will be
             included.
-        geom_col : str, optional
-            Column in ``gdf`` with geometry, by default "geometry".
 
         Returns
         -------
         pandas.DataFrame
             Dataframe with computed statistics.
+
+        Examples
+        --------
+        >>> import geopandas as gpd
+        >>> import xarray as xr
+        >>> import rioxarray
+        >>> from shapely.geometry import Polygon
+        >>>
+        >>> # compute raster stats on simple data
+        >>> d = {
+        ...     "name": ["area_a", "area_b"],
+        ...     "geometry": [
+        ...         Polygon([(0, 0), (0, 2), (2, 2), (2, 0)]),
+        ...         Polygon([(2, 0), (2, 2), (3, 2), (3, 0)]),
+        ...     ],
+        ... }
+        >>> gdf = gpd.GeoDataFrame(d)
+        >>>
+        >>> da = xr.DataArray(
+        ...     [[1, 2, 3], [4, 5, 6]],
+        ...     dims=("y", "x"),
+        ...     coords={"y": [1.5, 0.5], "x": [0.5, 1.5, 2.5]},
+        ... ).rio.write_crs("EPSG:4326")
+        >>>
+        >>> da.aat.compute_raster_stats(
+        ...     gdf=gdf,
+        ...     feature_col="name"
+        ... ) # doctest: +SKIP
+           mean_name            std_name min_name max_name sum_name count_name    name # noqa: E501
+        0       3.0  1.5811388300841898        1        5     12.0          4  area_a  # noqa: E501
+        1       4.5                 1.5        3        6      9.0          2  area_b  # noqa: E501
         """
         data_obj = self._get_obj(inplace=False)
         if data_obj.rio.crs is None:
@@ -405,7 +435,7 @@ class AatRasterArray(AatRasterMixin, RasterArray):
             # so catching and skipping rest of iteration so no stats computed
             try:
                 da_clip = da_clip.rio.clip(
-                    gdf_adm[geom_col], all_touched=all_touched
+                    gdf_adm.geometry, all_touched=all_touched
                 )
             except NoDataInBounds:
                 logger.warning(
@@ -471,7 +501,7 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
     def __init__(self, xarray_object):
         super().__init__(xarray_object)
 
-    def get_raster_array(self, var: str) -> xr.DataArray:
+    def get_raster_array(self, var_name: str) -> xr.DataArray:
         """Get xarray.DataArray from variable and keep dimensions.
 
         Accessing a component xarray.DataArray using the
@@ -486,7 +516,7 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
 
         Parameters
         ----------
-        var : str
+        var_name : str
             Name of variable.
 
         Returns
@@ -524,13 +554,14 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
             dimension name to 't' can address this.
         Data variable: temperature
         """
-        obj = self._obj[var]
+        obj = self._obj[var_name]
         # rioxarray attributes
         if self._x_dim is not None and self._y_dim is not None:
             obj.rio.set_spatial_dims(
                 x_dim=self._x_dim, y_dim=self._y_dim, inplace=True
             )
-        if self._crs is not None:
+
+        if self.crs is not None:
             obj.rio.set_crs(self._crs, inplace=True)
 
         # raster module attributes
@@ -540,7 +571,7 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
         return obj
 
     def compute_raster_stats(
-        self, vars: Union[List[str], None] = None, **kwargs: Any
+        self, var_names: Union[List[str], str, None] = None, **kwargs: Any
     ):
         """Compute raster statistics across dataset arrays.
 
@@ -551,7 +582,7 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
 
         Parameters
         ----------
-        vars : Union[List[str], None], optional
+        var_names : Union[List[str], str, None], optional
             Dataset data array variables to calculate raster statistics on.
 
         kwargs : Any
@@ -562,7 +593,46 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
         -------
         List[pandas.DataFrame]
             List of raster statistics data frames.
+
+        Examples
+        --------
+        >>> import geopandas as gpd
+        >>> import xarray as xr
+        >>> import rioxarray
+        >>> from shapely.geometry import Polygon
+        >>>
+        >>> # compute raster stats on simple data
+        >>> d = {
+        ...     "name": ["area_a", "area_b"],
+        ...     "geometry": [
+        ...         Polygon([(0, 0), (0, 2), (2, 2), (2, 0)]),
+        ...         Polygon([(2, 0), (2, 2), (3, 2), (3, 0)]),
+        ...     ],
+        ... }
+        >>> gdf = gpd.GeoDataFrame(d)
+        >>>
+        >>> ds = xr.DataArray(
+        ...     [[1, 2, 3], [4, 5, 6]],
+        ...     dims=("y", "x"),
+        ...     coords={"y": [1.5, 0.5], "x": [0.5, 1.5, 2.5]},
+        ... ).rio.write_crs("EPSG:4326").to_dataset(name="data")
+        >>>
+        >>> ds.aat.compute_raster_stats(
+        ...    var_names=["data"],
+        ...    gdf=gdf,
+        ...    feature_col="name"
+        ... ) # doctest: +SKIP
+        [  mean_name            std_name min_name max_name sum_name count_name    name # noqa: E501
+        0       3.0  1.5811388300841898        1        5     12.0          4  area_a  # noqa: E501
+        1       4.5                 1.5        3        6      9.0          2  area_b] # noqa: E501
         """
-        vars = self.vars if vars is None else vars
-        stats = [self._obj[var].compute_raster_stats(**kwargs) for var in vars]
+        if var_names is None:
+            var_names = self.vars
+        elif isinstance(var_names, str):
+            var_names = [var_names]
+
+        stats = [
+            self._obj[var].aat.compute_raster_stats(**kwargs)
+            for var in var_names
+        ]
         return stats
