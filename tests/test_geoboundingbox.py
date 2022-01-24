@@ -8,7 +8,7 @@ from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 def test_geoboundingbox_round_coords():
     """Test that coordinates are correctly rounded and offset."""
     geobb = GeoBoundingBox(north=1.05, south=-2.2, east=3.6, west=-4)
-    geobb.round_boundingbox_coords(offset_val=0.4)
+    geobb.round_coords(offset_val=0.4)
     assert geobb.north == 2.4
     assert geobb.south == -3.4
     assert geobb.east == 4.4
