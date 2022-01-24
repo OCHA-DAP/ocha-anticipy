@@ -98,7 +98,7 @@ class Glofas(DataSource):
         version: int,
         year: int,
         month: int = None,
-        leadtime: Union[int, list] = None,
+        leadtime: Union[int, List[int]] = None,
         use_cache: bool = True,
     ):
         filepath = self._get_raw_filepath(
