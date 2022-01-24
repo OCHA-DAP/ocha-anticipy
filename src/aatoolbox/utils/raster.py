@@ -266,22 +266,25 @@ class AatRasterMixin:
         return lon[0] > lon[-1], lat[0] < lat[-1]
 
     def change_longitude_range(
-        self, inplace: bool = False
+        self, hundredeightyrange: bool = True, inplace: bool = False
     ) -> Union[xr.DataArray, xr.Dataset]:
         """Convert longitude range between -180 to 180 and 0 to 360.
 
-        For some raster data, outputs are incorrect if longitude ranges
-        are not converted from 0 to 360 to -180 to 180, such as the IRI
-        seasonal forecast, but *not* the IRI CAMS observational terciles,
-        which are incorrect if ranges are stored as -180 to 180.
+        The standard longitude range is from -180 to 180, while some
+        applications use 0 to 360.
 
         ``change_longitude_range()`` will convert between the
-        two coordinate systems based on its current state. If coordinates
-        lie solely between 0 and 180 then there is no need for conversion
-        and the input  will be returned.
+        two coordinate ranges based on its current state.
+        By default it will use the -180 to 180 range unless
+        `hundredeightyrange` is False, then it will use 0-360
+        If coordinates lie solely between 0 and 180 then there is
+        no need for conversion and the input  will be returned.
 
         Parameters
         ----------
+        hundredeightyrange: bool, default = True
+            If True, the returned range is -180 to 180
+            Else, the returned range is 0 to 360
         inplace : bool, optional
             If True, will overwrite existing data array. Default is False.
 
@@ -319,14 +322,14 @@ class AatRasterMixin:
         lon_min = data_obj.indexes[self.x_dim].min()
         lon_max = data_obj.indexes[self.x_dim].max()
 
-        if lon_max > 180:
+        if hundredeightyrange and lon_max > 180:
             logger.info("Converting longitude from 0 360 to -180 to 180.")
 
             data_obj[self.x_dim] = np.sort(
                 ((data_obj[self.x_dim] + 180) % 360) - 180
             )
 
-        elif lon_min < 0:
+        elif not hundredeightyrange and lon_min < 0:
             logger.info("Converting longitude from -180 to 180 to 0 to 360.")
 
             data_obj[self.x_dim] = np.sort(data_obj[self.x_dim] % 360)
