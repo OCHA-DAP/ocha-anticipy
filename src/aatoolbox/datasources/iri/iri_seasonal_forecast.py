@@ -134,9 +134,6 @@ class _IriForecast(DataSource):
         ds.aat.correct_calendar(inplace=True)
         ds = xr.decode_cf(ds)
 
-        # question: Do you think this makes more sense to do this here
-        # or implement in the geoboundingbox class? i.e. restrict
-        # the range and that south<north?
         # IRI downloads in the order you give the coordinates
         # and accepts both -180 to 180 longitudes and 0 to 360
         # TODO: can be removed once we have a check in the
