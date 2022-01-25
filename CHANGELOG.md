@@ -16,6 +16,10 @@ and this project adheres to
 - GitHub action to publish on PyPI should not be invoked for pushes to main
   (using tags instead)
 
+### Added
+
+- Implemented unit testing for `AatRaster` module with full coverage.
+
 ## [0.3.1] - 2022-01-06
 
 ### Fixed
