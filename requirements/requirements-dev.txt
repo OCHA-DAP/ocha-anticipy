@@ -58,6 +58,8 @@ cffi==1.15.0
     #   cryptography
 cfgv==3.3.1
     # via pre-commit
+cftime==1.5.2
+    # via -r requirements/tests.in
 chardet==4.0.0
     # via
     #   -r requirements/requirements.txt
@@ -223,6 +225,7 @@ num2words==0.5.10
 numpy==1.21.4
     # via
     #   -r requirements/requirements.txt
+    #   cftime
     #   pandas
     #   rasterio
     #   snuggs

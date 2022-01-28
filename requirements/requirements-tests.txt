@@ -2,6 +2,8 @@ attrs==21.2.0
     # via pytest
 backports.entry-points-selectable==1.1.1
     # via virtualenv
+cftime==1.5.2
+    # via -r requirements/tests.in
 coverage[toml]==6.1.2
     # via pytest-cov
 distlib==0.3.3
@@ -12,6 +14,8 @@ filelock==3.4.0
     #   virtualenv
 iniconfig==1.1.1
     # via pytest
+numpy==1.22.1
+    # via cftime
 packaging==21.3
     # via
     #   pytest
