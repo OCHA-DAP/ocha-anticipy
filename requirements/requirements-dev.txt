@@ -59,7 +59,9 @@ cffi==1.15.0
 cfgv==3.3.1
     # via pre-commit
 cftime==1.5.2
-    # via -r requirements/tests.in
+    # via
+    #   -r requirements/tests.in
+    #   netcdf4
 chardet==4.0.0
     # via
     #   -r requirements/requirements.txt
@@ -216,6 +218,8 @@ ndg-httpsclient==0.5.1
     # via
     #   -r requirements/requirements.txt
     #   hdx-python-api
+netcdf4==1.5.8
+    # via -r requirements/tests.in
 nodeenv==1.6.0
     # via pre-commit
 num2words==0.5.10
@@ -226,6 +230,7 @@ numpy==1.19.5
     # via
     #   -r requirements/requirements.txt
     #   cftime
+    #   netcdf4
     #   pandas
     #   rasterio
     #   snuggs

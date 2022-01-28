@@ -9,10 +9,10 @@ namely the dominant tercile probability and the probability
 per tercile. Both variations are implemented here.
 """
 import logging
-from typing import Literal
 
 import requests
 import xarray as xr
+from typing_extensions import Literal
 
 import aatoolbox.utils.raster  # noqa: F401
 from aatoolbox.datasources.datasource import DataSource
