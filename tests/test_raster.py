@@ -175,9 +175,7 @@ def test_change_longitude_range_no_change(da_2d, caplog):
     """Ensure change longitude logs no change."""
     caplog.set_level(logging.INFO)
     da_2d.aat.change_longitude_range()
-    assert (
-        "Indeterminate longitude range and no need to convert." in caplog.text
-    )
+    assert "Coordinates already in required range." in caplog.text
 
 
 def test_compute_raster_stats_no_data_in_bounds(

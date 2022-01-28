@@ -55,6 +55,11 @@ class AatRasterMixin:
             self._x_dim = "lon"
             self._y_dim = "lat"
 
+        # Adding Y/X to set of default spatial dims
+        if "Y" in self._obj.dims and "X" in self._obj.dims:
+            self._x_dim = "X"
+            self._y_dim = "Y"
+
         # Managing time coordinate default dims
         self._t_dim = None
         for t in ["t", "T", "time"]:
