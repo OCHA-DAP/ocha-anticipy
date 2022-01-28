@@ -12,6 +12,18 @@ from aatoolbox.datasources.iri.iri_seasonal_forecast import (
 )
 from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
+FAKE_AA_DATA_DIR = "fake_aa_dir"
+ISO3 = "abc"
+
+
+@pytest.fixture(scope="session", autouse=True)
+def mock_aa_data_dir(session_mocker):
+    """Mock out the AA_DATA_DIR environment variable."""
+    session_mocker.patch.dict(
+        "aatoolbox.config.pathconfig.os.environ",
+        {"AA_DATA_DIR": FAKE_AA_DATA_DIR},
+    )
+
 
 @pytest.fixture()
 def mock_download(mocker, tmp_path):
@@ -25,17 +37,17 @@ def mock_download(mocker, tmp_path):
         "aatoolbox.datasources.iri."
         "iri_seasonal_forecast._IriForecast._download"
     )
+    # mocker.patch("aatoolbox.datasources.iri.iri_seasonal_forecast.datasource.config.pathconfig")
 
     def _mock_download(forecast_type):
-        iso3 = "abc"
         geo_bounding_box = GeoBoundingBox(north=6, south=3.2, east=-2, west=3)
         if forecast_type == "tercile":
             iri_class = IriForecastTercile(
-                iso3=iso3, geo_bounding_box=geo_bounding_box
+                iso3=ISO3, geo_bounding_box=geo_bounding_box
             )
         elif forecast_type == "dominant":
             iri_class = IriForecastDominant(
-                iso3=iso3, geo_bounding_box=geo_bounding_box
+                iso3=ISO3, geo_bounding_box=geo_bounding_box
             )
         iri_class._raw_base_dir = tmp_path
         iri_class.download(iri_auth=None)
@@ -94,10 +106,9 @@ def test_process(tmp_path):
     ).to_dataset(name="prob")
     ds["F"].attrs["calendar"] = "360"
     ds["F"].attrs["units"] = "months since 1960-01-01"
-    iso3 = "abc"
     geo_bounding_box = GeoBoundingBox(north=6, south=3.2, east=-2, west=3)
     iri_class = IriForecastTercile(
-        iso3=iso3, geo_bounding_box=geo_bounding_box
+        iso3=ISO3, geo_bounding_box=geo_bounding_box
     )
 
     iri_class._process(filepath=tmp_path / "test.nc", ds=ds, clobber=False)
