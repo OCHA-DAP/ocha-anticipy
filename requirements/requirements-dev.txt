@@ -222,7 +222,7 @@ num2words==0.5.10
     # via
     #   -r requirements/requirements.txt
     #   quantulum3
-numpy==1.21.4
+numpy==1.19.5
     # via
     #   -r requirements/requirements.txt
     #   cftime
