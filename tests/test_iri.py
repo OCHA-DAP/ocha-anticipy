@@ -1,5 +1,7 @@
 """Tests for the IRI module."""
 
+from pathlib import Path
+
 import cftime
 import numpy as np
 import pytest
@@ -7,6 +9,7 @@ import xarray as xr
 from xarray.coding.cftimeindex import CFTimeIndex
 
 from aatoolbox.datasources.iri.iri_seasonal_forecast import (
+    _MODULE_BASENAME,
     IriForecastDominant,
     IriForecastProb,
 )
@@ -26,7 +29,7 @@ def mock_aa_data_dir(session_mocker):
 
 
 @pytest.fixture()
-def mock_download(mocker, tmp_path):
+def mock_download(mocker):
     """
     Call download with mocked _download.
 
@@ -37,7 +40,6 @@ def mock_download(mocker, tmp_path):
         "aatoolbox.datasources.iri."
         "iri_seasonal_forecast._IriForecast._download"
     )
-    # mocker.patch("aatoolbox.datasources.iri.iri_seasonal_forecast.datasource.config.pathconfig")
 
     def _mock_download(forecast_type):
         geo_bounding_box = GeoBoundingBox(north=6, south=3.2, east=-2, west=3)
@@ -49,19 +51,18 @@ def mock_download(mocker, tmp_path):
             iri_class = IriForecastDominant(
                 iso3=ISO3, geo_bounding_box=geo_bounding_box
             )
-        iri_class._raw_base_dir = tmp_path
         iri_class.download(iri_auth=None)
         _, kwargs_download = download_mock.call_args
         url = kwargs_download["url"]
         filepath = kwargs_download["filepath"]
-        return url, filepath, tmp_path
+        return url, filepath
 
     return _mock_download
 
 
 def test_download_call_prob(mock_download):
     """Test download for tercile probability forecast."""
-    url, filepath, tmp_path = mock_download("prob")
+    url, filepath = mock_download("prob")
     assert url == (
         "https://iridl.ldeo.columbia.edu/SOURCES/.IRI/.FD/"
         ".NMME_Seasonal_Forecast/"
@@ -69,15 +70,16 @@ def test_download_call_prob(mock_download):
         "Y/%286.0%29%283.0%29RANGEEDGES/data.nc"
     )
 
-    assert (
-        filepath == tmp_path / "abc_iri_forecast_seasonal_precipitation_"
-        "tercile_prob_Np6Sp3Em2Wp3.nc"
+    assert filepath == (
+        Path(FAKE_AA_DATA_DIR) / f"private/raw/{ISO3}/{_MODULE_BASENAME}/"
+        f"abc_iri_forecast_seasonal_precipitation_"
+        f"tercile_prob_Np6Sp3Em2Wp3.nc"
     )
 
 
 def test_download_call_dominant(mock_download):
     """Test download for dominant tercile forecast."""
-    url, filepath, tmp_path = mock_download("dominant")
+    url, filepath = mock_download("dominant")
     assert url == (
         "https://iridl.ldeo.columbia.edu/SOURCES/.IRI/.FD/"
         ".NMME_Seasonal_Forecast/"
@@ -86,12 +88,13 @@ def test_download_call_dominant(mock_download):
     )
 
     assert filepath == (
-        tmp_path / "abc_iri_forecast_seasonal_"
-        "precipitation_tercile_dominant_Np6Sp3Em2Wp3.nc"
+        Path(FAKE_AA_DATA_DIR) / f"private/raw/{ISO3}/{_MODULE_BASENAME}/"
+        f"abc_iri_forecast_seasonal_"
+        f"precipitation_tercile_dominant_Np6Sp3Em2Wp3.nc"
     )
 
 
-def test_process(tmp_path):
+def test_process(mocker):
     """Test process for IRI forecast."""
     ds = xr.DataArray(
         np.reshape(a=np.arange(16), newshape=(2, 2, 2, 2)),
@@ -108,15 +111,33 @@ def test_process(tmp_path):
     geo_bounding_box = GeoBoundingBox(north=6, south=3.2, east=-2, west=3)
     iri_class = IriForecastProb(iso3=ISO3, geo_bounding_box=geo_bounding_box)
 
-    iri_class._process(filepath=tmp_path / "test.nc", ds=ds, clobber=False)
-    da_processed = xr.load_dataset(tmp_path / "test.nc")
+    # TODO: now created `load_raw` to be able to mock but would like
+    # to do it from xr.load_dataset directly
+    mocker.patch(
+        "aatoolbox.datasources.iri.iri_seasonal_forecast."
+        "_IriForecast.load_raw",
+        return_value=ds,
+    )
+    processed_path = iri_class.process()
+    assert processed_path == (
+        Path(FAKE_AA_DATA_DIR)
+        / f"private/processed/{ISO3}/{_MODULE_BASENAME}/"
+        f"{ISO3}_iri_forecast_seasonal_precipitation_"
+        f"tercile_prob_Np6Sp3Em2Wp3.nc"
+    )
+
+    da_processed = iri_class.load()
+    # Old method. Leaving here for reference but to be removed once fixed
+    # mock_test=mocker.patch("aatoolbox.datasources.iri.iri_seasonal_forecast.xr.load_dataset",return_value=ds)
+    # iri_class._process(filepath=tmp_path / "test.nc", ds=ds, clobber=False)
+    # da_processed = xr.load_dataset(tmp_path / "test.nc")
     expected_f = CFTimeIndex(
         [
             cftime.datetime(year=2017, month=2, day=16, calendar="360_day"),
             cftime.datetime(year=2017, month=3, day=16, calendar="360_day"),
         ]
     )
-    # TODO: this can be done in a neater way but couldn't figure out how
+
     expected_values = [
         [[[4, 5], [6, 7]], [[0, 1], [2, 3]]],
         [[[12, 13], [14, 15]], [[8, 9], [10, 11]]],

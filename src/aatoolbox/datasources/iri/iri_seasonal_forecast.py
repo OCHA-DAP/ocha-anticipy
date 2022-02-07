@@ -115,11 +115,7 @@ class _IriForecast(DataSource):
             If True, overwrites existing processed files
 
         """
-        ds = xr.load_dataset(
-            self._get_raw_path(),
-            decode_times=False,
-            drop_variables="C",
-        )
+        ds = self.load_raw()
         processed_file_path = self._get_processed_path()
         processed_file_path.parent.mkdir(parents=True, exist_ok=True)
         return self._process(
@@ -146,6 +142,14 @@ class _IriForecast(DataSource):
         ds = ds.aat.invert_coordinates()
         ds.to_netcdf(filepath)
         return filepath
+
+    def load_raw(self):
+        ds = xr.load_dataset(
+            self._get_raw_path(),
+            decode_times=False,
+            drop_variables="C",
+        )
+        return ds
 
     def load(self):
         """Load the IRI forecast."""
