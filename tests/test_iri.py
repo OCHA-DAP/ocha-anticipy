@@ -8,7 +8,7 @@ from xarray.coding.cftimeindex import CFTimeIndex
 
 from aatoolbox.datasources.iri.iri_seasonal_forecast import (
     IriForecastDominant,
-    IriForecastTercile,
+    IriForecastProb,
 )
 from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
@@ -31,7 +31,7 @@ def mock_download(mocker, tmp_path):
     Call download with mocked _download.
 
     `forecast_type` is the type of forecast to
-    test, can be either 'tercile' or 'dominant'.
+    test, can be either 'prob' or 'dominant'.
     """
     download_mock = mocker.patch(
         "aatoolbox.datasources.iri."
@@ -41,8 +41,8 @@ def mock_download(mocker, tmp_path):
 
     def _mock_download(forecast_type):
         geo_bounding_box = GeoBoundingBox(north=6, south=3.2, east=-2, west=3)
-        if forecast_type == "tercile":
-            iri_class = IriForecastTercile(
+        if forecast_type == "prob":
+            iri_class = IriForecastProb(
                 iso3=ISO3, geo_bounding_box=geo_bounding_box
             )
         elif forecast_type == "dominant":
@@ -59,9 +59,9 @@ def mock_download(mocker, tmp_path):
     return _mock_download
 
 
-def test_download_call_tercile(mock_download):
-    """Test download for tercile forecast."""
-    url, filepath, tmp_path = mock_download("tercile")
+def test_download_call_prob(mock_download):
+    """Test download for tercile probability forecast."""
+    url, filepath, tmp_path = mock_download("prob")
     assert url == (
         "https://iridl.ldeo.columbia.edu/SOURCES/.IRI/.FD/"
         ".NMME_Seasonal_Forecast/"
@@ -70,14 +70,13 @@ def test_download_call_tercile(mock_download):
     )
 
     assert (
-        filepath
-        == tmp_path
-        / "abc_iri_forecast_seasonal_precipitation_tercile_Np6Sp3Em2Wp3.nc"
+        filepath == tmp_path / "abc_iri_forecast_seasonal_precipitation_"
+        "tercile_prob_Np6Sp3Em2Wp3.nc"
     )
 
 
 def test_download_call_dominant(mock_download):
-    """Test download for tercile forecast."""
+    """Test download for dominant tercile forecast."""
     url, filepath, tmp_path = mock_download("dominant")
     assert url == (
         "https://iridl.ldeo.columbia.edu/SOURCES/.IRI/.FD/"
@@ -86,9 +85,9 @@ def test_download_call_dominant(mock_download):
         "Y/%286.0%29%283.0%29RANGEEDGES/data.nc"
     )
 
-    assert (
-        filepath == tmp_path / "abc_iri_forecast_seasonal_precipitation_"
-        "tercile_dominant_Np6Sp3Em2Wp3.nc"
+    assert filepath == (
+        tmp_path / "abc_iri_forecast_seasonal_"
+        "precipitation_tercile_dominant_Np6Sp3Em2Wp3.nc"
     )
 
 
@@ -107,9 +106,7 @@ def test_process(tmp_path):
     ds["F"].attrs["calendar"] = "360"
     ds["F"].attrs["units"] = "months since 1960-01-01"
     geo_bounding_box = GeoBoundingBox(north=6, south=3.2, east=-2, west=3)
-    iri_class = IriForecastTercile(
-        iso3=ISO3, geo_bounding_box=geo_bounding_box
-    )
+    iri_class = IriForecastProb(iso3=ISO3, geo_bounding_box=geo_bounding_box)
 
     iri_class._process(filepath=tmp_path / "test.nc", ds=ds, clobber=False)
     da_processed = xr.load_dataset(tmp_path / "test.nc")

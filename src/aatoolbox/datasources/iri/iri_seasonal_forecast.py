@@ -37,8 +37,8 @@ class _IriForecast(DataSource):
         be included in the data.
     forecast_type: str
         The type of forecast information to download.
-        Can be "tercile" or "dominant"
-        If "tercile" the data will be retrieved that
+        Can be "prob" or "dominant"
+        If "prob" the data will be retrieved that
         contains the probability per tercile
         If "dominant" the data will be retrieved that
         contains only one probability indicating
@@ -50,7 +50,7 @@ class _IriForecast(DataSource):
         self,
         iso3,
         geo_bounding_box: GeoBoundingBox,
-        forecast_type: Literal["tercile", "dominant"],
+        forecast_type: Literal["prob", "dominant"],
     ):
         super().__init__(
             iso3=iso3, module_base_dir=_MODULE_BASENAME, is_public=False
@@ -153,10 +153,10 @@ class _IriForecast(DataSource):
         return ds.rio.write_crs("EPSG:4326", inplace=True)
 
     def _get_file_name(self):
-        file_name = f"{self._iso3}_iri_forecast_seasonal_precipitation_tercile"
-        if self._forecast_type == "dominant":
-            file_name += "_dominant"
-        file_name += f"_{self._geobb.get_filename_repr(p=0)}.nc"
+        file_name = (
+            f"{self._iso3}_iri_forecast_seasonal_precipitation_tercile_"
+            f"{self._forecast_type}_{self._geobb.get_filename_repr(p=0)}.nc"
+        )
         return file_name
 
     def _get_raw_path(self):
@@ -166,14 +166,12 @@ class _IriForecast(DataSource):
         return self._processed_base_dir / self._get_file_name()
 
     def _get_url(self):
+
         base_url = (
             "https://iridl.ldeo.columbia.edu/SOURCES/.IRI/.FD/"
-            ".NMME_Seasonal_Forecast/.Precipitation_ELR/"
+            f".NMME_Seasonal_Forecast/.Precipitation_ELR/"
+            f".{self._forecast_type}/"
         )
-        if self._forecast_type == "dominant":
-            base_url += ".dominant/"
-        elif self._forecast_type == "tercile":
-            base_url += ".prob/"
         return (
             f"{base_url}"
             f"X/%28{self._geobb.west}%29%28{self._geobb.east}%29RANGEEDGES/"
@@ -182,7 +180,7 @@ class _IriForecast(DataSource):
         )
 
 
-class IriForecastTercile(_IriForecast):
+class IriForecastProb(_IriForecast):
     """
     Class to retrieve IRI's forecast data per tercile.
 
@@ -204,14 +202,14 @@ class IriForecastTercile(_IriForecast):
     >>> from aatoolbox.pipeline import Pipeline
     >>> from aatoolbox.utils.geoboundingbox import GeoBoundingBox
     >>> (from aatoolbox.datasources.iri.
-    ... iri_seasonal_forecast import IriForecastTercile)
+    ... iri_seasonal_forecast import IriForecastProb)
     #retrieve the bounding box to download data for
     >>> iso3="bfa"
     >>> pipeline_iso = Pipeline(iso3)
     >>> codab_admin1 = pipeline_iso.load_codab(admin_level=1)
     >>> geo_bounding_box = GeoBoundingBox.from_shape(codab_admin1)
     #initialize class and retrieve data
-    >>> iri=IriForecastTercile(iso3,geo_bounding_box)
+    >>> iri=IriForecastProb(iso3,geo_bounding_box)
     #the iri auth str can e.g. be saved as an env var
     >>> iri.download(os.getenv("IRI_AUTH"))
     >>> iri.process()
@@ -222,7 +220,7 @@ class IriForecastTercile(_IriForecast):
         super().__init__(
             iso3=iso3,
             geo_bounding_box=geo_bounding_box,
-            forecast_type="tercile",
+            forecast_type="prob",
         )
 
 
@@ -247,7 +245,7 @@ class IriForecastDominant(_IriForecast):
     >>> from aatoolbox.pipeline import Pipeline
     >>> from aatoolbox.utils.geoboundingbox import GeoBoundingBox
     >>> (from aatoolbox.datasources.iri.
-    ... iri_seasonal_forecast import IriForecastTercile)
+    ... iri_seasonal_forecast import IriForecastDominant)
     #retrieve the bounding box to download data for
     >>> iso3="bfa"
     >>> pipeline_iso = Pipeline(iso3)
