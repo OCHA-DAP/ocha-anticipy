@@ -41,13 +41,13 @@ def mock_download(mocker):
         "iri_seasonal_forecast._IriForecast._download"
     )
 
-    def _mock_download(forecast_type):
+    def _mock_download(prob_forecast):
         geo_bounding_box = GeoBoundingBox(north=6, south=3.2, east=-2, west=3)
-        if forecast_type == "prob":
+        if prob_forecast:
             iri_class = IriForecastProb(
                 iso3=ISO3, geo_bounding_box=geo_bounding_box
             )
-        elif forecast_type == "dominant":
+        else:
             iri_class = IriForecastDominant(
                 iso3=ISO3, geo_bounding_box=geo_bounding_box
             )
@@ -62,7 +62,7 @@ def mock_download(mocker):
 
 def test_download_call_prob(mock_download):
     """Test download for tercile probability forecast."""
-    url, filepath = mock_download("prob")
+    url, filepath = mock_download(prob_forecast=True)
     assert url == (
         "https://iridl.ldeo.columbia.edu/SOURCES/.IRI/.FD/"
         ".NMME_Seasonal_Forecast/"
@@ -79,7 +79,7 @@ def test_download_call_prob(mock_download):
 
 def test_download_call_dominant(mock_download):
     """Test download for dominant tercile forecast."""
-    url, filepath = mock_download("dominant")
+    url, filepath = mock_download(prob_forecast=False)
     assert url == (
         "https://iridl.ldeo.columbia.edu/SOURCES/.IRI/.FD/"
         ".NMME_Seasonal_Forecast/"
@@ -98,14 +98,15 @@ def test_process(mocker):
     """Test process for IRI forecast."""
     ds = xr.DataArray(
         np.reshape(a=np.arange(16), newshape=(2, 2, 2, 2)),
-        coords=[
-            [1, 2],
-            [3, -2],
-            [97, 90],
-            [685.5, 686.5],
-        ],
-        dims=["L", "X", "Y", "F"],
+        dims=("L", "X", "Y", "F"),
+        coords={
+            "L": [1, 2],
+            "X": [3, -2],
+            "Y": [97, 90],
+            "F": [685.5, 686.5],
+        },
     ).to_dataset(name="prob")
+
     ds["F"].attrs["calendar"] = "360"
     ds["F"].attrs["units"] = "months since 1960-01-01"
     geo_bounding_box = GeoBoundingBox(north=6, south=3.2, east=-2, west=3)
