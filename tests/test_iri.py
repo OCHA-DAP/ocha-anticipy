@@ -142,7 +142,7 @@ def test_process(mocker):
         f"tercile_prob_Np6Sp3Em2Wp3.nc"
     )
 
-    da_processed = iri_class.load()
+    da_processed = xr.load_dataset(processed_path)
     # Old method. Leaving here for reference but to be removed once fixed
     # mock_test=mocker.patch("aatoolbox.datasources.iri.iri_seasonal_forecast.xr.load_dataset",return_value=ds)
     # iri_class._process(filepath=tmp_path / "test.nc", ds=ds, clobber=False)
