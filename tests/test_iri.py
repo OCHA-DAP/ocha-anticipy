@@ -8,6 +8,7 @@ import pytest
 import xarray as xr
 from xarray.coding.cftimeindex import CFTimeIndex
 
+import aatoolbox.datasources.iri.iri_seasonal_forecast as aairi
 from aatoolbox.datasources.iri.iri_seasonal_forecast import (
     _MODULE_BASENAME,
     IriForecastDominant,
@@ -114,10 +115,24 @@ def test_process(mocker):
 
     # TODO: now created `load_raw` to be able to mock but would like
     # to do it from xr.load_dataset directly
+    # mocker.patch(
+    #     "aatoolbox.datasources.iri.iri_seasonal_forecast."
+    #     "_IriForecast.load_raw",
+    #     return_value=ds,
+    # )
+
+    def side_effect(*args, **kwargs):
+        side_effect.counter += 1
+        if side_effect.counter == 1:
+            return ds
+        elif side_effect.counter == 2:
+            return aairi.xr.load_dataset(*args, **kwargs)
+            # return None
+
+    side_effect.counter = 0
     mocker.patch(
-        "aatoolbox.datasources.iri.iri_seasonal_forecast."
-        "_IriForecast.load_raw",
-        return_value=ds,
+        "aatoolbox.datasources.iri.iri_seasonal_forecast.xr.load_dataset",
+        side_effect=side_effect,
     )
     processed_path = iri_class.process()
     assert processed_path == (

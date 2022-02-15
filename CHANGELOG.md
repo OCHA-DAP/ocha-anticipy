@@ -19,6 +19,7 @@ and this project adheres to
 ### Added
 
 - Implemented unit testing for `AatRaster` module with full coverage.
+- Implemented downloading and processing for IRI seasonal precipication forecast.
 
 ## [0.3.1] - 2022-01-06
 
