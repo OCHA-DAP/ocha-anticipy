@@ -115,12 +115,7 @@ class _IriForecast(DataSource):
             If True, overwrites existing processed files
 
         """
-        # ds = self.load_raw()
-        ds = xr.load_dataset(
-            self._get_raw_path(),
-            decode_times=False,
-            drop_variables="C",
-        )
+        ds = self.load_raw()
         processed_file_path = self._get_processed_path()
         processed_file_path.parent.mkdir(parents=True, exist_ok=True)
         return self._process(

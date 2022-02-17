@@ -8,7 +8,6 @@ import pytest
 import xarray as xr
 from xarray.coding.cftimeindex import CFTimeIndex
 
-import aatoolbox.datasources.iri.iri_seasonal_forecast as aairi
 from aatoolbox.datasources.iri.iri_seasonal_forecast import (
     _MODULE_BASENAME,
     IriForecastDominant,
@@ -95,6 +94,8 @@ def test_download_call_dominant(mock_download):
     )
 
 
+# TODO: need to use a tmp dir but will copy
+# that from glofas once that is ready :)
 def test_process(mocker):
     """Test process for IRI forecast."""
     ds = xr.DataArray(
@@ -115,25 +116,12 @@ def test_process(mocker):
 
     # TODO: now created `load_raw` to be able to mock but would like
     # to do it from xr.load_dataset directly
-    # mocker.patch(
-    #     "aatoolbox.datasources.iri.iri_seasonal_forecast."
-    #     "_IriForecast.load_raw",
-    #     return_value=ds,
-    # )
-
-    def side_effect(*args, **kwargs):
-        side_effect.counter += 1
-        if side_effect.counter == 1:
-            return ds
-        elif side_effect.counter == 2:
-            return aairi.xr.load_dataset(*args, **kwargs)
-            # return None
-
-    side_effect.counter = 0
     mocker.patch(
-        "aatoolbox.datasources.iri.iri_seasonal_forecast.xr.load_dataset",
-        side_effect=side_effect,
+        "aatoolbox.datasources.iri.iri_seasonal_forecast."
+        "_IriForecast.load_raw",
+        return_value=ds,
     )
+
     processed_path = iri_class.process()
     assert processed_path == (
         Path(FAKE_AA_DATA_DIR)
@@ -143,10 +131,6 @@ def test_process(mocker):
     )
 
     da_processed = xr.load_dataset(processed_path)
-    # Old method. Leaving here for reference but to be removed once fixed
-    # mock_test=mocker.patch("aatoolbox.datasources.iri.iri_seasonal_forecast.xr.load_dataset",return_value=ds)
-    # iri_class._process(filepath=tmp_path / "test.nc", ds=ds, clobber=False)
-    # da_processed = xr.load_dataset(tmp_path / "test.nc")
     expected_f = CFTimeIndex(
         [
             cftime.datetime(year=2017, month=2, day=16, calendar="360_day"),
