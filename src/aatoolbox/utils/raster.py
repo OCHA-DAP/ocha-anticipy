@@ -55,11 +55,20 @@ class AatRasterMixin:
             self._x_dim = "lon"
             self._y_dim = "lat"
 
+        # Adding Y/X to set of default spatial dims
+        if "Y" in self._obj.dims and "X" in self._obj.dims:
+            self._x_dim = "X"
+            self._y_dim = "Y"
+
         # Managing time coordinate default dims
         self._t_dim = None
         for t in ["t", "T", "time"]:
             if t in self._obj.dims:
                 self._t_dim = t
+
+        # longitude range indicates if coordinates are
+        # between -180 and 180 or 0 and 360
+        self._longitude_range = None
 
     # methods derived from rioxarray.rioxarray.x_dim and y_dim
     @property
@@ -72,6 +81,30 @@ class AatRasterMixin:
                 f"'t' can address this.{_get_data_var_message(self._obj)}"
             )
         return self._t_dim
+
+    @property
+    def longitude_range(self):
+        """str: The longitude range.
+
+        The longitude range indicates if coordinates are
+        between -180 and 180 (indicated by '180')
+        or 0 and 360 (indicated by '360').
+        """
+        if self._longitude_range is None:
+            if self._x_dim is not None:
+                data_obj = self._get_obj(inplace=False)
+                lon_max = data_obj.indexes[self.x_dim].max()
+                if lon_max > 180:
+                    self._longitude_range = "360"
+                else:
+                    self._longitude_range = "180"
+            else:
+                raise DimensionError(
+                    "Longitude range not set due to missing 'x_dim'."
+                    "Use 'aat.set_spatial_dims()' to set the name of "
+                    f"the x dimension. {_get_data_var_message(self._obj)}"
+                )
+        return self._longitude_range
 
     def set_time_dim(
         self, t_dim: str, inplace: bool = False
@@ -266,22 +299,25 @@ class AatRasterMixin:
         return lon[0] > lon[-1], lat[0] < lat[-1]
 
     def change_longitude_range(
-        self, inplace: bool = False
+        self, to_180_range: bool = True, inplace: bool = False
     ) -> Union[xr.DataArray, xr.Dataset]:
         """Convert longitude range between -180 to 180 and 0 to 360.
 
-        For some raster data, outputs are incorrect if longitude ranges
-        are not converted from 0 to 360 to -180 to 180, such as the IRI
-        seasonal forecast, but *not* the IRI CAMS observational terciles,
-        which are incorrect if ranges are stored as -180 to 180.
+        The standard longitude range is from -180 to 180, while some
+        applications use 0 to 360.
 
         ``change_longitude_range()`` will convert between the
-        two coordinate systems based on its current state. If coordinates
-        lie solely between 0 and 180 then there is no need for conversion
-        and the input  will be returned.
+        two coordinate ranges based on its current state.
+        By default it will use the -180 to 180 range unless
+        `to_180_range` is False, then it will use 0-360
+        If coordinates lie solely between 0 and 180 then there is
+        no need for conversion and the input  will be returned.
 
         Parameters
         ----------
+        to_180_range : bool, default = True
+            If True, the returned range is -180 to 180
+            Else, the returned range is 0 to 360
         inplace : bool, optional
             If True, will overwrite existing data array. Default is False.
 
@@ -316,25 +352,23 @@ class AatRasterMixin:
         Int64Index([0, 5, 120, 199], dtype='int64', name='lon')
         """
         data_obj = self._get_obj(inplace=inplace)
-        lon_min = data_obj.indexes[self.x_dim].min()
-        lon_max = data_obj.indexes[self.x_dim].max()
 
-        if lon_max > 180:
+        if to_180_range and self.longitude_range == "360":
             logger.info("Converting longitude from 0 360 to -180 to 180.")
 
             data_obj[self.x_dim] = np.sort(
                 ((data_obj[self.x_dim] + 180) % 360) - 180
             )
+            self._longitude_range = "180"
 
-        elif lon_min < 0:
+        elif not to_180_range and self.longitude_range == "180":
             logger.info("Converting longitude from -180 to 180 to 0 to 360.")
 
             data_obj[self.x_dim] = np.sort(data_obj[self.x_dim] % 360)
+            self._longitude_range = "360"
 
         else:
-            logger.info(
-                "Indeterminate longitude range and no need to convert."
-            )
+            logger.info("Coordinates already in required range.")
 
         return data_obj if not inplace else None
 

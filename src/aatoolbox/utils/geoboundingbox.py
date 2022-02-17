@@ -62,7 +62,7 @@ class GeoBoundingBox:
             west=shape.total_bounds[0],
         )
 
-    def round_boundingbox_coords(
+    def round_coords(
         self,
         offset_val: float = 0.0,
         round_val: Union[int, float] = 1,
@@ -89,6 +89,7 @@ class GeoBoundingBox:
             elif direction in ("south", "west"):
                 function = np.floor.__call__  # needed for mypy
                 offset_factor = -1
+
             rounded_coord = (
                 function(coord / round_val) * round_val
                 + offset_factor * offset_val
@@ -120,4 +121,6 @@ class GeoBoundingBox:
         return (
             f"N{_str_format(self.north)}S{_str_format(self.south)}"
             f"E{_str_format(self.east)}W{_str_format(self.west)}"
+            # replace the decimal dot with a d for a better filename
+            .replace(".", "d")
         )
