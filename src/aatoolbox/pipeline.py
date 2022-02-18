@@ -1,8 +1,8 @@
 """Pipeline initializer."""
 import os
-from typing import TypedDict
 
 import geopandas as gpd
+from typing_extensions import TypedDict
 
 from aatoolbox.config.countryconfig import get_country_config
 from aatoolbox.datasources.codab.codab import CodAB
