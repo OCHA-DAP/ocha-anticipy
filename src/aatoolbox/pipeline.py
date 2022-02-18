@@ -3,7 +3,10 @@ import geopandas as gpd
 
 from aatoolbox.config.countryconfig import get_country_config
 from aatoolbox.datasources.codab.codab import CodAB
-from aatoolbox.datasources.glofas.forecast import GlofasReforecast
+from aatoolbox.datasources.glofas.forecast import (
+    GlofasForecast,
+    GlofasReforecast,
+)
 from aatoolbox.datasources.glofas.glofas import ReportingPoint
 from aatoolbox.datasources.glofas.reanalysis import GlofasReanalysis
 from aatoolbox.utils.geoboundingbox import GeoBoundingBox
@@ -130,6 +133,19 @@ class Pipeline:
             for rp in self._config.glofas.reporting_points
         }
         glofas = GlofasReforecast(iso3=self._config.iso3, area=area)
+        glofas.download(leadtimes=leadtimes)
+        glofas.process(stations=rps_dict, leadtimes=leadtimes)
+        return glofas.load()
+
+    def load_glofas_forecast(self, leadtimes=None):
+        """Load GloFAS forecast data."""
+        leadtimes = [*range(1, 15)] if leadtimes is None else leadtimes
+        area = GeoBoundingBox.from_shape(shape=self.load_codab())
+        rps_dict = {
+            rp.name: ReportingPoint(lon=rp.lon, lat=rp.lat)
+            for rp in self._config.glofas.reporting_points
+        }
+        glofas = GlofasForecast(iso3=self._config.iso3, area=area)
         glofas.download(leadtimes=leadtimes)
         glofas.process(stations=rps_dict, leadtimes=leadtimes)
         return glofas.load()

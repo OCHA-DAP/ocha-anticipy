@@ -107,15 +107,16 @@ class _GlofasForecastBase(glofas.Glofas):
 class GlofasForecast(_GlofasForecastBase):
     """GloFAS forecast class."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(
+            *args,
+            **kwargs,
             year_min=2020,
             year_max=2022,
             cds_name="cems-glofas-forecast",
             dataset=["control_forecast", "ensemble_perturbed_forecasts"],
             system_version_minor={2: 1, 3: 1},
             dataset_variable_name="product_type",
-            **kwargs,
         )
 
     def download(self, *args, **kwargs):
@@ -144,8 +145,10 @@ class GlofasForecast(_GlofasForecastBase):
 class GlofasReforecast(_GlofasForecastBase):
     """GloFAS reforecast class."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(
+            *args,
+            **kwargs,
             year_min=1999,
             year_max=2018,  # TODO: check this!
             cds_name="cems-glofas-reforecast",
@@ -153,7 +156,6 @@ class GlofasReforecast(_GlofasForecastBase):
             dataset_variable_name="product_type",
             system_version_minor={2: 2, 3: 1},
             date_variable_prefix="h",
-            **kwargs,
         )
 
     def download(self, *args, **kwargs):

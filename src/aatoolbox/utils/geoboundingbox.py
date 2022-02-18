@@ -31,6 +31,7 @@ class GeoBoundingBox:
         self.south = south
         self.east = east
         self.west = west
+        self._rounded: bool = False
 
     def __repr__(self):
         """Print bounding box string."""
@@ -70,9 +71,10 @@ class GeoBoundingBox:
         """
         Round the bounding box coordinates.
 
-        Rounding is always done outside the original bounding box.
-        I.e. the resulting bounding box is always equal or larger
-        than the original bounding box.
+        Rounding is always done outside the original bounding box,
+        i.e. the resulting bounding box is always equal or larger
+        than the original bounding box. Rounding can only be done once
+        per instance.
 
         Parameters
         ----------
@@ -81,6 +83,9 @@ class GeoBoundingBox:
         round_val : int, default = 1
             The decimal to round to. If 1, round to integers
         """
+        # Don't round if already rounded
+        if self._rounded:
+            return
         for direction in ["north", "west", "south", "east"]:
             coord = getattr(self, direction)
             if direction in ("north", "east"):
@@ -94,6 +99,7 @@ class GeoBoundingBox:
                 + offset_factor * offset_val
             )
             setattr(self, direction, rounded_coord)  # noqa: FKA01
+        self._rounded = True
 
     def get_filename_repr(self, p: int = 0) -> str:
         """

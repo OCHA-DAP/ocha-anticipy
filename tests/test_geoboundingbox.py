@@ -30,3 +30,12 @@ def test_geoboundingbox_from_shape():
     assert geobb.south == s
     assert geobb.east == e
     assert geobb.west == w
+
+
+def test_dont_double_round():
+    """Test that round is not called twice."""
+    geobb = GeoBoundingBox(north=1.4, south=1, east=1, west=1)
+    geobb.round_boundingbox_coords(round_val=0.5)
+    assert geobb.north == 1.5
+    geobb.round_boundingbox_coords(round_val=1)
+    assert geobb.north == 1.5

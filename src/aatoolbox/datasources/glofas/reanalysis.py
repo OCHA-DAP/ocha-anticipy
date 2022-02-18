@@ -12,8 +12,10 @@ logger = logging.getLogger(__name__)
 class GlofasReanalysis(glofas.Glofas):
     """Download, process GloFAS reanalysis."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(
+            *args,
+            **kwargs,
             year_min=1979,
             year_max=2020,
             cds_name="cems-glofas-historical",
@@ -21,7 +23,6 @@ class GlofasReanalysis(glofas.Glofas):
             dataset_variable_name="dataset",
             system_version_minor={2: 1, 3: 1},
             date_variable_prefix="h",
-            **kwargs,
         )
 
     def download(

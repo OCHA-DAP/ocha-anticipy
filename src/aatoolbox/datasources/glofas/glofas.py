@@ -71,7 +71,7 @@ class Glofas(DataSource):
             iso3=iso3, module_base_dir=_MODULE_BASENAME, is_public=True
         )
         # The GloFAS API on CDS requires coordinates have the format x.x5
-        area.round_boundingbox_coords(offset_val=0.5, round_val=1)
+        area.round_boundingbox_coords(offset_val=0.05, round_val=1)
         self.area = area
         self.year_min = year_min
         self.year_max = year_max
@@ -174,7 +174,7 @@ class Glofas(DataSource):
             "system_version": (
                 f"version_{version}_{self.system_version_minor[version]}"
             ),
-            "hydrological_model": HYDROLOGICAL_MODEL[version],
+            "hydrological_model": HYDROLOGICAL_MODEL,
         }
         if leadtime is not None:
             if isinstance(leadtime, int):
