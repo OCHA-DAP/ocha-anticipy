@@ -1,8 +1,16 @@
 """Pipeline initializer."""
+import os
+from typing import TypedDict
+
 import geopandas as gpd
 
 from aatoolbox.config.countryconfig import get_country_config
 from aatoolbox.datasources.codab.codab import CodAB
+from aatoolbox.datasources.iri.iri_seasonal_forecast import (
+    IriForecastDominant,
+    IriForecastProb,
+)
+from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
 
 class Pipeline:
@@ -101,3 +109,91 @@ class Pipeline:
             clobber=clobber,
         )
         return self._codab.load_admin_layer(layer_name=layer_name)
+
+    class Coordinates(TypedDict):
+        """Create dict of coordinates."""
+
+        north: float
+        south: float
+        west: float
+        east: float
+
+    def load_geoboundingbox_codab(self):
+        """Create a geaboundingbox from codab.
+
+        Retrieve the geoboundingbox from the outer boundaries
+        of the codab shapefile
+
+        Returns
+        -------
+        GeoBoundingBox object
+
+        Examples
+        --------
+        >>> from aatoolbox.pipeline import Pipeline
+        >>> # Get boundingbox of npl codab boundaries
+        >>> pipeline = Pipeline("npl")
+        >>> npl_geobb = pipeline.load_geoboundingbox_codab()
+        """
+        gdf = self.load_codab(admin_level=0)
+        return GeoBoundingBox.from_shape(gdf)
+
+    def load_geoboundingbox_coordinates(self, coordinates: Coordinates):
+        """Retrieve the geoboundingbox from coordinates.
+
+        Returns
+        -------
+        GeoBoundingBox object
+
+        Examples
+        --------
+        >>> from aatoolbox.pipeline import Pipeline
+        >>> # Get boundingbox based on coordinates
+        >>> pipeline = Pipeline("npl")
+        >>> coordinates=Coordinates({"north":15,"south":10,"east":2,"west":-2})
+        >>> npl_geobb_coord = (pipeline.
+        ... load_geoboundingbox_coordinates(coordinates))
+        """
+        return GeoBoundingBox(
+            north=coordinates["north"],
+            south=coordinates["south"],
+            east=coordinates["east"],
+            west=coordinates["west"],
+        )
+
+    def load_iri_forecast_probability(
+        self, geo_bounding_box, clobber: bool = False
+    ):
+        """
+        Load the IRI seasonal tercile forecast.
+
+        This data contains a probability per tercile.
+        """
+        iri_forecast_probability = IriForecastProb(
+            self._config.iso3, geo_bounding_box=geo_bounding_box
+        )
+        return self._load_iri_seasonal(
+            iri_class=iri_forecast_probability, clobber=clobber
+        )
+
+    def load_iri_forecast_dominant(
+        self, geo_bounding_box, clobber: bool = False
+    ):
+        """
+        Load the IRI seasonal tercile forecast.
+
+        This data only contains the dominant tercile probability.
+        """
+        iri_forecast_dominant = IriForecastDominant(
+            self._config.iso3, geo_bounding_box=geo_bounding_box
+        )
+        return self._load_iri_seasonal(
+            iri_class=iri_forecast_dominant, clobber=clobber
+        )
+
+    def _load_iri_seasonal(self, iri_class, clobber):
+        # raise error inside download()
+        iri_auth = os.getenv("IRI_AUTH")
+        iri_class.download(iri_auth=iri_auth, clobber=clobber)
+        iri_class.process(clobber=clobber)
+        return iri_class.load()
