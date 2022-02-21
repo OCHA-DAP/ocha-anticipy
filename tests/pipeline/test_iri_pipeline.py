@@ -36,8 +36,9 @@ def test_iri_load(pipeline, mocker, xr_load_dataset):
     geo_bounding_box = pipeline.load_geoboundingbox_coordinates(
         north=6, south=3.2, east=-2, west=3
     )
-    pipeline.load_iri_forecast_probability(geo_bounding_box=geo_bounding_box)
-
+    pipeline.load_iri_all_terciles_seasonal_forecast(
+        geo_bounding_box=geo_bounding_box
+    )
     xr_load_dataset.assert_has_calls(
         [
             mocker.call(
