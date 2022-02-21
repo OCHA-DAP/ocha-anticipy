@@ -5,7 +5,17 @@ import pytest
 from conftest import FAKE_AA_DATA_DIR, ISO3
 
 from aatoolbox.datasources.iri.iri_seasonal_forecast import _MODULE_BASENAME
-from aatoolbox.utils.geoboundingbox import GeoBoundingBox
+
+FAKE_IRI_AUTH = "def"
+
+
+@pytest.fixture(scope="session", autouse=True)
+def mock_aa_data_dir(session_mocker):
+    """Mock out the AA_DATA_DIR environment variable."""
+    session_mocker.patch.dict(
+        "aatoolbox.config.pathconfig.os.environ",
+        {"AA_DATA_DIR": FAKE_AA_DATA_DIR, "IRI_AUTH": FAKE_IRI_AUTH},
+    )
 
 
 @pytest.fixture(autouse=True)
@@ -23,7 +33,9 @@ def test_iri_load(pipeline, mocker, xr_load_dataset):
         "_IriForecast._download"
     )
 
-    geo_bounding_box = GeoBoundingBox(north=6, south=3.2, east=-2, west=3)
+    geo_bounding_box = pipeline.load_geoboundingbox_coordinates(
+        north=6, south=3.2, east=-2, west=3
+    )
     pipeline.load_iri_forecast_probability(geo_bounding_box=geo_bounding_box)
 
     xr_load_dataset.assert_has_calls(

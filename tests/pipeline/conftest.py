@@ -7,7 +7,6 @@ from aatoolbox.utils.io import parse_yaml
 CONFIG_FILE = "tests/pipeline/fake_config.yaml"
 FAKE_AA_DATA_DIR = "fake_aa_dir"
 ISO3 = "abc"
-FAKE_IRI_AUTH = "def"
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -15,7 +14,7 @@ def mock_aa_data_dir(session_mocker):
     """Mock out the AA_DATA_DIR environment variable."""
     session_mocker.patch.dict(
         "aatoolbox.config.pathconfig.os.environ",
-        {"AA_DATA_DIR": FAKE_AA_DATA_DIR, "IRI_AUTH": FAKE_IRI_AUTH},
+        {"AA_DATA_DIR": FAKE_AA_DATA_DIR},
     )
 
 

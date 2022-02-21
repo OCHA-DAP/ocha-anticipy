@@ -2,7 +2,6 @@
 import os
 
 import geopandas as gpd
-from typing_extensions import TypedDict
 
 from aatoolbox.config.countryconfig import get_country_config
 from aatoolbox.datasources.codab.codab import CodAB
@@ -110,19 +109,11 @@ class Pipeline:
         )
         return self._codab.load_admin_layer(layer_name=layer_name)
 
-    class Coordinates(TypedDict):
-        """Create dict of coordinates."""
-
-        north: float
-        south: float
-        west: float
-        east: float
-
-    def load_geoboundingbox_codab(self):
-        """Create a geaboundingbox from codab.
+    def load_geoboundingbox_gdf(self, gdf):
+        """Create a geaboundingbox from a geodataframe.
 
         Retrieve the geoboundingbox from the outer boundaries
-        of the codab shapefile
+        of the geodataframe.
 
         Returns
         -------
@@ -133,12 +124,13 @@ class Pipeline:
         >>> from aatoolbox.pipeline import Pipeline
         >>> # Get boundingbox of npl codab boundaries
         >>> pipeline = Pipeline("npl")
-        >>> npl_geobb = pipeline.load_geoboundingbox_codab()
+        >>> npl_geobb = pipeline.load_geoboundingbox_gdf()
         """
-        gdf = self.load_codab(admin_level=0)
         return GeoBoundingBox.from_shape(gdf)
 
-    def load_geoboundingbox_coordinates(self, coordinates: Coordinates):
+    def load_geoboundingbox_coordinates(
+        self, north: float, south: float, east: float, west: float
+    ):
         """Retrieve the geoboundingbox from coordinates.
 
         Returns
@@ -150,15 +142,14 @@ class Pipeline:
         >>> from aatoolbox.pipeline import Pipeline
         >>> # Get boundingbox based on coordinates
         >>> pipeline = Pipeline("npl")
-        >>> coordinates=Coordinates({"north":15,"south":10,"east":2,"west":-2})
-        >>> npl_geobb_coord = (pipeline.
-        ... load_geoboundingbox_coordinates(coordinates))
+        >>> npl_geobb_coord = (pipeline.load_geoboundingbox_coordinates(
+        ... north=15, south=10, east=2, west=-2))
         """
         return GeoBoundingBox(
-            north=coordinates["north"],
-            south=coordinates["south"],
-            east=coordinates["east"],
-            west=coordinates["west"],
+            north=north,
+            south=south,
+            east=east,
+            west=west,
         )
 
     def load_iri_forecast_probability(

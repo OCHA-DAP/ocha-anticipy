@@ -9,6 +9,7 @@ namely the dominant tercile probability and the probability
 per tercile. Both variations are implemented here.
 """
 import logging
+from pathlib import Path
 
 import requests
 import xarray as xr
@@ -95,7 +96,7 @@ class _IriForecast(DataSource):
 
     @staticmethod
     @check_file_existence
-    def _download(filepath, url, iri_auth, clobber):
+    def _download(filepath: Path, url: str, iri_auth: str, clobber: bool):
         if iri_auth is None:
             raise ValueError(
                 "`iri_auth` is not set and thus cannot download the data. "
