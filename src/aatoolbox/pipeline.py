@@ -2,12 +2,14 @@
 import os
 
 import geopandas as gpd
+from geopandas import GeoDataFrame
 
 from aatoolbox.config.countryconfig import get_country_config
 from aatoolbox.datasources.codab.codab import CodAB
 from aatoolbox.datasources.iri.iri_seasonal_forecast import (
     IriForecastDominant,
     IriForecastProb,
+    _IriForecast,
 )
 from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
@@ -109,7 +111,7 @@ class Pipeline:
         )
         return self._codab.load_admin_layer(layer_name=layer_name)
 
-    def load_geoboundingbox_gdf(self, gdf):
+    def load_geoboundingbox_gdf(self, gdf: GeoDataFrame):
         """Create a geaboundingbox from a geodataframe.
 
         Retrieve the geoboundingbox from the outer boundaries
@@ -152,8 +154,8 @@ class Pipeline:
             west=west,
         )
 
-    def load_iri_forecast_probability(
-        self, geo_bounding_box, clobber: bool = False
+    def load_iri_all_terciles_seasonal_forecast(
+        self, geo_bounding_box: GeoBoundingBox, clobber: bool = False
     ):
         """
         Load the IRI seasonal tercile forecast.
@@ -167,8 +169,8 @@ class Pipeline:
             iri_class=iri_forecast_probability, clobber=clobber
         )
 
-    def load_iri_forecast_dominant(
-        self, geo_bounding_box, clobber: bool = False
+    def load_iri_dominant_tercile_seasonal_forecast(
+        self, geo_bounding_box: GeoBoundingBox, clobber: bool = False
     ):
         """
         Load the IRI seasonal tercile forecast.
@@ -182,9 +184,13 @@ class Pipeline:
             iri_class=iri_forecast_dominant, clobber=clobber
         )
 
-    def _load_iri_seasonal(self, iri_class, clobber):
-        # raise error inside download()
+    def _load_iri_seasonal(self, iri_class: _IriForecast, clobber: bool):
         iri_auth = os.getenv("IRI_AUTH")
+        if iri_auth is None:
+            raise ValueError(
+                "`iri_auth` is not set and thus cannot download the data. "
+                "Set `iri_auth` to proceed."
+            )
         iri_class.download(iri_auth=iri_auth, clobber=clobber)
         iri_class.process(clobber=clobber)
         return iri_class.load()
