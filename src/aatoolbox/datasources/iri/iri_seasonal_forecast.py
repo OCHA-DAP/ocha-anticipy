@@ -9,6 +9,7 @@ namely the dominant tercile probability and the probability
 per tercile. Both variations are implemented here.
 """
 import logging
+from pathlib import Path
 
 import requests
 import xarray as xr
@@ -95,7 +96,12 @@ class _IriForecast(DataSource):
 
     @staticmethod
     @check_file_existence
-    def _download(filepath, url, iri_auth, clobber):
+    def _download(filepath: Path, url: str, iri_auth: str, clobber: bool):
+        if iri_auth is None:
+            raise ValueError(
+                "`iri_auth` is not set and thus cannot download the data. "
+                "Set `iri_auth` to proceed."
+            )
         response = requests.get(
             url,
             # have to authenticate by using a cookie
@@ -144,12 +150,21 @@ class _IriForecast(DataSource):
         return filepath
 
     def load_raw(self):
-        ds = xr.load_dataset(
-            self._get_raw_path(),
-            decode_times=False,
-            drop_variables="C",
-        )
-        return ds
+        try:
+            ds = xr.load_dataset(
+                self._get_raw_path(),
+                decode_times=False,
+                drop_variables="C",
+            )
+            return ds
+        except ValueError as err:
+            raise ValueError(
+                "Cannot open the netcdf file. "
+                "Might be due to invalid download with wrong authentication. "
+                "Check the validity of `iri_auth` and try to download again. "
+                "Else make sure the correct backend for "
+                "opening a netCDF file is installed."
+            ) from err
 
     def load(self):
         """Load the IRI forecast."""
