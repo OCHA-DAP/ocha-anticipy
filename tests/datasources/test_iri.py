@@ -6,16 +6,16 @@ import cftime
 import numpy as np
 import pytest
 import xarray as xr
+from conftest import FAKE_AA_DATA_DIR, ISO3
 from xarray.coding.cftimeindex import CFTimeIndex
 
 from aatoolbox import GeoBoundingBox, IriForecastDominant, IriForecastProb
 
 MODULE_BASENAME = "iri"
-FAKE_AA_DATA_DIR = "fake_aa_dir"
-ISO3 = "abc"
+FAKE_IRI_AUTH = "FAKE_IRI_AUTH"
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_download(mocker):
     """
     Call download with mocked _download.
@@ -26,6 +26,11 @@ def mock_download(mocker):
     download_mock = mocker.patch(
         "aatoolbox.datasources.iri."
         "iri_seasonal_forecast._IriForecast._download"
+    )
+
+    mocker.patch.dict(
+        "aatoolbox.datasources.iri.iri_seasonal_forecast.os.environ",
+        {"IRI_AUTH": FAKE_IRI_AUTH},
     )
 
     def _mock_download(country_config, prob_forecast):

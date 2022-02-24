@@ -19,7 +19,7 @@ suite.addTest(doctest.DocTestSuite(raster))
 unittest.TextTestRunner().run(suite)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def gdf():
     """Create geodataframe for testing."""
     d = {
@@ -32,7 +32,7 @@ def gdf():
     return gpd.GeoDataFrame(d)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def gdf_missing(gdf):
     """Create geodataframe for testing with area not overlapping raster."""
     d = {
@@ -43,7 +43,7 @@ def gdf_missing(gdf):
     return gpd.GeoDataFrame(df_missing)
 
 
-@pytest.fixture()
+@pytest.fixture
 def da_2d():
     """Create 2d raster array."""
     da = xr.DataArray(
@@ -54,7 +54,7 @@ def da_2d():
     return da
 
 
-@pytest.fixture()
+@pytest.fixture
 def da_3d():
     """Create 3d raster array."""
     da = xr.DataArray(
@@ -72,13 +72,13 @@ def da_3d():
     return da
 
 
-@pytest.fixture()
+@pytest.fixture
 def ds_3d(da_3d):
     """Create 3d raster dataset."""
     return da_3d.to_dataset(name="val")
 
 
-@pytest.fixture()
+@pytest.fixture
 def expected_2d():
     """Create expected comped stats for 2d raster."""
     df = pd.DataFrame(
@@ -95,7 +95,7 @@ def expected_2d():
     return df
 
 
-@pytest.fixture()
+@pytest.fixture
 def expected_3d(expected_2d):
     """Create expected comped stats for 3d raster."""
     df_3d = pd.DataFrame(np.repeat(expected_2d.values, 2, axis=0))
