@@ -69,27 +69,76 @@ class CodAB(DataSource):
             output_filepath=filepath,
         )
 
-    def load_admin_layer(self, layer_name: str) -> gpd.GeoDataFrame:
+    def _load_admin_layer(self, layer_name: str) -> gpd.GeoDataFrame:
+        return gpd.read_file(f"zip:///{self._raw_filepath / layer_name}")
+
+    def load(self, admin_level: int) -> gpd.GeoDataFrame:
         """
-        Get an admin level by layer name.
+        Get the COD AB data by admin level.
 
         Parameters
         ----------
-        layer_name: str
-            The admin layer name
+        admin_level: int
+            The administrative level
 
         Returns
         -------
-        geopandas dataframe with COD AB admin information
+        COD AB geodataframe with specified admin level
 
         Examples
         --------
         >>> from aatoolbox import create_country_config, CodAB
-        >>> # Retrieve admin 0 boundaries for Nepal
+        >>>
+        >>> # Retrieve admin 2 boundaries for Nepal
         >>> country_config = create_country_config(iso3="npl")
         >>> codab = CodAB(country_config=country_config)
-        >>> codab.download()
-        >>> npl_admin0 = codab.load_admin_layer(
-        ...     layer_name="npl_admbnda_adm2_20201117.shp")
+        >>> npl_admin0 = codab.load(admin_level=2)
         """
-        return gpd.read_file(f"zip:///{self._raw_filepath / layer_name}")
+        admin_level_max = self._country_config.codab.admin_level_max
+        if admin_level > admin_level_max:
+            raise AttributeError(
+                f"Admin level {admin_level} requested, but maximum set to "
+                f"{admin_level_max} in {self._country_config.iso3.upper()} "
+                f"config file"
+            )
+        return self._load_admin_layer(
+            layer_name=self._country_config.codab.layer_base_name.format(
+                admin_level=admin_level
+            )
+        )
+
+    def load_custom(self, custom_layer_number: int = 0):
+        """
+        Get the COD AB data from a custom (non-level) layer.
+
+        Parameters
+        ----------
+        custom_layer_number: int
+            The 0-indexed number of the layer listed in the custom_layer_names
+            parameter of the country's config file
+
+        Returns
+        -------
+        COD AB geodataframe with custom admin level
+        Examples
+        --------
+        >>> from aatoolbox import create_country_config, CodAB
+        >>>
+        >>> # Retrieve district boundaries for Nepal
+        >>> country_config = create_country_config(iso3="npl")
+        >>> codab = CodAB(country_config=country_config)
+        >>> npl_admin0 = codab.load_custom(custom_layer_number=0)
+        """
+        # TODO: possibly merge the two load methods
+        try:
+            # Ignore mypy for this line because custom_layer_names could be
+            # None, but this is handled by the caught exceptions
+            layer_name = self._country_config.codab.custom_layer_names[
+                custom_layer_number
+            ]  # type: ignore
+        except (IndexError, TypeError):
+            raise AttributeError(
+                f"{custom_layer_number}th custom layer requested but not "
+                f"available in {self._country_config.iso3.upper()} config file"
+            )
+        return self._load_admin_layer(layer_name=layer_name)
