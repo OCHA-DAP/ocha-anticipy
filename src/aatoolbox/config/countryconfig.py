@@ -42,7 +42,7 @@ class CountryConfig(BaseModel):
     codab: CodABConfig
 
 
-def get_country_config(iso3: str) -> CountryConfig:
+def create_country_config(iso3: str) -> CountryConfig:
     """
     Return a country configuration object.
 

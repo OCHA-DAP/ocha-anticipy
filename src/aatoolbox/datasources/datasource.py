@@ -1,6 +1,7 @@
 """Base class for aatoolbox data source."""
 from pathlib import Path
 
+from aatoolbox.config.countryconfig import CountryConfig
 from aatoolbox.config.pathconfig import PathConfig
 
 
@@ -10,8 +11,8 @@ class DataSource:
 
     Parameters
     ----------
-    iso3: str
-        Country ISO3
+    country_config: CountryConfig
+        Congfiguration for country
     module_base_dir : str
         Module directory name (usually correspond to data source)
     is_public: bool, default = False
@@ -20,10 +21,13 @@ class DataSource:
     """
 
     def __init__(
-        self, iso3: str, module_base_dir: str, is_public: bool = False
+        self,
+        country_config: CountryConfig,
+        module_base_dir: str,
+        is_public: bool = False,
     ):
 
-        self._iso3 = iso3
+        self._country_config = country_config
         self._module_base_dir = module_base_dir
         self._path_config = PathConfig()
         self._raw_base_dir = self._get_base_dir(
@@ -46,6 +50,6 @@ class DataSource:
             self._path_config.base_path
             / permission_dir
             / state_dir
-            / self._iso3
+            / self._country_config.iso3
             / self._module_base_dir
         )
