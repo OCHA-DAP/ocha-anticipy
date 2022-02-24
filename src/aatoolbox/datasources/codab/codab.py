@@ -17,7 +17,7 @@ class CodAB(DataSource):
 
     Parameters
     ----------
-    country_config : (CountryConfig)
+    country_config : CountryConfig
         Country configuration
     """
 
@@ -62,15 +62,12 @@ class CodAB(DataSource):
     @check_file_existence
     def _download(
         filepath: Path, hdx_address: str, hdx_dataset_name: str, clobber: bool
-    ):
+    ) -> Path:
         return load_dataset_from_hdx(
             hdx_address=hdx_address,
             hdx_dataset_name=hdx_dataset_name,
             output_filepath=filepath,
         )
-
-    def _load_admin_layer(self, layer_name: str) -> gpd.GeoDataFrame:
-        return gpd.read_file(f"zip:///{self._raw_filepath / layer_name}")
 
     def load(self, admin_level: int) -> gpd.GeoDataFrame:
         """
@@ -107,7 +104,7 @@ class CodAB(DataSource):
             )
         )
 
-    def load_custom(self, custom_layer_number: int = 0):
+    def load_custom(self, custom_layer_number: int = 0) -> gpd.GeoDataFrame:
         """
         Get the COD AB data from a custom (non-level) layer.
 
@@ -120,6 +117,7 @@ class CodAB(DataSource):
         Returns
         -------
         COD AB geodataframe with custom admin level
+
         Examples
         --------
         >>> from aatoolbox import create_country_config, CodAB
@@ -142,3 +140,6 @@ class CodAB(DataSource):
                 f"available in {self._country_config.iso3.upper()} config file"
             )
         return self._load_admin_layer(layer_name=layer_name)
+
+    def _load_admin_layer(self, layer_name: str) -> gpd.GeoDataFrame:
+        return gpd.read_file(f"zip:///{self._raw_filepath / layer_name}")

@@ -12,7 +12,7 @@ class DataSource:
     Parameters
     ----------
     country_config: CountryConfig
-        Congfiguration for country
+        Country configuration
     module_base_dir : str
         Module directory name (usually correspond to data source)
     is_public: bool, default = False

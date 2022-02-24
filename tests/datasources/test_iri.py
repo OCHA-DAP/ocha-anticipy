@@ -6,6 +6,8 @@ import cftime
 import numpy as np
 import pytest
 import xarray as xr
+
+# TODO: this will break if there is another conftest
 from conftest import FAKE_AA_DATA_DIR, ISO3
 from xarray.coding.cftimeindex import CFTimeIndex
 
@@ -111,7 +113,7 @@ def test_process(mocker, mock_country_config):
     )
 
     # TODO: now created `load_raw` to be able to mock but would like
-    # to do it from xr.load_dataset directly
+    #  to do it from xr.load_dataset directly
     mocker.patch(
         "aatoolbox.datasources.iri.iri_seasonal_forecast."
         "_IriForecast.load_raw",

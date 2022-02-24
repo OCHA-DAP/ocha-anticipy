@@ -7,8 +7,6 @@ For now only the tercile precipitation forecast has been
 implemented. This forecast is published in two formats,
 namely the dominant tercile probability and the probability
 per tercile. Both variations are implemented here.
-
-
 """
 import logging
 import os
@@ -39,17 +37,13 @@ class _IriForecast(DataSource):
     country_config : CountryConfig
         Country configuration
     geo_bounding_box: GeoBoundingBox
-        the bounding coordinates of the area that should
-        be included in the data.
+        the bounding coordinates of the area that should be included in the
+        data.
     forecast_type: str
-        The type of forecast information to download.
-        Can be "prob" or "dominant"
-        If "prob" the data will be retrieved that
-        contains the probability per tercile
-        If "dominant" the data will be retrieved that
-        contains only one probability indicating
-        the dominant tercile
-
+        The type of forecast information to download,  can be either "prob" or
+        "dominant". If "prob" the data will be retrieved that contains the
+        probability per tercile. If "dominant" the data will be retrieved that
+        contains only one probability indicating the dominant tercile.
     """
 
     def __init__(
@@ -68,6 +62,8 @@ class _IriForecast(DataSource):
         # non-rounded coordinates can be given to the URL which then
         # automatically rounds them, but for file saving we prefer to do
         # this ourselves
+        # TODO: We should probably make a copy of this as it's being
+        #  passed directly by the user
         geo_bounding_box.round_coords(round_val=1, offset_val=0)
         self._geobb = geo_bounding_box
         self._forecast_type = forecast_type
@@ -75,13 +71,13 @@ class _IriForecast(DataSource):
     def download(
         self,
         clobber: bool = False,
-    ):
+    ) -> Path:
         """
         Download the IRI seasonal tercile forecast as NetCDF file.
 
         To download data from the IRI API, a key is required for
         authentication, and must be set in the ``IRI_AUTH`` environment
-        variable.  To obtain this key config you need to create an account
+        variable. To obtain this key config you need to create an account
         `here.<https://iridl.ldeo.columbia.edu/auth/login>`_.
         Note that this key might be changed over time, and need to be updated
         regularly.
@@ -90,6 +86,10 @@ class _IriForecast(DataSource):
         ----------
         clobber : bool, default = False
             If True, overwrites existing raw files
+
+        Returns
+        -------
+        The downloaded filepath
         """
         iri_auth = os.getenv(_IRI_AUTH)
         if iri_auth is None:
@@ -110,7 +110,9 @@ class _IriForecast(DataSource):
 
     @staticmethod
     @check_file_existence
-    def _download(filepath: Path, url: str, iri_auth: str, clobber: bool):
+    def _download(
+        filepath: Path, url: str, iri_auth: str, clobber: bool
+    ) -> Path:
 
         response = requests.get(
             url,
@@ -121,7 +123,7 @@ class _IriForecast(DataSource):
             out_file.write(response.content)
         return filepath
 
-    def process(self, clobber: bool = False):
+    def process(self, clobber: bool = False) -> Path:
         """
         Process the IRI forecast.
 
@@ -130,6 +132,9 @@ class _IriForecast(DataSource):
         clobber : bool, default = False
             If True, overwrites existing processed files
 
+        Returns
+        -------
+        The processed filepath
         """
         ds = self.load_raw()
         processed_file_path = self._get_processed_path()
@@ -140,7 +145,7 @@ class _IriForecast(DataSource):
 
     @staticmethod
     @check_file_existence
-    def _process(filepath: str, ds, clobber: bool):
+    def _process(filepath: Path, ds, clobber: bool) -> Path:
         # fix dates
         ds.aat.set_time_dim(t_dim="F", inplace=True)
         ds.aat.correct_calendar(inplace=True)
@@ -152,14 +157,14 @@ class _IriForecast(DataSource):
         # but automatically converts them to -180 to 180
         # so we don't need to do that
         # TODO: can be removed once we have a check in the
-        # geoboundingbox class for south<north
+        #  geoboundingbox class for south<north
         # TODO: for some reason the `inplace` is not working
-        # re-add when we fixed that
+        #  re-add when we fixed that
         ds = ds.aat.invert_coordinates()
         ds.to_netcdf(filepath)
         return filepath
 
-    def load_raw(self):
+    def load_raw(self) -> xr.Dataset:
         try:
             ds = xr.load_dataset(
                 self._get_raw_path(),
@@ -168,20 +173,29 @@ class _IriForecast(DataSource):
             )
             return ds
         except ValueError as err:
+            # TODO: Maybe print the traceback if this error can also
+            #  happen due to a missing NetCDF backend
             raise ValueError(
-                "Cannot open the netcdf file. "
-                "Might be due to invalid download with wrong authentication. "
-                "Check the validity of `iri_auth` and try to download again. "
-                "Else make sure the correct backend for "
-                "opening a netCDF file is installed."
+                f"Cannot open the netcdf file. This might be due to invalid "
+                f"download with wrong authentication. Check the validity of "
+                f"the authentication key found in your {_IRI_AUTH} environment"
+                f"variable and try to download again. Otherwise make sure the "
+                f"correct backend for opening a netCDF file is installed."
             ) from err
 
-    def load(self):
-        """Load the IRI forecast."""
+    def load(self) -> xr.Dataset:
+        """
+        Load the IRI forecast.
+
+        Returns
+        -------
+        The processed IRI dataset
+        """
         ds = xr.load_dataset(self._get_processed_path())
+        # TODO: Save coordinate system to a general config
         return ds.rio.write_crs("EPSG:4326", inplace=True)
 
-    def _get_file_name(self):
+    def _get_file_name(self) -> str:
         file_name = (
             f"{self._country_config.iso3}"
             f"_iri_forecast_seasonal_precipitation_tercile_"
@@ -189,13 +203,13 @@ class _IriForecast(DataSource):
         )
         return file_name
 
-    def _get_raw_path(self):
+    def _get_raw_path(self) -> Path:
         return self._raw_base_dir / self._get_file_name()
 
-    def _get_processed_path(self):
+    def _get_processed_path(self) -> Path:
         return self._processed_base_dir / self._get_file_name()
 
-    def _get_url(self):
+    def _get_url(self) -> str:
 
         base_url = (
             "https://iridl.ldeo.columbia.edu/SOURCES/.IRI/.FD/"
