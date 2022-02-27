@@ -26,8 +26,7 @@ def mock_download(mocker):
     test, can be either 'prob' or 'dominant'.
     """
     download_mock = mocker.patch(
-        "aatoolbox.datasources.iri."
-        "iri_seasonal_forecast._IriForecast._download"
+        "aatoolbox.datasources.iri.iri_seasonal_forecast._download"
     )
 
     mocker.patch.dict(
@@ -155,10 +154,7 @@ def mock_xr_load_dataset(mocker):
 
 def test_iri_load(mocker, mock_xr_load_dataset, mock_country_config):
     """Test that load_codab calls the HDX API to download."""
-    mocker.patch(
-        "aatoolbox.datasources.iri.iri_seasonal_forecast."
-        "_IriForecast._download"
-    )
+    mocker.patch("aatoolbox.datasources.iri.iri_seasonal_forecast._download")
 
     geo_bounding_box = GeoBoundingBox(north=6, south=3.2, east=-2, west=3)
     iri_class = IriForecastProb(

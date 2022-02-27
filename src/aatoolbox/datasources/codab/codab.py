@@ -51,22 +51,11 @@ class CodAB(DataSource):
         >>> codab = CodAB(country_config=country_config)
         >>> npl_cod_shapefile = codab.download()
         """
-        return self._download(
+        return _download(
             filepath=self._raw_filepath,
             hdx_address=self._country_config.codab.hdx_address,
             hdx_dataset_name=self._country_config.codab.hdx_dataset_name,
             clobber=clobber,
-        )
-
-    @staticmethod
-    @check_file_existence
-    def _download(
-        filepath: Path, hdx_address: str, hdx_dataset_name: str, clobber: bool
-    ) -> Path:
-        return load_dataset_from_hdx(
-            hdx_address=hdx_address,
-            hdx_dataset_name=hdx_dataset_name,
-            output_filepath=filepath,
         )
 
     def load(self, admin_level: int) -> gpd.GeoDataFrame:
@@ -143,3 +132,14 @@ class CodAB(DataSource):
 
     def _load_admin_layer(self, layer_name: str) -> gpd.GeoDataFrame:
         return gpd.read_file(f"zip:///{self._raw_filepath / layer_name}")
+
+
+@check_file_existence
+def _download(
+    filepath: Path, hdx_address: str, hdx_dataset_name: str, clobber: bool
+) -> Path:
+    return load_dataset_from_hdx(
+        hdx_address=hdx_address,
+        hdx_dataset_name=hdx_dataset_name,
+        output_filepath=filepath,
+    )

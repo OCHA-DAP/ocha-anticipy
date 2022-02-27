@@ -101,27 +101,12 @@ class _IriForecast(DataSource):
         output_filepath.parent.mkdir(parents=True, exist_ok=True)
         url = self._get_url()
         logger.info("Downloading IRI NetCDF file.")
-        return self._download(
+        return _download(
             filepath=output_filepath,
             url=url,
             iri_auth=iri_auth,
             clobber=clobber,
         )
-
-    @staticmethod
-    @check_file_existence
-    def _download(
-        filepath: Path, url: str, iri_auth: str, clobber: bool
-    ) -> Path:
-
-        response = requests.get(
-            url,
-            # have to authenticate by using a cookie
-            cookies={"__dlauth_id": iri_auth},
-        )
-        with open(filepath, "wb") as out_file:
-            out_file.write(response.content)
-        return filepath
 
     def process(self, clobber: bool = False) -> Path:
         """
@@ -139,30 +124,7 @@ class _IriForecast(DataSource):
         ds = self.load_raw()
         processed_file_path = self._get_processed_path()
         processed_file_path.parent.mkdir(parents=True, exist_ok=True)
-        return self._process(
-            filepath=processed_file_path, ds=ds, clobber=clobber
-        )
-
-    @staticmethod
-    @check_file_existence
-    def _process(filepath: Path, ds, clobber: bool) -> Path:
-        # fix dates
-        ds.aat.set_time_dim(t_dim="F", inplace=True)
-        ds.aat.correct_calendar(inplace=True)
-        ds = xr.decode_cf(ds)
-
-        # IRI downloads in the order you give the coordinates
-        # so make sure to invert them
-        # IRI accepts -180 to 180 longitudes and 0 to 360
-        # but automatically converts them to -180 to 180
-        # so we don't need to do that
-        # TODO: can be removed once we have a check in the
-        #  geoboundingbox class for south<north
-        # TODO: for some reason the `inplace` is not working
-        #  re-add when we fixed that
-        ds = ds.aat.invert_coordinates()
-        ds.to_netcdf(filepath)
-        return filepath
+        return _process(filepath=processed_file_path, ds=ds, clobber=clobber)
 
     def load_raw(self) -> xr.Dataset:
         try:
@@ -222,6 +184,40 @@ class _IriForecast(DataSource):
             f"Y/%28{self._geobb.north}%29%28{self._geobb.south}%29RANGEEDGES/"
             "data.nc"
         )
+
+
+@check_file_existence
+def _download(filepath: Path, url: str, iri_auth: str, clobber: bool) -> Path:
+
+    response = requests.get(
+        url,
+        # have to authenticate by using a cookie
+        cookies={"__dlauth_id": iri_auth},
+    )
+    with open(filepath, "wb") as out_file:
+        out_file.write(response.content)
+    return filepath
+
+
+@check_file_existence
+def _process(filepath: Path, ds, clobber: bool) -> Path:
+    # fix dates
+    ds.aat.set_time_dim(t_dim="F", inplace=True)
+    ds.aat.correct_calendar(inplace=True)
+    ds = xr.decode_cf(ds)
+
+    # IRI downloads in the order you give the coordinates
+    # so make sure to invert them
+    # IRI accepts -180 to 180 longitudes and 0 to 360
+    # but automatically converts them to -180 to 180
+    # so we don't need to do that
+    # TODO: can be removed once we have a check in the
+    #  geoboundingbox class for south<north
+    # TODO: for some reason the `inplace` is not working
+    #  re-add when we fixed that
+    ds = ds.aat.invert_coordinates()
+    ds.to_netcdf(filepath)
+    return filepath
 
 
 class IriForecastProb(_IriForecast):
