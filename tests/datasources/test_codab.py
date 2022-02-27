@@ -1,4 +1,4 @@
-"""Test COD AB methods as called from the pipeline."""
+"""Test COD AB methods."""
 from pathlib import Path
 
 import pytest

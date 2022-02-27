@@ -11,15 +11,19 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Implemented unit testing for `AatRaster` module with full coverage
+- Implemented downloading and processing for IRI seasonal precipitation forecast
+
+### Removed
+
+- `Pipeline` class no longer used as main API
+
 ### Fixed
 
 - GitHub action to publish on PyPI should not be invoked for pushes to main
   (using tags instead)
-
-### Added
-
-- Implemented unit testing for `AatRaster` module with full coverage.
-- Implemented downloading and processing for IRI seasonal precipication forecast.
 
 ## [0.3.1] - 2022-01-06
 
