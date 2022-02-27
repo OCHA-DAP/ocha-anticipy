@@ -1,7 +1,24 @@
-"""Download and manipulate COD administrative boundaries."""
+"""Download and manipulate COD administrative boundaries.
+
+To use this class, you first need to create a country configuration
+for the country you would like to use:
+>>> from aatoolbox import create_country_config
+>>> country_config = create_country_config(iso3="npl")
+
+Next you need to instantiate the CodAB class with the country config:
+>>> codab = CodAB(country_config=country_config)
+
+Upon first use, you will need to downlaod the COD AB data:
+>>> codab.download()
+
+Finally, use the load method to begin working with the data as a
+GeoPandas dataframe:
+>>> npl_admin1 = codab.load(admin_level=1)
+"""
 from pathlib import Path
 
 import geopandas as gpd
+from fiona.errors import DriverError
 
 from aatoolbox.config.countryconfig import CountryConfig
 from aatoolbox.datasources.datasource import DataSource
@@ -78,7 +95,7 @@ class CodAB(DataSource):
         >>> # Retrieve admin 2 boundaries for Nepal
         >>> country_config = create_country_config(iso3="npl")
         >>> codab = CodAB(country_config=country_config)
-        >>> npl_admin0 = codab.load(admin_level=2)
+        >>> npl_admin2 = codab.load(admin_level=2)
         """
         admin_level_max = self._country_config.codab.admin_level_max
         if admin_level > admin_level_max:
@@ -114,7 +131,7 @@ class CodAB(DataSource):
         >>> # Retrieve district boundaries for Nepal
         >>> country_config = create_country_config(iso3="npl")
         >>> codab = CodAB(country_config=country_config)
-        >>> npl_admin0 = codab.load_custom(custom_layer_number=0)
+        >>> npl_district = codab.load_custom(custom_layer_number=0)
         """
         # TODO: possibly merge the two load methods
         try:
@@ -131,7 +148,16 @@ class CodAB(DataSource):
         return self._load_admin_layer(layer_name=layer_name)
 
     def _load_admin_layer(self, layer_name: str) -> gpd.GeoDataFrame:
-        return gpd.read_file(f"zip:///{self._raw_filepath / layer_name}")
+        try:
+            return gpd.read_file(f"zip:///{self._raw_filepath / layer_name}")
+        except DriverError:
+            msg = (
+                f"Could not read boundary shapefile. Make sure that "
+                f"you have already called the `CodAB.download` method and "
+                f"that the file {self._raw_filepath} exists. If it does "
+                f"exist, please check the layer name: '{layer_name}'."
+            )
+            raise FileNotFoundError(msg)
 
 
 @check_file_existence

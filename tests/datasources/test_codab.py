@@ -79,3 +79,11 @@ def test_codab_custom_missing(mock_country_config, gpd_read_file):
     codab = CodAB(country_config=mock_country_config)
     with pytest.raises(AttributeError):
         codab.load_custom(0)
+
+
+def test_codab_load_fail(mock_country_config):
+    """Test raises file not found error when load fails."""
+    codab = CodAB(country_config=mock_country_config)
+    # Assuming that a shape file in the test tmpdir does not exist
+    with pytest.raises(FileNotFoundError):
+        codab.load(admin_level=0)
