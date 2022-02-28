@@ -157,7 +157,8 @@ def test_process_if_download_not_called(mock_iri):
     """Test that correct error message raised."""
     iri = mock_iri()
     # Make sure file doesn't exist
-    Path.unlink(iri._get_raw_path(), missing_ok=True)
+    if iri._get_raw_path().exists():
+        Path.unlink(iri._get_raw_path())
     with pytest.raises(FileNotFoundError) as excinfo:
         iri.process()
     assert (
@@ -196,7 +197,8 @@ def test_load_if_process_not_called(mock_iri):
     """Test that correct error message raised."""
     iri = mock_iri()
     # Make sure file doesn't exist
-    Path.unlink(iri._get_processed_path(), missing_ok=True)
+    if iri._get_processed_path().exists():
+        Path.unlink(iri._get_processed_path())
     with pytest.raises(FileNotFoundError) as excinfo:
         iri.load()
     assert (
