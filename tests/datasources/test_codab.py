@@ -84,6 +84,11 @@ def test_codab_custom_missing(mock_country_config, gpd_read_file):
 def test_codab_load_fail(mock_country_config):
     """Test raises file not found error when load fails."""
     codab = CodAB(country_config=mock_country_config)
-    # Assuming that a shape file in the test tmpdir does not exist
-    with pytest.raises(FileNotFoundError):
+    # Remove file if it exists
+    Path.unlink(codab._raw_filepath, missing_ok=True)
+    with pytest.raises(FileNotFoundError) as excinfo:
         codab.load(admin_level=0)
+    assert (
+        "Make sure that you have already called the 'download' method"
+        in str(excinfo.value)
+    )

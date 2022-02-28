@@ -18,7 +18,28 @@ FAKE_IRI_AUTH = "FAKE_IRI_AUTH"
 
 
 @pytest.fixture
-def mock_download(mocker):
+def mock_iri(mock_country_config):
+    """Create IRI class with mock country config."""
+    geo_bounding_box = GeoBoundingBox(north=6, south=3.2, east=-2, west=3)
+
+    def _mock_iri(prob_forecast: bool = True):
+        if prob_forecast:
+            iri = IriForecastProb(
+                country_config=mock_country_config,
+                geo_bounding_box=geo_bounding_box,
+            )
+        else:
+            iri = IriForecastDominant(
+                country_config=mock_country_config,
+                geo_bounding_box=geo_bounding_box,
+            )
+        return iri
+
+    return _mock_iri
+
+
+@pytest.fixture
+def mock_download(mocker, mock_iri):
     """
     Call download with mocked _download.
 
@@ -34,19 +55,9 @@ def mock_download(mocker):
         {"IRI_AUTH": FAKE_IRI_AUTH},
     )
 
-    def _mock_download(country_config, prob_forecast):
-        geo_bounding_box = GeoBoundingBox(north=6, south=3.2, east=-2, west=3)
-        if prob_forecast:
-            iri_class = IriForecastProb(
-                country_config=country_config,
-                geo_bounding_box=geo_bounding_box,
-            )
-        else:
-            iri_class = IriForecastDominant(
-                country_config=country_config,
-                geo_bounding_box=geo_bounding_box,
-            )
-        iri_class.download()
+    def _mock_download(prob_forecast: bool):
+        iri = mock_iri(prob_forecast=prob_forecast)
+        iri.download()
         _, kwargs_download = download_mock.call_args
         url = kwargs_download["url"]
         filepath = kwargs_download["filepath"]
@@ -55,9 +66,9 @@ def mock_download(mocker):
     return _mock_download
 
 
-def test_download_call_prob(mock_download, mock_country_config):
+def test_download_call_prob(mock_download):
     """Test download for tercile probability forecast."""
-    url, filepath = mock_download(mock_country_config, prob_forecast=True)
+    url, filepath = mock_download(prob_forecast=True)
     assert url == (
         "https://iridl.ldeo.columbia.edu/SOURCES/.IRI/.FD/"
         ".NMME_Seasonal_Forecast/"
@@ -72,9 +83,9 @@ def test_download_call_prob(mock_download, mock_country_config):
     )
 
 
-def test_download_call_dominant(mock_download, mock_country_config):
+def test_download_call_dominant(mock_download):
     """Test download for dominant tercile forecast."""
-    url, filepath = mock_download(mock_country_config, prob_forecast=False)
+    url, filepath = mock_download(prob_forecast=False)
     assert url == (
         "https://iridl.ldeo.columbia.edu/SOURCES/.IRI/.FD/"
         ".NMME_Seasonal_Forecast/"
@@ -91,7 +102,7 @@ def test_download_call_dominant(mock_download, mock_country_config):
 
 # TODO: need to use a tmp dir but will copy
 # that from glofas once that is ready :)
-def test_process(mocker, mock_country_config):
+def test_process(mocker, mock_iri):
     """Test process for IRI forecast."""
     ds = xr.DataArray(
         np.reshape(a=np.arange(16), newshape=(2, 2, 2, 2)),
@@ -106,10 +117,8 @@ def test_process(mocker, mock_country_config):
 
     ds["F"].attrs["calendar"] = "360"
     ds["F"].attrs["units"] = "months since 1960-01-01"
-    geo_bounding_box = GeoBoundingBox(north=6, south=3.2, east=-2, west=3)
-    iri_class = IriForecastProb(
-        country_config=mock_country_config, geo_bounding_box=geo_bounding_box
-    )
+
+    iri = mock_iri()
 
     # TODO: now created `load_raw` to be able to mock but would like
     #  to do it from xr.load_dataset directly
@@ -119,7 +128,7 @@ def test_process(mocker, mock_country_config):
         return_value=ds,
     )
 
-    processed_path = iri_class.process()
+    processed_path = iri.process()
     assert processed_path == (
         Path(FAKE_AA_DATA_DIR) / f"private/processed/{ISO3}/{MODULE_BASENAME}/"
         f"{ISO3}_iri_forecast_seasonal_precipitation_"
@@ -144,6 +153,19 @@ def test_process(mocker, mock_country_config):
     assert np.array_equal(da_processed.prob.values, expected_values)
 
 
+def test_process_if_download_not_called(mock_iri):
+    """Test that correct error message raised."""
+    iri = mock_iri()
+    # Make sure file doesn't exist
+    Path.unlink(iri._get_raw_path(), missing_ok=True)
+    with pytest.raises(FileNotFoundError) as excinfo:
+        iri.process()
+    assert (
+        "Make sure that you have already called the 'download' method"
+        in str(excinfo.value)
+    )
+
+
 @pytest.fixture
 def mock_xr_load_dataset(mocker):
     """Mock GeoPandas file reading function."""
@@ -152,15 +174,12 @@ def mock_xr_load_dataset(mocker):
     )
 
 
-def test_iri_load(mocker, mock_xr_load_dataset, mock_country_config):
+def test_iri_load(mocker, mock_xr_load_dataset, mock_iri):
     """Test that load_codab calls the HDX API to download."""
     mocker.patch("aatoolbox.datasources.iri.iri_seasonal_forecast._download")
 
-    geo_bounding_box = GeoBoundingBox(north=6, south=3.2, east=-2, west=3)
-    iri_class = IriForecastProb(
-        country_config=mock_country_config, geo_bounding_box=geo_bounding_box
-    )
-    iri_class.load()
+    iri = mock_iri()
+    iri.load()
     mock_xr_load_dataset.assert_has_calls(
         [
             mocker.call(
@@ -170,4 +189,17 @@ def test_iri_load(mocker, mock_xr_load_dataset, mock_country_config):
                 f"tercile_prob_Np6Sp3Em2Wp3.nc"
             ),
         ]
+    )
+
+
+def test_load_if_process_not_called(mock_iri):
+    """Test that correct error message raised."""
+    iri = mock_iri()
+    # Make sure file doesn't exist
+    Path.unlink(iri._get_processed_path(), missing_ok=True)
+    with pytest.raises(FileNotFoundError) as excinfo:
+        iri.load()
+    assert (
+        "Make sure that you have already called the 'process' method"
+        in str(excinfo.value)
     )

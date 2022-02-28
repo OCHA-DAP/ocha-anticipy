@@ -112,6 +112,9 @@ class _IriForecast(DataSource):
         """
         Process the IRI forecast.
 
+        Should only be called after the ``download`` method has been
+        executed.
+
         Parameters
         ----------
         clobber : bool, default = False
@@ -128,13 +131,24 @@ class _IriForecast(DataSource):
 
     def load(self) -> xr.Dataset:
         """
-        Load the IRI forecast.
+        Load the IRI forecast data.
+
+        Should only be called after the ``download`` and ``process`` methods
+        have been executed.
 
         Returns
         -------
         The processed IRI dataset
         """
-        ds = xr.load_dataset(self._get_processed_path())
+        processed_path = self._get_processed_path()
+        try:
+            ds = xr.load_dataset(processed_path)
+        except FileNotFoundError as err:
+            raise FileNotFoundError(
+                f"Cannot open the netcdf file {processed_path}. "
+                f"Make sure that you have already called the 'process' method "
+                f"and that the file {processed_path} exists. "
+            ) from err
         # TODO: Save coordinate system to a general config
         return ds.rio.write_crs("EPSG:4326", inplace=True)
 
@@ -175,14 +189,19 @@ class _IriForecast(DataSource):
             )
             return ds
         except ValueError as err:
-            # TODO: Maybe print the traceback if this error can also
-            #  happen due to a missing NetCDF backend
             raise ValueError(
-                f"Cannot open the netcdf file. This might be due to invalid "
+                f"Cannot open the netcdf file {self._get_raw_path()}. "
+                f"This might be due to invalid "
                 f"download with wrong authentication. Check the validity of "
                 f"the authentication key found in your {_IRI_AUTH} environment"
                 f"variable and try to download again. Otherwise make sure the "
                 f"correct backend for opening a netCDF file is installed."
+            ) from err
+        except FileNotFoundError as err:
+            raise FileNotFoundError(
+                f"Cannot open the netcdf file {self._get_raw_path()}. Make "
+                f"sure that you have already called the 'download' method "
+                f"and that the file {self._get_raw_path()} exists. "
             ) from err
 
 

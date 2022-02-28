@@ -140,24 +140,24 @@ class CodAB(DataSource):
             layer_name = self._country_config.codab.custom_layer_names[
                 custom_layer_number
             ]  # type: ignore
-        except (IndexError, TypeError):
+        except (IndexError, TypeError) as err:
             raise AttributeError(
                 f"{custom_layer_number}th custom layer requested but not "
                 f"available in {self._country_config.iso3.upper()} config file"
-            )
+            ) from err
         return self._load_admin_layer(layer_name=layer_name)
 
     def _load_admin_layer(self, layer_name: str) -> gpd.GeoDataFrame:
         try:
             return gpd.read_file(f"zip:///{self._raw_filepath / layer_name}")
-        except DriverError:
-            msg = (
+        except DriverError as err:
+            raise FileNotFoundError(
                 f"Could not read boundary shapefile. Make sure that "
-                f"you have already called the `CodAB.download` method and "
+                f"you have already called the 'download' method and "
                 f"that the file {self._raw_filepath} exists. If it does "
-                f"exist, please check the layer name: '{layer_name}'."
-            )
-            raise FileNotFoundError(msg)
+                f"exist, please check the validity of the layer name: "
+                f"'{layer_name}'."
+            ) from err
 
 
 @check_file_existence
