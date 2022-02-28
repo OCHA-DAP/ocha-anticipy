@@ -121,29 +121,10 @@ class _IriForecast(DataSource):
         -------
         The processed filepath
         """
-        ds = self.load_raw()
+        ds = self._load_raw()
         processed_file_path = self._get_processed_path()
         processed_file_path.parent.mkdir(parents=True, exist_ok=True)
         return _process(filepath=processed_file_path, ds=ds, clobber=clobber)
-
-    def load_raw(self) -> xr.Dataset:
-        try:
-            ds = xr.load_dataset(
-                self._get_raw_path(),
-                decode_times=False,
-                drop_variables="C",
-            )
-            return ds
-        except ValueError as err:
-            # TODO: Maybe print the traceback if this error can also
-            #  happen due to a missing NetCDF backend
-            raise ValueError(
-                f"Cannot open the netcdf file. This might be due to invalid "
-                f"download with wrong authentication. Check the validity of "
-                f"the authentication key found in your {_IRI_AUTH} environment"
-                f"variable and try to download again. Otherwise make sure the "
-                f"correct backend for opening a netCDF file is installed."
-            ) from err
 
     def load(self) -> xr.Dataset:
         """
@@ -184,6 +165,25 @@ class _IriForecast(DataSource):
             f"Y/%28{self._geobb.north}%29%28{self._geobb.south}%29RANGEEDGES/"
             "data.nc"
         )
+
+    def _load_raw(self) -> xr.Dataset:
+        try:
+            ds = xr.load_dataset(
+                self._get_raw_path(),
+                decode_times=False,
+                drop_variables="C",
+            )
+            return ds
+        except ValueError as err:
+            # TODO: Maybe print the traceback if this error can also
+            #  happen due to a missing NetCDF backend
+            raise ValueError(
+                f"Cannot open the netcdf file. This might be due to invalid "
+                f"download with wrong authentication. Check the validity of "
+                f"the authentication key found in your {_IRI_AUTH} environment"
+                f"variable and try to download again. Otherwise make sure the "
+                f"correct backend for opening a netCDF file is installed."
+            ) from err
 
 
 @check_file_existence

@@ -115,7 +115,7 @@ def test_process(mocker, mock_country_config):
     #  to do it from xr.load_dataset directly
     mocker.patch(
         "aatoolbox.datasources.iri.iri_seasonal_forecast."
-        "_IriForecast.load_raw",
+        "_IriForecast._load_raw",
         return_value=ds,
     )
 
