@@ -11,15 +11,19 @@ and this project adheres to
 
 ## [Unreleased]
 
-### Fixed
-
-- GitHub action to publish on PyPI should not be invoked for pushes to main
-  (using tags instead)
-
 ### Added
 
 - Implemented unit testing for `AatRaster` module with full coverage.
 - Implemented downloading and processing for IRI seasonal precipication forecast.
+
+### Removed
+
+- Removed unnecessary explicit install of test requirements on GitHub Actions
+
+### Fixed
+
+- GitHub Action to publish on PyPI should not be invoked for pushes to main
+  (using tags instead)
 
 ## [0.3.1] - 2022-01-06
 
