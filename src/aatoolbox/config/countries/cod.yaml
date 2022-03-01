@@ -2,6 +2,8 @@ iso3: cod
 codab:
   hdx_address: cod-ab-cod
   hdx_dataset_name: cod_admbnda_rgc_itos_20190911_SHP.zip
-  #the adm2 layer name is cod_admbnda_adm2_rgc_20190911.shp
   layer_base_name: cod_admbnda_adm{admin_level}_rgc_itos_20190911.shp
   admin_level_max: 2
+  #this is the name of the adm2 layer
+  custom_layer_names:
+    - cod_admbnda_adm2_rgc_20190911.shp
