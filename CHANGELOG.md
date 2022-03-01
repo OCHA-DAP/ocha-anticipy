@@ -15,6 +15,7 @@ and this project adheres to
 
 - Implemented unit testing for `AatRaster` module with full coverage.
 - Implemented downloading and processing for IRI seasonal precipication forecast.
+- Added config for DRC (of which the iso3 is COD)
 
 ### Removed
 
