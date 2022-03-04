@@ -88,6 +88,13 @@ class CodAB(DataSource):
         -------
         COD AB geodataframe with specified admin level
 
+        Raises
+        ------
+        AttributeError
+            If the requested admin level is higher than what is available
+        FileNotFoundError
+            If the requested filename or layer name are not found
+
         Examples
         --------
         >>> from aatoolbox import create_country_config, CodAB
@@ -123,6 +130,13 @@ class CodAB(DataSource):
         Returns
         -------
         COD AB geodataframe with custom admin level
+
+        Raises
+        ------
+        AttributeError
+            If the requested custom layer number is not available
+        FileNotFoundError
+            If the requested filename or layer name are not found
 
         Examples
         --------
