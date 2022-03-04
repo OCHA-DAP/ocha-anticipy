@@ -9,6 +9,7 @@ namely the dominant tercile probability and the probability
 per tercile. Both variations are implemented here.
 """
 import logging
+import os
 from pathlib import Path
 
 import requests
@@ -16,6 +17,7 @@ import xarray as xr
 from typing_extensions import Literal
 
 import aatoolbox.utils.raster  # noqa: F401
+from aatoolbox.config.countryconfig import CountryConfig
 from aatoolbox.datasources.datasource import DataSource
 from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 from aatoolbox.utils.io import check_file_existence
@@ -23,6 +25,7 @@ from aatoolbox.utils.io import check_file_existence
 logger = logging.getLogger(__name__)
 
 _MODULE_BASENAME = "iri"
+_IRI_AUTH = "IRI_AUTH"
 
 
 class _IriForecast(DataSource):
@@ -31,160 +34,139 @@ class _IriForecast(DataSource):
 
     Parameters
     ----------
-    iso3 : str
-        country iso3
+    country_config : CountryConfig
+        Country configuration
     geo_bounding_box: GeoBoundingBox
-        the bounding coordinates of the area that should
-        be included in the data.
+        the bounding coordinates of the area that should be included in the
+        data.
     forecast_type: str
-        The type of forecast information to download.
-        Can be "prob" or "dominant"
-        If "prob" the data will be retrieved that
-        contains the probability per tercile
-        If "dominant" the data will be retrieved that
-        contains only one probability indicating
-        the dominant tercile
-
+        The type of forecast information to download,  can be either "prob" or
+        "dominant". If "prob" the data will be retrieved that contains the
+        probability per tercile. If "dominant" the data will be retrieved that
+        contains only one probability indicating the dominant tercile.
     """
 
     def __init__(
         self,
-        iso3,
+        country_config,
         geo_bounding_box: GeoBoundingBox,
         forecast_type: Literal["prob", "dominant"],
     ):
         super().__init__(
-            iso3=iso3, module_base_dir=_MODULE_BASENAME, is_public=False
+            country_config=country_config,
+            module_base_dir=_MODULE_BASENAME,
+            is_public=False,
         )
         # round coordinates to correspond with the grid IRI publishes
         # its data on, which is 1 degree resolution
         # non-rounded coordinates can be given to the URL which then
         # automatically rounds them, but for file saving we prefer to do
         # this ourselves
+        # TODO: We should probably make a copy of this as it's being
+        #  passed directly by the user
         geo_bounding_box.round_coords(round_val=1, offset_val=0)
         self._geobb = geo_bounding_box
         self._forecast_type = forecast_type
 
     def download(
         self,
-        iri_auth: str,
         clobber: bool = False,
-    ):
+    ) -> Path:
         """
         Download the IRI seasonal tercile forecast as NetCDF file.
 
+        To download data from the IRI API, a key is required for
+        authentication, and must be set in the ``IRI_AUTH`` environment
+        variable. To obtain this key config you need to create an account
+        `here.<https://iridl.ldeo.columbia.edu/auth/login>`_.
+        Note that this key might be changed over time, and need to be updated
+        regularly.
+
         Parameters
         ----------
-        iri_auth: str
-            iri key for authentication. An account is
-            needed to get this key config. For an account this key might
-            be changed over time, so might need to update it regularly
         clobber : bool, default = False
             If True, overwrites existing raw files
+
+        Returns
+        -------
+        The downloaded filepath
         """
+        iri_auth = os.getenv(_IRI_AUTH)
+        if iri_auth is None:
+            raise ValueError(
+                f"Environment variable {_IRI_AUTH} is not set and thus cannot "
+                f"download the data. Set {_IRI_AUTH} to proceed."
+            )
         output_filepath = self._get_raw_path()
         output_filepath.parent.mkdir(parents=True, exist_ok=True)
-
         url = self._get_url()
         logger.info("Downloading IRI NetCDF file.")
-        return self._download(
+        return _download(
             filepath=output_filepath,
             url=url,
             iri_auth=iri_auth,
             clobber=clobber,
         )
 
-    @staticmethod
-    @check_file_existence
-    def _download(filepath: Path, url: str, iri_auth: str, clobber: bool):
-        if iri_auth is None:
-            raise ValueError(
-                "`iri_auth` is not set and thus cannot download the data. "
-                "Set `iri_auth` to proceed."
-            )
-        response = requests.get(
-            url,
-            # have to authenticate by using a cookie
-            cookies={"__dlauth_id": iri_auth},
-        )
-        with open(filepath, "wb") as out_file:
-            out_file.write(response.content)
-        return filepath
-
-    def process(self, clobber: bool = False):
+    def process(self, clobber: bool = False) -> Path:
         """
         Process the IRI forecast.
+
+        Should only be called after the ``download`` method has been
+        executed.
 
         Parameters
         ----------
         clobber : bool, default = False
             If True, overwrites existing processed files
 
+        Returns
+        -------
+        The processed filepath
         """
-        ds = self.load_raw()
+        ds = self._load_raw()
         processed_file_path = self._get_processed_path()
         processed_file_path.parent.mkdir(parents=True, exist_ok=True)
-        return self._process(
-            filepath=processed_file_path, ds=ds, clobber=clobber
-        )
+        return _process(filepath=processed_file_path, ds=ds, clobber=clobber)
 
-    @staticmethod
-    @check_file_existence
-    def _process(filepath: str, ds, clobber: bool):
-        # fix dates
-        ds.aat.set_time_dim(t_dim="F", inplace=True)
-        ds.aat.correct_calendar(inplace=True)
-        ds = xr.decode_cf(ds)
+    def load(self) -> xr.Dataset:
+        """
+        Load the IRI forecast data.
 
-        # IRI downloads in the order you give the coordinates
-        # so make sure to invert them
-        # IRI accepts -180 to 180 longitudes and 0 to 360
-        # but automatically converts them to -180 to 180
-        # so we don't need to do that
-        # TODO: can be removed once we have a check in the
-        # geoboundingbox class for south<north
-        # TODO: for some reason the `inplace` is not working
-        # re-add when we fixed that
-        ds = ds.aat.invert_coordinates()
-        ds.to_netcdf(filepath)
-        return filepath
+        Should only be called after the ``download`` and ``process`` methods
+        have been executed.
 
-    def load_raw(self):
+        Returns
+        -------
+        The processed IRI dataset
+        """
+        processed_path = self._get_processed_path()
         try:
-            ds = xr.load_dataset(
-                self._get_raw_path(),
-                decode_times=False,
-                drop_variables="C",
-            )
-            return ds
-        except ValueError as err:
-            raise ValueError(
-                "Cannot open the netcdf file. "
-                "Might be due to invalid download with wrong authentication. "
-                "Check the validity of `iri_auth` and try to download again. "
-                "Else make sure the correct backend for "
-                "opening a netCDF file is installed."
+            ds = xr.load_dataset(processed_path)
+        except FileNotFoundError as err:
+            raise FileNotFoundError(
+                f"Cannot open the netcdf file {processed_path}. "
+                f"Make sure that you have already called the 'process' method "
+                f"and that the file {processed_path} exists. "
             ) from err
-
-    def load(self):
-        """Load the IRI forecast."""
-        ds = xr.load_dataset(self._get_processed_path())
+        # TODO: Save coordinate system to a general config
         return ds.rio.write_crs("EPSG:4326", inplace=True)
 
-    def _get_file_name(self):
+    def _get_file_name(self) -> str:
         file_name = (
-            f"{self._iso3}_iri_forecast_seasonal_precipitation_tercile_"
+            f"{self._country_config.iso3}"
+            f"_iri_forecast_seasonal_precipitation_tercile_"
             f"{self._forecast_type}_{self._geobb.get_filename_repr(p=0)}.nc"
         )
         return file_name
 
-    def _get_raw_path(self):
+    def _get_raw_path(self) -> Path:
         return self._raw_base_dir / self._get_file_name()
 
-    def _get_processed_path(self):
+    def _get_processed_path(self) -> Path:
         return self._processed_base_dir / self._get_file_name()
 
-    def _get_url(self):
+    def _get_url(self) -> str:
 
         base_url = (
             "https://iridl.ldeo.columbia.edu/SOURCES/.IRI/.FD/"
@@ -198,6 +180,64 @@ class _IriForecast(DataSource):
             "data.nc"
         )
 
+    def _load_raw(self) -> xr.Dataset:
+        try:
+            ds = xr.load_dataset(
+                self._get_raw_path(),
+                decode_times=False,
+                drop_variables="C",
+            )
+            return ds
+        except ValueError as err:
+            raise ValueError(
+                f"Cannot open the netcdf file {self._get_raw_path()}. "
+                f"This might be due to invalid "
+                f"download with wrong authentication. Check the validity of "
+                f"the authentication key found in your {_IRI_AUTH} environment"
+                f"variable and try to download again. Otherwise make sure the "
+                f"correct backend for opening a netCDF file is installed."
+            ) from err
+        except FileNotFoundError as err:
+            raise FileNotFoundError(
+                f"Cannot open the netcdf file {self._get_raw_path()}. Make "
+                f"sure that you have already called the 'download' method "
+                f"and that the file {self._get_raw_path()} exists. "
+            ) from err
+
+
+@check_file_existence
+def _download(filepath: Path, url: str, iri_auth: str, clobber: bool) -> Path:
+
+    response = requests.get(
+        url,
+        # have to authenticate by using a cookie
+        cookies={"__dlauth_id": iri_auth},
+    )
+    with open(filepath, "wb") as out_file:
+        out_file.write(response.content)
+    return filepath
+
+
+@check_file_existence
+def _process(filepath: Path, ds, clobber: bool) -> Path:
+    # fix dates
+    ds.aat.set_time_dim(t_dim="F", inplace=True)
+    ds.aat.correct_calendar(inplace=True)
+    ds = xr.decode_cf(ds)
+
+    # IRI downloads in the order you give the coordinates
+    # so make sure to invert them
+    # IRI accepts -180 to 180 longitudes and 0 to 360
+    # but automatically converts them to -180 to 180
+    # so we don't need to do that
+    # TODO: can be removed once we have a check in the
+    #  geoboundingbox class for south<north
+    # TODO: for some reason the `inplace` is not working
+    #  re-add when we fixed that
+    ds = ds.aat.invert_coordinates()
+    ds.to_netcdf(filepath)
+    return filepath
+
 
 class IriForecastProb(_IriForecast):
     """
@@ -210,34 +250,33 @@ class IriForecastProb(_IriForecast):
 
     Parameters
     ----------
-    iso3 : str
-        country iso3
+    country_config : CountryConfig
+        Country configuration
     geo_bounding_box: GeoBoundingBox
         the bounding coordinates of the area that should
         be included in the data.
 
     Examples
     --------
-    >>> from aatoolbox.pipeline import Pipeline
-    >>> from aatoolbox.utils.geoboundingbox import GeoBoundingBox
-    >>> (from aatoolbox.datasources.iri.
-    ... iri_seasonal_forecast import IriForecastProb)
-    #retrieve the bounding box to download data for
-    >>> iso3="bfa"
-    >>> pipeline_iso = Pipeline(iso3)
-    >>> codab_admin1 = pipeline_iso.load_codab(admin_level=1)
-    >>> geo_bounding_box = GeoBoundingBox.from_shape(codab_admin1)
-    #initialize class and retrieve data
-    >>> iri=IriForecastProb(iso3,geo_bounding_box)
-    #the iri auth str can e.g. be saved as an env var
-    >>> iri.download(os.getenv("IRI_AUTH"))
+    >>> from aatoolbox import create_country_config, \
+    ...     GeoBoundingBox, IriForecastProb
+    >>> country_config = create_country_config(iso3="bfa")
+    >>> geo_bounding_box = GeoBoundingBox(north=13.0,
+    ...                                   south=12.0,
+    ...                                   east=-3.0,
+    ...                                   west=-2.0)
+    >>>
+    >>> # Initialize class and retrieve data
+    >>> iri = IriForecastProb(country_config,geo_bounding_box)
+    >>> iri.download() # Must have IRI_AUTH environment variable set
     >>> iri.process()
-    >>> iri.load()
+    >>>
+    >>> iri_data = iri.load()
     """
 
-    def __init__(self, iso3, geo_bounding_box: GeoBoundingBox):
+    def __init__(self, country_config, geo_bounding_box: GeoBoundingBox):
         super().__init__(
-            iso3=iso3,
+            country_config,
             geo_bounding_box=geo_bounding_box,
             forecast_type="prob",
         )
@@ -253,34 +292,35 @@ class IriForecastDominant(_IriForecast):
 
     Parameters
     ----------
-    iso3 : str
-       country iso3
+    country_config : CountryConfig
+        Country configuration
     geo_bounding_box: GeoBoundingBox
        the bounding coordinates of the area that should
        be included in the data.
 
     Examples
     --------
-    >>> from aatoolbox.pipeline import Pipeline
-    >>> from aatoolbox.utils.geoboundingbox import GeoBoundingBox
-    >>> (from aatoolbox.datasources.iri.
-    ... iri_seasonal_forecast import IriForecastDominant)
-    #retrieve the bounding box to download data for
-    >>> iso3="bfa"
-    >>> pipeline_iso = Pipeline(iso3)
-    >>> codab_admin1 = pipeline_iso.load_codab(admin_level=1)
-    >>> geo_bounding_box = GeoBoundingBox.from_shape(codab_admin1)
-    #initialize class and retrieve data
-    >>> iri=IriForecastDominant(iso3,geo_bounding_box)
-    #the iri auth str can e.g. be saved as an env var
-    >>> iri.download(os.getenv("IRI_AUTH"))
+    >>> from aatoolbox import create_country_config, \
+    ...     GeoBoundingBox, IriForecastDominant
+    >>> country_config = create_country_config(iso3="bfa")
+    >>> geo_bounding_box = GeoBoundingBox(north=13.0,
+    ...                                   south=12.0,
+    ...                                   east=-3.0,
+    ...                                   west=-2.0)
+    >>>
+    >>> # Initialize class and retrieve data
+    >>> iri = IriForecastDominant(country_config,geo_bounding_box)
+    >>> iri.download() # Must have IRI_AUTH environment variable set
     >>> iri.process()
-    >>> iri.load()
+    >>>
+    >>> iri_data = iri.load()
     """
 
-    def __init__(self, iso3, geo_bounding_box: GeoBoundingBox):
+    def __init__(
+        self, country_config: CountryConfig, geo_bounding_box: GeoBoundingBox
+    ):
         super().__init__(
-            iso3=iso3,
+            country_config=country_config,
             geo_bounding_box=geo_bounding_box,
             forecast_type="dominant",
         )
