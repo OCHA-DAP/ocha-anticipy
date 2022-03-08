@@ -12,9 +12,6 @@ class CodABConfig(BaseModel):
 
     Parameters
     ----------
-    hdx_address: str
-        The page where the COD AB dataset resides on on HDX. Can be found
-        by taking the portion of the url after ``data.humdata.org/dataset/``
     hdx_dataset_name: str
         COD AB dataset name on HDX. Can be found by taking the filename as it
         appears on the dataset page.
@@ -28,7 +25,6 @@ class CodABConfig(BaseModel):
         Any additional layer names that don't fit into the admin level paradigm
     """
 
-    hdx_address: str
     hdx_dataset_name: str
     layer_base_name: str  # TODO: validate that it has {admin_level}
     admin_level_max: int

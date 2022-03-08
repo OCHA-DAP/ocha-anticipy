@@ -70,7 +70,7 @@ class CodAB(DataSource):
         """
         return _download(
             filepath=self._raw_filepath,
-            hdx_address=self._country_config.codab.hdx_address,
+            hdx_address=f"cod-ab-{self._country_config.iso3}",
             hdx_dataset_name=self._country_config.codab.hdx_dataset_name,
             clobber=clobber,
         )

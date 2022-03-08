@@ -30,7 +30,7 @@ def test_codab_download(mock_country_config, downloader):
     codab = CodAB(country_config=mock_country_config)
     codab.download()
     downloader.assert_called_with(
-        hdx_address=mock_country_config.codab.hdx_address,
+        hdx_address=f"cod-ab-{ISO3}",
         hdx_dataset_name=mock_country_config.codab.hdx_dataset_name,
         output_filepath=Path(FAKE_AA_DATA_DIR)
         / f"public/raw/{ISO3}/{MODULE_BASENAME}/"

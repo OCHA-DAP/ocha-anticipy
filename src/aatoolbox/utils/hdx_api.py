@@ -10,7 +10,9 @@ from hdx.data.dataset import Dataset
 USER_AGENT = "aa-toolbox"
 
 logger = logging.getLogger(__name__)
-Configuration.create(user_agent=USER_AGENT, hdx_read_only=True)
+Configuration.create(
+    hdx_site="prod", user_agent=USER_AGENT, hdx_read_only=True
+)
 
 
 def load_dataset_from_hdx(
