@@ -26,7 +26,7 @@ and this project adheres to
 
 - GitHub action to publish on PyPI should not be invoked for pushes to main
   (using tags instead)
-- HDX API now uses "prod" server
+- HDX API now uses "prod" server, and version >= 5.5.8 to avoid download error
 - COD AB dataset URLs on HDX are standardized
 
 ## [0.3.1] - 2022-01-06
