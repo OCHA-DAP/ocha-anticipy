@@ -37,23 +37,24 @@ def test_expand_dims():
 class TestDownload:
     """Tests for GloFAS downloading."""
 
-    country_iso3 = "abc"
-    area = GeoBoundingBox(north=1, south=-2, east=3, west=-4)
+    geo_bounding_box = GeoBoundingBox(north=1, south=-2, east=3, west=-4)
     year = 2000
     leadtimes = [10, 20]
-    expected_area = [1.05, -4.05, -2.05, 3.05]
+    expected_geo_bounding_box = [1.05, -4.05, -2.05, 3.05]
     expected_months = [str(x + 1).zfill(2) for x in range(12)]
     expected_days = [str(x + 1).zfill(2) for x in range(31)]
     expected_leadtime = ["240", "480"]
 
     @pytest.fixture()
-    def fake_retrieve(self, mocker):
+    def mock_retrieve(self, mocker):
         """Mock out the CDS API."""
         mocker.patch.object(Path, "mkdir", return_value=None)
         mocker.patch.object(Client, "__init__", return_value=None)
         return mocker.patch.object(Client, "retrieve")
 
-    def test_reanalysis_download(self, fake_retrieve, mock_aa_data_dir):
+    def test_reanalysis_download(
+        self, mock_retrieve, mock_country_config, mock_aa_data_dir
+    ):
         """
         Test GloFAS reanalysis download.
 
@@ -61,7 +62,8 @@ class TestDownload:
         with default parameters is as expected
         """
         glofas_reanalysis = GlofasReanalysis(
-            iso3=self.country_iso3, area=self.area
+            country_config=mock_country_config,
+            geo_bounding_box=self.geo_bounding_box,
         )
         glofas_reanalysis.download(
             year_min=self.year,
@@ -76,19 +78,22 @@ class TestDownload:
                 "hyear": f"{self.year}",
                 "hmonth": self.expected_months,
                 "hday": self.expected_days,
-                "area": self.expected_area,
+                "geo_bounding_box": self.expected_geo_bounding_box,
                 "system_version": "version_3_1",
                 "hydrological_model": "lisflood",
             },
             "target": Path(
-                f"{mock_aa_data_dir}/public/raw/{self.country_iso3}"
-                "/glofas/version_3/cems-glofas-historical"
-                f"/{self.country_iso3}_cems-glofas-historical_v3_2000.grib"
+                f"{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}"
+                f"/glofas/version_3/cems-glofas-historical/"
+                f"{mock_country_config.iso3}_"
+                f"cems-glofas-historical_v3_2000.grib"
             ),
         }
-        fake_retrieve.assert_called_with(**expected_args)
+        mock_retrieve.assert_called_with(**expected_args)
 
-    def test_forecast_download(self, fake_retrieve, mock_aa_data_dir):
+    def test_forecast_download(
+        self, mock_retrieve, mock_country_config, mock_aa_data_dir
+    ):
         """
         Test GloFAS forecast download.
 
@@ -96,7 +101,8 @@ class TestDownload:
         with default parameters is as expected
         """
         glofas_forecast = GlofasForecast(
-            iso3=self.country_iso3, area=self.area
+            country_config=mock_country_config,
+            geo_bounding_box=self.geo_bounding_box,
         )
         glofas_forecast.download(
             leadtimes=self.leadtimes,
@@ -115,20 +121,21 @@ class TestDownload:
                 "year": f"{self.year}",
                 "month": self.expected_months,
                 "day": self.expected_days,
-                "area": self.expected_area,
+                "geo_bounding_box": self.expected_geo_bounding_box,
                 "system_version": "version_3_1",
                 "hydrological_model": "lisflood",
                 "leadtime_hour": self.expected_leadtime,
             },
             "target": Path(
-                f"{mock_aa_data_dir}/public/raw/{self.country_iso3}"
-                f"/glofas/version_3/cems-glofas-forecast"
-                f"/{self.country_iso3}_cems-glofas-forecast_v3_2000.grib"
+                f"{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
+                f"glofas/version_3/cems-glofas-forecast/"
+                f"{mock_country_config.iso3}_"
+                f"cems-glofas-forecast_v3_2000.grib"
             ),
         }
-        fake_retrieve.assert_called_with(**expected_args)
+        mock_retrieve.assert_called_with(**expected_args)
 
-    def get_reforecast_expected_args(self, mock_aa_data_dir):
+    def get_reforecast_expected_args(self, aa_data_dir, country_config):
         """
         Get GloFAS reforecast expected args.
 
@@ -147,19 +154,22 @@ class TestDownload:
                 "hyear": f"{self.year}",
                 "hmonth": self.expected_months,
                 "hday": self.expected_days,
-                "area": self.expected_area,
+                "geo_bounding_box": self.expected_geo_bounding_box,
                 "system_version": "version_3_1",
                 "hydrological_model": "lisflood",
                 "leadtime_hour": self.expected_leadtime,
             },
             "target": Path(
-                f"{mock_aa_data_dir}/public/raw/{self.country_iso3}"
-                f"/glofas/version_3/cems-glofas-reforecast"
-                f"/{self.country_iso3}_cems-glofas-reforecast_v3_2000.grib"
+                f"{aa_data_dir}/public/raw/{country_config.iso3}/"
+                f"glofas/version_3/cems-glofas-reforecast/"
+                f"{country_config.iso3}_"
+                f"cems-glofas-reforecast_v3_2000.grib"
             ),
         }
 
-    def test_reforecast_download(self, fake_retrieve, mock_aa_data_dir):
+    def test_reforecast_download(
+        self, mock_retrieve, mock_country_config, mock_aa_data_dir
+    ):
         """
         Test GloFAS reforecast download.
 
@@ -167,19 +177,22 @@ class TestDownload:
         GlofasReforecast with default parameters is as expected
         """
         glofas_reforecast = GlofasReforecast(
-            iso3=self.country_iso3, area=self.area
+            country_config=mock_country_config,
+            geo_bounding_box=self.geo_bounding_box,
         )
         glofas_reforecast.download(
             leadtimes=self.leadtimes,
             year_min=self.year,
             year_max=self.year,
         )
-        fake_retrieve.assert_called_with(
-            **self.get_reforecast_expected_args(mock_aa_data_dir)
+        mock_retrieve.assert_called_with(
+            **self.get_reforecast_expected_args(
+                mock_aa_data_dir, mock_country_config
+            )
         )
 
     def test_reforecast_download_split_by_leadtime(
-        self, fake_retrieve, mock_aa_data_dir
+        self, mock_retrieve, mock_country_config, mock_aa_data_dir
     ):
         """
         Test GloFAS reforecast download leadtime splitting.
@@ -188,7 +201,8 @@ class TestDownload:
         GlofasReforecast with leadtime splitting is as expected.
         """
         glofas_reforecast = GlofasReforecast(
-            iso3=self.country_iso3, area=self.area
+            country_config=mock_country_config,
+            geo_bounding_box=self.geo_bounding_box,
         )
         glofas_reforecast.download(
             leadtimes=self.leadtimes[:1],
@@ -196,11 +210,14 @@ class TestDownload:
             year_max=self.year,
             split_by_leadtimes=True,
         )
-        expected_args = self.get_reforecast_expected_args(mock_aa_data_dir)
+        expected_args = self.get_reforecast_expected_args(
+            mock_aa_data_dir, mock_country_config
+        )
         expected_args["request"]["leadtime_hour"] = self.expected_leadtime[:1]
         expected_args["target"] = Path(
-            f"{mock_aa_data_dir}/public/raw/{self.country_iso3}"
-            f"/glofas/version_3/cems-glofas-reforecast"
-            f"/{self.country_iso3}_cems-glofas-reforecast_v3_2000_lt10d.grib"
+            f"{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
+            f"glofas/version_3/cems-glofas-reforecast/"
+            f"{mock_country_config.iso3}_"
+            f"cems-glofas-reforecast_v3_2000_lt10d.grib"
         )
-        fake_retrieve.assert_called_with(**expected_args)
+        mock_retrieve.assert_called_with(**expected_args)

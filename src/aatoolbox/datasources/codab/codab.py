@@ -40,7 +40,9 @@ class CodAB(DataSource):
 
     def __init__(self, country_config: CountryConfig):
         super().__init__(
-            country_config, module_base_dir=_MODULE_BASENAME, is_public=True
+            country_config=country_config,
+            module_base_dir=_MODULE_BASENAME,
+            is_public=True,
         )
         self._raw_filepath = (
             self._raw_base_dir

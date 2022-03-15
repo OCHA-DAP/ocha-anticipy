@@ -7,6 +7,7 @@ import cdsapi
 import numpy as np
 import xarray as xr
 
+from aatoolbox.config.countryconfig import CountryConfig
 from aatoolbox.datasources.datasource import DataSource
 from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
@@ -31,9 +32,12 @@ class Glofas(DataSource):
 
     Parameters
     ----------
-    iso3 :
-    area :
-    year_min :
+    country_config: CountryConfig
+        Country configuration
+    geo_bounding_box: GeoBoundingBox
+        the bounding coordinates of the geo_bounding_box that should
+        be included in the data.
+    year_min: int
         The earliest year that the dataset is available. Can be a
         single integer, or a dictionary with structure
         {major_version: year_min} if the minimum year depends on the GloFAS
@@ -57,8 +61,8 @@ class Glofas(DataSource):
 
     def __init__(
         self,
-        iso3: str,
-        area: GeoBoundingBox,
+        country_config: CountryConfig,
+        geo_bounding_box: GeoBoundingBox,
         year_min: int,
         year_max: int,
         cds_name: str,
@@ -68,11 +72,13 @@ class Glofas(DataSource):
         date_variable_prefix: str = "",
     ):
         super().__init__(
-            iso3=iso3, module_base_dir=_MODULE_BASENAME, is_public=True
+            country_config=country_config,
+            module_base_dir=_MODULE_BASENAME,
+            is_public=True,
         )
         # The GloFAS API on CDS requires coordinates have the format x.x5
-        area.round_boundingbox_coords(offset_val=0.05, round_val=1)
-        self.area = area
+        geo_bounding_box.round_coords(offset_val=0.05, round_val=1)
+        self.geo_bounding_box = geo_bounding_box
         self.year_min = year_min
         self.year_max = year_max
         self.cds_name = cds_name
@@ -137,7 +143,9 @@ class Glofas(DataSource):
     ):
         version_dir = f"version_{version}"
         directory = self._raw_base_dir / version_dir / self.cds_name
-        filename = f"{self._iso3}_{self.cds_name}_v{version}_{year}"
+        filename = (
+            f"{self._country_config.iso3}_{self.cds_name}_v{version}_{year}"
+        )
         if month is not None:
             filename += f"-{str(month).zfill(2)}"
         if leadtime is not None and isinstance(leadtime, int):
@@ -165,11 +173,11 @@ class Glofas(DataSource):
             f"{self.date_variable_prefix}day": [
                 str(x + 1).zfill(2) for x in range(31)
             ],
-            "area": [
-                self.area.north,
-                self.area.west,
-                self.area.south,
-                self.area.east,
+            "geo_bounding_box": [
+                self.geo_bounding_box.north,
+                self.geo_bounding_box.west,
+                self.geo_bounding_box.south,
+                self.geo_bounding_box.east,
             ],
             "system_version": (
                 f"version_{version}_{self.system_version_minor[version]}"
@@ -238,7 +246,7 @@ class Glofas(DataSource):
     def _get_processed_filepath(
         self, version: int, leadtime: Union[int, list] = None
     ) -> Path:
-        filename = f"{self._iso3}_{self.cds_name}_v{version}"
+        filename = f"{self._country_config.iso3}_{self.cds_name}_v{version}"
         if leadtime is not None and isinstance(leadtime, int):
             filename += f"_lt{str(leadtime).zfill(2)}d"
         filename += ".nc"
