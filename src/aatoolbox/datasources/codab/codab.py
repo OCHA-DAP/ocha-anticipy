@@ -21,7 +21,7 @@ import geopandas as gpd
 from fiona.errors import DriverError
 
 from aatoolbox.config.countryconfig import CountryConfig
-from aatoolbox.dataproviders.hdx_api import load_dataset_from_hdx
+from aatoolbox.dataproviders.hdx import load_dataset_from_hdx
 from aatoolbox.datasources.datasource import DataSource
 from aatoolbox.utils.io import check_file_existence
 
