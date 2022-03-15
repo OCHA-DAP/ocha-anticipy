@@ -21,14 +21,14 @@ import geopandas as gpd
 from fiona.errors import DriverError
 
 from aatoolbox.config.countryconfig import CountryConfig
-from aatoolbox.datasources.datasource import DataSource
+from aatoolbox.datasources.datasource import DataSourceNoProcess
 from aatoolbox.utils.hdx_api import load_dataset_from_hdx
 from aatoolbox.utils.io import check_file_existence
 
 _MODULE_BASENAME = "cod_ab"
 
 
-class CodAB(DataSource):
+class CodAB(DataSourceNoProcess):
     """
     Work with COD AB (administrative boundaries).
 
@@ -75,7 +75,7 @@ class CodAB(DataSource):
             clobber=clobber,
         )
 
-    def load(self, admin_level: int) -> gpd.GeoDataFrame:
+    def load(self, admin_level: int) -> gpd.GeoDataFrame:  # type: ignore
         """
         Get the COD AB data by admin level.
 
