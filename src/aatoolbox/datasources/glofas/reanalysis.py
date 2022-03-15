@@ -1,6 +1,5 @@
 """Glofas reanalysis."""
 import logging
-from typing import Dict
 
 import xarray as xr
 
@@ -55,7 +54,6 @@ class GlofasReanalysis(glofas.Glofas):
 
     def process(
         self,
-        stations: Dict[str, glofas.ReportingPoint],
         version: int = glofas.VERSION,
         year_min: int = None,
         year_max: int = None,
@@ -91,8 +89,8 @@ class GlofasReanalysis(glofas.Glofas):
             logger.info(
                 "Looping through reporting_points, this takes some time"
             )
-            ds_new = glofas.get_reporting_point_dataset(
-                reporting_points=stations, ds=ds, coord_names=["time"]
+            ds_new = self._get_reporting_point_dataset(
+                ds=ds, coord_names=["time"]
             )
         # Write out the new dataset to a file
         return self._write_to_processed_file(

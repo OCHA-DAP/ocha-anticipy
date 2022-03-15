@@ -3,3 +3,11 @@ codab:
   hdx_dataset_name: fake_hdx_dataset_name
   layer_base_name: fake_layer_base_name_level{admin_level}
   admin_level_max: 2
+glofas:
+  reporting_points:
+    - name: Station1
+      lat: 0.5
+      lon: 2.5
+    - name: Station2
+      lat: -1.5
+      lon: -3.5

@@ -1,6 +1,6 @@
 """Glofas focast and reforecast."""
 import logging
-from typing import Dict, List
+from typing import List
 
 from aatoolbox.datasources.glofas import glofas
 
@@ -46,7 +46,6 @@ class _GlofasForecastBase(glofas.Glofas):
     def _process(
         self,
         is_reforecast: bool,
-        stations: Dict[str, glofas.ReportingPoint],
         leadtimes: List[int],
         version: int = glofas.VERSION,
         split_by_month: bool = False,
@@ -91,8 +90,7 @@ class _GlofasForecastBase(glofas.Glofas):
             coord_names = ["number", "time"]
             if not split_by_leadtimes:
                 coord_names += ["step"]
-            ds_new = glofas.get_reporting_point_dataset(
-                reporting_points=stations,
+            ds_new = self._get_reporting_point_dataset(
                 ds=ds,
                 coord_names=coord_names,
             )

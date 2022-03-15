@@ -77,7 +77,7 @@ class Glofas(DataSource):
             is_public=True,
         )
         # The GloFAS API on CDS requires coordinates have the format x.x5
-        geo_bounding_box.round_coords(offset_val=0.05, round_val=1)
+        geo_bounding_box.round_coords(offset_val=0.05, round_val=0.1)
         self.geo_bounding_box = geo_bounding_box
         self.year_min = year_min
         self.year_max = year_max
@@ -225,6 +225,63 @@ class Glofas(DataSource):
         ds = xr.combine_by_coords(ds_list)
         return ds
 
+    def _get_reporting_point_dataset(
+        self, ds: xr.Dataset, coord_names: List[str]
+    ) -> xr.Dataset:
+        """
+        Create a dataset from a GloFAS raster based on the reporting points.
+
+        Parameters
+        ----------
+        ds :
+        coord_names :
+
+        """
+        if self._country_config.glofas is None:
+            raise KeyError(
+                "The country configuration file does not contain"
+                "any reporting point coordinates. Please update the"
+                "configuration file and try again."
+            )
+        # Check that lat and lon are in the bounds
+        for reporting_point in self._country_config.glofas.reporting_points:
+            if (
+                not ds.longitude.min()
+                < reporting_point.lon
+                < ds.longitude.max()
+            ):
+                raise IndexError(
+                    f"ReportingPoint {reporting_point.name} has out-of-bounds "
+                    f"lon value of {reporting_point.lon} (GloFAS lon ranges "
+                    f"from {ds.longitude.min().values} "
+                    f"to {ds.longitude.max().values})"
+                )
+            if not ds.latitude.min() < reporting_point.lat < ds.latitude.max():
+                raise IndexError(
+                    f"ReportingPoint {reporting_point.name} has out-of-bounds "
+                    f"lat value of {reporting_point.lat} (GloFAS lat ranges "
+                    f"from {ds.latitude.min().values} "
+                    f"to {ds.latitude.max().values})"
+                )
+        # If they are then return the correct pixel
+        return xr.Dataset(
+            data_vars={
+                reporting_point.name: (
+                    coord_names,
+                    ds.sel(
+                        longitude=reporting_point.lon,
+                        latitude=reporting_point.lat,
+                        method="nearest",
+                    )[RIVER_DISCHARGE_VAR].data,
+                )
+                # fmt: off
+                for reporting_point in
+                self._country_config.glofas.reporting_points
+                # fmt: on
+            },
+            coords={coord_name: ds[coord_name] for coord_name in coord_names},
+        )
+
     def _write_to_processed_file(
         self,
         version: int,
@@ -274,73 +331,3 @@ def expand_dims(
         coords=coords,
     )
     return ds
-
-
-class CoordsOutOfBounds(Exception):
-    """Reporting point coordinates out of bounds."""
-
-    def __init__(
-        self,
-        station_name: str,
-        param_name: str,
-        coord_station: float,
-        coord_min: float,
-        coord_max: float,
-    ):
-        message = (
-            f"ReportingPoint {station_name} has out-of-bounds {param_name} "
-            f"value of"
-            f" {coord_station} (GloFAS {param_name} ranges from {coord_min} to"
-            f" {coord_max})"
-        )
-        super().__init__(message)
-
-
-def get_reporting_point_dataset(
-    reporting_points: Dict[str, ReportingPoint],
-    ds: xr.Dataset,
-    coord_names: List[str],
-) -> xr.Dataset:
-    """
-    Create a dataset from a GloFAS raster based on the reporting points.
-
-    Parameters
-    ----------
-    reporting_points :
-    ds :
-    coord_names :
-
-    """
-    # Check that lat and lon are in the bounds
-    for station_name, station in reporting_points.items():
-        if not ds.longitude.min() < station.lon < ds.longitude.max():
-            raise CoordsOutOfBounds(
-                station_name=station_name,
-                param_name="longitude",
-                coord_station=station.lon,
-                coord_min=ds.longitude.min().values,
-                coord_max=ds.longitude.max().values,
-            )
-        if not ds.latitude.min() < station.lat < ds.latitude.max():
-            raise CoordsOutOfBounds(
-                station_name=station_name,
-                param_name="latitude",
-                coord_station=station.lat,
-                coord_min=ds.latitude.min().values,
-                coord_max=ds.latitude.max().values,
-            )
-    # If they are then return the correct pixel
-    return xr.Dataset(
-        data_vars={
-            station_name: (
-                coord_names,
-                ds.sel(
-                    longitude=station.lon,
-                    latitude=station.lat,
-                    method="nearest",
-                )[RIVER_DISCHARGE_VAR].data,
-            )
-            for station_name, station in reporting_points.items()
-        },
-        coords={coord_name: ds[coord_name] for coord_name in coord_names},
-    )
