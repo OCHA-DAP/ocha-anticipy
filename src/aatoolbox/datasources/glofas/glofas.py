@@ -130,7 +130,7 @@ class Glofas(DataSource):
             filename += f"-{str(month).zfill(2)}"
         if leadtime_max is not None:
             filename += f"_ltmax{str(leadtime_max).zfill(2)}d"
-        filename += ".grib"
+        filename += f"_{self._geo_bounding_box.get_filename_repr(p=1)}.grib"
         return directory / Path(filename)
 
     def _get_query(
@@ -278,7 +278,7 @@ class Glofas(DataSource):
         filename = f"{self._country_config.iso3}_{self._cds_name}_v{_VERSION}"
         if leadtime_max is not None:
             filename += f"_ltmax{str(leadtime_max).zfill(2)}d"
-        filename += ".nc"
+        filename += f"_{self._geo_bounding_box.get_filename_repr(p=1)}.nc"
         return self._processed_base_dir / filename
 
 

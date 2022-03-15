@@ -40,10 +40,12 @@ def test_expand_dims():
 class TestDownload:
     """Tests for GloFAS downloading."""
 
-    geo_bounding_box = GeoBoundingBox(north=1, south=-2, east=3, west=-4)
+    geo_bounding_box = GeoBoundingBox(
+        north=1.0, south=-2.2, east=3.3, west=-4.4
+    )
     year = 2000
     leadtime_max = 3
-    expected_geo_bounding_box = [1.05, -4.05, -2.05, 3.05]
+    expected_geo_bounding_box = [1.05, -4.45, -2.25, 3.35]
     expected_months = [str(x + 1).zfill(2) for x in range(12)]
     expected_days = [str(x + 1).zfill(2) for x in range(31)]
     expected_leadtime = ["24", "48", "72"]
@@ -92,7 +94,7 @@ class TestDownload:
                 f"{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}"
                 f"/glofas/version_3/cems-glofas-historical/"
                 f"{mock_country_config.iso3}_"
-                f"cems-glofas-historical_v3_2000.grib"
+                f"cems-glofas-historical_v3_2000_Np1d1Sm2d2Ep3d4Wm4d5.grib"
             ),
         }
         mock_retrieve.assert_called_with(**expected_args)
@@ -136,7 +138,8 @@ class TestDownload:
                 f"{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
                 f"glofas/version_3/cems-glofas-forecast/"
                 f"{mock_country_config.iso3}_"
-                f"cems-glofas-forecast_v3_2000_ltmax03d.grib"
+                f"cems-glofas-forecast_v3_2000_ltmax03d_Np1d1Sm2d2Ep3d4Wm4d5"
+                f".grib"
             ),
         }
         mock_retrieve.assert_called_with(**expected_args)
@@ -180,7 +183,8 @@ class TestDownload:
                 f"{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
                 f"glofas/version_3/cems-glofas-reforecast/"
                 f"{mock_country_config.iso3}_"
-                f"cems-glofas-reforecast_v3_2000_ltmax03d.grib"
+                f"cems-glofas-reforecast_v3_2000_ltmax03d_Np1d1Sm2d2Ep3d4Wm4d5"
+                f".grib"
             ),
         }
         mock_retrieve.assert_called_with(**expected_args)
