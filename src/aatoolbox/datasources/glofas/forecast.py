@@ -15,9 +15,8 @@ class _GlofasForecastBase(glofas.Glofas):
     def _download_forecast(
         self,
         is_reforecast: bool,
-        leadtimes: List[int],
+        leadtime_max: int,
         split_by_month: bool = False,
-        split_by_leadtimes: bool = False,
         year_min: int = None,
         year_max: int = None,
     ):
@@ -25,29 +24,24 @@ class _GlofasForecastBase(glofas.Glofas):
         year_min = self._year_min if year_min is None else year_min
         year_max = self._year_max if year_max is None else year_max
         month_range: List = [*range(1, 13)] if split_by_month else [None]
-        leadtime_range: List = (
-            list(leadtimes) if split_by_leadtimes else [leadtimes]
-        )
         logger.info(
             f"Downloading GloFAS {forecast_type} for years"
-            f" {year_min} - {year_max} and lead time {leadtimes}"
+            f" {year_min} - {year_max} and with max lead time {leadtime_max}"
         )
         for year in range(year_min, year_max + 1):
             logger.info(f"...{year}")
             for month in month_range:
-                for leadtime in leadtime_range:
-                    super()._download(
-                        year=year,
-                        month=month,
-                        leadtime=leadtime,
-                    )
+                super()._download(
+                    year=year,
+                    month=month,
+                    leadtime_max=leadtime_max,
+                )
 
     def _process(
         self,
         is_reforecast: bool,
-        leadtimes: List[int],
+        leadtime_max: int,
         split_by_month: bool = False,
-        split_by_leadtimes: bool = False,
         year_min: int = None,
         year_max: int = None,
     ):
@@ -56,46 +50,37 @@ class _GlofasForecastBase(glofas.Glofas):
         year_max = self._year_max if year_max is None else year_max
         logger.info(
             f"Processing GloFAS {forecast_type} for years"
-            f" {year_min} - {year_max} and lead time {leadtimes}"
+            f" {year_min} - {year_max} and max lead time {leadtime_max}"
         )
         month_range = [*range(1, 13)] if split_by_month else [None]
-        leadtime_range: List = (
-            list(leadtimes) if split_by_leadtimes else [leadtimes]
+        # Get list of files to open
+        filepath_list = [
+            self._get_raw_filepath(
+                year=year,
+                month=month,
+                leadtime_max=leadtime_max,
+            )
+            for year in range(year_min, year_max + 1)
+            for month in month_range
+        ]
+        # Read in both the control and ensemble perturbed forecast
+        # and combine
+        logger.info(f"Reading in {len(filepath_list)} files")
+        ds = self._read_in_ensemble_and_perturbed_datasets(
+            filepath_list=filepath_list
         )
-        for leadtime in leadtime_range:
-            logger.info(f"For lead time {leadtime}")
-            # Get list of files to open
-            filepath_list = [
-                self._get_raw_filepath(
-                    year=year,
-                    month=month,
-                    leadtime=leadtime,
-                )
-                for year in range(year_min, year_max + 1)
-                for month in month_range
-            ]
-            # Read in both the control and ensemble perturbed forecast
-            # and combine
-            logger.info(f"Reading in {len(filepath_list)} files")
-            ds = self._read_in_ensemble_and_perturbed_datasets(
-                filepath_list=filepath_list
-            )
-            # Create a new dataset with just the station pixels
-            logger.info(
-                "Looping through reporting_points, this takes some time"
-            )
-            coord_names = ["number", "time"]
-            if not split_by_leadtimes:
-                coord_names += ["step"]
-            ds_new = self._get_reporting_point_dataset(
-                ds=ds,
-                coord_names=coord_names,
-            )
-            # Write out the new dataset to a file
-            return self._write_to_processed_file(
-                ds=ds_new,
-                leadtime=leadtime,
-            )
+        # Create a new dataset with just the station pixels
+        logger.info("Looping through reporting_points, this takes some time")
+        coord_names = ["number", "time", "step"]
+        ds_new = self._get_reporting_point_dataset(
+            ds=ds,
+            coord_names=coord_names,
+        )
+        # Write out the new dataset to a file
+        return self._write_to_processed_file(
+            ds=ds_new,
+            leadtime_max=leadtime_max,
+        )
 
 
 class GlofasForecast(_GlofasForecastBase):

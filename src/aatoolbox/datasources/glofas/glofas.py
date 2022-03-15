@@ -1,7 +1,7 @@
 """Base class for downloading and processing GloFAS raster data."""
 import logging
 from pathlib import Path
-from typing import List, Union
+from typing import List
 
 import cdsapi
 import numpy as np
@@ -28,20 +28,20 @@ class Glofas(DataSource):
     country_config: CountryConfig
         Country configuration
     geo_bounding_box: GeoBoundingBox
-        the bounding coordinates of the geo_bounding_box that should
-        be included in the data.
+        The bounding coordinates of the geo_bounding_box that should
+        be included in the data
     year_min: int
-        The earliest year that the dataset is available.
+        The earliest year that the dataset is available
     year_max : int
         The most recent that the dataset is available
     cds_name : str
         The name of the dataset in CDS
-    dataset :
+    dataset : list
         The sub-datasets that you would like to download (as a list of strings)
     dataset_variable_name :
         The variable name with which to pass the above datasets in the CDS
         query
-    date_variable_prefix :
+    date_variable_prefix : str, default = ""
         Some GloFAS datasets have the prefix "h" in front of some query keys
     """
 
@@ -75,11 +75,11 @@ class Glofas(DataSource):
 
     def load(
         self,
-        leadtime: Union[int, list] = None,
+        leadtime_max: int = None,
     ):
         """Load GloFAS data."""
         filepath = self._get_processed_filepath(
-            leadtime=leadtime,
+            leadtime_max=leadtime_max,
         )
         return xr.load_dataset(filepath)
 
@@ -87,13 +87,13 @@ class Glofas(DataSource):
         self,
         year: int,
         month: int = None,
-        leadtime: Union[int, List[int]] = None,
+        leadtime_max: int = None,
         use_cache: bool = True,
     ):
         filepath = self._get_raw_filepath(
             year=year,
             month=month,
-            leadtime=leadtime,
+            leadtime_max=leadtime_max,
         )
         # If caching is on and file already exists, don't download again
         if use_cache and filepath.exists():
@@ -108,7 +108,7 @@ class Glofas(DataSource):
             request=self._get_query(
                 year=year,
                 month=month,
-                leadtime=leadtime,
+                leadtime_max=leadtime_max,
             ),
             target=filepath,
         )
@@ -119,7 +119,7 @@ class Glofas(DataSource):
         self,
         year: int,
         month: int = None,
-        leadtime: Union[int, list] = None,
+        leadtime_max: int = None,
     ):
         version_dir = f"version_{_VERSION}"
         directory = self._raw_base_dir / version_dir / self._cds_name
@@ -128,8 +128,8 @@ class Glofas(DataSource):
         )
         if month is not None:
             filename += f"-{str(month).zfill(2)}"
-        if leadtime is not None and isinstance(leadtime, int):
-            filename += f"_lt{str(leadtime).zfill(2)}d"
+        if leadtime_max is not None:
+            filename += f"_ltmax{str(leadtime_max).zfill(2)}d"
         filename += ".grib"
         return directory / Path(filename)
 
@@ -137,7 +137,7 @@ class Glofas(DataSource):
         self,
         year: int,
         month: int = None,
-        leadtime: Union[int, list] = None,
+        leadtime_max: int = None,
     ) -> dict:
         query = {
             "variable": "river_discharge_in_the_last_24_hours",
@@ -161,9 +161,8 @@ class Glofas(DataSource):
             "system_version": self._system_version,
             "hydrological_model": _HYDROLOGICAL_MODEL,
         }
-        if leadtime is not None:
-            if isinstance(leadtime, int):
-                leadtime = [leadtime]
+        if leadtime_max is not None:
+            leadtime = list(np.arange(leadtime_max) + 1)
             query["leadtime_hour"] = [
                 str(single_leadtime * 24) for single_leadtime in leadtime
             ]
@@ -262,10 +261,10 @@ class Glofas(DataSource):
     def _write_to_processed_file(
         self,
         ds: xr.Dataset,
-        leadtime: Union[int, list] = None,
+        leadtime_max: int = None,
     ) -> Path:
         filepath = self._get_processed_filepath(
-            leadtime=leadtime,
+            leadtime_max=leadtime_max,
         )
         Path(filepath.parent).mkdir(parents=True, exist_ok=True)
         # Netcdf seems to have problems overwriting; delete the file if
@@ -275,12 +274,10 @@ class Glofas(DataSource):
         ds.to_netcdf(filepath)
         return filepath
 
-    def _get_processed_filepath(
-        self, leadtime: Union[int, list] = None
-    ) -> Path:
+    def _get_processed_filepath(self, leadtime_max: int = None) -> Path:
         filename = f"{self._country_config.iso3}_{self._cds_name}_v{_VERSION}"
-        if leadtime is not None and isinstance(leadtime, int):
-            filename += f"_lt{str(leadtime).zfill(2)}d"
+        if leadtime_max is not None:
+            filename += f"_ltmax{str(leadtime_max).zfill(2)}d"
         filename += ".nc"
         return self._processed_base_dir / filename
 
