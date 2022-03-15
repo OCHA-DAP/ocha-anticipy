@@ -6,6 +6,11 @@ anticipatory action.
 """
 from aatoolbox.config.countryconfig import create_country_config
 from aatoolbox.datasources.codab.codab import CodAB
+from aatoolbox.datasources.glofas.forecast import (
+    GlofasForecast,
+    GlofasReforecast,
+)
+from aatoolbox.datasources.glofas.reanalysis import GlofasReanalysis
 from aatoolbox.datasources.iri.iri_seasonal_forecast import (
     IriForecastDominant,
     IriForecastProb,
@@ -18,6 +23,9 @@ __all__ = (
     "create_country_config",
     "CodAB",
     "GeoBoundingBox",
+    "GlofasForecast",
+    "GlofasReanalysis",
+    "GlofasReforecast",
     "IriForecastProb",
     "IriForecastDominant",
     "__version__",

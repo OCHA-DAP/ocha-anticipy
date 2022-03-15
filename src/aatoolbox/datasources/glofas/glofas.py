@@ -12,7 +12,6 @@ from aatoolbox.datasources.datasource import DataSource
 from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
 _MODULE_BASENAME = "glofas"
-_VERSION = 3
 _HYDROLOGICAL_MODEL = "lisflood"
 _RIVER_DISCHARGE_VAR = "dis24"
 
@@ -121,11 +120,8 @@ class Glofas(DataSource):
         month: int = None,
         leadtime_max: int = None,
     ):
-        version_dir = f"version_{_VERSION}"
-        directory = self._raw_base_dir / version_dir / self._cds_name
-        filename = (
-            f"{self._country_config.iso3}_{self._cds_name}_v{_VERSION}_{year}"
-        )
+        directory = self._raw_base_dir / self._cds_name
+        filename = f"{self._country_config.iso3}_{self._cds_name}_{year}"
         if month is not None:
             filename += f"-{str(month).zfill(2)}"
         if leadtime_max is not None:
@@ -275,7 +271,7 @@ class Glofas(DataSource):
         return filepath
 
     def _get_processed_filepath(self, leadtime_max: int = None) -> Path:
-        filename = f"{self._country_config.iso3}_{self._cds_name}_v{_VERSION}"
+        filename = f"{self._country_config.iso3}_{self._cds_name}"
         if leadtime_max is not None:
             filename += f"_ltmax{str(leadtime_max).zfill(2)}d"
         filename += f"_{self._geo_bounding_box.get_filename_repr(p=1)}.nc"
