@@ -75,6 +75,9 @@ class CodAB(DataSourceNoProcess):
             clobber=clobber,
         )
 
+    # next line ignored to avoid PEP8 error
+    # described here:
+    # https://stackoverflow.com/questions/42778784/abstract-classes-with-varying-amounts-of-parameters
     def load(self, admin_level: int) -> gpd.GeoDataFrame:  # type: ignore
         """
         Get the COD AB data by admin level.
