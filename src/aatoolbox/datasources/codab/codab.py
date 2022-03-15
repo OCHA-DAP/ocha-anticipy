@@ -1,8 +1,26 @@
-"""Download and manipulate COD administrative boundaries."""
+"""Download and manipulate COD administrative boundaries.
+
+To use this class, you first need to create a country configuration
+for the country you would like to use:
+>>> from aatoolbox import create_country_config
+>>> country_config = create_country_config(iso3="npl")
+
+Next you need to instantiate the CodAB class with the country config:
+>>> codab = CodAB(country_config=country_config)
+
+Upon first use, you will need to downlaod the COD AB data:
+>>> codab.download()
+
+Finally, use the load method to begin working with the data as a
+GeoPandas dataframe:
+>>> npl_admin1 = codab.load(admin_level=1)
+"""
 from pathlib import Path
 
 import geopandas as gpd
+from fiona.errors import DriverError
 
+from aatoolbox.config.countryconfig import CountryConfig
 from aatoolbox.dataproviders.hdx_api import load_dataset_from_hdx
 from aatoolbox.datasources.datasource import DataSource
 from aatoolbox.utils.io import check_file_existence
@@ -16,30 +34,25 @@ class CodAB(DataSource):
 
     Parameters
     ----------
-    iso3 : (str)
-        country iso3
+    country_config : CountryConfig
+        Country configuration
     """
 
-    def __init__(self, iso3: str):
+    def __init__(self, country_config: CountryConfig):
         super().__init__(
-            iso3=iso3, module_base_dir=_MODULE_BASENAME, is_public=True
+            country_config, module_base_dir=_MODULE_BASENAME, is_public=True
         )
         self._raw_filepath = (
-            self._raw_base_dir / f"{self._iso3}_{_MODULE_BASENAME}.shp.zip"
+            self._raw_base_dir
+            / f"{self._country_config.iso3}_{_MODULE_BASENAME}.shp.zip"
         )
 
-    def download(
-        self, hdx_address: str, hdx_dataset_name: str, clobber: bool = False
-    ) -> Path:
+    def download(self, clobber: bool = False) -> Path:
         """
         Download COD AB file from HDX.
 
         Parameters
         ----------
-        hdx_address: str
-            URL suffix of dataset page on HDX
-        hdx_dataset_name: str
-            Name of dataset on HDX
         clobber : bool, default = False
             If True, overwrites existing COD AB files
 
@@ -49,50 +62,124 @@ class CodAB(DataSource):
 
         Examples
         --------
-        >>> from aatoolbox.datasources.codab.codab import CodAB
+        >>> from aatoolbox import create_country_config, CodAB
         >>> # Download COD administrative boundaries for Nepal
-        >>> codab = CodAB("npl")
-        >>> npl_cod_shapefile = codab.download(
-        ...    hdx_address="administrative-bounadries-of-nepal",
-        ...    hdx_dataset_name="npl_admbnda_nd_20201117_SHP.zip")
+        >>> country_config = create_country_config(iso3="npl")
+        >>> codab = CodAB(country_config=country_config)
+        >>> npl_cod_shapefile = codab.download()
         """
-        return self._download(
+        return _download(
             filepath=self._raw_filepath,
-            hdx_address=hdx_address,
-            hdx_dataset_name=hdx_dataset_name,
+            hdx_address=f"cod-ab-{self._country_config.iso3}",
+            hdx_dataset_name=self._country_config.codab.hdx_dataset_name,
             clobber=clobber,
         )
 
-    @staticmethod
-    @check_file_existence
-    def _download(
-        filepath: Path, hdx_address: str, hdx_dataset_name: str, clobber: bool
-    ):
-        return load_dataset_from_hdx(
-            hdx_address=hdx_address,
-            hdx_dataset_name=hdx_dataset_name,
-            output_filepath=filepath,
-        )
-
-    def load_admin_layer(self, layer_name: str) -> gpd.GeoDataFrame:
+    def load(self, admin_level: int) -> gpd.GeoDataFrame:
         """
-        Get an admin level by layer name.
+        Get the COD AB data by admin level.
 
         Parameters
         ----------
-        layer_name: str
-            The admin layer name
+        admin_level: int
+            The administrative level
 
         Returns
         -------
-        geopandas dataframe with COD AB admin information
+        COD AB geodataframe with specified admin level
+
+        Raises
+        ------
+        AttributeError
+            If the requested admin level is higher than what is available
+        FileNotFoundError
+            If the requested filename or layer name are not found
 
         Examples
         --------
-        >>> from aatoolbox.datasources.codab.codab import CodAB
-        >>> # Retrieve admin 0 boundaries for Nepal
-        >>> codab = CodAB("npl")
-        >>> npl_admin0 = codab.load_admin_layer(
-        ...     layer_name="npl_admbnda_adm2_20201117.shp")
+        >>> from aatoolbox import create_country_config, CodAB
+        >>>
+        >>> # Retrieve admin 2 boundaries for Nepal
+        >>> country_config = create_country_config(iso3="npl")
+        >>> codab = CodAB(country_config=country_config)
+        >>> npl_admin2 = codab.load(admin_level=2)
         """
-        return gpd.read_file(f"zip:///{self._raw_filepath / layer_name}")
+        admin_level_max = self._country_config.codab.admin_level_max
+        if admin_level > admin_level_max:
+            raise AttributeError(
+                f"Admin level {admin_level} requested, but maximum set to "
+                f"{admin_level_max} in {self._country_config.iso3.upper()} "
+                f"config file"
+            )
+        return self._load_admin_layer(
+            layer_name=self._country_config.codab.layer_base_name.format(
+                admin_level=admin_level
+            )
+        )
+
+    def load_custom(self, custom_layer_number: int = 0) -> gpd.GeoDataFrame:
+        """
+        Get the COD AB data from a custom (non-level) layer.
+
+        Parameters
+        ----------
+        custom_layer_number: int
+            The 0-indexed number of the layer listed in the custom_layer_names
+            parameter of the country's config file
+
+        Returns
+        -------
+        COD AB geodataframe with custom admin level
+
+        Raises
+        ------
+        AttributeError
+            If the requested custom layer number is not available
+        FileNotFoundError
+            If the requested filename or layer name are not found
+
+        Examples
+        --------
+        >>> from aatoolbox import create_country_config, CodAB
+        >>>
+        >>> # Retrieve district boundaries for Nepal
+        >>> country_config = create_country_config(iso3="npl")
+        >>> codab = CodAB(country_config=country_config)
+        >>> npl_district = codab.load_custom(custom_layer_number=0)
+        """
+        # TODO: possibly merge the two load methods
+        try:
+            # Ignore mypy for this line because custom_layer_names could be
+            # None, but this is handled by the caught exceptions
+            layer_name = self._country_config.codab.custom_layer_names[
+                custom_layer_number
+            ]  # type: ignore
+        except (IndexError, TypeError) as err:
+            raise AttributeError(
+                f"{custom_layer_number}th custom layer requested but not "
+                f"available in {self._country_config.iso3.upper()} config file"
+            ) from err
+        return self._load_admin_layer(layer_name=layer_name)
+
+    def _load_admin_layer(self, layer_name: str) -> gpd.GeoDataFrame:
+        try:
+            return gpd.read_file(f"zip:///{self._raw_filepath / layer_name}")
+        except DriverError as err:
+            raise FileNotFoundError(
+                f"Could not read boundary shapefile. Make sure that "
+                f"you have already called the 'download' method and "
+                f"that the file {self._raw_filepath} exists. If it does "
+                f"exist, please check the validity of the layer name: "
+                f"'{layer_name}'."
+            ) from err
+
+
+@check_file_existence
+def _download(
+    filepath: Path, hdx_address: str, hdx_dataset_name: str, clobber: bool
+) -> Path:
+    return load_dataset_from_hdx(
+        hdx_address=hdx_address,
+        hdx_dataset_name=hdx_dataset_name,
+        output_filepath=filepath,
+    )
