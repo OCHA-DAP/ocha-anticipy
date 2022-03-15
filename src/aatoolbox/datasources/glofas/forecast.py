@@ -1,4 +1,5 @@
 """Glofas focast and reforecast."""
+import datetime
 import logging
 from typing import List
 
@@ -15,7 +16,6 @@ class _GlofasForecastBase(glofas.Glofas):
         self,
         is_reforecast: bool,
         leadtimes: List[int],
-        version: int = glofas.VERSION,
         split_by_month: bool = False,
         split_by_leadtimes: bool = False,
         year_min: int = None,
@@ -29,7 +29,7 @@ class _GlofasForecastBase(glofas.Glofas):
             list(leadtimes) if split_by_leadtimes else [leadtimes]
         )
         logger.info(
-            f"Downloading GloFAS {forecast_type} v{version} for years"
+            f"Downloading GloFAS {forecast_type} for years"
             f" {year_min} - {year_max} and lead time {leadtimes}"
         )
         for year in range(year_min, year_max + 1):
@@ -37,7 +37,6 @@ class _GlofasForecastBase(glofas.Glofas):
             for month in month_range:
                 for leadtime in leadtime_range:
                     super()._download(
-                        version=version,
                         year=year,
                         month=month,
                         leadtime=leadtime,
@@ -47,7 +46,6 @@ class _GlofasForecastBase(glofas.Glofas):
         self,
         is_reforecast: bool,
         leadtimes: List[int],
-        version: int = glofas.VERSION,
         split_by_month: bool = False,
         split_by_leadtimes: bool = False,
         year_min: int = None,
@@ -57,7 +55,7 @@ class _GlofasForecastBase(glofas.Glofas):
         year_min = self.year_min if year_min is None else year_min
         year_max = self.year_max if year_max is None else year_max
         logger.info(
-            f"Processing GloFAS {forecast_type} v{version} for years"
+            f"Processing GloFAS {forecast_type} for years"
             f" {year_min} - {year_max} and lead time {leadtimes}"
         )
         month_range = [*range(1, 13)] if split_by_month else [None]
@@ -69,7 +67,6 @@ class _GlofasForecastBase(glofas.Glofas):
             # Get list of files to open
             filepath_list = [
                 self._get_raw_filepath(
-                    version=version,
                     year=year,
                     month=month,
                     leadtime=leadtime,
@@ -96,7 +93,6 @@ class _GlofasForecastBase(glofas.Glofas):
             )
             # Write out the new dataset to a file
             return self._write_to_processed_file(
-                version=version,
                 ds=ds_new,
                 leadtime=leadtime,
             )
@@ -110,10 +106,10 @@ class GlofasForecast(_GlofasForecastBase):
             *args,
             **kwargs,
             year_min=2020,
-            year_max=2022,
+            year_max=datetime.datetime.now().year,
             cds_name="cems-glofas-forecast",
+            system_version="operational",
             dataset=["control_forecast", "ensemble_perturbed_forecasts"],
-            system_version_minor={2: 1, 3: 1},
             dataset_variable_name="product_type",
         )
 
@@ -148,11 +144,11 @@ class GlofasReforecast(_GlofasForecastBase):
             *args,
             **kwargs,
             year_min=1999,
-            year_max=2018,  # TODO: check this!
+            year_max=2018,
             cds_name="cems-glofas-reforecast",
+            system_version="version_3_1",
             dataset=["control_reforecast", "ensemble_perturbed_reforecasts"],
             dataset_variable_name="product_type",
-            system_version_minor={2: 2, 3: 1},
             date_variable_prefix="h",
         )
 

@@ -1,4 +1,5 @@
 """Glofas reanalysis."""
+import datetime
 import logging
 
 import xarray as xr
@@ -16,17 +17,16 @@ class GlofasReanalysis(glofas.Glofas):
             *args,
             **kwargs,
             year_min=1979,
-            year_max=2020,
+            year_max=datetime.datetime.now().year,
             cds_name="cems-glofas-historical",
+            system_version="version_3_1",
             dataset=["consolidated_reanalysis"],
             dataset_variable_name="dataset",
-            system_version_minor={2: 1, 3: 1},
             date_variable_prefix="h",
         )
 
     def download(
         self,
-        version: int = glofas.VERSION,
         year_min: int = None,
         year_max: int = None,
     ):
@@ -35,26 +35,23 @@ class GlofasReanalysis(glofas.Glofas):
 
         Parameters
         ----------
-        version :
         year_min :
         year_max :
         """
         year_min = self.year_min if year_min is None else year_min
         year_max = self.year_max if year_max is None else year_max
         logger.info(
-            f"Downloading GloFAS reanalysis v{version} for years {year_min} -"
+            f"Downloading GloFAS reanalysis for years {year_min} -"
             f" {year_max}"
         )
         for year in range(year_min, year_max + 1):
             logger.info(f"...{year}")
             super()._download(
                 year=year,
-                version=version,
             )
 
     def process(
         self,
-        version: int = glofas.VERSION,
         year_min: int = None,
         year_max: int = None,
     ):
@@ -64,17 +61,15 @@ class GlofasReanalysis(glofas.Glofas):
         Parameters
         ----------
         stations :
-        version :
         year_min :
         year_max :
         """
         year_min = self.year_min if year_min is None else year_min
         year_max = self.year_max if year_max is None else year_max
         # Get list of files to open
-        logger.info(f"Processing GloFAS Reanalysis v{version}")
+        logger.info("Processing GloFAS Reanalysis")
         filepath_list = [
             self._get_raw_filepath(
-                version=version,
                 year=year,
             )
             for year in range(year_min, year_max + 1)
@@ -94,6 +89,5 @@ class GlofasReanalysis(glofas.Glofas):
             )
         # Write out the new dataset to a file
         return self._write_to_processed_file(
-            version=version,
             ds=ds_new,
         )

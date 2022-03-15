@@ -128,7 +128,7 @@ class TestDownload:
                 "month": self.expected_months,
                 "day": self.expected_days,
                 "geo_bounding_box": self.expected_geo_bounding_box,
-                "system_version": "version_3_1",
+                "system_version": "operational",
                 "hydrological_model": "lisflood",
                 "leadtime_hour": self.expected_leadtime,
             },

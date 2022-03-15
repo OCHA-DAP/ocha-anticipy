@@ -1,7 +1,7 @@
 """Base class for downloading and processing GloFAS raster data."""
 import logging
 from pathlib import Path
-from typing import Dict, List, NamedTuple, Union
+from typing import List, Union
 
 import cdsapi
 import numpy as np
@@ -12,18 +12,11 @@ from aatoolbox.datasources.datasource import DataSource
 from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
 _MODULE_BASENAME = "glofas"
-VERSION = 3
+_VERSION = 3
 HYDROLOGICAL_MODEL = "lisflood"
 RIVER_DISCHARGE_VAR = "dis24"
 
 logger = logging.getLogger(__name__)
-
-
-class ReportingPoint(NamedTuple):
-    """GloFAS reporting point."""
-
-    lon: float
-    lat: float
 
 
 class Glofas(DataSource):
@@ -38,10 +31,7 @@ class Glofas(DataSource):
         the bounding coordinates of the geo_bounding_box that should
         be included in the data.
     year_min: int
-        The earliest year that the dataset is available. Can be a
-        single integer, or a dictionary with structure
-        {major_version: year_min} if the minimum year depends on the GloFAS
-        model version.
+        The earliest year that the dataset is available.
     year_max : int
         The most recent that the dataset is available
     cds_name : str
@@ -51,10 +41,6 @@ class Glofas(DataSource):
     dataset_variable_name :
         The variable name with which to pass the above datasets in the CDS
         query
-    system_version_minor :
-        The minor version of the GloFAS model. Depends on the major version,
-        so is given as a dictionary with the format {major_version:
-        minor_version}
     date_variable_prefix :
         Some GloFAS datasets have the prefix "h" in front of some query keys
     """
@@ -66,9 +52,9 @@ class Glofas(DataSource):
         year_min: int,
         year_max: int,
         cds_name: str,
+        system_version: str,
         dataset: List[str],
         dataset_variable_name: str,
-        system_version_minor: Dict[int, int],
         date_variable_prefix: str = "",
     ):
         super().__init__(
@@ -82,33 +68,29 @@ class Glofas(DataSource):
         self.year_min = year_min
         self.year_max = year_max
         self.cds_name = cds_name
+        self.system_version = system_version
         self.dataset = dataset
         self.dataset_variable_name = dataset_variable_name
-        self.system_version_minor = system_version_minor
         self.date_variable_prefix = date_variable_prefix
 
     def load(
         self,
-        version: int = VERSION,  # TODO: only version 3
         leadtime: Union[int, list] = None,
     ):
         """Load GloFAS data."""
         filepath = self._get_processed_filepath(
-            version=version,
             leadtime=leadtime,
         )
         return xr.load_dataset(filepath)
 
     def _download(
         self,
-        version: int,
         year: int,
         month: int = None,
         leadtime: Union[int, List[int]] = None,
         use_cache: bool = True,
     ):
         filepath = self._get_raw_filepath(
-            version=version,
             year=year,
             month=month,
             leadtime=leadtime,
@@ -124,7 +106,6 @@ class Glofas(DataSource):
         cdsapi.Client().retrieve(
             name=self.cds_name,
             request=self._get_query(
-                version=version,
                 year=year,
                 month=month,
                 leadtime=leadtime,
@@ -136,15 +117,14 @@ class Glofas(DataSource):
 
     def _get_raw_filepath(
         self,
-        version: int,
         year: int,
         month: int = None,
         leadtime: Union[int, list] = None,
     ):
-        version_dir = f"version_{version}"
+        version_dir = f"version_{_VERSION}"
         directory = self._raw_base_dir / version_dir / self.cds_name
         filename = (
-            f"{self._country_config.iso3}_{self.cds_name}_v{version}_{year}"
+            f"{self._country_config.iso3}_{self.cds_name}_v{_VERSION}_{year}"
         )
         if month is not None:
             filename += f"-{str(month).zfill(2)}"
@@ -155,7 +135,6 @@ class Glofas(DataSource):
 
     def _get_query(
         self,
-        version: int,
         year: int,
         month: int = None,
         leadtime: Union[int, list] = None,
@@ -179,9 +158,7 @@ class Glofas(DataSource):
                 self.geo_bounding_box.south,
                 self.geo_bounding_box.east,
             ],
-            "system_version": (
-                f"version_{version}_{self.system_version_minor[version]}"
-            ),
+            "system_version": self.system_version,
             "hydrological_model": HYDROLOGICAL_MODEL,
         }
         if leadtime is not None:
@@ -284,12 +261,10 @@ class Glofas(DataSource):
 
     def _write_to_processed_file(
         self,
-        version: int,
         ds: xr.Dataset,
         leadtime: Union[int, list] = None,
     ) -> Path:
         filepath = self._get_processed_filepath(
-            version=version,
             leadtime=leadtime,
         )
         Path(filepath.parent).mkdir(parents=True, exist_ok=True)
@@ -301,9 +276,9 @@ class Glofas(DataSource):
         return filepath
 
     def _get_processed_filepath(
-        self, version: int, leadtime: Union[int, list] = None
+        self, leadtime: Union[int, list] = None
     ) -> Path:
-        filename = f"{self._country_config.iso3}_{self.cds_name}_v{version}"
+        filename = f"{self._country_config.iso3}_{self.cds_name}_v{_VERSION}"
         if leadtime is not None and isinstance(leadtime, int):
             filename += f"_lt{str(leadtime).zfill(2)}d"
         filename += ".nc"
