@@ -38,8 +38,8 @@ class GlofasReanalysis(glofas.Glofas):
         year_min :
         year_max :
         """
-        year_min = self.year_min if year_min is None else year_min
-        year_max = self.year_max if year_max is None else year_max
+        year_min = self._year_min if year_min is None else year_min
+        year_max = self._year_max if year_max is None else year_max
         logger.info(
             f"Downloading GloFAS reanalysis for years {year_min} -"
             f" {year_max}"
@@ -64,8 +64,8 @@ class GlofasReanalysis(glofas.Glofas):
         year_min :
         year_max :
         """
-        year_min = self.year_min if year_min is None else year_min
-        year_max = self.year_max if year_max is None else year_max
+        year_min = self._year_min if year_min is None else year_min
+        year_max = self._year_max if year_max is None else year_max
         # Get list of files to open
         logger.info("Processing GloFAS Reanalysis")
         filepath_list = [

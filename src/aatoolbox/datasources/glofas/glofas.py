@@ -13,8 +13,8 @@ from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
 _MODULE_BASENAME = "glofas"
 _VERSION = 3
-HYDROLOGICAL_MODEL = "lisflood"
-RIVER_DISCHARGE_VAR = "dis24"
+_HYDROLOGICAL_MODEL = "lisflood"
+_RIVER_DISCHARGE_VAR = "dis24"
 
 logger = logging.getLogger(__name__)
 
@@ -64,14 +64,14 @@ class Glofas(DataSource):
         )
         # The GloFAS API on CDS requires coordinates have the format x.x5
         geo_bounding_box.round_coords(offset_val=0.05, round_val=0.1)
-        self.geo_bounding_box = geo_bounding_box
-        self.year_min = year_min
-        self.year_max = year_max
-        self.cds_name = cds_name
-        self.system_version = system_version
-        self.dataset = dataset
-        self.dataset_variable_name = dataset_variable_name
-        self.date_variable_prefix = date_variable_prefix
+        self._geo_bounding_box = geo_bounding_box
+        self._year_min = year_min
+        self._year_max = year_max
+        self._cds_name = cds_name
+        self._system_version = system_version
+        self._dataset = dataset
+        self._dataset_variable_name = dataset_variable_name
+        self._date_variable_prefix = date_variable_prefix
 
     def load(
         self,
@@ -104,7 +104,7 @@ class Glofas(DataSource):
         Path(filepath.parent).mkdir(parents=True, exist_ok=True)
         logger.debug(f"Querying for {filepath}...")
         cdsapi.Client().retrieve(
-            name=self.cds_name,
+            name=self._cds_name,
             request=self._get_query(
                 year=year,
                 month=month,
@@ -122,9 +122,9 @@ class Glofas(DataSource):
         leadtime: Union[int, list] = None,
     ):
         version_dir = f"version_{_VERSION}"
-        directory = self._raw_base_dir / version_dir / self.cds_name
+        directory = self._raw_base_dir / version_dir / self._cds_name
         filename = (
-            f"{self._country_config.iso3}_{self.cds_name}_v{_VERSION}_{year}"
+            f"{self._country_config.iso3}_{self._cds_name}_v{_VERSION}_{year}"
         )
         if month is not None:
             filename += f"-{str(month).zfill(2)}"
@@ -142,24 +142,24 @@ class Glofas(DataSource):
         query = {
             "variable": "river_discharge_in_the_last_24_hours",
             "format": "grib",
-            self.dataset_variable_name: self.dataset,
-            f"{self.date_variable_prefix}year": str(year),
-            f"{self.date_variable_prefix}month": [
+            self._dataset_variable_name: self._dataset,
+            f"{self._date_variable_prefix}year": str(year),
+            f"{self._date_variable_prefix}month": [
                 str(x + 1).zfill(2) for x in range(12)
             ]
             if month is None
             else str(month).zfill(2),
-            f"{self.date_variable_prefix}day": [
+            f"{self._date_variable_prefix}day": [
                 str(x + 1).zfill(2) for x in range(31)
             ],
             "geo_bounding_box": [
-                self.geo_bounding_box.north,
-                self.geo_bounding_box.west,
-                self.geo_bounding_box.south,
-                self.geo_bounding_box.east,
+                self._geo_bounding_box.north,
+                self._geo_bounding_box.west,
+                self._geo_bounding_box.south,
+                self._geo_bounding_box.east,
             ],
-            "system_version": self.system_version,
-            "hydrological_model": HYDROLOGICAL_MODEL,
+            "system_version": self._system_version,
+            "hydrological_model": _HYDROLOGICAL_MODEL,
         }
         if leadtime is not None:
             if isinstance(leadtime, int):
@@ -188,7 +188,7 @@ class Glofas(DataSource):
                 if data_type == "cf":
                     ds = expand_dims(
                         ds=ds,
-                        dataset_name=RIVER_DISCHARGE_VAR,
+                        dataset_name=_RIVER_DISCHARGE_VAR,
                         coord_names=[
                             "number",
                             "time",
@@ -249,7 +249,7 @@ class Glofas(DataSource):
                         longitude=reporting_point.lon,
                         latitude=reporting_point.lat,
                         method="nearest",
-                    )[RIVER_DISCHARGE_VAR].data,
+                    )[_RIVER_DISCHARGE_VAR].data,
                 )
                 # fmt: off
                 for reporting_point in
@@ -278,7 +278,7 @@ class Glofas(DataSource):
     def _get_processed_filepath(
         self, leadtime: Union[int, list] = None
     ) -> Path:
-        filename = f"{self._country_config.iso3}_{self.cds_name}_v{_VERSION}"
+        filename = f"{self._country_config.iso3}_{self._cds_name}_v{_VERSION}"
         if leadtime is not None and isinstance(leadtime, int):
             filename += f"_lt{str(leadtime).zfill(2)}d"
         filename += ".nc"

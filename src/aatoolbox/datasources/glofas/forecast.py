@@ -22,8 +22,8 @@ class _GlofasForecastBase(glofas.Glofas):
         year_max: int = None,
     ):
         forecast_type = "reforecast" if is_reforecast else "forecast"
-        year_min = self.year_min if year_min is None else year_min
-        year_max = self.year_max if year_max is None else year_max
+        year_min = self._year_min if year_min is None else year_min
+        year_max = self._year_max if year_max is None else year_max
         month_range: List = [*range(1, 13)] if split_by_month else [None]
         leadtime_range: List = (
             list(leadtimes) if split_by_leadtimes else [leadtimes]
@@ -52,8 +52,8 @@ class _GlofasForecastBase(glofas.Glofas):
         year_max: int = None,
     ):
         forecast_type = "reforecast" if is_reforecast else "forecast"
-        year_min = self.year_min if year_min is None else year_min
-        year_max = self.year_max if year_max is None else year_max
+        year_min = self._year_min if year_min is None else year_min
+        year_max = self._year_max if year_max is None else year_max
         logger.info(
             f"Processing GloFAS {forecast_type} for years"
             f" {year_min} - {year_max} and lead time {leadtimes}"
