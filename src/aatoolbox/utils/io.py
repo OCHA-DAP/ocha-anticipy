@@ -2,9 +2,10 @@
 import logging
 import zipfile
 from pathlib import Path
-from typing import Any, Callable, TypeVar, Union, cast
+from typing import Any, Callable, TypeVar, Union
 
 import requests
+import wrapt
 import yaml
 
 logger = logging.getLogger(__name__)
@@ -82,7 +83,8 @@ def parse_yaml(filename: Union[str, Path]) -> dict:
     return config
 
 
-def check_file_existence(func: F) -> F:
+@wrapt.decorator
+def check_file_existence(wrapped: F, instance, *args, **kwargs) -> F:
     """
     Don't overwrite existing data.
 
@@ -92,10 +94,17 @@ def check_file_existence(func: F) -> F:
 
     Parameters
     ----------
-    func : function
+    wrapped : function
         The function to wrap. The first parameter of this function must
         be the filepath (of type Path), and it can also have an optional
         "clobber" boolean keyword parameter.
+    instance :
+        Object the wrapped function is bound to. Not used within, but
+        ensures that instance methods do not pass `self` to args.
+    args :
+        List of positional arguments.
+    kwargs :
+        Dictionary of keyword arguments
 
     Returns
     -------
@@ -103,14 +112,12 @@ def check_file_existence(func: F) -> F:
     the decorated function.
 
     """
-
-    def wrapper(filepath: Path, *args, **kwargs):
-        if filepath.exists() and not kwargs.get("clobber", False):
-            logger.info(
-                f"File {filepath} exists and clobber set to False, "
-                f"using existing files"
-            )
-            return filepath
-        return func(filepath, *args, **kwargs)
-
-    return cast(F, wrapper)
+    filepath = args[0]
+    if filepath.exists() and not kwargs.get("clobber", False):
+        logger.info(
+            f"File {filepath} exists and clobber set to False, "
+            f"using existing files"
+        )
+        return filepath
+    else:
+        return wrapped(*args, **kwargs)
