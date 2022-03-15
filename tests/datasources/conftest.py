@@ -5,7 +5,6 @@ from aatoolbox import create_country_config
 from aatoolbox.utils.io import parse_yaml
 
 CONFIG_FILE = "tests/datasources/fake_config.yaml"
-FAKE_AA_DATA_DIR = "fake_aa_dir"
 ISO3 = "abc"
 
 
