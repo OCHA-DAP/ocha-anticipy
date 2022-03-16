@@ -31,6 +31,7 @@ class _GlofasForecastBase(glofas.Glofas):
         for year in range(year_min, year_max + 1):
             logger.info(f"...{year}")
             for month in month_range:
+                logger.debug(f"...{month}")
                 super()._download(
                     year=year,
                     month=month,

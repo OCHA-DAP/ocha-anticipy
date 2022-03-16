@@ -92,9 +92,9 @@ class TestDownload:
             },
             "target": Path(
                 f"{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}"
-                f"/glofas/version_3/cems-glofas-historical/"
+                f"/glofas/cems-glofas-historical/"
                 f"{mock_country_config.iso3}_"
-                f"cems-glofas-historical_v3_2000_Np1d1Sm2d2Ep3d4Wm4d5.grib"
+                f"cems-glofas-historical_2000_Np1d1Sm2d2Ep3d4Wm4d5.grib"
             ),
         }
         mock_retrieve.assert_called_with(**expected_args)
@@ -136,9 +136,9 @@ class TestDownload:
             },
             "target": Path(
                 f"{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
-                f"glofas/version_3/cems-glofas-forecast/"
+                f"glofas/cems-glofas-forecast/"
                 f"{mock_country_config.iso3}_"
-                f"cems-glofas-forecast_v3_2000_ltmax03d_Np1d1Sm2d2Ep3d4Wm4d5"
+                f"cems-glofas-forecast_2000_ltmax03d_Np1d1Sm2d2Ep3d4Wm4d5"
                 f".grib"
             ),
         }
@@ -181,9 +181,9 @@ class TestDownload:
             },
             "target": Path(
                 f"{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
-                f"glofas/version_3/cems-glofas-reforecast/"
+                f"glofas/cems-glofas-reforecast/"
                 f"{mock_country_config.iso3}_"
-                f"cems-glofas-reforecast_v3_2000_ltmax03d_Np1d1Sm2d2Ep3d4Wm4d5"
+                f"cems-glofas-reforecast_2000_ltmax03d_Np1d1Sm2d2Ep3d4Wm4d5"
                 f".grib"
             ),
         }
