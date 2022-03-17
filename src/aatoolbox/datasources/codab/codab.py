@@ -15,20 +15,23 @@ Finally, use the load method to begin working with the data as a
 GeoPandas dataframe:
 >>> npl_admin1 = codab.load(admin_level=1)
 """
+import logging
 from pathlib import Path
 
 import geopandas as gpd
 from fiona.errors import DriverError
 
 from aatoolbox.config.countryconfig import CountryConfig
-from aatoolbox.datasources.datasource import DataSourceNoProcess
+from aatoolbox.datasources.datasource import DataSource
 from aatoolbox.utils.hdx_api import load_dataset_from_hdx
 from aatoolbox.utils.io import check_file_existence
+
+logger = logging.getLogger(__name__)
 
 _MODULE_BASENAME = "cod_ab"
 
 
-class CodAB(DataSourceNoProcess):
+class CodAB(DataSource):
     """
     Work with COD AB (administrative boundaries).
 
@@ -74,6 +77,14 @@ class CodAB(DataSourceNoProcess):
             hdx_dataset_name=self._country_config.codab.hdx_dataset_name,
             clobber=clobber,
         )
+
+    def process(self):
+        """
+        Process COD AB data.
+
+        Method not implemented.
+        """
+        logger.message("`process()` method not implemented for CodAB.")
 
     # next line ignored to avoid PEP8 error
     # described here:

@@ -6,9 +6,13 @@ from aatoolbox.config.countryconfig import CountryConfig
 from aatoolbox.config.pathconfig import PathConfig
 
 
-class DataSourceBase(ABC):
+class DataSource(ABC):
     """
     Base abstract class object that contains path convenience functions.
+
+    Cannot itself be instantiated. ``__init__``, ``download()``,
+    ``load()``, and ``process()`` methods required for subclass to be
+    instantiated.
 
     Parameters
     ----------
@@ -56,56 +60,17 @@ class DataSourceBase(ABC):
             / self._module_base_dir
         )
 
-
-class DataSourceNoProcess(DataSourceBase):
-    """
-    Base abstract class object that contains path convenience functions.
-
-    Cannot itself be instantiated. Does not include abstract method for
-    ``process()``, since some subclasses like CodAB do not require them.
-
-    Parameters
-    ----------
-    country_config: CountryConfig
-        Country configuration
-    module_base_dir : str
-        Module directory name (usually correspond to data source)
-    is_public: bool, default = False
-        Whether the dataset is public or private. Determines top-level
-        directory structure.
-    """
-
     @abstractmethod
     def download(self):
         """Abstract method for downloading."""
         pass
 
     @abstractmethod
-    def load(self):
-        """Abstract method for loading."""
-        pass
-
-
-class DataSource(DataSourceNoProcess):
-    """
-    Base abstract class object that contains path convenience functions.
-
-    Cannot itself be instantiated. ``__init__``, ``download()``,
-    ``load()``, and ``process()`` methods required for subclass to be
-    instantiated.
-
-    Parameters
-    ----------
-    country_config: CountryConfig
-        Country configuration
-    module_base_dir : str
-        Module directory name (usually correspond to data source)
-    is_public: bool, default = False
-        Whether the dataset is public or private. Determines top-level
-        directory structure.
-    """
-
-    @abstractmethod
     def process(self):
         """Abstract method for processing."""
+        pass
+
+    @abstractmethod
+    def load(self):
+        """Abstract method for loading."""
         pass
