@@ -78,13 +78,13 @@ class CodAB(DataSource):
             clobber=clobber,
         )
 
-    def process(self):
+    def process(self, *args, **kwargs):
         """
         Process COD AB data.
 
         Method not implemented.
         """
-        logger.message("`process()` method not implemented for CodAB.")
+        logger.info("`process()` method not implemented for CodAB.")
 
     # next line ignored to avoid PEP8 error
     # described here:

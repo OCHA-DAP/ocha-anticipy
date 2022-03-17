@@ -61,12 +61,12 @@ class DataSource(ABC):
         )
 
     @abstractmethod
-    def download(self):
+    def download(self, clobber):
         """Abstract method for downloading."""
         pass
 
     @abstractmethod
-    def process(self):
+    def process(self, *args, **kwargs):
         """Abstract method for processing."""
         pass
 
