@@ -66,7 +66,7 @@ class DataSource(ABC):
         pass
 
     @abstractmethod
-    def process(self, *args, **kwargs):
+    def process(self, clobber):
         """Abstract method for processing."""
         pass
 
