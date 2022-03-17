@@ -78,7 +78,7 @@ class CodAB(DataSource):
             clobber=clobber,
         )
 
-    def process(self, *args, **kwargs):
+    def process(self, a, *args, **kwargs):
         """
         Process COD AB data.
 
