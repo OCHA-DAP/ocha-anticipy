@@ -5,10 +5,13 @@ It is possible to create an ``GeoBoundingBox`` object either from
 north, south, east, west coordinates,
 or from a shapefile that has been read in with geopandas.
 """
+import logging
 from typing import Union
 
 import geopandas as gpd
 import numpy as np
+
+logger = logging.getLogger(__name__)
 
 
 class GeoBoundingBox:
@@ -80,11 +83,14 @@ class GeoBoundingBox:
         ----------
         offset_val : float, default = 0.0
             Offset the coordinates by this factor.
-        round_val : int, default = 1
-            The decimal to round to. If 1, round to integers
+        round_val : int or float, default = 1
+            Rounds to the nearest round_val. Can be an int for integer
+            rounding or float for decimal rounding. If 1, round to integers.
         """
+        # TODO: add examples above
         # Don't round if already rounded
         if self._rounded:
+            logger.debug("Coordinates have already been rounded, skipping")
             return
         for direction in ["north", "west", "south", "east"]:
             coord = getattr(self, direction)
@@ -99,6 +105,10 @@ class GeoBoundingBox:
                 function(coord / round_val) * round_val
                 + offset_factor * offset_val
             )
+            # TODO: test this plus other rounding
+            # Sometimes there are float error issues,
+            # cast to string then back to desired precision
+            rounded_coord = float(format(rounded_coord, f".{round_val}f"))
             setattr(self, direction, rounded_coord)  # noqa: FKA01
         self._rounded = True
 
