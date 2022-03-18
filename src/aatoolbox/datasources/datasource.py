@@ -4,6 +4,8 @@ from pathlib import Path
 from aatoolbox.config.countryconfig import CountryConfig
 from aatoolbox.config.pathconfig import PathConfig
 
+_GLOBAL_DIR = "glb"
+
 
 class DataSource:
     """
@@ -31,13 +33,33 @@ class DataSource:
         self._module_base_dir = module_base_dir
         self._path_config = PathConfig()
         self._raw_base_dir = self._get_base_dir(
-            is_public=is_public, is_raw=True
+            is_public=is_public,
+            is_raw=True,
         )
         self._processed_base_dir = self._get_base_dir(
             is_public=is_public, is_raw=False
         )
 
-    def _get_base_dir(self, is_public: bool, is_raw: bool) -> Path:
+    def _get_base_dir(
+        self,
+        is_public: bool,
+        is_raw: bool,
+        is_global: bool = False,
+    ) -> Path:
+        """
+        Define the base_dir.
+
+        Parameters
+        ----------
+        is_public: bool
+            Whether the dataset is public or private. Determines top-level
+            directory structure.
+        is_raw: bool
+            Whether the dataset is raw or processed
+        is_global: bool
+            Whether the dataset is global (or regional) or specific to the
+            iso3
+        """
         permission_dir = (
             self._path_config.public
             if is_public
@@ -46,10 +68,13 @@ class DataSource:
         state_dir = (
             self._path_config.raw if is_raw else self._path_config.processed
         )
+        region_dir = (
+            self._country_config.iso3 if not is_global else _GLOBAL_DIR
+        )
         return (
             self._path_config.base_path
             / permission_dir
             / state_dir
-            / self._country_config.iso3
+            / region_dir
             / self._module_base_dir
         )
