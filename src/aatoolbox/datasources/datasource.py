@@ -27,7 +27,6 @@ class DataSource:
         country_config: CountryConfig,
         module_base_dir: str,
         is_public: bool = False,
-        is_global: bool = False,
     ):
 
         self._country_config = country_config
@@ -35,19 +34,32 @@ class DataSource:
         self._path_config = PathConfig()
         self._raw_base_dir = self._get_base_dir(
             is_public=is_public,
-            is_global=is_global,
             is_raw=True,
         )
         self._processed_base_dir = self._get_base_dir(
-            is_public=is_public, is_global=is_global, is_raw=False
+            is_public=is_public, is_raw=False
         )
 
     def _get_base_dir(
         self,
         is_public: bool,
         is_raw: bool,
-        is_global: bool,
+        is_global: bool = False,
     ) -> Path:
+        """
+        Define the base_dir.
+
+        Parameters
+        ----------
+        is_public: bool
+            Whether the dataset is public or private. Determines top-level
+            directory structure.
+        is_raw: bool
+            Whether the dataset is raw or processed
+        is_global: bool
+            Whether the dataset is global (or regional) or specific to the
+            iso3
+        """
         permission_dir = (
             self._path_config.public
             if is_public
