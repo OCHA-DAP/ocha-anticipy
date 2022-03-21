@@ -31,11 +31,25 @@ class CodABConfig(BaseModel):
     custom_layer_names: Optional[list]
 
 
+class FewsNetConfig(BaseModel):
+    """FEWS NET configuration.
+
+    Parameters
+    ----------
+    region_name: str
+        Name of the region the country belongs to. Needed to download the
+        regional FEWS NET data
+    """
+
+    region_name: str
+
+
 class CountryConfig(BaseModel):
     """Country configuration."""
 
     iso3: str
     codab: CodABConfig
+    fewsnet: Optional[FewsNetConfig]
 
 
 def create_country_config(iso3: str) -> CountryConfig:
@@ -45,7 +59,7 @@ def create_country_config(iso3: str) -> CountryConfig:
     Parameters
     ----------
     iso3 : str
-        Country ISO3, must e exactly 3 characters long
+        Country ISO3, must be exactly 3 characters long
 
     Returns
     -------
