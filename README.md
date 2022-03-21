@@ -110,5 +110,6 @@ With each new commit, a development version is pushed to
 and is available to install for testing purposes by running:
 
 ```shell
-pip install -i https://test.pypi.org/simple/ aa-toolbox==$VERSION
+pip install --index-url https://test.pypi.org/simple/
+--extra-index-url https://pypi.org/simple aa-toolbox==$VERSION
 ```
