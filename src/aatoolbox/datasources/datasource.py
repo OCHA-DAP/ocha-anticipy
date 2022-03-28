@@ -1,4 +1,5 @@
 """Base class for aatoolbox data source."""
+from abc import ABC, abstractmethod
 from pathlib import Path
 
 from aatoolbox.config.countryconfig import CountryConfig
@@ -7,9 +8,13 @@ from aatoolbox.config.pathconfig import PathConfig
 _GLOBAL_DIR = "glb"
 
 
-class DataSource:
+class DataSource(ABC):
     """
-    Base class object that contains path convenience functions.
+    Base abstract class object that contains path convenience functions.
+
+    Cannot itself be instantiated. ``__init__``, ``download()``,
+    ``load()``, and ``process()`` methods required for subclass to be
+    instantiated.
 
     Parameters
     ----------
@@ -22,13 +27,13 @@ class DataSource:
         directory structure.
     """
 
+    @abstractmethod
     def __init__(
         self,
         country_config: CountryConfig,
         module_base_dir: str,
         is_public: bool = False,
     ):
-
         self._country_config = country_config
         self._module_base_dir = module_base_dir
         self._path_config = PathConfig()
@@ -78,3 +83,18 @@ class DataSource:
             / region_dir
             / self._module_base_dir
         )
+
+    @abstractmethod
+    def download(self, clobber: bool = False):
+        """Abstract method for downloading."""
+        pass
+
+    @abstractmethod
+    def process(self, clobber: bool = False):
+        """Abstract method for processing."""
+        pass
+
+    @abstractmethod
+    def load(self):
+        """Abstract method for loading."""
+        pass
