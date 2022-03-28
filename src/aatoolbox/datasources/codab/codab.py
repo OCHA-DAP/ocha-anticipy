@@ -28,8 +28,6 @@ from aatoolbox.utils.io import check_file_existence
 
 logger = logging.getLogger(__name__)
 
-_MODULE_BASENAME = "cod_ab"
-
 
 class CodAB(DataSource):
     """
@@ -43,11 +41,11 @@ class CodAB(DataSource):
 
     def __init__(self, country_config: CountryConfig):
         super().__init__(
-            country_config, module_base_dir=_MODULE_BASENAME, is_public=True
+            country_config, module_base_dir="cod_ab", is_public=True
         )
         self._raw_filepath = (
             self._raw_base_dir
-            / f"{self._country_config.iso3}_{_MODULE_BASENAME}.shp.zip"
+            / f"{self._country_config.iso3}_{self._module_base_dir}.shp.zip"
         )
 
     def download(self, clobber: bool = False) -> Path:
@@ -86,9 +84,6 @@ class CodAB(DataSource):
         """
         logger.info("`process()` method not implemented for CodAB.")
 
-    # next line ignored to avoid PEP8 error
-    # described here:
-    # https://stackoverflow.com/questions/42778784/abstract-classes-with-varying-amounts-of-parameters
     def load(self, admin_level: int) -> gpd.GeoDataFrame:  # type: ignore
         """
         Get the COD AB data by admin level.
