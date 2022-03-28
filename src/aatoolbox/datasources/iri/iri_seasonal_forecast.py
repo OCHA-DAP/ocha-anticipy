@@ -108,7 +108,7 @@ class _IriForecast(DataSource):
             clobber=clobber,
         )
 
-    def process(self, clobber: bool = False, *args, **kwargs) -> Path:
+    def process(self, clobber: bool = False) -> Path:
         """
         Process the IRI forecast.
 
