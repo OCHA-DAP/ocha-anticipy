@@ -1,10 +1,19 @@
 """Class to download and load CHIRPS observational precipitation data.
 
-Data is downloaded from `IRI's maproom
-<http://iridl.ldeo.columbia.edu/SOURCES/.UCSB/.CHIRPS/.v2p0>`_
+#TODO: add more documentation on CHIRPS (possibly in other file).
+`CHIRPS <https://www.chc.ucsb.edu/data/chirps>`_ is a global
+observational precipitation dataset, produced by the Climate Hazards
+Center (CHC).
+#TODO: maybe we should double-check with IRI that there is no extra delay in
+#the data being available from the Maproom compared to CHC's FTP server.
+The data can be downloaded from several platforms. This script downloads the
+data from `IRI's maproom
+<http://iridl.ldeo.columbia.edu/SOURCES/.UCSB/.CHIRPS/.v2p0>`_ as this allows
+selection of geographical area.
 """
 
 import logging
+from datetime import datetime
 from pathlib import Path
 from typing import Optional, Union
 
@@ -38,7 +47,8 @@ class Chirps(DataSource):
     resolution: float
         resolution of data to be downloaded. Can be
         0.05 or 0.25
-    #TODO: check if want to allow dekad as well
+    #TODO: check if want to allow dekad as well. Atm only implemented daily
+    # and monthly
     frequency: str
         Time aggregation of the data to be downloaded.
         Can be "daily", "dekad", or "monthly"
@@ -58,8 +68,7 @@ class Chirps(DataSource):
             module_base_dir=_MODULE_BASENAME,
             is_public=True,
         )
-        # round coordinates to correspond with the grid IRI publishes
-        # its data on, which is 1 degree resolution
+        # round coordinates to correspond with the grid the CHIRPS data is on
         # non-rounded coordinates can be given to the URL which then
         # automatically rounds them, but for file saving we prefer to do
         # this ourselves
@@ -94,11 +103,14 @@ class Chirps(DataSource):
         """
         Download the CHIRPS observed precipitation as NetCDF file.
 
-        #TODO: add years
         Parameters
         ----------
         clobber : bool, default = False
             If True, overwrites existing raw files
+        min_year: int, default = None
+            If not None, download data starting from `min_year`
+        max_year: int, default = None
+            If not None, download data up to `max_year`
 
         Returns
         -------
@@ -113,9 +125,11 @@ class Chirps(DataSource):
         if min_year is None:
             min_year = 1981
         if max_year is None:
-            # TODO: set date to be this year
-            max_year = 2022  # today.year
-            # check date is at least x years into year
+            # TODO: CHIRPS is not updated immediately, so at the beginning of
+            # the year data might not be available. IRI still downloads a
+            # file, but this file is often not a valid netcdf file, so check
+            # that (can also do this at the processing step)
+            max_year = datetime.today().year
 
         for year in range(min_year, max_year + 1):
             self._download_year(year=year, clobber=clobber)
@@ -148,6 +162,9 @@ class Chirps(DataSource):
         -------
         The processed filepath
         """
+        # TODO: for the iri forecast processing (which was used as a base here)
+        # _load_raw() was needed to allow mocking for the tests. However, might
+        # not be needed here
         ds = self._load_raw()
         processed_file_path = self._get_processed_path()
         processed_file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -180,7 +197,7 @@ class Chirps(DataSource):
         # set wildcard for year, to get general filename pattern
         # used to find all files with pattern in folder
         if year is None:
-            year = "*"  #
+            year = "*"
         file_name = (
             f"{self._country_config.iso3}"
             f"_chirps_{year}_"
@@ -228,6 +245,7 @@ class Chirps(DataSource):
 
     def _load_raw(self) -> xr.Dataset:
         raw_path = self._get_raw_path(year=None)
+        # load all files with filepattern
         filepath_list = list(raw_path.parents[0].glob(raw_path.name))
         try:
             with xr.open_mfdataset(
