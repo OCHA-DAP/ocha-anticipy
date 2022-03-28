@@ -17,6 +17,11 @@ and this project adheres to
 - Implemented downloading and processing for IRI seasonal precipitation forecast
 - Added config for DRC (of which the iso3 is COD)
 
+### Changed
+
+- `DataSource` is now an abstract base class with required `download`, `process`
+  and `load` methods
+
 ### Removed
 
 - `Pipeline` class no longer used as main API
