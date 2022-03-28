@@ -32,7 +32,6 @@ class DataSource(ABC):
         module_base_dir: str,
         is_public: bool = False,
     ):
-
         self._country_config = country_config
         self._module_base_dir = module_base_dir
         self._path_config = PathConfig()
