@@ -29,9 +29,10 @@ Download the admin boundary CODs for Nepal, and retrieve provinces
 as a GeoDataFrame:
 
 ```python
-from aatoolbox import CodAB
+from aatoolbox import create_country_config, CodAB
 
-codab = CodAB('npl')
+country_config = create_country_config('npl')
+codab = CodAB(country_config=country_config)
 codab.download()
 provinces = codab.load(admin_level=1)
 ```
