@@ -1,4 +1,5 @@
 """Tests for the CDS GeoBoundingBox module."""
+import pytest
 from geopandas import GeoSeries
 from shapely.geometry import Polygon
 
@@ -6,13 +7,40 @@ from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
 
 def test_geoboundingbox_round_coords():
-    """Test that coordinates are correctly rounded and offset."""
-    geobb = GeoBoundingBox(north=1.05, south=-2.2, east=3.6, west=-4)
-    geobb.round_coords(offset_val=0.4)
+    """Test that coordinates are correctly rounded."""
+    geobb = GeoBoundingBox(north=1.5, south=-2.2, east=3.6, west=-4.0)
+    geobb.round_coords(round_val=0.5)
+    assert geobb.north == 1.5
+    assert geobb.south == -2.5
+    assert geobb.east == 4.0
+    assert geobb.west == -4.0
+
+
+def test_geoboundingbox_offset_coords():
+    """Test that coordinates are correctly offset."""
+    geobb = GeoBoundingBox(north=1.05, south=-2.2, east=3.6, west=-4.0)
+    geobb.round_coords(offset_val=0.4)  # default round val of 1
     assert geobb.north == 2.4
     assert geobb.south == -3.4
     assert geobb.east == 4.4
     assert geobb.west == -4.4
+
+
+def test_geoboundingbox_round_and_offset_coords():
+    """Test that coordinates are correctly rounded and offset."""
+    geobb = GeoBoundingBox(north=1.05, south=-2.2, east=3.6, west=-4.0)
+    geobb.round_coords(round_val=0.1, offset_val=0.05)
+    assert geobb.north == 1.15
+    assert geobb.south == -2.25
+    assert geobb.east == 3.65
+    assert geobb.west == -4.05
+
+
+def test_geoboundingbox_relative_coords():
+    """Test that doesn't allow north < south and east < west."""
+    with pytest.raises(AttributeError):
+        GeoBoundingBox(north=1, south=2, east=0, west=0)
+        GeoBoundingBox(north=0, south=0, east=1, west=2)
 
 
 def test_geoboundingbox_filename():
