@@ -1,8 +1,8 @@
 Welcome to AA Toolbox
 =====================
 
-Welcome to AA Toolbox's documentation. Get set up with :doc:`installation`
-and start playing with data using :doc:`quickstart`.
+Welcome to AA Toolbox's documentation. Get set up
+and start downloading data using :doc:`quickstart`.
 The rest of the documentation describes the different data sources and
 functionalities in more detail, with a complete reference in
 the :doc:`api` section.
@@ -10,7 +10,7 @@ the :doc:`api` section.
 User Guide
 ----------
 
-This section includes background information on AA Toolbox,
+This section includes background information on the AA Toolbox,
 how to get started,
 and detailed guides on the individual data sources plus any
 additional functionality.
@@ -19,7 +19,6 @@ additional functionality.
    :maxdepth: 2
 
    introduction
-   installation
    quickstart
    datasources/codab
    datasources/iri

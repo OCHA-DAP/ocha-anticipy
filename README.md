@@ -12,11 +12,6 @@ The [anticipatory action](https://centre.humdata.org/anticipatory-action/)
 (AA) toolbox is a Python package to support development of AA frameworks, by
 simplifying the downloading and processing of commonly used datasets.
 
-Currently supported datasets:
-
-- [COD AB](https://cod.unocha.org/)
-- [IRI](https://iri.columbia.edu/our-expertise/climate/forecasts/seasonal-climate-forecasts/)
-
 For more information, please see the
 [documentation](https://aa-toolbox.readthedocs.io/en/latest/).
 
