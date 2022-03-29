@@ -6,12 +6,14 @@ north, south, east, west coordinates,
 or from a shapefile that has been read in with geopandas.
 """
 import logging
+from decimal import Decimal, getcontext
 from typing import Union
 
 import geopandas as gpd
 import numpy as np
 
 logger = logging.getLogger(__name__)
+getcontext().prec = 5  # Assuming we won't need higher than this!
 
 
 class GeoBoundingBox:
@@ -30,11 +32,36 @@ class GeoBoundingBox:
     """
 
     def __init__(self, north: float, south: float, east: float, west: float):
-        self.north = north
-        self.south = south
-        self.east = east
-        self.west = west
+        if north < south or east < west:
+            raise AttributeError(
+                "Periodic boundary conditions not supported. "
+                "North must be > South, and East must be > West."
+            )
+        self._north = Decimal(north)
+        self._south = Decimal(south)
+        self._east = Decimal(east)
+        self._west = Decimal(west)
         self._rounded: bool = False
+
+    @property
+    def north(self):
+        """Get the northern latitude boundary of the area (degrees)."""
+        return float(self._north)
+
+    @property
+    def south(self):
+        """Get the southern latitude boundary of the area (degrees)."""
+        return float(self._south)
+
+    @property
+    def east(self):
+        """Get the eastern longitude boundary of the area (degrees)."""
+        return float(self._east)
+
+    @property
+    def west(self):
+        """Get the western longitude boundary of the area (degrees)."""
+        return float(self._west)
 
     def __repr__(self):
         """Print bounding box string."""
@@ -92,20 +119,19 @@ class GeoBoundingBox:
         if self._rounded:
             logger.debug("Coordinates have already been rounded, skipping")
             return
+        # Make everything a decimal
         for direction in ["north", "west", "south", "east"]:
-            coord = getattr(self, direction)
+            coord = getattr(self, f"_{direction}")
             if direction in ("north", "east"):
                 function = np.ceil.__call__  # needed for mypy
-                offset_factor = 1
+                offset_factor = Decimal(1)
             elif direction in ("south", "west"):
                 function = np.floor.__call__  # needed for mypy
-                offset_factor = -1
-
-            rounded_coord = (
-                function(coord / round_val) * round_val
-                + offset_factor * offset_val
-            )
-            setattr(self, direction, rounded_coord)  # noqa: FKA01
+                offset_factor = Decimal(-1)
+            rounded_coord = function(coord / Decimal(round_val)) * Decimal(
+                round_val
+            ) + offset_factor * Decimal(offset_val)
+            setattr(self, f"_{direction}", rounded_coord)  # noqa: FKA01
         self._rounded = True
 
     def get_filename_repr(self, p: int = 0) -> str:

@@ -20,7 +20,7 @@ FAKE_IRI_AUTH = "FAKE_IRI_AUTH"
 @pytest.fixture
 def mock_iri(mock_country_config):
     """Create IRI class with mock country config."""
-    geo_bounding_box = GeoBoundingBox(north=6, south=3.2, east=-2, west=3)
+    geo_bounding_box = GeoBoundingBox(north=6, south=3.2, east=2, west=-3)
 
     def _mock_iri(prob_forecast: bool = True):
         if prob_forecast:
@@ -72,14 +72,14 @@ def test_download_call_prob(mock_download):
     assert url == (
         "https://iridl.ldeo.columbia.edu/SOURCES/.IRI/.FD/"
         ".NMME_Seasonal_Forecast/"
-        ".Precipitation_ELR/.prob/X/%283.0%29%28-2.0%29RANGEEDGES/"
+        ".Precipitation_ELR/.prob/X/%28-3.0%29%282.0%29RANGEEDGES/"
         "Y/%286.0%29%283.0%29RANGEEDGES/data.nc"
     )
 
     assert filepath == (
         Path(FAKE_AA_DATA_DIR) / f"private/raw/{ISO3}/{MODULE_BASENAME}/"
         f"abc_iri_forecast_seasonal_precipitation_"
-        f"tercile_prob_Np6Sp3Em2Wp3.nc"
+        f"tercile_prob_Np6Sp3Ep2Wm3.nc"
     )
 
 
@@ -89,14 +89,14 @@ def test_download_call_dominant(mock_download):
     assert url == (
         "https://iridl.ldeo.columbia.edu/SOURCES/.IRI/.FD/"
         ".NMME_Seasonal_Forecast/"
-        ".Precipitation_ELR/.dominant/X/%283.0%29%28-2.0%29RANGEEDGES/"
+        ".Precipitation_ELR/.dominant/X/%28-3.0%29%282.0%29RANGEEDGES/"
         "Y/%286.0%29%283.0%29RANGEEDGES/data.nc"
     )
 
     assert filepath == (
         Path(FAKE_AA_DATA_DIR) / f"private/raw/{ISO3}/{MODULE_BASENAME}/"
         f"abc_iri_forecast_seasonal_"
-        f"precipitation_tercile_dominant_Np6Sp3Em2Wp3.nc"
+        f"precipitation_tercile_dominant_Np6Sp3Ep2Wm3.nc"
     )
 
 
@@ -132,7 +132,7 @@ def test_process(mocker, mock_iri):
     assert processed_path == (
         Path(FAKE_AA_DATA_DIR) / f"private/processed/{ISO3}/{MODULE_BASENAME}/"
         f"{ISO3}_iri_forecast_seasonal_precipitation_"
-        f"tercile_prob_Np6Sp3Em2Wp3.nc"
+        f"tercile_prob_Np6Sp3Ep2Wm3.nc"
     )
 
     da_processed = xr.load_dataset(processed_path)
@@ -187,7 +187,7 @@ def test_iri_load(mocker, mock_xr_load_dataset, mock_iri):
                 Path(FAKE_AA_DATA_DIR)
                 / f"private/processed/{ISO3}/{MODULE_BASENAME}/"
                 f"{ISO3}_iri_forecast_seasonal_precipitation_"
-                f"tercile_prob_Np6Sp3Em2Wp3.nc"
+                f"tercile_prob_Np6Sp3Ep2Wm3.nc"
             ),
         ]
     )
