@@ -9,7 +9,7 @@ We recommend using the latest version of Python. AA Toolbox supports Python
 
 
 Install AA Toolbox
--------------
+------------------
 
 Within the activated environment, use the following command to install
 AA Toolbox:

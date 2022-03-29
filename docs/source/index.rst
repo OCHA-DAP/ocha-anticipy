@@ -21,21 +21,24 @@ additional functionality.
    introduction
    installation
    quickstart
-
+   datasources/codab
+   datasources/iri
 
 API Reference
 -------------
 
 Detailed information on specific classes, methods, and functions.
 
-.. automodule:: aatoolbox
-   :members:
+.. toctree::
+   :maxdepth: 2
+
+   api
 
 
 Miscellaneous
 -------------
 
-Design notes, legal information and changelog are here for the interested.
+Development guide, license, and changelog.
 
 .. toctree::
    :maxdepth: 2
