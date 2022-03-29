@@ -1,21 +1,45 @@
-.. aatoolbox documentation master file, created by
-   sphinx-quickstart on Fri Oct  1 10:01:58 2021.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+Welcome to AA Toolbox
+=====================
 
-Welcome to aatoolbox's documentation!
-=====================================
+Welcome to AA Toolbox's documentation. Get set up with :doc:`installation`
+and start playing with data using :doc:`quickstart`.
+The rest of the documentation describes the different data sources and
+functionalities in more detail, with a complete reference in
+the :doc:`api` section.
+
+User Guide
+----------
+
+This section includes background information on AA Toolbox,
+how to get started,
+and detailed guides on the individual data sources plus any
+additional functionality.
 
 .. toctree::
-   :maxdepth: 6
-   :caption: Contents:
+   :maxdepth: 2
 
-   modules
+   introduction
+   installation
+   quickstart
 
 
-Indices and tables
-==================
+API Reference
+-------------
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+Detailed information on specific classes, methods, and functions.
+
+.. automodule:: aatoolbox
+   :members:
+
+
+Miscellaneous
+-------------
+
+Design notes, legal information and changelog are here for the interested.
+
+.. toctree::
+   :maxdepth: 2
+
+   contributing
+   license
+   changelog

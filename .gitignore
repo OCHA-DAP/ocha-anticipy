@@ -70,7 +70,8 @@ instance/
 
 # Sphinx documentation
 docs/build/
-docs/source/*.rst
+docs/source/modules.rst
+docs/source/aatoolbox*.rst
 
 # PyBuilder
 target/
