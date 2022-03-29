@@ -8,9 +8,17 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
 
-aa-toolbox is...
+The [anticipatory action](https://centre.humdata.org/anticipatory-action/)
+(AA) toolbox is a Python package to support development of AA frameworks, by
+simplifying the downloading and processing of commonly used datasets.
 
-[documentation](https://aa-toolbox.readthedocs.io/en/latest/)
+Currently supported datasets:
+
+- [COD AB](https://cod.unocha.org/)
+- [IRI](https://iri.columbia.edu/our-expertise/climate/forecasts/seasonal-climate-forecasts/)
+
+For more information, please see the
+[documentation](https://aa-toolbox.readthedocs.io/en/latest/).
 
 ## Installing
 
@@ -22,7 +30,8 @@ pip install -U aa-toolbox
 
 ## A Simple Example
 
-Download the admin boundary CODs for Nepal, and retrieve provinces as a GeoDataFrame.
+Download the admin boundary CODs for Nepal, and retrieve provinces
+as a GeoDataFrame:
 
 ```python
 from aatoolbox import CodAB
