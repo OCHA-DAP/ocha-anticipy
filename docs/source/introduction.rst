@@ -11,3 +11,9 @@ the shock of interest as well as any related indicators.
 This is where the AA Toolbox comes in. The goal of the toolbox is to to
 support development of AA frameworks by simplifying the downloading and
 processing of commonly used datasets.
+
+At the Centre for Humanitarian Data, we've now used AA Toolbox to develop
+some of our own AA frameworks. See the links below for more info:
+
+* `Drought in Burkina Faso <https://github.com/OCHA-DAP/pa-aa-bfa-drought>`_
+* `Cholera in DRC <https://github.com/OCHA-DAP/pa-aa-cod-infectious-disease>`_
