@@ -6,9 +6,6 @@ import cftime
 import numpy as np
 import pytest
 import xarray as xr
-
-# TODO: this will break if there is another conftest
-from conftest import FAKE_AA_DATA_DIR, ISO3
 from xarray.coding.cftimeindex import CFTimeIndex
 
 from aatoolbox import GeoBoundingBox, IriForecastDominant, IriForecastProb
@@ -66,7 +63,9 @@ def mock_download(mocker, mock_iri):
     return _mock_download
 
 
-def test_download_call_prob(mock_download):
+def test_download_call_prob(
+    mock_download, mock_aa_data_dir, mock_country_config
+):
     """Test download for tercile probability forecast."""
     url, filepath = mock_download(prob_forecast=True)
     assert url == (
@@ -77,13 +76,16 @@ def test_download_call_prob(mock_download):
     )
 
     assert filepath == (
-        Path(FAKE_AA_DATA_DIR) / f"private/raw/{ISO3}/{MODULE_BASENAME}/"
+        mock_aa_data_dir
+        / f"private/raw/{mock_country_config.iso3}/{MODULE_BASENAME}/"
         f"abc_iri_forecast_seasonal_precipitation_"
         f"tercile_prob_Np6Sp3Em2Wp3.nc"
     )
 
 
-def test_download_call_dominant(mock_download):
+def test_download_call_dominant(
+    mock_download, mock_aa_data_dir, mock_country_config
+):
     """Test download for dominant tercile forecast."""
     url, filepath = mock_download(prob_forecast=False)
     assert url == (
@@ -94,15 +96,14 @@ def test_download_call_dominant(mock_download):
     )
 
     assert filepath == (
-        Path(FAKE_AA_DATA_DIR) / f"private/raw/{ISO3}/{MODULE_BASENAME}/"
+        mock_aa_data_dir
+        / f"private/raw/{mock_country_config.iso3}/{MODULE_BASENAME}/"
         f"abc_iri_forecast_seasonal_"
         f"precipitation_tercile_dominant_Np6Sp3Em2Wp3.nc"
     )
 
 
-# TODO: need to use a tmp dir but will copy
-# that from glofas once that is ready :)
-def test_process(mocker, mock_iri):
+def test_process(mocker, mock_iri, mock_aa_data_dir, mock_country_config):
     """Test process for IRI forecast."""
     ds = xr.DataArray(
         np.reshape(a=np.arange(16), newshape=(2, 2, 2, 2)),
@@ -130,8 +131,9 @@ def test_process(mocker, mock_iri):
 
     processed_path = iri.process()
     assert processed_path == (
-        Path(FAKE_AA_DATA_DIR) / f"private/processed/{ISO3}/{MODULE_BASENAME}/"
-        f"{ISO3}_iri_forecast_seasonal_precipitation_"
+        mock_aa_data_dir
+        / f"private/processed/{mock_country_config.iso3}/{MODULE_BASENAME}/"
+        f"{mock_country_config.iso3}_iri_forecast_seasonal_precipitation_"
         f"tercile_prob_Np6Sp3Em2Wp3.nc"
     )
 
@@ -175,7 +177,13 @@ def mock_xr_load_dataset(mocker):
     )
 
 
-def test_iri_load(mocker, mock_xr_load_dataset, mock_iri):
+def test_iri_load(
+    mocker,
+    mock_xr_load_dataset,
+    mock_iri,
+    mock_aa_data_dir,
+    mock_country_config,
+):
     """Test that load_codab calls the HDX API to download."""
     mocker.patch("aatoolbox.datasources.iri.iri_seasonal_forecast._download")
 
@@ -184,9 +192,10 @@ def test_iri_load(mocker, mock_xr_load_dataset, mock_iri):
     mock_xr_load_dataset.assert_has_calls(
         [
             mocker.call(
-                Path(FAKE_AA_DATA_DIR)
-                / f"private/processed/{ISO3}/{MODULE_BASENAME}/"
-                f"{ISO3}_iri_forecast_seasonal_precipitation_"
+                mock_aa_data_dir
+                / f"private/processed/{mock_country_config.iso3}/"
+                f"{MODULE_BASENAME}/{mock_country_config.iso3}"
+                f"_iri_forecast_seasonal_precipitation_"
                 f"tercile_prob_Np6Sp3Em2Wp3.nc"
             ),
         ]
