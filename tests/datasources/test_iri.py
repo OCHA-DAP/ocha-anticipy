@@ -10,7 +10,7 @@ from xarray.coding.cftimeindex import CFTimeIndex
 
 from aatoolbox import GeoBoundingBox, IriForecastDominant, IriForecastProb
 
-MODULE_BASENAME = "iri"
+DATASOURCE_BASE_DIR = "iri"
 FAKE_IRI_AUTH = "FAKE_IRI_AUTH"
 
 
@@ -77,7 +77,7 @@ def test_download_call_prob(
 
     assert filepath == (
         mock_aa_data_dir
-        / f"private/raw/{mock_country_config.iso3}/{MODULE_BASENAME}/"
+        / f"private/raw/{mock_country_config.iso3}/{DATASOURCE_BASE_DIR}/"
         f"abc_iri_forecast_seasonal_precipitation_"
         f"tercile_prob_Np6Sp3Em2Wp3.nc"
     )
@@ -97,7 +97,7 @@ def test_download_call_dominant(
 
     assert filepath == (
         mock_aa_data_dir
-        / f"private/raw/{mock_country_config.iso3}/{MODULE_BASENAME}/"
+        / f"private/raw/{mock_country_config.iso3}/{DATASOURCE_BASE_DIR}/"
         f"abc_iri_forecast_seasonal_"
         f"precipitation_tercile_dominant_Np6Sp3Em2Wp3.nc"
     )
@@ -131,10 +131,9 @@ def test_process(mocker, mock_iri, mock_aa_data_dir, mock_country_config):
 
     processed_path = iri.process()
     assert processed_path == (
-        mock_aa_data_dir
-        / f"private/processed/{mock_country_config.iso3}/{MODULE_BASENAME}/"
-        f"{mock_country_config.iso3}_iri_forecast_seasonal_precipitation_"
-        f"tercile_prob_Np6Sp3Em2Wp3.nc"
+        mock_aa_data_dir / f"private/processed/{mock_country_config.iso3}/"
+        f"{DATASOURCE_BASE_DIR}/{mock_country_config.iso3}_"
+        f"iri_forecast_seasonal_precipitation_tercile_prob_Np6Sp3Em2Wp3.nc"
     )
 
     da_processed = xr.load_dataset(processed_path)
@@ -194,7 +193,7 @@ def test_iri_load(
             mocker.call(
                 mock_aa_data_dir
                 / f"private/processed/{mock_country_config.iso3}/"
-                f"{MODULE_BASENAME}/{mock_country_config.iso3}"
+                f"{DATASOURCE_BASE_DIR}/{mock_country_config.iso3}"
                 f"_iri_forecast_seasonal_precipitation_"
                 f"tercile_prob_Np6Sp3Em2Wp3.nc"
             ),
