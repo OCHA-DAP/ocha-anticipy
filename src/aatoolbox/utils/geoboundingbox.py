@@ -44,22 +44,22 @@ class GeoBoundingBox:
         self._rounded: bool = False
 
     @property
-    def north(self):
+    def north(self) -> float:
         """Get the northern latitude boundary of the area (degrees)."""
         return float(self._north)
 
     @property
-    def south(self):
+    def south(self) -> float:
         """Get the southern latitude boundary of the area (degrees)."""
         return float(self._south)
 
     @property
-    def east(self):
+    def east(self) -> float:
         """Get the eastern longitude boundary of the area (degrees)."""
         return float(self._east)
 
     @property
-    def west(self):
+    def west(self) -> float:
         """Get the western longitude boundary of the area (degrees)."""
         return float(self._west)
 
