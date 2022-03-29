@@ -5,10 +5,13 @@ It is possible to create an ``GeoBoundingBox`` object either from
 north, south, east, west coordinates,
 or from a shapefile that has been read in with geopandas.
 """
+import logging
 from typing import Union
 
 import geopandas as gpd
 import numpy as np
+
+logger = logging.getLogger(__name__)
 
 
 class GeoBoundingBox:
@@ -31,6 +34,7 @@ class GeoBoundingBox:
         self.south = south
         self.east = east
         self.west = west
+        self._rounded: bool = False
 
     def __repr__(self):
         """Print bounding box string."""
@@ -70,17 +74,24 @@ class GeoBoundingBox:
         """
         Round the bounding box coordinates.
 
-        Rounding is always done outside the original bounding box.
-        I.e. the resulting bounding box is always equal or larger
-        than the original bounding box.
+        Rounding is always done outside the original bounding box,
+        i.e. the resulting bounding box is always equal or larger
+        than the original bounding box. Rounding can only be done once
+        per instance.
 
         Parameters
         ----------
         offset_val : float, default = 0.0
             Offset the coordinates by this factor.
-        round_val : int, default = 1
-            The decimal to round to. If 1, round to integers
+        round_val : int or float, default = 1
+            Rounds to the nearest round_val. Can be an int for integer
+            rounding or float for decimal rounding. If 1, round to integers.
         """
+        # TODO: add examples above
+        # Don't round if already rounded
+        if self._rounded:
+            logger.debug("Coordinates have already been rounded, skipping")
+            return
         for direction in ["north", "west", "south", "east"]:
             coord = getattr(self, direction)
             if direction in ("north", "east"):
@@ -95,6 +106,7 @@ class GeoBoundingBox:
                 + offset_factor * offset_val
             )
             setattr(self, direction, rounded_coord)  # noqa: FKA01
+        self._rounded = True
 
     def get_filename_repr(self, p: int = 0) -> str:
         """
