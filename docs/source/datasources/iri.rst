@@ -18,7 +18,7 @@ Usage
 To download data from the IRI API, a key is required for
 authentication, and must be set in the ``IRI_AUTH`` environment
 variable. To obtain this key config you need to create an account
-`here.<https://iridl.ldeo.columbia.edu/auth/login>`_.
+`here <https://iridl.ldeo.columbia.edu/auth/login>`_.
 Note that this key might be changed over time, and need to be updated
 regularly.
 
