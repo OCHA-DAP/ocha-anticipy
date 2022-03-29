@@ -33,6 +33,7 @@ and this project adheres to
   (using tags instead)
 - HDX API now uses "prod" server, and version >= 5.5.8 to avoid download error
 - COD AB dataset URLs on HDX are standardized
+- GeoBoundingBox won't round twice and won't allow north < south or east < west
 
 ## [0.3.1] - 2022-01-06
 
