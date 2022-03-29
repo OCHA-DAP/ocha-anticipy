@@ -16,7 +16,7 @@ and detailed guides on the individual data sources plus any
 additional functionality.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    introduction
    quickstart
@@ -29,10 +29,9 @@ API Reference
 Detailed information on specific classes, methods, and functions.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    api
-
 
 Miscellaneous
 -------------

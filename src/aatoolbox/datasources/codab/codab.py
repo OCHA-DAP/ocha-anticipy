@@ -1,20 +1,4 @@
-"""Download and manipulate COD administrative boundaries.
-
-To use this class, you first need to create a country configuration
-for the country you would like to use:
->>> from aatoolbox import create_country_config
->>> country_config = create_country_config(iso3="npl")
-
-Next you need to instantiate the CodAB class with the country config:
->>> codab = CodAB(country_config=country_config)
-
-Upon first use, you will need to downlaod the COD AB data:
->>> codab.download()
-
-Finally, use the load method to begin working with the data as a
-GeoPandas dataframe:
->>> npl_admin1 = codab.load(admin_level=1)
-"""
+"""Download and manipulate COD administrative boundaries."""
 import logging
 from pathlib import Path
 
