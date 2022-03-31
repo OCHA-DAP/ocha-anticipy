@@ -41,7 +41,6 @@ class GeoBoundingBox:
         self._south = Decimal(south)
         self._east = Decimal(east)
         self._west = Decimal(west)
-        self._rounded: bool = False
 
     @property
     def north(self) -> float:
@@ -71,14 +70,20 @@ class GeoBoundingBox:
         )
 
     @classmethod
-    def from_shape(cls, shape: Union[gpd.GeoSeries, gpd.GeoDataFrame]):
+    def from_shape(
+        cls, shape: Union[gpd.GeoSeries, gpd.GeoDataFrame]
+    ) -> "GeoBoundingBox":
         """
-        Create `GeoBoundingBox` from a geopandas object.
+        Create ``GeoBoundingBox`` from a geopandas object.
 
         Parameters
         ----------
         shape : geopandas.GeoSeries, geopandas.GeoDataFrame
             A shape whose bounds will be retrieved
+
+        Returns
+        -------
+        ``GeoBoundingBox`` from the total bounds of the ``GeoDataFrame``
 
         Examples
         --------
@@ -97,7 +102,7 @@ class GeoBoundingBox:
         self,
         offset_val: float = 0.0,
         round_val: Union[int, float] = 1,
-    ):
+    ) -> "GeoBoundingBox":
         """
         Round the bounding box coordinates.
 
@@ -113,13 +118,13 @@ class GeoBoundingBox:
         round_val : int or float, default = 1
             Rounds to the nearest round_val. Can be an int for integer
             rounding or float for decimal rounding. If 1, round to integers.
+
+        Returns
+        -------
+        ``GeoBoundingBox`` instance with rounded and offset coordinates
         """
         # TODO: add examples above
-        # Don't round if already rounded
-        if self._rounded:
-            logger.debug("Coordinates have already been rounded, skipping")
-            return
-        # Make everything a decimal
+        new_coords = {}
         for direction in ["north", "west", "south", "east"]:
             coord = getattr(self, f"_{direction}")
             if direction in ("north", "east"):
@@ -131,8 +136,8 @@ class GeoBoundingBox:
             rounded_coord = function(coord / Decimal(round_val)) * Decimal(
                 round_val
             ) + offset_factor * Decimal(offset_val)
-            setattr(self, f"_{direction}", rounded_coord)  # noqa: FKA01
-        self._rounded = True
+            new_coords[direction] = float(rounded_coord)
+        return GeoBoundingBox(**new_coords)
 
     def get_filename_repr(self, p: int = 0) -> str:
         """

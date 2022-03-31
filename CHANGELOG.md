@@ -21,6 +21,7 @@ and this project adheres to
 
 - `DataSource` is now an abstract base class with required `download`, `process`
   and `load` methods
+- `GeoBoundingBox.round` returns `GeoBoundingBox` instance (instead of being in place)
 
 ### Removed
 
@@ -33,7 +34,7 @@ and this project adheres to
   (using tags instead)
 - HDX API now uses "prod" server, and version >= 5.5.8 to avoid download error
 - COD AB dataset URLs on HDX are standardized
-- GeoBoundingBox won't round twice and won't allow north < south or east < west
+- `GeoBoundingBox` won't allow north < south or east < west
 
 ## [0.3.1] - 2022-01-06
 

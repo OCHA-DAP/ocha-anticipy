@@ -8,8 +8,9 @@ from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
 def test_geoboundingbox_round_coords():
     """Test that coordinates are correctly rounded."""
-    geobb = GeoBoundingBox(north=1.5, south=-2.2, east=3.6, west=-4.0)
-    geobb.round_coords(round_val=0.5)
+    geobb = GeoBoundingBox(
+        north=1.5, south=-2.2, east=3.6, west=-4.0
+    ).round_coords(round_val=0.5)
     assert geobb.north == 1.5
     assert geobb.south == -2.5
     assert geobb.east == 4.0
@@ -18,8 +19,11 @@ def test_geoboundingbox_round_coords():
 
 def test_geoboundingbox_offset_coords():
     """Test that coordinates are correctly offset."""
-    geobb = GeoBoundingBox(north=1.05, south=-2.2, east=3.6, west=-4.0)
-    geobb.round_coords(offset_val=0.4)  # default round val of 1
+    geobb = GeoBoundingBox(
+        north=1.05, south=-2.2, east=3.6, west=-4.0
+    ).round_coords(
+        offset_val=0.4
+    )  # default round val of 1
     assert geobb.north == 2.4
     assert geobb.south == -3.4
     assert geobb.east == 4.4
@@ -28,8 +32,9 @@ def test_geoboundingbox_offset_coords():
 
 def test_geoboundingbox_round_and_offset_coords():
     """Test that coordinates are correctly rounded and offset."""
-    geobb = GeoBoundingBox(north=1.05, south=-2.2, east=3.6, west=-4.0)
-    geobb.round_coords(round_val=0.1, offset_val=0.05)
+    geobb = GeoBoundingBox(
+        north=1.05, south=-2.2, east=3.6, west=-4.0
+    ).round_coords(round_val=0.1, offset_val=0.05)
     assert geobb.north == 1.15
     assert geobb.south == -2.25
     assert geobb.east == 3.65
@@ -58,12 +63,3 @@ def test_geoboundingbox_from_shape():
     assert geobb.south == s
     assert geobb.east == e
     assert geobb.west == w
-
-
-def test_dont_double_round():
-    """Test that round is not called twice."""
-    geobb = GeoBoundingBox(north=1.4, south=1, east=1, west=1)
-    geobb.round_coords(round_val=0.5)
-    assert geobb.north == 1.5
-    geobb.round_coords(round_val=1)
-    assert geobb.north == 1.5
