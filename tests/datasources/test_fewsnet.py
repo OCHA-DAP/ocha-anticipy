@@ -23,13 +23,13 @@ def test_download_country(mock_country_config, mock_download_call, mocker):
     fewsnet = FewsNet(country_config=mock_country_config)
     url, output_path = mock_download_call(
         fewsnet_class=fewsnet,
-        date_pub="2020-10-01",
+        date_pub="2020-07-01",
         country_data=True,
         region_data=False,
     )
     assert (
         url == "https://fdw.fews.net/api/ipcpackage/"
-        f"?country_code={ISO2.upper()}&collection_date=2020-10-01"
+        f"?country_code={ISO2.upper()}&collection_date=2020-07-01"
     )
     assert (
         output_path
@@ -38,7 +38,7 @@ def test_download_country(mock_country_config, mock_download_call, mocker):
         / "raw"
         / "glb"
         / MODULE_BASENAME
-        / f"{ISO2.upper()}202010"
+        / f"{ISO2.upper()}202007"
     )
 
 
@@ -47,7 +47,7 @@ def test_download_region(mock_country_config, mock_download_call):
     fewsnet = FewsNet(country_config=mock_country_config)
     url, output_path = mock_download_call(
         fewsnet_class=fewsnet,
-        date_pub="2020-10-01",
+        date_pub="2020-07-01",
         country_data=False,
         region_data=True,
     )
@@ -55,7 +55,7 @@ def test_download_region(mock_country_config, mock_download_call):
     assert (
         url == "https://fews.net/data_portal_download/download?"
         "data_file_path=http://shapefiles.fews.net.s3.amazonaws.com/"
-        "HFIC/EA/east-africa202010.zip"
+        "HFIC/EA/east-africa202007.zip"
     )
     assert (
         output_path
@@ -64,7 +64,7 @@ def test_download_region(mock_country_config, mock_download_call):
         / "raw"
         / "glb"
         / MODULE_BASENAME
-        / "EA202010"
+        / "EA202007"
     )
 
 
@@ -74,12 +74,12 @@ def test_download_region(mock_country_config, mock_download_call):
 #         fewsnet = FewsNet(country_config=mock_country_config)
 #         url, output_path = mock_download_call(
 #             fewsnet_class=fewsnet,
-#             date_pub="2020-10-01",
+#             date_pub="2020-07-01",
 #             country_data=False,
 #             region_data=False,
 #         )
 #         assert output_path is None
-#     assert "No data found for 2020-10" in str(e.value)
+#     assert "No data found for 2020-07" in str(e.value)
 
 
 @pytest.fixture

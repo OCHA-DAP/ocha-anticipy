@@ -32,15 +32,7 @@ _BASE_URL_REGION = (
     "HFIC/{region_code}/{region_name}{YYYY}{MM}.zip"
 )
 
-# Only regions for which FewsNet provides data can be given as input
-_VALID_REGION_NAMES = [
-    "caribbean-central-america",
-    "central-asia",
-    "east-africa",
-    "southern-africa",
-    "west-africa",
-]
-
+# the URL uses a code, so map them
 _REGION_NAME_CODE_MAPPING = {
     "caribbean-central-america": "LAC",
     "central-asia": "CA",
@@ -111,15 +103,6 @@ class FewsNet(DataSource):
         --------
         >>> download(date_pub="2020-10-01")
         """
-        if (
-            self._country_config.fewsnet.region_name  # type: ignore
-            not in _VALID_REGION_NAMES
-        ):
-            raise ValueError(
-                f"Invalid region name"  # type: ignore
-                f" {self._country_config.fewsnet.region_name}"
-            )
-
         # convert to datetime if str
         if not isinstance(date_pub, date):
             date_pub = datetime.strptime(date_pub, _DATE_FORMAT)
@@ -158,7 +141,7 @@ class FewsNet(DataSource):
             if data found return the output_dir, else return None
         """
         url_country_date = _BASE_URL_COUNTRY.format(
-            iso2=self._iso2, YYYY=date_pub.year, MM=date_pub.month
+            iso2=self._iso2, YYYY=date_pub.year, MM=f"{date_pub.month:02d}"
         )
 
         # filenames have upper iso2, so use that for dirs as well
@@ -189,13 +172,19 @@ class FewsNet(DataSource):
         region_data : str
             If region data exists, return the saved dir else return None
         """
-        region_name = self._country_config.fewsnet.region_name  # type: ignore
+        if self._country_config.fewsnet is None:
+            raise KeyError(
+                "The country configuration file does not contain"
+                "any region name. Please update and try again."
+            )
+
+        region_name = self._country_config.fewsnet.region_name
         region_code = _REGION_NAME_CODE_MAPPING[region_name]
         url_region_date = _BASE_URL_REGION.format(
             region_code=region_code,
             region_name=region_name,
             YYYY=date_pub.year,
-            MM=date_pub.month,
+            MM=f"{date_pub.month:02d}",
         )
 
         output_dir_region = (

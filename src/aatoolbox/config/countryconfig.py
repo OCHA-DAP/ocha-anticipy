@@ -2,7 +2,7 @@
 from pathlib import Path
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 
 from aatoolbox.utils.io import parse_yaml
 
@@ -42,6 +42,26 @@ class FewsNetConfig(BaseModel):
     """
 
     region_name: str
+
+    @validator("region_name")
+    def regionname_valid(cls, v):
+        """Check that regionname is one of the valid ones."""
+        valid_regionnames = [
+            "caribbean-central-america",
+            "central-asia",
+            "east-africa",
+            "southern-africa",
+            "west-africa",
+        ]
+        if v not in valid_regionnames:
+            raise ValueError(
+                f"Invalid region name: {v}. "
+                f"Should be one of {valid_regionnames}"
+            )
+        return v
+        # if 'password1' in values and v != values['password1']:
+        #     raise ValueError('passwords do not match')
+        return v
 
 
 class CountryConfig(BaseModel):
