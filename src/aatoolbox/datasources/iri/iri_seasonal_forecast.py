@@ -61,10 +61,7 @@ class _IriForecast(DataSource):
         # non-rounded coordinates can be given to the URL which then
         # automatically rounds them, but for file saving we prefer to do
         # this ourselves
-        # TODO: We should probably make a copy of this as it's being
-        #  passed directly by the user
-        geo_bounding_box.round_coords(round_val=1, offset_val=0)
-        self._geobb = geo_bounding_box
+        self._geobb = geo_bounding_box.round_coords(round_val=1, offset_val=0)
         self._forecast_type = forecast_type
 
     def download(
