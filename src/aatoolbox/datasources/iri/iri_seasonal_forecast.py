@@ -53,7 +53,7 @@ class _IriForecast(DataSource):
     ):
         super().__init__(
             country_config=country_config,
-            module_base_dir="iri",
+            datasource_base_dir="iri",
             is_public=False,
         )
         # round coordinates to correspond with the grid IRI publishes
