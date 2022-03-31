@@ -41,11 +41,11 @@ class CodAB(DataSource):
 
     def __init__(self, country_config: CountryConfig):
         super().__init__(
-            country_config, module_base_dir="cod_ab", is_public=True
+            country_config, datasource_base_dir="cod_ab", is_public=True
         )
         self._raw_filepath = (
-            self._raw_base_dir
-            / f"{self._country_config.iso3}_{self._module_base_dir}.shp.zip"
+            self._raw_base_dir / f"{self._country_config.iso3}_"
+            f"{self._datasource_base_dir}.shp.zip"
         )
 
     def download(self, clobber: bool = False) -> Path:
