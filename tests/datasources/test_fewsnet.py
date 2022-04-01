@@ -68,18 +68,18 @@ def test_download_region(mock_country_config, mock_download_call):
     )
 
 
-# def test_download_nodata(mock_country_config, mock_download_call):
-#     """Test that RuntimeError is returned when no data exists."""
-#     with pytest.raises(RuntimeError) as e:
-#         fewsnet = FewsNet(country_config=mock_country_config)
-#         url, output_path = mock_download_call(
-#             fewsnet_class=fewsnet,
-#             date_pub="2020-07-01",
-#             country_data=False,
-#             region_data=False,
-#         )
-#         assert output_path is None
-#     assert "No data found for 2020-07" in str(e.value)
+def test_download_nodata(mock_country_config, mock_download_call):
+    """Test that RuntimeError is returned when no data exists."""
+    with pytest.raises(RuntimeError) as e:
+        fewsnet = FewsNet(country_config=mock_country_config)
+        url, output_path = mock_download_call(
+            fewsnet_class=fewsnet,
+            date_pub="2020-07-01",
+            country_data=False,
+            region_data=False,
+        )
+        assert output_path is None
+    assert "No data found for 2020-07" in str(e.value)
 
 
 @pytest.fixture
@@ -131,7 +131,7 @@ def mock_countryregion(mocker):
                     return_value=None,
                 ), mocker.patch(
                     "aatoolbox.datasources.fewsnet.fewsnet."
-                    "Fewsnet._download_region",
+                    "FewsNet._download_region",
                     return_value=None,
                 )
 
