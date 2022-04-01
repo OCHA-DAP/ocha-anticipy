@@ -20,8 +20,7 @@ class GlofasReanalysis(glofas.Glofas):
             year_max=datetime.datetime.now().year,
             cds_name="cems-glofas-historical",
             system_version="version_3_1",
-            dataset=["consolidated_reanalysis"],
-            dataset_variable_name="dataset",
+            product_type="consolidated",
             date_variable_prefix="h",
         )
 
@@ -74,20 +73,20 @@ class GlofasReanalysis(glofas.Glofas):
             )
             for year in range(year_min, year_max + 1)
         ]
-        # Read in the dataset
+        # Read in the product_type
         logger.info(f"Reading in {len(filepath_list)} files")
 
         with xr.open_mfdataset(
             filepath_list, engine="cfgrib", backend_kwargs={"indexpath": ""}
         ) as ds:
-            # Create a new dataset with just the station pixels
+            # Create a new product_type with just the station pixels
             logger.info(
                 "Looping through reporting_points, this takes some time"
             )
             ds_new = self._get_reporting_point_dataset(
                 ds=ds, coord_names=["time"]
             )
-        # Write out the new dataset to a file
+        # Write out the new product_type to a file
         return self._write_to_processed_file(
             ds=ds_new,
         )

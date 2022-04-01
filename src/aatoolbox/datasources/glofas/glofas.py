@@ -1,7 +1,7 @@
 """Base class for downloading and processing GloFAS raster data."""
 import logging
 from pathlib import Path
-from typing import List
+from typing import List, Union
 
 import cdsapi
 import numpy as np
@@ -35,11 +35,8 @@ class Glofas(DataSource):
         The most recent that the dataset is available
     cds_name : str
         The name of the dataset in CDS
-    dataset : list
-        The sub-datasets that you would like to download (as a list of strings)
-    dataset_variable_name :
-        The variable name with which to pass the above datasets in the CDS
-        query
+    product_type : str or list of strings
+        The sub-datasets that you would like to download
     date_variable_prefix : str, default = ""
         Some GloFAS datasets have the prefix "h" in front of some query keys
     """
@@ -52,8 +49,7 @@ class Glofas(DataSource):
         year_max: int,
         cds_name: str,
         system_version: str,
-        dataset: List[str],
-        dataset_variable_name: str,
+        product_type: Union[str, List[str]],
         date_variable_prefix: str = "",
     ):
         super().__init__(
@@ -68,8 +64,7 @@ class Glofas(DataSource):
         self._year_max = year_max
         self._cds_name = cds_name
         self._system_version = system_version
-        self._dataset = dataset
-        self._dataset_variable_name = dataset_variable_name
+        self._product_type = product_type
         self._date_variable_prefix = date_variable_prefix
 
     def load(
@@ -138,7 +133,9 @@ class Glofas(DataSource):
         query = {
             "variable": "river_discharge_in_the_last_24_hours",
             "format": "grib",
-            self._dataset_variable_name: self._dataset,
+            "product_type": self._product_type,
+            "system_version": self._system_version,
+            "hydrological_model": _HYDROLOGICAL_MODEL,
             f"{self._date_variable_prefix}year": str(year),
             f"{self._date_variable_prefix}month": [
                 str(x + 1).zfill(2) for x in range(12)
@@ -148,14 +145,12 @@ class Glofas(DataSource):
             f"{self._date_variable_prefix}day": [
                 str(x + 1).zfill(2) for x in range(31)
             ],
-            "geo_bounding_box": [
+            "area": [
                 self._geo_bounding_box.north,
                 self._geo_bounding_box.west,
                 self._geo_bounding_box.south,
                 self._geo_bounding_box.east,
             ],
-            "system_version": self._system_version,
-            "hydrological_model": _HYDROLOGICAL_MODEL,
         }
         if leadtime_max is not None:
             leadtime = list(np.arange(leadtime_max) + 1)
@@ -201,7 +196,7 @@ class Glofas(DataSource):
         self, ds: xr.Dataset, coord_names: List[str]
     ) -> xr.Dataset:
         """
-        Create a dataset from a GloFAS raster based on the reporting points.
+        Create a product_type from a GloFAS raster based on reporting points.
 
         Parameters
         ----------

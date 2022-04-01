@@ -16,7 +16,7 @@ class _GlofasForecastBase(glofas.Glofas):
         self,
         is_reforecast: bool,
         leadtime_max: int,
-        split_by_month: bool = False,
+        split_by_month: bool = True,
         year_min: int = None,
         year_max: int = None,
     ):
@@ -42,7 +42,7 @@ class _GlofasForecastBase(glofas.Glofas):
         self,
         is_reforecast: bool,
         leadtime_max: int,
-        split_by_month: bool = False,
+        split_by_month: bool = True,
         year_min: int = None,
         year_max: int = None,
     ):
@@ -70,14 +70,14 @@ class _GlofasForecastBase(glofas.Glofas):
         ds = self._read_in_ensemble_and_perturbed_datasets(
             filepath_list=filepath_list
         )
-        # Create a new dataset with just the station pixels
+        # Create a new product_type with just the station pixels
         logger.info("Looping through reporting_points, this takes some time")
         coord_names = ["number", "time", "step"]
         ds_new = self._get_reporting_point_dataset(
             ds=ds,
             coord_names=coord_names,
         )
-        # Write out the new dataset to a file
+        # Write out the new product_type to a file
         return self._write_to_processed_file(
             ds=ds_new,
             leadtime_max=leadtime_max,
@@ -95,8 +95,7 @@ class GlofasForecast(_GlofasForecastBase):
             year_max=datetime.datetime.now().year,
             cds_name="cems-glofas-forecast",
             system_version="operational",
-            dataset=["control_forecast", "ensemble_perturbed_forecasts"],
-            dataset_variable_name="product_type",
+            product_type=["control_forecast", "ensemble_perturbed_forecasts"],
         )
 
     def download(self, *args, **kwargs):
@@ -133,8 +132,10 @@ class GlofasReforecast(_GlofasForecastBase):
             year_max=2018,
             cds_name="cems-glofas-reforecast",
             system_version="version_3_1",
-            dataset=["control_reforecast", "ensemble_perturbed_reforecasts"],
-            dataset_variable_name="product_type",
+            product_type=[
+                "control_reforecast",
+                "ensemble_perturbed_reforecasts",
+            ],
             date_variable_prefix="h",
         )
 
