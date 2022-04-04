@@ -4,13 +4,27 @@ IRI
 Background
 ----------
 
-Data is downloaded from `IRI's maproom
-<https://iridl.ldeo.columbia.edu/maproom/Global/Forecasts/NMME_Seasonal_Forecasts/Precipitation_ELR.html>`_
+The International Research Institute for Climate and Society (IRI) produces
+`seasonal climate forecasts <https://iri.columbia
+.edu/our-expertise/climate/forecasts/seasonal-climate-forecasts/>`_.
 
-For now only the tercile precipitation forecast has been
-implemented. This forecast is published in two formats,
-namely the dominant tercile probability and the probability
-per tercile. Both variations are implemented here.
+These forecasts predict measures of 3-monthly precipitation and temperature
+with leadtimes up to 4 months. They produce two types of forecasts, the
+flexible and tercile forecast. More information on their methodology can be
+found `here <https://iri.columbia
+.edu/our-expertise/climate/forecasts/seasonal-climate-forecasts/methodology
+/>`_.
+
+Currently in AA toolbox, only the tercile precipitation forecast has been
+implemented.
+
+The tercile precipitation forecast is published in two formats. One only
+indicates the dominant tercile probability while the other format indicates
+the probability for each tercile. Both formats are implemented in the AA
+toolbox.
+
+The data is downloaded from `IRI's maproom
+<https://iridl.ldeo.columbia.edu/maproom/Global/Forecasts/NMME_Seasonal_Forecasts/Precipitation_ELR.html>`_
 
 Usage
 -----
@@ -19,10 +33,11 @@ To download data from the IRI API, a key is required for
 authentication, and must be set in the ``IRI_AUTH`` environment
 variable. To obtain this key config you need to create an account
 `here <https://iridl.ldeo.columbia.edu/auth/login>`_.
-Note that this key might be changed over time, and need to be updated
-regularly.
+Note that this key might be invalid after some time, after which you have
+to generate a new key `here <https://iridl.ldeo.columbia.edu/auth/genkey>`_.
 
-To use the class, you first need to create a country configuration
+To use the IRI class, you first need to create a country
+configuration
 for the country you would like to get data for. For this example we will use
 Burkina Faso, which has the ISO3 "bfa":
 
@@ -61,7 +76,8 @@ Now we're ready to get the IRI data:
     iri_dominant.process()
     iri_dominant_data = iri_dominant.load()
 
-We can take similar steps for the tercile probability forecast:
+We can take similar steps to get the data that indicates the probability per
+tercile:
 
 .. code-block:: python
 
