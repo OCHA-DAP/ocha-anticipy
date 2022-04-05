@@ -110,7 +110,7 @@ def test_process(mocker, mock_iri, mock_aa_data_dir, mock_country_config):
         dims=("L", "X", "Y", "F"),
         coords={
             "L": [1, 2],
-            "X": [3, -2],
+            "X": [2, -3],
             "Y": [97, 90],
             "F": [685.5, 686.5],
         },
@@ -145,14 +145,10 @@ def test_process(mocker, mock_iri, mock_aa_data_dir, mock_country_config):
         ]
     )
 
-    expected_values = [
-        [[[4, 5], [6, 7]], [[0, 1], [2, 3]]],
-        [[[12, 13], [14, 15]], [[8, 9], [10, 11]]],
-    ]
-    assert np.array_equal(da_processed.X.values, [-2, 3])
+    assert np.array_equal(da_processed.X.values, [2, -3])
     assert np.array_equal(da_processed.Y.values, [97, 90])
     assert da_processed.get_index("F").equals(expected_f)
-    assert np.array_equal(da_processed.prob.values, expected_values)
+    assert np.array_equal(da_processed.prob.values, ds.prob.values)
 
 
 def test_process_if_download_not_called(mock_iri):
