@@ -32,35 +32,54 @@ class GeoBoundingBox:
     """
 
     def __init__(self, north: float, south: float, east: float, west: float):
-        if north < south or east < west:
-            raise AttributeError(
-                "Periodic boundary conditions not supported. "
-                "North must be > South, and East must be > West."
-            )
-        self._north = Decimal(north)
-        self._south = Decimal(south)
-        self._east = Decimal(east)
-        self._west = Decimal(west)
+        self.north = north
+        self.south = south
+        self.east = east
+        self.west = west
 
     @property
     def north(self) -> float:
         """Get the northern latitude boundary of the area (degrees)."""
         return float(self._north)
 
+    @north.setter
+    def north(self, north):
+        _check_latitude(north)
+        self._north = Decimal(north)
+
     @property
     def south(self) -> float:
         """Get the southern latitude boundary of the area (degrees)."""
         return float(self._south)
+
+    @south.setter
+    def south(self, south):
+        _check_latitude(south)
+        if south > self.north:
+            raise AttributeError("North must be > South")
+        self._south = Decimal(south)
 
     @property
     def east(self) -> float:
         """Get the eastern longitude boundary of the area (degrees)."""
         return float(self._east)
 
+    @east.setter
+    def east(self, east):
+        _check_longitude(east)
+        self._east = Decimal(east)
+
     @property
     def west(self) -> float:
         """Get the western longitude boundary of the area (degrees)."""
         return float(self._west)
+
+    @west.setter
+    def west(self, west):
+        _check_longitude(west)
+        if west > self.east:
+            raise AttributeError("East must be > West")
+        self._west = Decimal(west)
 
     def __repr__(self):
         """Print bounding box string."""
@@ -167,3 +186,13 @@ class GeoBoundingBox:
             # replace the decimal dot with a d for a better filename
             .replace(".", "d")
         )
+
+
+def _check_latitude(value):
+    if not -90 <= value <= 90:
+        raise AttributeError("Latitude must range from -90 to 90 degrees")
+
+
+def _check_longitude(value):
+    if not -180 <= value <= 180:
+        raise AttributeError("Longitude must range from -180 to 180 degrees")

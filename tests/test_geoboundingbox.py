@@ -48,6 +48,15 @@ def test_geoboundingbox_relative_coords():
         GeoBoundingBox(north=0, south=0, east=1, west=2)
 
 
+def test_geoboundingbox_coordinate_bounds():
+    """Test that coords are within limits."""
+    with pytest.raises(AttributeError):
+        GeoBoundingBox(north=91, south=0, east=0, west=0)
+        GeoBoundingBox(north=0, south=-91, east=0, west=0)
+        GeoBoundingBox(north=0, south=0, east=181, west=0)
+        GeoBoundingBox(north=0, south=0, east=0, west=-181)
+
+
 def test_geoboundingbox_filename():
     """Test that correct file string is returned."""
     geobb = GeoBoundingBox(north=1, south=-2, east=3, west=-4)
