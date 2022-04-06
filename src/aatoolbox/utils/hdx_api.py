@@ -39,6 +39,7 @@ def load_dataset_from_hdx(
     """
     logger.info(f"Querying HDX API for dataset {hdx_address}")
     resources = Dataset.read_from_hdx(hdx_address).get_resources()
+    logger.debug(f"Found the following resources: {resources}")
     for resource in resources:
         if resource["name"] == hdx_dataset_name:
             logger.info(f"Downloading dataset {hdx_dataset_name}")
@@ -49,6 +50,6 @@ def load_dataset_from_hdx(
             logger.info(f"Saved to {output_filepath}")
             return Path(output_filepath)
     raise FileNotFoundError(
-        f'HDX dataset with address "{hdx_address}" and name '
-        f'"{hdx_dataset_name}" not found'
+        f'Dataset with name "{hdx_dataset_name}" not found'
+        f'at HDX address "{hdx_address}".'
     )
