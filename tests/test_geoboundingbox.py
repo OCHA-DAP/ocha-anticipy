@@ -42,10 +42,16 @@ def test_geoboundingbox_round_and_offset_coords():
 
 
 def test_geoboundingbox_relative_coords():
-    """Test that doesn't allow north < south and east < west."""
+    """Test that north must be > south and east > west."""
     with pytest.raises(AttributeError):
-        GeoBoundingBox(north=1, south=2, east=0, west=0)
-        GeoBoundingBox(north=0, south=0, east=1, west=2)
+        # Check south > north
+        GeoBoundingBox(north=1, south=2, east=1, west=-1)
+        # Check south == north
+        GeoBoundingBox(north=1, south=1, east=1, west=-1)
+        # Check west > east
+        GeoBoundingBox(north=1, south=-1, east=1, west=2)
+        # Check west == east
+        GeoBoundingBox(north=1, south=-1, east=1, west=1)
 
 
 def test_geoboundingbox_coordinate_bounds():

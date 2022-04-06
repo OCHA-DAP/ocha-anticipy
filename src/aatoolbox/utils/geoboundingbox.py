@@ -19,16 +19,29 @@ getcontext().prec = 5  # Assuming we won't need higher than this!
 class GeoBoundingBox:
     """Create an object containing the bounds of an area.
 
+    Standard geographic coordinate system is used where latitude runs
+    from -90 to 90 degrees, and latitude from -180 to 180.
+    North must always be greater than south, and east greater
+    than west.
+
     Parameters
     ----------
     north : float
-        The northern latitude boundary of the area (degrees)
+        The northern latitude boundary of the area (degrees).
+        The value must be between -90 and 90, and greater than the
+        southern boundary.
     south : float
-        The southern latitude boundary of the area (degrees)
+        The southern latitude boundary of the area (degrees).
+        The value must be between -90 and 90, and less than the
+        northern boundary.
     east : float
-        The easternmost longitude boundary of the area (degrees)
+        The easternmost longitude boundary of the area (degrees).
+        The value must be between -180 and 180, and greater than the
+        western boundary.
     west : float
-        The westernmost longitude boundary of the area (degrees)
+        The westernmost longitude boundary of the area (degrees).
+        The value must be between -180 and 180, and less than the
+        eastern boundary.
     """
 
     def __init__(self, north: float, south: float, east: float, west: float):
@@ -55,7 +68,7 @@ class GeoBoundingBox:
     @south.setter
     def south(self, south):
         _check_latitude(south)
-        if south > self.north:
+        if not south < self.north:
             raise AttributeError("North must be > South")
         self._south = Decimal(south)
 
@@ -77,7 +90,7 @@ class GeoBoundingBox:
     @west.setter
     def west(self, west):
         _check_longitude(west)
-        if west > self.east:
+        if not west < self.east:
             raise AttributeError("East must be > West")
         self._west = Decimal(west)
 

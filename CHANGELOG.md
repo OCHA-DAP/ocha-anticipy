@@ -35,6 +35,7 @@ and this project adheres to
 - HDX API now uses "prod" server, and version >= 5.5.8 to avoid download error
 - COD AB dataset URLs on HDX are standardized
 - `GeoBoundingBox` won't allow north < south or east < west
+- `GeoBoundingBox` imposes -90 < latitude < 90 and -180 < longitude < 180
 
 ## [0.3.1] - 2022-01-06
 
