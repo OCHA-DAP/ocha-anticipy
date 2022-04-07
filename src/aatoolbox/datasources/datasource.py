@@ -25,6 +25,8 @@ class DataSource(ABC):
     is_public: bool, default = False
         Whether the dataset is public or private. Determines top-level
         directory structure.
+    config_attribute_name: str = None
+        The name of the attribute in the config file
     """
 
     @abstractmethod
@@ -33,7 +35,15 @@ class DataSource(ABC):
         country_config: CountryConfig,
         datasource_base_dir: str,
         is_public: bool = False,
+        config_attribute_name: str = None,
     ):
+        if config_attribute_name is not None and not hasattr(
+            country_config, config_attribute_name
+        ):
+            raise AttributeError(
+                f"{config_attribute_name} needs to be implemented in the "
+                f"config file. See the documentation for more details."
+            )
         self._country_config = country_config
         self._datasource_base_dir = datasource_base_dir
         self._path_config = PathConfig()

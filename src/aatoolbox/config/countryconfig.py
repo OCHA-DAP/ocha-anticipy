@@ -26,7 +26,7 @@ class CodABConfig(BaseModel):
     """
 
     hdx_dataset_name: str
-    layer_base_name: str  # TODO: validate that it has {admin_level}
+    layer_base_name: str
     admin_level_max: int
     custom_layer_names: Optional[list]
 
@@ -44,7 +44,7 @@ class CountryConfig(BaseModel):
     """Country configuration."""
 
     iso3: str
-    codab: CodABConfig
+    codab: Optional[CodABConfig]
 
     @validator("iso3")
     def _validate_iso3(cls, iso3):

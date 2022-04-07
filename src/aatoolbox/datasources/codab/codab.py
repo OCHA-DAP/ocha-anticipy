@@ -16,6 +16,7 @@ GeoPandas dataframe:
 >>> npl_admin1 = codab.load(admin_level=1)
 """
 import logging
+import typing
 from pathlib import Path
 
 import geopandas as gpd
@@ -41,13 +42,17 @@ class CodAB(DataSource):
 
     def __init__(self, country_config: CountryConfig):
         super().__init__(
-            country_config, datasource_base_dir="cod_ab", is_public=True
+            country_config,
+            datasource_base_dir="cod_ab",
+            is_public=True,
+            config_attribute_name="codab",
         )
         self._raw_filepath = (
             self._raw_base_dir / f"{self._country_config.iso3}_"
             f"{self._datasource_base_dir}.shp.zip"
         )
 
+    @typing.no_type_check
     def download(self, clobber: bool = False) -> Path:
         """
         Download COD AB file from HDX.
@@ -84,6 +89,7 @@ class CodAB(DataSource):
         """
         logger.info("`process()` method not implemented for CodAB.")
 
+    @typing.no_type_check
     def load(self, admin_level: int) -> gpd.GeoDataFrame:  # type: ignore
         """
         Get the COD AB data by admin level.
@@ -126,6 +132,7 @@ class CodAB(DataSource):
             )
         )
 
+    @typing.no_type_check
     def load_custom(self, custom_layer_number: int = 0) -> gpd.GeoDataFrame:
         """
         Get the COD AB data from a custom (non-level) layer.
