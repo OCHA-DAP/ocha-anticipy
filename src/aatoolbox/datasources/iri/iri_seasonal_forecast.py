@@ -24,7 +24,6 @@ from aatoolbox.utils.io import check_file_existence
 
 logger = logging.getLogger(__name__)
 
-_MODULE_BASENAME = "iri"
 _IRI_AUTH = "IRI_AUTH"
 
 
@@ -54,7 +53,7 @@ class _IriForecast(DataSource):
     ):
         super().__init__(
             country_config=country_config,
-            module_base_dir=_MODULE_BASENAME,
+            datasource_base_dir="iri",
             is_public=False,
         )
         # round coordinates to correspond with the grid IRI publishes
@@ -62,10 +61,7 @@ class _IriForecast(DataSource):
         # non-rounded coordinates can be given to the URL which then
         # automatically rounds them, but for file saving we prefer to do
         # this ourselves
-        # TODO: We should probably make a copy of this as it's being
-        #  passed directly by the user
-        geo_bounding_box.round_coords(round_val=1, offset_val=0)
-        self._geobb = geo_bounding_box
+        self._geobb = geo_bounding_box.round_coords(round_val=1, offset_val=0)
         self._forecast_type = forecast_type
 
     def download(
@@ -225,16 +221,9 @@ def _process(filepath: Path, ds, clobber: bool) -> Path:
     ds.aat.correct_calendar(inplace=True)
     ds = xr.decode_cf(ds)
 
-    # IRI downloads in the order you give the coordinates
-    # so make sure to invert them
     # IRI accepts -180 to 180 longitudes and 0 to 360
     # but automatically converts them to -180 to 180
     # so we don't need to do that
-    # TODO: can be removed once we have a check in the
-    #  geoboundingbox class for south<north
-    # TODO: for some reason the `inplace` is not working
-    #  re-add when we fixed that
-    ds = ds.aat.invert_coordinates()
     ds.to_netcdf(filepath)
     return filepath
 
