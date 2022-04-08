@@ -1,12 +1,12 @@
 """Tests for the FewsNet module."""
-from pathlib import Path
 
 import pytest
-from conftest import FAKE_AA_DATA_DIR, ISO2
+from conftest import ISO2
 
+from aatoolbox.config.countryconfig import FewsNetConfig
 from aatoolbox.datasources.fewsnet.fewsnet import FewsNet
 
-MODULE_BASENAME = "fewsnet"
+DATASOURCE_BASE_DIR = "fewsnet"
 
 
 @pytest.fixture(autouse=True)
@@ -18,7 +18,9 @@ def mock_iso2(mocker):
     )
 
 
-def test_download_country(mock_country_config, mock_download_call, mocker):
+def test_download_country(
+    mock_aa_data_dir, mock_country_config, mock_download_call, mocker
+):
     """Test that the correct country url and path is returned."""
     fewsnet = FewsNet(country_config=mock_country_config)
     url, output_path = mock_download_call(
@@ -33,16 +35,18 @@ def test_download_country(mock_country_config, mock_download_call, mocker):
     )
     assert (
         output_path
-        == Path(FAKE_AA_DATA_DIR)
+        == mock_aa_data_dir
         / "public"
         / "raw"
         / "glb"
-        / MODULE_BASENAME
+        / DATASOURCE_BASE_DIR
         / f"{ISO2.upper()}202007"
     )
 
 
-def test_download_region(mock_country_config, mock_download_call):
+def test_download_region(
+    mock_aa_data_dir, mock_country_config, mock_download_call
+):
     """Test that the correct region url and path is returned."""
     fewsnet = FewsNet(country_config=mock_country_config)
     url, output_path = mock_download_call(
@@ -59,11 +63,11 @@ def test_download_region(mock_country_config, mock_download_call):
     )
     assert (
         output_path
-        == Path(FAKE_AA_DATA_DIR)
+        == mock_aa_data_dir
         / "public"
         / "raw"
         / "glb"
-        / MODULE_BASENAME
+        / DATASOURCE_BASE_DIR
         / "EA202007"
     )
 
@@ -80,6 +84,12 @@ def test_download_nodata(mock_country_config, mock_download_call):
         )
         assert output_path is None
     assert "No data found for 2020-07" in str(e.value)
+
+
+def test_invalid_region_name():
+    """Test raised error when too high admin level requested."""
+    with pytest.raises(ValueError):
+        FewsNetConfig.regionname_valid(v="supereast-africa")
 
 
 @pytest.fixture

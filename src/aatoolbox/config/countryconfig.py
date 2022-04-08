@@ -59,9 +59,6 @@ class FewsNetConfig(BaseModel):
                 f"Should be one of {valid_regionnames}"
             )
         return v
-        # if 'password1' in values and v != values['password1']:
-        #     raise ValueError('passwords do not match')
-        return v
 
 
 class CountryConfig(BaseModel):
