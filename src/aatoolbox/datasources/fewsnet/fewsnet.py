@@ -13,7 +13,7 @@ import logging
 import zipfile
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Literal, Optional, get_args
+from typing import Optional, get_args
 
 import geopandas as gpd
 
@@ -21,6 +21,7 @@ import geopandas as gpd
 # known issue that is incorrect and doesn't make sense so ignore
 from dateutil.parser import parse  # type: ignore
 from hdx.location.country import Country
+from typing_extensions import Literal
 
 from aatoolbox.datasources.datasource import DataSource
 from aatoolbox.utils.io import check_file_existence, download_url, unzip
