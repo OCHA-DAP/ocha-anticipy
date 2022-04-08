@@ -120,7 +120,6 @@ class FewsNet(DataSource):
         --------
         >>> download(date_pub="2020-10-01")
         """
-        date_pub = "2021-07-01"
         date_pub_datetime = parse(date_pub)
 
         # we prefer the country data as this more nicely structured
@@ -138,7 +137,8 @@ class FewsNet(DataSource):
                 )
             except ValueError:
                 raise RuntimeError(
-                    f"No country or regional data found for {date_pub}"
+                    "No country or regional data found for"
+                    f" {date_pub_datetime.strftime('%Y-%m')}"
                 )
 
     def process(self, *args, **kwargs):

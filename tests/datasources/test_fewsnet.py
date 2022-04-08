@@ -40,7 +40,7 @@ def test_download_country(
         / "raw"
         / "glb"
         / DATASOURCE_BASE_DIR
-        / f"{ISO2.upper()}202007"
+        / f"{ISO2.upper()}_202007"
     )
 
 
@@ -68,7 +68,7 @@ def test_download_region(
         / "raw"
         / "glb"
         / DATASOURCE_BASE_DIR
-        / "EA202007"
+        / "EA_202007"
     )
 
 
@@ -83,7 +83,7 @@ def test_download_nodata(mock_country_config, mock_download_call):
             region_data=False,
         )
         assert output_path is None
-    assert "No data found for 2020-07" in str(e.value)
+    assert "No country or regional data found for 2020-07" in str(e.value)
 
 
 def test_invalid_region_name():
@@ -132,17 +132,17 @@ def mock_countryregion(mocker):
                 return mocker.patch(
                     "aatoolbox.datasources.fewsnet.fewsnet."
                     "FewsNet._download_country",
-                    return_value=None,
+                    side_effect=ValueError,
                 )
             else:
                 return mocker.patch(
                     "aatoolbox.datasources.fewsnet.fewsnet."
                     "FewsNet._download_country",
-                    return_value=None,
+                    side_effect=ValueError,
                 ), mocker.patch(
                     "aatoolbox.datasources.fewsnet.fewsnet."
                     "FewsNet._download_region",
-                    return_value=None,
+                    side_effect=ValueError,
                 )
 
     return _mock_countryregion
