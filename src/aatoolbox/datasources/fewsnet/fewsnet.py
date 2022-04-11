@@ -37,15 +37,6 @@ _BASE_URL_REGION = (
     "HFIC/{region_code}/{region_name}{YYYY}{MM}.zip"
 )
 
-# the URL uses a code, so map them
-_REGION_NAME_CODE_MAPPING = {
-    "caribbean-central-america": "LAC",
-    "central-asia": "CA",
-    "east-africa": "EA",
-    "southern-africa": "SA",
-    "west-africa": "WA",
-}
-
 _VALID_PROJECTION_PERIODS = Literal["CS", "ML1", "ML2"]
 
 
@@ -91,7 +82,7 @@ class FewsNet(DataSource):
             )
 
         self._region_name = self._country_config.fewsnet.region_name
-        self._region_code = _REGION_NAME_CODE_MAPPING[self._region_name]
+        self._region_code = self._country_config.fewsnet.region_code
 
     # mypy will give error Signature of "download" incompatible with supertype
     # "DataSource" due to `date_pub` not being an arg in `DataSource`. This is

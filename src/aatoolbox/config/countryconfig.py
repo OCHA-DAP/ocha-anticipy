@@ -1,8 +1,8 @@
 """Country configuration setting base class."""
 from pathlib import Path
-from typing import Optional
+from typing import Dict, Optional
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, root_validator, validator
 
 from aatoolbox.utils.io import parse_yaml
 
@@ -41,10 +41,19 @@ class FewsNetConfig(BaseModel):
         regional FEWS NET data
     """
 
+    # values dictionary gets build in order attributes are listed
+    # so first define the dict before the region_name
+    region_name_code_mapping: Dict[str, str] = {
+        "caribbean-central-america": "LAC",
+        "central-asia": "CA",
+        "east-africa": "EA",
+        "southern-africa": "SA",
+        "west-africa": "WA",
+    }
     region_name: str
 
     @validator("region_name")
-    def regionname_valid(cls, v):
+    def regionname_valid(cls, v, values):
         """Check that regionname is one of the valid ones."""
         valid_regionnames = [
             "caribbean-central-america",
@@ -53,12 +62,21 @@ class FewsNetConfig(BaseModel):
             "southern-africa",
             "west-africa",
         ]
+        valid_regionnames = values["region_name_code_mapping"].keys()
         if v not in valid_regionnames:
             raise ValueError(
                 f"Invalid region name: {v}. "
                 f"Should be one of {valid_regionnames}"
             )
         return v
+
+    @root_validator(pre=False)
+    def _set_region_code(cls, values) -> dict:
+        """Set region code based on region name."""
+        values["region_code"] = values["region_name_code_mapping"][
+            values["region_name"]
+        ]
+        return values
 
 
 class CountryConfig(BaseModel):
