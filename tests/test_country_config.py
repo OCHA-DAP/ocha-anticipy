@@ -14,7 +14,7 @@ def mock_parse_yaml(mocker):
     def patcher(output_list: List[Dict] = None):
         if output_list is None:
             output_list = [{"iso3": "abc"}]
-        mocker.patch(
+        return mocker.patch(
             "aatoolbox.config.countryconfig.parse_yaml",
             side_effect=output_list,
         )
@@ -35,21 +35,25 @@ def test_country_not_implemented():
         create_country_config(iso3="abc")
 
 
-@pytest.fixture
-def bad_iso3s() -> list:
-    """ISO3s that should be invalid."""
-    return ["ABC", "abcd", "ab", "123"]
-
-
-def test_input_iso3(bad_iso3s):
-    """Test that user input iso3 is validated."""
+def test_input_iso3():
+    """Test that user input iso3 is validated, but can be uppercase."""
+    bad_iso3s = ["abcd", "ab", "123"]
     with pytest.raises(ValueError):
         for iso3 in bad_iso3s:
             create_country_config(iso3=iso3)
 
 
-def test_config_iso3(bad_iso3s, mock_parse_yaml):
+def test_uppercase_input_iso3(mock_parse_yaml):
+    """Test that uppercase iso3 converted to lowercase for filename."""
+    fake_parser = mock_parse_yaml()
+    create_country_config(iso3="ABC")
+    _, args, _ = fake_parser.mock_calls[0]
+    assert "abc.yaml" in str(args[0])
+
+
+def test_config_iso3(mock_parse_yaml):
     """Test that iso3 in config file is validated."""
+    bad_iso3s = ["ABC", "abcd", "ab", "123"]
     mock_parse_yaml(output_list=[{"iso3": iso3} for iso3 in bad_iso3s])
     with pytest.raises(ValueError):
         for _ in bad_iso3s:
