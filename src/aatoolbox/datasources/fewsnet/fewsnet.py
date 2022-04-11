@@ -21,7 +21,7 @@ import geopandas as gpd
 # known issue that is incorrect and doesn't make sense so ignore
 from dateutil.parser import parse  # type: ignore
 from hdx.location.country import Country
-from typing_extensions import Literal, get_args
+from typing_extensions import Literal
 
 from aatoolbox.datasources.datasource import DataSource
 from aatoolbox.utils.io import check_file_existence, download_url, unzip
@@ -94,7 +94,7 @@ class FewsNet(DataSource):
         self._region_code = _REGION_NAME_CODE_MAPPING[self._region_name]
 
     # mypy will give error Signature of "download" incompatible with supertype
-    # "DataSource" due `date_pub` not being an arg in `DataSource`. This is
+    # "DataSource" due to `date_pub` not being an arg in `DataSource`. This is
     # however valid so ignore mypy
     def download(  # type: ignore
         self,
@@ -155,8 +155,16 @@ class FewsNet(DataSource):
         date_pub: str,
         projection_period: _VALID_PROJECTION_PERIODS,
     ) -> gpd.GeoDataFrame:
-        """Load FEWS NET data for the given `date_pub`."""
-        valid_projection_periods = get_args(_VALID_PROJECTION_PERIODS)
+        """
+        Load FEWS NET data.
+
+        For the given `date_pub` and `projection_period`.
+        """
+        # from python 3.7 you can use `get_args` instead of `__args__` but
+        # since we support 3.6, we use `__args__`
+        valid_projection_periods = (
+            _VALID_PROJECTION_PERIODS.__args__  # type: ignore
+        )
         if projection_period not in valid_projection_periods:
             raise ValueError(
                 "`projection_period` is not a valid projection_period. "
