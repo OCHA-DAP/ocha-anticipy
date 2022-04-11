@@ -55,13 +55,6 @@ class FewsNetConfig(BaseModel):
     @validator("region_name")
     def regionname_valid(cls, v, values):
         """Check that regionname is one of the valid ones."""
-        valid_regionnames = [
-            "caribbean-central-america",
-            "central-asia",
-            "east-africa",
-            "southern-africa",
-            "west-africa",
-        ]
         valid_regionnames = values["region_name_code_mapping"].keys()
         if v not in valid_regionnames:
             raise ValueError(
