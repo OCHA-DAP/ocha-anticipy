@@ -84,13 +84,13 @@ def parse_yaml(filename: Union[str, Path]) -> dict:
 
 
 @wrapt.decorator
-def check_file_existence(wrapped: F, instance, *args, **kwargs) -> F:
+def check_file_existence(wrapped: F, instance, args, kwargs) -> F:
     """
     Don't overwrite existing data.
 
     Avoid recreating data if it already exists and if clobber not
-    toggled by user. Can be used to wrap a function whose first parameter
-    is a filepath.
+    toggled by user. Used to wrap functions that accept filepath
+    as a keyword argument.
 
     Parameters
     ----------
@@ -112,7 +112,7 @@ def check_file_existence(wrapped: F, instance, *args, **kwargs) -> F:
     the decorated function.
 
     """
-    filepath = args[0]
+    filepath = kwargs.pop("filepath")
     if filepath.exists() and not kwargs.get("clobber", False):
         logger.info(
             f"File {filepath} exists and clobber set to False, "
@@ -120,4 +120,5 @@ def check_file_existence(wrapped: F, instance, *args, **kwargs) -> F:
         )
         return filepath
     else:
+
         return wrapped(*args, **kwargs)
