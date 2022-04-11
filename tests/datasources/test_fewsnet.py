@@ -89,7 +89,10 @@ def test_download_nodata(mock_country_config, mock_download_call):
 def test_invalid_region_name():
     """Test raised error when too high admin level requested."""
     with pytest.raises(ValueError):
-        FewsNetConfig.regionname_valid(v="supereast-africa")
+        FewsNetConfig.regionname_valid(
+            v="supereast-africa",
+            values={"region_name_code_mapping": {"east-africa": "EA"}},
+        )
 
 
 @pytest.fixture
