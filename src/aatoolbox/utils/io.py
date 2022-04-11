@@ -110,9 +110,8 @@ def check_file_existence(wrapped: F, instance, args, kwargs) -> F:
     -------
     If filepath exists, returns filepath. Otherwise, returns the result of
     the decorated function.
-
     """
-    filepath = kwargs.pop("filepath")
+    filepath = kwargs.get("filepath")
     if filepath.exists() and not kwargs.get("clobber", False):
         logger.info(
             f"File {filepath} exists and clobber set to False, "
@@ -120,5 +119,4 @@ def check_file_existence(wrapped: F, instance, args, kwargs) -> F:
         )
         return filepath
     else:
-
         return wrapped(*args, **kwargs)
