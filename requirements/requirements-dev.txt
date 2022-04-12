@@ -35,6 +35,10 @@ beautifulsoup4==4.10.0
     # via
     #   -r requirements/requirements.txt
     #   hdx-python-utilities
+bokeh==2.4.2
+    # via
+    #   -r requirements/requirements.txt
+    #   dask
 boto3==1.20.8
     # via
     #   -r requirements/requirements.txt
@@ -88,6 +92,7 @@ click==8.0.3
     #   -r requirements/requirements.txt
     #   click-plugins
     #   cligj
+    #   distributed
     #   fiona
     #   pip-tools
     #   rasterio
@@ -102,6 +107,11 @@ cligj==0.7.2
     #   -r requirements/requirements.txt
     #   fiona
     #   rasterio
+cloudpickle==2.0.0
+    # via
+    #   -r requirements/requirements.txt
+    #   dask
+    #   distributed
 coverage[toml]==6.1.2
     # via
     #   -r requirements/requirements-tests.txt
@@ -110,6 +120,11 @@ cryptography==35.0.0
     # via
     #   -r requirements/requirements.txt
     #   pyopenssl
+dask==2022.04.0
+    # via
+    #   -r requirements/requirements.txt
+    #   distributed
+    #   xarray
 decorator==5.1.0
     # via
     #   -r requirements/requirements.txt
@@ -118,6 +133,10 @@ distlib==0.3.3
     # via
     #   -r requirements/requirements-tests.txt
     #   virtualenv
+distributed==2022.04.0
+    # via
+    #   -r requirements/requirements.txt
+    #   dask
 dnspython==2.1.0
     # via
     #   -r requirements/requirements.txt
@@ -153,6 +172,10 @@ fiona==1.8.20
     # via
     #   -r requirements/requirements.txt
     #   geopandas
+fsspec==2022.3.0
+    # via
+    #   -r requirements/requirements.txt
+    #   dask
 geopandas==0.10.2
     # via -r requirements/requirements.txt
 greenlet==1.1.2
@@ -169,6 +192,10 @@ hdx-python-utilities==3.1.7
     # via
     #   -r requirements/requirements.txt
     #   hdx-python-country
+heapdict==1.0.1
+    # via
+    #   -r requirements/requirements.txt
+    #   zict
 html5lib==1.1
     # via
     #   -r requirements/requirements.txt
@@ -200,6 +227,10 @@ iniconfig==1.1.1
 jinja2==3.0.3
     # via
     #   -r requirements/requirements-docs.txt
+    #   -r requirements/requirements.txt
+    #   bokeh
+    #   dask
+    #   distributed
     #   sphinx
 jmespath==0.10.0
     # via
@@ -222,6 +253,10 @@ linear-tsv==1.1.0
     # via
     #   -r requirements/requirements.txt
     #   tabulator
+locket==0.2.1
+    # via
+    #   -r requirements/requirements.txt
+    #   partd
 loguru==0.6.0
     # via
     #   -r requirements/requirements.txt
@@ -233,7 +268,12 @@ lxml==4.6.4
 markupsafe==2.0.1
     # via
     #   -r requirements/requirements-docs.txt
+    #   -r requirements/requirements.txt
     #   jinja2
+msgpack==1.0.3
+    # via
+    #   -r requirements/requirements.txt
+    #   distributed
 munch==2.5.0
     # via
     #   -r requirements/requirements.txt
@@ -254,7 +294,9 @@ numpy==1.19.5
     # via
     #   -r requirements/requirements-tests.txt
     #   -r requirements/requirements.txt
+    #   bokeh
     #   cftime
+    #   dask
     #   netcdf4
     #   pandas
     #   rasterio
@@ -269,6 +311,9 @@ packaging==21.3
     #   -r requirements/requirements-docs.txt
     #   -r requirements/requirements-tests.txt
     #   -r requirements/requirements.txt
+    #   bokeh
+    #   dask
+    #   distributed
     #   pytest
     #   rioxarray
     #   sphinx
@@ -276,14 +321,23 @@ packaging==21.3
 pandas==1.3.4
     # via
     #   -r requirements/requirements.txt
+    #   dask
     #   geopandas
     #   xarray
+partd==1.2.0
+    # via
+    #   -r requirements/requirements.txt
+    #   dask
 pbr==5.8.0
     # via
     #   -r requirements/requirements-docs.txt
     #   sphinxcontrib-apidoc
 pep517==0.12.0
     # via pip-tools
+pillow==9.1.0
+    # via
+    #   -r requirements/requirements.txt
+    #   bokeh
 pip-tools==6.4.0
     # via -r requirements/dev.in
 platformdirs==2.4.0
@@ -302,6 +356,10 @@ ply==3.11
     #   libhxl
 pre-commit==2.15.0
     # via -r requirements/dev.in
+psutil==5.9.0
+    # via
+    #   -r requirements/requirements.txt
+    #   distributed
 py==1.11.0
     # via
     #   -r requirements/requirements-tests.txt
@@ -376,6 +434,9 @@ pytz==2021.3
 pyyaml==6.0
     # via
     #   -r requirements/requirements.txt
+    #   bokeh
+    #   dask
+    #   distributed
     #   pre-commit
 quantulum3==0.7.9
     # via
@@ -453,6 +514,10 @@ snuggs==1.4.7
     # via
     #   -r requirements/requirements.txt
     #   rasterio
+sortedcontainers==2.4.0
+    # via
+    #   -r requirements/requirements.txt
+    #   distributed
 soupsieve==2.3.1
     # via
     #   -r requirements/requirements.txt
@@ -498,6 +563,10 @@ tabulator[cchardet]==1.53.5
     # via
     #   -r requirements/requirements.txt
     #   hdx-python-utilities
+tblib==1.7.0
+    # via
+    #   -r requirements/requirements.txt
+    #   distributed
 text-unidecode==1.3
     # via
     #   -r requirements/requirements.txt
@@ -513,11 +582,23 @@ tomli==1.2.2
     #   -r requirements/requirements-tests.txt
     #   coverage
     #   pep517
+toolz==0.11.2
+    # via
+    #   -r requirements/requirements.txt
+    #   dask
+    #   distributed
+    #   partd
+tornado==6.1
+    # via
+    #   -r requirements/requirements.txt
+    #   bokeh
+    #   distributed
 tox==3.24.5
     # via -r requirements/requirements-tests.txt
 typing-extensions==4.0.0
     # via
     #   -r requirements/requirements.txt
+    #   bokeh
     #   pydantic
 unicodecsv==0.14.1
     # via
@@ -537,6 +618,7 @@ urllib3==1.26.7
     #   -r requirements/requirements-docs.txt
     #   -r requirements/requirements.txt
     #   botocore
+    #   distributed
     #   requests
     #   requests-cache
 virtualenv==20.10.0
@@ -555,7 +637,7 @@ wheel==0.37.0
     #   pip-tools
 wrapt==1.14.0
     # via -r requirements/requirements.txt
-xarray==0.20.1
+xarray[parallel]==0.20.1
     # via
     #   -r requirements/requirements.txt
     #   rioxarray
@@ -567,6 +649,10 @@ xlrd3==1.1.0
     # via
     #   -r requirements/requirements.txt
     #   libhxl
+zict==2.1.0
+    # via
+    #   -r requirements/requirements.txt
+    #   distributed
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip

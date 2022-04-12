@@ -3,12 +3,9 @@ from pathlib import Path
 
 import pytest
 
-# TODO: this will break if there is another conftest
-from conftest import FAKE_AA_DATA_DIR, ISO3
-
 from aatoolbox import CodAB
 
-MODULE_BASENAME = "cod_ab"
+DATASOURCE_BASE_DIR = "cod_ab"
 
 
 @pytest.fixture
@@ -25,20 +22,23 @@ def gpd_read_file(mocker):
     return mocker.patch("aatoolbox.datasources.codab.codab.gpd.read_file")
 
 
-def test_codab_download(mock_country_config, downloader):
+def test_codab_download(mock_aa_data_dir, mock_country_config, downloader):
     """Test that load_codab calls the HDX API to download."""
     codab = CodAB(country_config=mock_country_config)
     codab.download()
     downloader.assert_called_with(
-        hdx_address=f"cod-ab-{ISO3}",
+        hdx_address=f"cod-ab-{mock_country_config.iso3}",
         hdx_dataset_name=mock_country_config.codab.hdx_dataset_name,
-        output_filepath=Path(FAKE_AA_DATA_DIR)
-        / f"public/raw/{ISO3}/{MODULE_BASENAME}/"
-        f"{ISO3}_{MODULE_BASENAME}.shp.zip",
+        output_filepath=mock_aa_data_dir
+        / f"public/raw/{mock_country_config.iso3}/"
+        f"{DATASOURCE_BASE_DIR}/{mock_country_config.iso3}_"
+        f"{DATASOURCE_BASE_DIR}.shp.zip",
     )
 
 
-def test_codab_load_admin_level(mock_country_config, gpd_read_file):
+def test_codab_load_admin_level(
+    mock_aa_data_dir, mock_country_config, gpd_read_file
+):
     """Test that load_codab retrieves expected file and layer name."""
     codab = CodAB(country_config=mock_country_config)
     admin_level = 2
@@ -48,8 +48,9 @@ def test_codab_load_admin_level(mock_country_config, gpd_read_file):
     codab.load(admin_level=admin_level)
 
     gpd_read_file.assert_called_with(
-        f"zip:///{FAKE_AA_DATA_DIR}/public/raw/{ISO3}/{MODULE_BASENAME}/"
-        f"{ISO3}_{MODULE_BASENAME}.shp.zip/{expected_layer_name}"
+        f"zip:///{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
+        f"{DATASOURCE_BASE_DIR}/{mock_country_config.iso3}_"
+        f"{DATASOURCE_BASE_DIR}.shp.zip/{expected_layer_name}"
     )
 
 
@@ -60,7 +61,7 @@ def test_codab_too_high_admin_level(mock_country_config):
         codab.load(admin_level=10)
 
 
-def test_codab_custom(mock_country_config, gpd_read_file):
+def test_codab_custom(mock_aa_data_dir, mock_country_config, gpd_read_file):
     """Test that load_codab_custom retrieves expected file and layer name."""
     custom_layer_number = 1
     custom_layer_name_list = ["custom_layer_A", "custom_layer_B"]
@@ -68,8 +69,9 @@ def test_codab_custom(mock_country_config, gpd_read_file):
     codab = CodAB(country_config=mock_country_config)
     codab.load_custom(custom_layer_number)
     gpd_read_file.assert_called_with(
-        f"zip:///{FAKE_AA_DATA_DIR}/public/raw/{ISO3}/{MODULE_BASENAME}/"
-        f"{ISO3}_{MODULE_BASENAME}.shp.zip/"
+        f"zip:///{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
+        f"{DATASOURCE_BASE_DIR}/{mock_country_config.iso3}_"
+        f"{DATASOURCE_BASE_DIR}.shp.zip/"
         f"{custom_layer_name_list[custom_layer_number]}"
     )
 
