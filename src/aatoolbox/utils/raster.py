@@ -491,14 +491,14 @@ class AatRasterArray(AatRasterMixin, RasterArray):
                     kwargs["min_count"] = 1
                 grid_stat = getattr(da_clip, stat)(
                     dim=[self.x_dim, self.y_dim], **kwargs
-                ).rename(f"{stat}_{feature_col}")
+                ).rename(stat)
                 grid_stat_all.append(grid_stat)
 
             if percentile_list is not None:
                 grid_quant = [
                     da_clip.quantile(quant / 100, dim=[self.x_dim, self.y_dim])
                     .drop("quantile")
-                    .rename(f"{quant}quant_{feature_col}")
+                    .rename(f"{quant}quant")
                     for quant in percentile_list
                 ]
                 grid_stat_all.extend(grid_quant)
