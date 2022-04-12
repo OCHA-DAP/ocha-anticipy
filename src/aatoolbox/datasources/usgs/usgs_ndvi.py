@@ -54,7 +54,10 @@ from aatoolbox.utils._dates import (
     _date_to_dekad,
     _dekad_to_date,
 )
-from aatoolbox.utils.io import check_file_existence
+
+# TODO: use check_file_existence once the fix is merged
+# that allows it to work on class methods (PR is open)
+# from aatoolbox.utils.io import check_file_existence
 
 logger = logging.getLogger(__name__)
 
@@ -545,7 +548,7 @@ class _UsgsNdvi(DataSource):
         filepath = self._get_raw_path(year=year, dekad=dekad)
         self._download(filepath=filepath, clobber=clobber)
 
-    @check_file_existence
+    # @check_file_existence
     def _download(self, filepath: Path, clobber: bool):
         # filepath just necessary for checking file existence
         # now just extract filepath
