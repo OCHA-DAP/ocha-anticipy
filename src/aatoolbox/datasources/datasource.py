@@ -25,6 +25,12 @@ class DataSource(ABC):
     is_public: bool, default = False
         Whether the dataset is public or private. Determines top-level
         directory structure.
+    is_global_raw: bool, default = False
+        Whether the raw dataset should be saved in the `glb` folder. This is
+        normally done when it has global or regional coverage.
+    is_global_processed: bool, default = False
+        Whether the processed dataset should be saved in the `glb` folder.
+        This is normally done when it has global or regional coverage.
     """
 
     @abstractmethod
