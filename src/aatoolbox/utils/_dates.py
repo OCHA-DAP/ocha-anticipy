@@ -1,7 +1,8 @@
 """Functions for dealing with dates."""
 
+import itertools
 from datetime import date, datetime
-from typing import Union
+from typing import List, Union
 
 
 def _dekad_to_date(year: int, dekad: int):
@@ -79,3 +80,19 @@ def _compare_dekads_gte(y1: int, d1: int, y2: int, d2: int):
     equal to the second pair.
     """
     return _compare_dekads_lte(y1=y2, d1=d2, y2=y1, d2=d1)
+
+
+def _expand_dekads(y1: int, d1: int, y2: int, d2: int) -> List[list]:
+    """Expand for all years/dekads between two dates.
+
+    Takes input year and dekads and returns a list
+    of year/dekad lists.
+    """
+    year_range = range(y1, y2 + 1)
+    dekad_range = range(1, 37)
+    date_combos = itertools.product(*[year_range, dekad_range])
+
+    def valid(y, d):
+        return not ((y == y1 and d < d1) or (y == y2 and d > d2))
+
+    return [[y, d] for y, d in date_combos if valid(y, d)]
