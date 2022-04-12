@@ -95,8 +95,8 @@ def check_file_existence(wrapped: F, instance, args, kwargs) -> F:
     Parameters
     ----------
     wrapped : function
-        The function to wrap. The first parameter of this function must
-        be the filepath (of type Path), and it can also have an optional
+        The function to wrap. The function must have "filepath" as
+        a keyword parameter, and it can also have an optional
         "clobber" boolean keyword parameter.
     instance :
         Object the wrapped function is bound to. Not used within, but
