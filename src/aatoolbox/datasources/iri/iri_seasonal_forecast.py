@@ -221,16 +221,9 @@ def _process(filepath: Path, ds, clobber: bool) -> Path:
     ds.aat.correct_calendar(inplace=True)
     ds = xr.decode_cf(ds)
 
-    # IRI downloads in the order you give the coordinates
-    # so make sure to invert them
     # IRI accepts -180 to 180 longitudes and 0 to 360
     # but automatically converts them to -180 to 180
     # so we don't need to do that
-    # TODO: can be removed once we have a check in the
-    #  geoboundingbox class for south<north
-    # TODO: for some reason the `inplace` is not working
-    #  re-add when we fixed that
-    ds = ds.aat.invert_coordinates()
     ds.to_netcdf(filepath)
     return filepath
 
