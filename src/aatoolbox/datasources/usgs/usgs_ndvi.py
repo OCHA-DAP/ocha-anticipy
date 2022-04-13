@@ -34,7 +34,7 @@ import logging
 from datetime import date
 from io import BytesIO
 from pathlib import Path
-from typing import List, Literal, Tuple, Union, cast, get_args
+from typing import List, Tuple, Union, cast, get_args
 from urllib.error import HTTPError
 from urllib.request import urlopen
 from zipfile import ZipFile
@@ -44,6 +44,7 @@ import pandas as pd
 import regex as re
 import rioxarray  # noqa: F401
 import xarray as xr
+from typing_extensions import Literal
 
 import aatoolbox.utils.raster  # noqa: F401
 from aatoolbox.config.countryconfig import CountryConfig
