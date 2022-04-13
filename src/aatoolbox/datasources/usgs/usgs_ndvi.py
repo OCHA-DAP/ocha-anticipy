@@ -218,7 +218,7 @@ class _UsgsNdvi(DataSource):
             raise ValueError("`processed_file_suffix` must be a string.")
         self._processed_file_suffix = value
 
-    def download(self, clobber: bool = False):
+    def download(self, clobber: bool = False) -> Path:
         """Download raw NDVI data as .tif files.
 
         NDVI data is downloaded from the USGS API,
@@ -232,6 +232,30 @@ class _UsgsNdvi(DataSource):
         ----------
         clobber : bool, default = False
             If True, overwrites existing files
+
+        Returns
+        -------
+        Path
+            The downloaded filepath
+
+        Examples
+        --------
+        >>> from aatoolbox import create_country_config, \
+        ...  CodAB, UsgsNdviSmoothed
+        >>>
+        >>> # Retrieve admin 2 boundaries for Nepal
+        >>> country_config = create_country_config(iso3="npl")
+        >>> codab = CodAB(country_config=country_config)
+        >>> npl_admin2 = codab.load(admin_level=2)
+        >>>
+        >>> # setup NDVI
+        >>> UsgsNdviSmoothed(
+        ...     country_config=country_config,
+        ...     coverage_area="west_africa",
+        ...     start_date=[2020, 1],
+        ...     end_date=[2020, 3]
+        ... )
+        >>> UsgsNdviSmoothed.download()
         """
         for year in range(self._start_year, self._end_year + 1):
             for dekad in range(1, 37):
@@ -243,6 +267,7 @@ class _UsgsNdvi(DataSource):
                     self._download_ndvi_dekad(
                         year=year, dekad=dekad, clobber=clobber
                     )
+        return self._raw_base_dir
 
     def process(
         self,
@@ -255,9 +280,11 @@ class _UsgsNdvi(DataSource):
 
         NDVI data is clipped to the provided
         ``geometries``, usually a geopandas
-        dataframes ``geometry`` feature. The, and
-        percent of area below each ``threshold``
-        is calculated.
+        dataframes ``geometry`` feature. ``kwargs``
+        are passed on to ``aat.computer_raster_stats()``.
+        ``self.processed_file_suffix`` is used to define
+        the unique processed files, and should be changed
+        if the user wants to analyze across multiple files.
 
         Parameters
         ----------
@@ -270,17 +297,47 @@ class _UsgsNdvi(DataSource):
             Column in ``gdf`` to use as row/feature identifier.
             and dates. Passed to ``aat.compute_raster_stats()``.
         clobber : bool, default = False
-            If True, overwrites existing processed file. If
-            False, stats are only calculated for year-dekads
+            If True, overwrites existing processed dates. If
+            the new file matches the old file, dates will be
+            reprocessed and appended to the data frame. If
+            files do not much, the old file will be replaced.
+            If False, stats are only calculated for year-dekads
             that have not already been calculated within the
-            file.
+            file. However, if False and files do not match,
+            value error will be raised.
         **kwargs
             Additional keyword arguments passed to
             ``aat.computer_raster_stats()``.
 
         Returns
         -------
-        pd.DataFrame
+        Path
+            The processed path
+
+        Examples
+        --------
+        >>> from aatoolbox import create_country_config, \
+        ...  CodAB, UsgsNdviSmoothed
+        >>>
+        >>> # Retrieve admin 2 boundaries for Nepal
+        >>> country_config = create_country_config(iso3="npl")
+        >>> codab = CodAB(country_config=country_config)
+        >>> npl_admin2 = codab.load(admin_level=2)
+        >>> npl_admin1 = codab.load(admin_level=2)
+        >>>
+        >>> # setup NDVI
+        >>> UsgsNdviSmoothed(
+        ...     country_config=country_config,
+        ...     coverage_area="west_africa",
+        ...     start_date=[2020, 1],
+        ...     end_date=[2020, 3]
+        ... )
+        >>> UsgsNdviSmoothed.download()
+        >>> UsgsNdviSmoothed.process()
+        >>>
+        >>> # process for admin
+        >>> UsgsNdviSmoothed.processed_file_suffix = "adm1"
+        >>> UsgsNdviSmoothed.process()
         """
         processed_path = self._get_processed_path()
 
@@ -353,7 +410,11 @@ class _UsgsNdvi(DataSource):
                             "process to do not match existing "
                             "processed file. Use `self.load()`"
                             "to check existing processed file "
-                            "and reconcile call to `process()`."
+                            "and reconcile call to `process()`. "
+                            "Consider setting the "
+                            "`self.processed_file_suffix` if you "
+                            "want to store separate analysis (such "
+                            "as at a different disaggregation)."
                         )
                     )
         else:
@@ -393,6 +454,27 @@ class _UsgsNdvi(DataSource):
         ------
         FileNotFoundError
             If the requested file cannot be found.
+
+        Examples
+        --------
+        >>> from aatoolbox import create_country_config, \
+        ...  CodAB, UsgsNdviSmoothed
+        >>>
+        >>> # Retrieve admin 2 boundaries for Nepal
+        >>> country_config = create_country_config(iso3="npl")
+        >>> codab = CodAB(country_config=country_config)
+        >>> npl_admin2 = codab.load(admin_level=2)
+        >>>
+        >>> # setup NDVI
+        >>> UsgsNdviSmoothed(
+        ...     country_config=country_config,
+        ...     coverage_area="west_africa",
+        ...     start_date=[2020, 1],
+        ...     end_date=[2020, 3]
+        ... )
+        >>> UsgsNdviSmoothed.download()
+        >>> UsgsNdviSmoothed.process()
+        >>> UsgsNdviSmoothed.load()
         """
         processed_path = self._get_processed_path()
         try:
@@ -657,3 +739,191 @@ class _UsgsNdvi(DataSource):
 
         resp.close()
         return filepath
+
+
+class UsgsNdviSmoothed(DataSource):
+    """Base class to retrieve smoothed NDVI data.
+
+    The retrieved data is the smoothed NDVI values
+    processed by the USGS. Temporal smoothing is done
+    to adjust for cloud cover and other errors.
+    Data for the 3 most recent dekads is not fully
+    smoothed, and are re-smoothed at the end of the
+    3 dekad period.
+
+    Parameters
+    ----------
+    country_config : CountryConfig
+        Country configuration
+    coverage_area : str
+        Area of coverage
+    start_date : Union[date, str, Tuple[int], None]
+        Start date. Can be passed as a ``datetime.date``
+        object and the relevant dekad will be determined,
+        as a date string in ISO8601 format, or as a
+        year-dekad tuple, i.e. (2020, 1).
+    end_date : Union[date, str, Tuple[int], None]
+        End date. Can be passed as a ``datetime.date``
+        object and the relevant dekad will be determined,
+        as a date string in ISO8601 format, or as a
+        year-dekad tuple, i.e. (2020, 1).
+    processed_file_suffix : str
+        Suffix for processed file.
+    """
+
+    def __init__(
+        self,
+        country_config: CountryConfig,
+        coverage_area: _VALID_AREAS,
+        start_date: Union[date, str, Tuple[int], None] = None,
+        end_date: Union[date, str, Tuple[int], None] = None,
+        processed_file_suffix: str = "",
+    ):
+        super().__init__(
+            country_config=country_config,
+            coverage_area=coverage_area,
+            data_type="smoothed",
+            start_date=start_date,
+            end_date=end_date,
+            processed_file_suffix=processed_file_suffix,
+        )
+
+
+class UsgsNdviPctMedian(DataSource):
+    """Base class to retrieve % of median NDVI.
+
+    The retrieved data is the percent of median NDVI
+    values calculated from 2003 - 2017, as
+    processed by the USGS.
+
+    Parameters
+    ----------
+    country_config : CountryConfig
+        Country configuration
+    coverage_area : str
+        Area of coverage
+    start_date : Union[date, str, Tuple[int], None]
+        Start date. Can be passed as a ``datetime.date``
+        object and the relevant dekad will be determined,
+        as a date string in ISO8601 format, or as a
+        year-dekad tuple, i.e. (2020, 1).
+    end_date : Union[date, str, Tuple[int], None]
+        End date. Can be passed as a ``datetime.date``
+        object and the relevant dekad will be determined,
+        as a date string in ISO8601 format, or as a
+        year-dekad tuple, i.e. (2020, 1).
+    processed_file_suffix : str
+        Suffix for processed file.
+    """
+
+    def __init__(
+        self,
+        country_config: CountryConfig,
+        coverage_area: _VALID_AREAS,
+        start_date: Union[date, str, Tuple[int], None] = None,
+        end_date: Union[date, str, Tuple[int], None] = None,
+        processed_file_suffix: str = "",
+    ):
+        super().__init__(
+            country_config=country_config,
+            coverage_area=coverage_area,
+            data_type="percent_median",
+            start_date=start_date,
+            end_date=end_date,
+            processed_file_suffix=processed_file_suffix,
+        )
+
+
+class UsgsNdviMedianAnomaly(DataSource):
+    """Base class to retrieve NDVI anomaly data.
+
+    The retrieved data is NDVI anomaly data calculated
+    as a subtraction of the median value from the
+    current value. Negative values indicate less
+    vegetation than the median, positive values indicate
+    more vegetation.
+
+    Parameters
+    ----------
+    country_config : CountryConfig
+        Country configuration
+    coverage_area : str
+        Area of coverage
+    start_date : Union[date, str, Tuple[int], None]
+        Start date. Can be passed as a ``datetime.date``
+        object and the relevant dekad will be determined,
+        as a date string in ISO8601 format, or as a
+        year-dekad tuple, i.e. (2020, 1).
+    end_date : Union[date, str, Tuple[int], None]
+        End date. Can be passed as a ``datetime.date``
+        object and the relevant dekad will be determined,
+        as a date string in ISO8601 format, or as a
+        year-dekad tuple, i.e. (2020, 1).
+    processed_file_suffix : str
+        Suffix for processed file.
+    """
+
+    def __init__(
+        self,
+        country_config: CountryConfig,
+        coverage_area: _VALID_AREAS,
+        start_date: Union[date, str, Tuple[int], None] = None,
+        end_date: Union[date, str, Tuple[int], None] = None,
+        processed_file_suffix: str = "",
+    ):
+        super().__init__(
+            country_config=country_config,
+            coverage_area=coverage_area,
+            data_type="median_anomaly",
+            start_date=start_date,
+            end_date=end_date,
+            processed_file_suffix=processed_file_suffix,
+        )
+
+
+class UsgsNdviYearDifference(DataSource):
+    """Base class to retrieve NDVI year difference data.
+
+    The retrieved data is NDVI yearly difference data,
+    calculated as the subtraction of the previous year's
+    NDVI value from the current year's. Negative
+    values indicate the current vegetation is less
+    than the previous year's, positive that there
+    is more vegetation in the current year.
+
+    Parameters
+    ----------
+    country_config : CountryConfig
+        Country configuration
+    coverage_area : str
+        Area of coverage
+    start_date : Union[date, str, Tuple[int], None]
+        Start date. Can be passed as a ``datetime.date``
+        object and the relevant dekad will be determined,
+        as a date string in ISO8601 format, or as a
+        year-dekad tuple, i.e. (2020, 1).
+    end_date : Union[date, str, Tuple[int], None]
+        End date. Can be passed as a ``datetime.date``
+        object and the relevant dekad will be determined,
+        as a date string in ISO8601 format, or as a
+        year-dekad tuple, i.e. (2020, 1).
+    processed_file_suffix : str
+        Suffix for processed file.
+    """
+
+    def __init__(
+        self,
+        country_config: CountryConfig,
+        coverage_area: _VALID_AREAS,
+        start_date: Union[date, str, Tuple[int], None] = None,
+        end_date: Union[date, str, Tuple[int], None] = None,
+        processed_file_suffix: str = "",
+    ):
+        super().__init__(
+            country_config=country_config,
+            coverage_area=coverage_area,
+            data_type="percent_median",
+            start_date=start_date,
+            end_date=end_date,
+            processed_file_suffix=processed_file_suffix,
+        )
