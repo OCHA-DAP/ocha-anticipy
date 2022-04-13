@@ -34,7 +34,7 @@ import logging
 from datetime import date
 from io import BytesIO
 from pathlib import Path
-from typing import List, Tuple, Union, cast, get_args
+from typing import List, Tuple, Union, cast
 from urllib.error import HTTPError
 from urllib.request import urlopen
 from zipfile import ZipFile
@@ -121,7 +121,7 @@ class _UsgsNdvi(DataSource):
 
         # set data type directly in init because should not be
         # changed in an instance
-        valid_types = get_args(_VALID_TYPES)
+        valid_types = _VALID_TYPES.__args__  # type: ignore
         if data_type not in valid_types:
             raise ValueError(
                 "`data_type` is not a valid string value. "
@@ -170,7 +170,7 @@ class _UsgsNdvi(DataSource):
 
     @coverage_area.setter
     def coverage_area(self, value: _VALID_AREAS):
-        valid_args = get_args(_VALID_AREAS)
+        valid_args = _VALID_AREAS.__args__  # type: ignore
         if value not in valid_args:
             raise ValueError(
                 "`coverage_area` is not a valid string value. "
