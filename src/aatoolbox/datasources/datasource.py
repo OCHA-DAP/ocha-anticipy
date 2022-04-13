@@ -20,29 +20,36 @@ class DataSource(ABC):
     ----------
     country_config: CountryConfig
         Country configuration
-    module_base_dir : str
+    datasource_base_dir : str
         Module directory name (usually correspond to data source)
     is_public: bool, default = False
         Whether the dataset is public or private. Determines top-level
         directory structure.
+    is_global_raw: bool, default = False
+        Whether the raw dataset should be saved in the `glb` folder. This is
+        normally done when it has global or regional coverage.
+    is_global_processed: bool, default = False
+        Whether the processed dataset should be saved in the `glb` folder.
+        This is normally done when it has global or regional coverage.
     """
 
     @abstractmethod
     def __init__(
         self,
         country_config: CountryConfig,
-        module_base_dir: str,
+        datasource_base_dir: str,
         is_public: bool = False,
+        is_global_raw: bool = False,
+        is_global_processed: bool = False,
     ):
         self._country_config = country_config
-        self._module_base_dir = module_base_dir
+        self._datasource_base_dir = datasource_base_dir
         self._path_config = PathConfig()
         self._raw_base_dir = self._get_base_dir(
-            is_public=is_public,
-            is_raw=True,
+            is_public=is_public, is_raw=True, is_global=is_global_raw
         )
         self._processed_base_dir = self._get_base_dir(
-            is_public=is_public, is_raw=False
+            is_public=is_public, is_raw=False, is_global=is_global_processed
         )
 
     def _get_base_dir(
@@ -81,7 +88,7 @@ class DataSource(ABC):
             / permission_dir
             / state_dir
             / region_dir
-            / self._module_base_dir
+            / self._datasource_base_dir
         )
 
     @abstractmethod

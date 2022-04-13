@@ -5,10 +5,15 @@ It is possible to create an ``GeoBoundingBox`` object either from
 north, south, east, west coordinates,
 or from a shapefile that has been read in with geopandas.
 """
+import logging
+from decimal import Decimal, getcontext
 from typing import Union
 
 import geopandas as gpd
 import numpy as np
+
+logger = logging.getLogger(__name__)
+getcontext().prec = 5  # Assuming we won't need higher than this!
 
 
 class GeoBoundingBox:
@@ -27,10 +32,35 @@ class GeoBoundingBox:
     """
 
     def __init__(self, north: float, south: float, east: float, west: float):
-        self.north = north
-        self.south = south
-        self.east = east
-        self.west = west
+        if north < south or east < west:
+            raise AttributeError(
+                "Periodic boundary conditions not supported. "
+                "North must be > South, and East must be > West."
+            )
+        self._north = Decimal(north)
+        self._south = Decimal(south)
+        self._east = Decimal(east)
+        self._west = Decimal(west)
+
+    @property
+    def north(self) -> float:
+        """Get the northern latitude boundary of the area (degrees)."""
+        return float(self._north)
+
+    @property
+    def south(self) -> float:
+        """Get the southern latitude boundary of the area (degrees)."""
+        return float(self._south)
+
+    @property
+    def east(self) -> float:
+        """Get the eastern longitude boundary of the area (degrees)."""
+        return float(self._east)
+
+    @property
+    def west(self) -> float:
+        """Get the western longitude boundary of the area (degrees)."""
+        return float(self._west)
 
     def __repr__(self):
         """Print bounding box string."""
@@ -40,14 +70,20 @@ class GeoBoundingBox:
         )
 
     @classmethod
-    def from_shape(cls, shape: Union[gpd.GeoSeries, gpd.GeoDataFrame]):
+    def from_shape(
+        cls, shape: Union[gpd.GeoSeries, gpd.GeoDataFrame]
+    ) -> "GeoBoundingBox":
         """
-        Create `GeoBoundingBox` from a geopandas object.
+        Create ``GeoBoundingBox`` from a geopandas object.
 
         Parameters
         ----------
         shape : geopandas.GeoSeries, geopandas.GeoDataFrame
             A shape whose bounds will be retrieved
+
+        Returns
+        -------
+        ``GeoBoundingBox`` from the total bounds of the ``GeoDataFrame``
 
         Examples
         --------
@@ -66,35 +102,42 @@ class GeoBoundingBox:
         self,
         offset_val: float = 0.0,
         round_val: Union[int, float] = 1,
-    ):
+    ) -> "GeoBoundingBox":
         """
         Round the bounding box coordinates.
 
-        Rounding is always done outside the original bounding box.
-        I.e. the resulting bounding box is always equal or larger
-        than the original bounding box.
+        Rounding is always done outside the original bounding box,
+        i.e. the resulting bounding box is always equal or larger
+        than the original bounding box. Rounding can only be done once
+        per instance.
 
         Parameters
         ----------
         offset_val : float, default = 0.0
             Offset the coordinates by this factor.
-        round_val : int, default = 1
-            The decimal to round to. If 1, round to integers
+        round_val : int or float, default = 1
+            Rounds to the nearest round_val. Can be an int for integer
+            rounding or float for decimal rounding. If 1, round to integers.
+
+        Returns
+        -------
+        ``GeoBoundingBox`` instance with rounded and offset coordinates
         """
+        # TODO: add examples above
+        new_coords = {}
         for direction in ["north", "west", "south", "east"]:
-            coord = getattr(self, direction)
+            coord = getattr(self, f"_{direction}")
             if direction in ("north", "east"):
                 function = np.ceil.__call__  # needed for mypy
-                offset_factor = 1
+                offset_factor = Decimal(1)
             elif direction in ("south", "west"):
                 function = np.floor.__call__  # needed for mypy
-                offset_factor = -1
-
-            rounded_coord = (
-                function(coord / round_val) * round_val
-                + offset_factor * offset_val
-            )
-            setattr(self, direction, rounded_coord)  # noqa: FKA01
+                offset_factor = Decimal(-1)
+            rounded_coord = function(coord / Decimal(round_val)) * Decimal(
+                round_val
+            ) + offset_factor * Decimal(offset_val)
+            new_coords[direction] = float(rounded_coord)
+        return GeoBoundingBox(**new_coords)
 
     def get_filename_repr(self, p: int = 0) -> str:
         """
