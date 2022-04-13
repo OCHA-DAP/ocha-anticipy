@@ -10,6 +10,12 @@ from aatoolbox.datasources.iri.iri_seasonal_forecast import (
     IriForecastDominant,
     IriForecastProb,
 )
+from aatoolbox.datasources.usgs.usgs_ndvi import (
+    UsgsNdviMedianAnomaly,
+    UsgsNdviPctMedian,
+    UsgsNdviSmoothed,
+    UsgsNdviYearDifference,
+)
 from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
 from ._version import version as __version__
@@ -20,5 +26,9 @@ __all__ = (
     "GeoBoundingBox",
     "IriForecastProb",
     "IriForecastDominant",
+    "UsgsNdviSmoothed",
+    "UsgsNdviPctMedian",
+    "UsgsNdviMedianAnomaly",
+    "UsgsNdviYearDifference",
     "__version__",
 )
