@@ -1,5 +1,4 @@
 """Tests for the FewsNet module."""
-
 import pytest
 from conftest import ISO2
 
@@ -203,3 +202,12 @@ def test_load(
             ),
         ]
     )
+
+
+def test_invalid_projection_period(mock_country_config):
+    """Test that fails when projection_period is not one of the options."""
+    fewsnet = FewsNet(country_config=mock_country_config)
+    with pytest.raises(ValueError):
+        fewsnet.load(
+            pub_year=_PUB_YEAR, pub_month=_PUB_MONTH, projection_period="CA"
+        )

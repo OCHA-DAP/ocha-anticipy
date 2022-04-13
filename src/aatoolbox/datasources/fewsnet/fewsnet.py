@@ -33,7 +33,8 @@ _BASE_URL_REGION = (
     "HFIC/{region_code}/{region_name}{YYYY}{MM}.zip"
 )
 
-_VALID_PROJECTION_PERIODS = Literal["CS", "ML1", "ML2"]
+_VALID_PROJECTION_PERIODS_LITERAL = Literal["CS", "ML1", "ML2"]
+_VALID_PROJECTION_PERIODS = ["CS", "ML1", "ML2"]
 
 
 class FewsNet(DataSource):
@@ -145,7 +146,7 @@ class FewsNet(DataSource):
         self,
         pub_year: int,
         pub_month: int,
-        projection_period: _VALID_PROJECTION_PERIODS,
+        projection_period: _VALID_PROJECTION_PERIODS_LITERAL,
     ) -> gpd.GeoDataFrame:
         """
         Load FEWS NET data.
@@ -178,15 +179,10 @@ class FewsNet(DataSource):
         >>> gdf_eth_fn_202106 = fewsnet.load(pub_year=2021,pub_month=6,
         ... projection_period = "ML1")
         """
-        # from python 3.7 you can use `get_args` instead of `__args__` but
-        # since we support 3.6, we use `__args__`
-        valid_projection_periods = (
-            _VALID_PROJECTION_PERIODS.__args__  # type: ignore
-        )
-        if projection_period not in valid_projection_periods:
+        if projection_period not in _VALID_PROJECTION_PERIODS:
             raise ValueError(
                 "`projection_period` is not a valid projection_period. "
-                f"It must be one of {*valid_projection_periods,}"
+                f"It must be one of {', '.join(_VALID_PROJECTION_PERIODS)}"
             )
 
         self._check_date_validity(pub_year=pub_year, pub_month=pub_month)
