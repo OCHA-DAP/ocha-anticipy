@@ -25,7 +25,8 @@ def test_download_country(
     fewsnet = FewsNet(country_config=mock_country_config)
     url, output_path = mock_download_call(
         fewsnet_class=fewsnet,
-        date_pub="2020-07-01",
+        pub_year=2020,
+        pub_month=7,
         country_data=True,
         region_data=False,
     )
@@ -51,7 +52,8 @@ def test_download_region(
     fewsnet = FewsNet(country_config=mock_country_config)
     url, output_path = mock_download_call(
         fewsnet_class=fewsnet,
-        date_pub="2020-07-01",
+        pub_year=2020,
+        pub_month=7,
         country_data=False,
         region_data=True,
     )
@@ -78,7 +80,8 @@ def test_download_nodata(mock_country_config, mock_download_call):
         fewsnet = FewsNet(country_config=mock_country_config)
         url, output_path = mock_download_call(
             fewsnet_class=fewsnet,
-            date_pub="2020-07-01",
+            pub_year=2020,
+            pub_month=7,
             country_data=False,
             region_data=False,
         )
@@ -95,15 +98,28 @@ def test_invalid_region_name():
         )
 
 
+def test_date_valid(mock_country_config):
+    """Test error when input date is not valid."""
+    fewsnet = FewsNet(country_config=mock_country_config)
+    with pytest.raises(ValueError):
+        fewsnet._check_date_validity(pub_year=2000, pub_month=12)
+        fewsnet._check_date_validity(pub_year=2000, pub_month=13)
+        fewsnet._check_date_validity(pub_year=2100, pub_month=12)
+
+
 @pytest.fixture
 def mock_download_call(mock_fake_url, mock_countryregion):
     """Mock call to download."""
     url_mock = mock_fake_url
 
-    def _get_country_mock(fewsnet_class, date_pub, country_data, region_data):
+    def _get_country_mock(
+        fewsnet_class, pub_year, pub_month, country_data, region_data
+    ):
         mock_countryregion(country_data, region_data)
 
-        output_path = fewsnet_class.download(date_pub=date_pub)
+        output_path = fewsnet_class.download(
+            pub_year=pub_year, pub_month=pub_month
+        )
 
         _, kwargs_download_url = url_mock.call_args
         url = kwargs_download_url["url"]

@@ -6,6 +6,7 @@ anticipatory action.
 """
 from aatoolbox.config.countryconfig import create_country_config
 from aatoolbox.datasources.codab.codab import CodAB
+from aatoolbox.datasources.fewsnet.fewsnet import FewsNet
 from aatoolbox.datasources.iri.iri_seasonal_forecast import (
     IriForecastDominant,
     IriForecastProb,
@@ -20,5 +21,6 @@ __all__ = (
     "GeoBoundingBox",
     "IriForecastProb",
     "IriForecastDominant",
+    "FewsNet",
     "__version__",
 )
