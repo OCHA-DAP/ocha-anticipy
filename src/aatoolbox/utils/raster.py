@@ -656,7 +656,7 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
         ...    gdf=gdf,
         ...    feature_col="name"
         ... ) # doctest: +SKIP
-        [  mean_name            std_name min_name max_name sum_name count_name    name # noqa: E501
+        [       mean                 std      min      max      sum      count    name # noqa: E501
         0       3.0  1.5811388300841898        1        5     12.0          4  area_a  # noqa: E501
         1       4.5                 1.5        3        6      9.0          2  area_b] # noqa: E501
         """
