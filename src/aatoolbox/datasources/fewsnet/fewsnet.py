@@ -315,38 +315,35 @@ class FewsNet(DataSource):
         Should either cover the iso2 or region.
         If exists, returns the dir path.
         """
-        try:
-            dir_path = self._get_raw_dir_date(
-                area=self._iso2, pub_year=pub_year, pub_month=pub_month
+        country_dir = self._get_raw_dir_date(
+            area=self._iso2, pub_year=pub_year, pub_month=pub_month
+        )
+        if country_dir.is_dir():
+            return country_dir
+        else:
+            region_dir = self._get_raw_dir_date(
+                area=self._region_code,
+                pub_year=pub_year,
+                pub_month=pub_month,
             )
-            dir_path.resolve(strict=True)
-            return dir_path
-        except FileNotFoundError:
-            try:
-                dir_path = self._get_raw_dir_date(
-                    area=self._region_code,
-                    pub_year=pub_year,
-                    pub_month=pub_month,
-                )
-                dir_path.resolve(strict=True)
-                return dir_path
-            except FileNotFoundError as err:
+            if region_dir.is_dir():
+                return region_dir
+            else:
                 raise FileNotFoundError(
                     f"No data found for {pub_year}-{pub_month} covering "
                     "{self_country_configiso3} or {self._region_name}. "
                     "Please make sure the data exists and is downloaded"
-                ) from err
+                )
 
     def _get_raw_file_projection_period(self, dir_path, projection_period):
-        try:
-            file_path = dir_path / f"{dir_path.name}_{projection_period}.shp"
-            file_path.resolve(strict=True)
+        file_path = dir_path / f"{dir_path.name}_{projection_period}.shp"
+        if file_path.is_file():
             return file_path
-        except FileNotFoundError as err:
+        else:
             raise FileNotFoundError(
                 f"File {file_path} not found. Make sure the projection "
                 f"period {projection_period} exists for {dir_path.name}."
-            ) from err
+            )
 
 
 @check_file_existence

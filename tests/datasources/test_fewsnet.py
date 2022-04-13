@@ -7,6 +7,9 @@ from aatoolbox.config.countryconfig import FewsNetConfig
 from aatoolbox.datasources.fewsnet.fewsnet import FewsNet
 
 DATASOURCE_BASE_DIR = "fewsnet"
+_PUB_YEAR = 2020
+_PUB_MONTH = 7
+_PUB_MONTH_STR = f"{7:02d}"
 
 
 @pytest.fixture(autouse=True)
@@ -25,14 +28,15 @@ def test_download_country(
     fewsnet = FewsNet(country_config=mock_country_config)
     url, output_path = mock_download_call(
         fewsnet_class=fewsnet,
-        pub_year=2020,
-        pub_month=7,
+        pub_year=_PUB_YEAR,
+        pub_month=_PUB_MONTH,
         country_data=True,
         region_data=False,
     )
     assert (
         url == "https://fdw.fews.net/api/ipcpackage/"
-        f"?country_code={ISO2.upper()}&collection_date=2020-07-01"
+        f"?country_code={ISO2.upper()}&collection_date={_PUB_YEAR}-"
+        f"{_PUB_MONTH_STR}-01"
     )
     assert (
         output_path
@@ -41,7 +45,7 @@ def test_download_country(
         / "raw"
         / "glb"
         / DATASOURCE_BASE_DIR
-        / f"{ISO2.upper()}_202007"
+        / f"{ISO2.upper()}_{_PUB_YEAR}{_PUB_MONTH_STR}"
     )
 
 
@@ -52,16 +56,16 @@ def test_download_region(
     fewsnet = FewsNet(country_config=mock_country_config)
     url, output_path = mock_download_call(
         fewsnet_class=fewsnet,
-        pub_year=2020,
-        pub_month=7,
+        pub_year=_PUB_YEAR,
+        pub_month=_PUB_MONTH,
         country_data=False,
         region_data=True,
     )
 
     assert (
-        url == "https://fews.net/data_portal_download/download?"
+        url == f"https://fews.net/data_portal_download/download?"
         "data_file_path=http://shapefiles.fews.net.s3.amazonaws.com/"
-        "HFIC/EA/east-africa202007.zip"
+        f"HFIC/EA/east-africa{_PUB_YEAR}{_PUB_MONTH_STR}.zip"
     )
     assert (
         output_path
@@ -70,7 +74,7 @@ def test_download_region(
         / "raw"
         / "glb"
         / DATASOURCE_BASE_DIR
-        / "EA_202007"
+        / f"EA_{_PUB_YEAR}{_PUB_MONTH_STR}"
     )
 
 
@@ -80,13 +84,16 @@ def test_download_nodata(mock_country_config, mock_download_call):
         fewsnet = FewsNet(country_config=mock_country_config)
         url, output_path = mock_download_call(
             fewsnet_class=fewsnet,
-            pub_year=2020,
-            pub_month=7,
+            pub_year=_PUB_YEAR,
+            pub_month=_PUB_MONTH,
             country_data=False,
             region_data=False,
         )
         assert output_path is None
-    assert "No country or regional data found for 2020-07" in str(e.value)
+    assert (
+        f"No country or regional data found for {_PUB_YEAR}-{_PUB_MONTH_STR}"
+        in str(e.value)
+    )
 
 
 def test_invalid_region_name():
@@ -165,3 +172,34 @@ def mock_countryregion(mocker):
                 )
 
     return _mock_countryregion
+
+
+@pytest.fixture
+def mock_gpd_read_file(mocker):
+    """Mock GeoPandas file reading function."""
+    return mocker.patch("aatoolbox.datasources.fewsnet.fewsnet.gpd.read_file")
+
+
+def test_load(
+    mock_country_config, mock_aa_data_dir, mock_gpd_read_file, mocker
+):
+    """Test loading of fewsnet data."""
+    fewsnet = FewsNet(country_config=mock_country_config)
+    mocker.patch("pathlib.Path.is_dir", return_value=True)
+    mocker.patch("pathlib.Path.is_file", return_value=True)
+    fewsnet.load(
+        pub_year=_PUB_YEAR, pub_month=_PUB_MONTH, projection_period="CS"
+    )
+    mock_gpd_read_file.assert_has_calls(
+        [
+            mocker.call(
+                mock_aa_data_dir
+                / "public"
+                / "raw"
+                / "glb"
+                / DATASOURCE_BASE_DIR
+                / f"{ISO2.upper()}_{_PUB_YEAR}{_PUB_MONTH_STR}"
+                / f"{ISO2.upper()}_{_PUB_YEAR}{_PUB_MONTH_STR}_CS.shp"
+            ),
+        ]
+    )
