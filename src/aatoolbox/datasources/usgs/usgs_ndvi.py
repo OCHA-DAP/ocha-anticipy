@@ -53,6 +53,7 @@ from aatoolbox.utils._dates import (
     _compare_dekads_lt,
     _date_to_dekad,
     _dekad_to_date,
+    _expand_dekads,
 )
 
 # TODO: use check_file_existence once the fix is merged
@@ -154,6 +155,9 @@ class _UsgsNdvi(DataSource):
         else:
             self._end_year, self._end_dekad = cast(list, end_date)
 
+        # set processed file suffix
+        self.processed_file_suffix = processed_file_suffix
+
     @property
     def coverage_area(self):
         """str: Coverage area for NDVI data.
@@ -246,7 +250,7 @@ class _UsgsNdvi(DataSource):
         feature_col: str,
         clobber: bool = False,
         **kwargs,
-    ):
+    ) -> Path:
         """Process NDVI data for specific area.
 
         NDVI data is clipped to the provided
@@ -280,38 +284,66 @@ class _UsgsNdvi(DataSource):
         """
         processed_path = self._get_processed_path()
 
-        # check to see if file exists
+        # get dates for processing
+        process_dates = _expand_dekads(
+            y1=self._start_year,
+            d1=self._start_dekad,
+            y2=self._end_year,
+            d2=self._end_dekad,
+        )
+
+        # check to see if file exists and remove
+        # if clobber or check dates already processed
+        # if not
         if processed_path.is_file():
+            df = self.load()
+            # get dates that have already been processed
+            processed_dates = df[["year", "dekad"]].values.tolist()
             if clobber:
-                processed_path.unlink()
+                # remove processed dates from file
+                # so they can be reprocessed
+                keep_rows = [d not in process_dates for d in processed_dates]
+                df = df[keep_rows]
             else:
-                df = self.load()
+                # remove processed dates from dates to process
+                process_dates = [
+                    date for d in process_dates if d not in processed_dates
+                ]
+                if len(process_dates) == 0:
+                    logger.info(
+                        (
+                            "No new data to process between "
+                            f"{self._start_year}, "
+                            f"dekad {self._start_dekad} "
+                            f"and {self._end_year}, "
+                            f"dekad {self._end_dekad}, "
+                            "set `clobber = True` to re-process this data."
+                        )
+                    )
+                    return processed_path
+        else:
+            # empty data frame for concatting later
+            df = pd.DataFrame()
 
-        # data = []
-        # for filename in \
-        # _RAW_DIR.glob(f"{_REGION_ABBR_MAPPING[region]}*.tif"):
-        #     da = xr.open_rasterio(_RAW_DIR / filename)
-        #     da = da.rio.clip(geometries, drop=True, from_disk=True)
-        #     da_date = _fp_date(filename.stem)
-        #     for threshold in thresholds:
-        #         area_pct = (
-        #             xr.where(da <= threshold, 1, 0)
-        #             .mean(dim=["x", "y"])
-        #             .values[0]
-        #             * 100
-        #         )
-        #         data.append([da_date, iso3, threshold, area_pct])
+        # process data for necessary dates
+        data = [df]
+        for d in process_dates:
+            da = self.load_raster(d)
+            stats = da.aat.compute_raster_stats(
+                gdf=gdf, feature_col=feature_col, **kwargs
+            )
+            data.append(stats)
 
-        # df = pd.DataFrame(
-        #     data,
-        #     columns=["date", "iso3", "anomaly_thresholds", "percent_area"],
-        # )
-        # df.sort_values(by="date", inplace=True)
+        # join data together and sort
+        df = pd.concat(data)
+        df.sort_values(by="date", inplace=True)
+        df.reset_index(inplace=True, drop=True)
 
-        # # saving file
-        # df.to_csv(processed_path)
+        # saving file
+        self._processed_base_dir.mkdir(parents=True, exist_ok=True)
+        df.to_csv(processed_path, index=False)
 
-        return df
+        return processed_path
 
     def load(self) -> pd.DataFrame:
         """
@@ -329,13 +361,25 @@ class _UsgsNdvi(DataSource):
         """
         processed_path = self._get_processed_path()
         try:
-            df = pd.read_csv(processed_path)
+            df = pd.read_csv(processed_path, parse_dates=["date"])
         except FileNotFoundError as err:
             raise FileNotFoundError(
                 f"Cannot open the CSV file {processed_path.name}. "
                 f"Make sure that you have already called the 'process' method "
                 f"and that the file {processed_path} exists."
             ) from err
+
+        # filter loaded data frame between our instances dates
+        load_dates = _expand_dekads(
+            y1=self._start_year,
+            d1=self._start_dekad,
+            y2=self._end_year,
+            d2=self._end_dekad,
+        )
+        loaded_dates = df[["year", "dekad"]].values.tolist()
+        keep_rows = [d in load_dates for d in loaded_dates]
+        df = df[keep_rows]
+
         return df
 
     def load_raster(self, date: Union[date, str, Tuple[int]]) -> xr.DataArray:
@@ -369,13 +413,17 @@ class _UsgsNdvi(DataSource):
             da = rioxarray.open_rasterio(filepath)
             # assign coordinates for year/dekad
             # time dimension
-            da = da.assign_coords(
-                {
-                    "year": year,
-                    "dekad": dekad,
-                    "date": _dekad_to_date(year=year, dekad=dekad),
-                }
-            ).expand_dims("date")
+            da = (
+                da.assign_coords(
+                    {
+                        "year": year,
+                        "dekad": dekad,
+                        "date": _dekad_to_date(year=year, dekad=dekad),
+                    }
+                )
+                .expand_dims("date")
+                .squeeze("band", drop=True)
+            )
 
             return da
 
@@ -446,11 +494,8 @@ class _UsgsNdvi(DataSource):
         Path
             Path to raw file
         """
-        return (
-            self._raw_base_dir
-            / self._get_raw_filename(year=year, dekad=dekad)
-            / ".tif"
-        )
+        filename = self._get_raw_filename(year=year, dekad=dekad)
+        return self._raw_base_dir / f"{filename}.tif"
 
     def _list_downloaded_dekads(self) -> List[List[int]]:
         """Get list of downloaded years/dekads.
@@ -563,7 +608,7 @@ class _UsgsNdvi(DataSource):
                 f"No NDVI data available for "
                 f"dekad {dekad} of {year}, skipping."
             )
-            return
+            pass
 
         # open file within memory
         zf = ZipFile(BytesIO(resp.read()))
@@ -572,7 +617,7 @@ class _UsgsNdvi(DataSource):
         for file in zf.infolist():
             if file.filename.endswith(".tif"):
                 # rename the file to standardize to name of zip
-                file.filename = filename
+                file.filename = f"{filename}.tif"
                 zf.extract(file, self._raw_base_dir)
 
         resp.close()
