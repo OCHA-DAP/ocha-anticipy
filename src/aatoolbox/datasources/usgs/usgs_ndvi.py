@@ -297,30 +297,65 @@ class _UsgsNdvi(DataSource):
         # if not
         if processed_path.is_file():
             df = self.load()
+
+            # check that the processed file has the same analyzed
+            # indicators and column for aggregation as passed
+            # to process()
+            cols = kwargs.get(
+                "stats_list", ["mean", "std", "min", "max", "sum", "count"]
+            )
+            percentile_list = kwargs.get("percentile_list")
+            if percentile_list is not None:
+                for percent in percentile_list:
+                    cols.append(f"{percent}quant")
+            cols.append(feature_col)
+            ncols = df.shape[1]
+            exist_cols = df.columns[3:ncols].tolist()
+            cols_same = cols == exist_cols
+
             # get dates that have already been processed
             processed_dates = df[["year", "dekad"]].values.tolist()
             if clobber:
-                # remove processed dates from file
-                # so they can be reprocessed
-                keep_rows = [d not in process_dates for d in processed_dates]
-                df = df[keep_rows]
+                if cols_same:
+                    # remove processed dates from file
+                    # so they can be reprocessed
+                    keep_rows = [
+                        d not in process_dates for d in processed_dates
+                    ]
+                    df = df[keep_rows]
+                else:
+                    # erase old data frame since columns don't match
+                    # but clobber=True
+                    df = pd.DataFrame()
             else:
-                # remove processed dates from dates to process
-                process_dates = [
-                    date for d in process_dates if d not in processed_dates
-                ]
-                if len(process_dates) == 0:
-                    logger.info(
+                if cols_same:
+                    # remove processed dates from dates to process
+                    process_dates = [
+                        date for d in process_dates if d not in processed_dates
+                    ]
+                    if len(process_dates) == 0:
+                        logger.info(
+                            (
+                                "No new data to process between "
+                                f"{self._start_year}, "
+                                f"dekad {self._start_dekad} "
+                                f"and {self._end_year}, "
+                                f"dekad {self._end_dekad}, "
+                                "set `clobber = True` to re-process this data."
+                            )
+                        )
+                        return processed_path
+                else:
+                    raise ValueError(
                         (
-                            "No new data to process between "
-                            f"{self._start_year}, "
-                            f"dekad {self._start_dekad} "
-                            f"and {self._end_year}, "
-                            f"dekad {self._end_dekad}, "
-                            "set `clobber = True` to re-process this data."
+                            "`clobber` set to False but "
+                            "the statistics and column to "
+                            "process to do not match existing "
+                            "processed file. Use `self.load()`"
+                            "to check existing processed file "
+                            "and reconcile call to `process()`."
                         )
                     )
-                    return processed_path
         else:
             # empty data frame for concatting later
             df = pd.DataFrame()
