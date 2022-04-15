@@ -114,8 +114,9 @@ class _UsgsNdvi(DataSource):
     ):
         super().__init__(
             country_config=country_config,
-            module_base_dir="usgs_ndvi",
+            datasource_base_dir="usgs_ndvi",
             is_public=True,
+            is_global_raw=True,
         )
         self.coverage_area = coverage_area
 
@@ -194,13 +195,6 @@ class _UsgsNdvi(DataSource):
         region_values = loc_region_types[value]
         self._region_url = region_values[0]
         self._region_prefix = region_values[1]
-
-        # reset raw base dir to global
-        # TODO: change once datasource module
-        # dir pathing has been changed
-        self._raw_base_dir = self._get_base_dir(
-            is_public=True, is_raw=True, is_global=True
-        )
 
     @property
     def processed_file_suffix(self):
@@ -742,7 +736,7 @@ class _UsgsNdvi(DataSource):
         return filepath
 
 
-class UsgsNdviSmoothed(DataSource):
+class UsgsNdviSmoothed(_UsgsNdvi):
     """Base class to retrieve smoothed NDVI data.
 
     The retrieved data is the smoothed NDVI values
@@ -790,7 +784,7 @@ class UsgsNdviSmoothed(DataSource):
         )
 
 
-class UsgsNdviPctMedian(DataSource):
+class UsgsNdviPctMedian(_UsgsNdvi):
     """Base class to retrieve % of median NDVI.
 
     The retrieved data is the percent of median NDVI
@@ -835,7 +829,7 @@ class UsgsNdviPctMedian(DataSource):
         )
 
 
-class UsgsNdviMedianAnomaly(DataSource):
+class UsgsNdviMedianAnomaly(_UsgsNdvi):
     """Base class to retrieve NDVI anomaly data.
 
     The retrieved data is NDVI anomaly data calculated
@@ -882,7 +876,7 @@ class UsgsNdviMedianAnomaly(DataSource):
         )
 
 
-class UsgsNdviYearDifference(DataSource):
+class UsgsNdviYearDifference(_UsgsNdvi):
     """Base class to retrieve NDVI year difference data.
 
     The retrieved data is NDVI yearly difference data,
