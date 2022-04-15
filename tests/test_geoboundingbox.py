@@ -42,16 +42,17 @@ def test_geoboundingbox_round_and_offset_coords():
 
 
 def test_geoboundingbox_relative_coords():
-    """Test that lat_max must be > lat_min and lon_max > lon_min."""
+    """Test that lat_max must be >= lat_min and lon_max >= lon_min."""
     with pytest.raises(AttributeError):
         # Check lat_min > lat_max
         GeoBoundingBox(lat_max=1, lat_min=2, lon_max=1, lon_min=-1)
-        # Check lat_min == lat_max
-        GeoBoundingBox(lat_max=1, lat_min=1, lon_max=1, lon_min=-1)
         # Check lon_min > lon_max
         GeoBoundingBox(lat_max=1, lat_min=-1, lon_max=1, lon_min=2)
-        # Check lon_min == lon_max
-        GeoBoundingBox(lat_max=1, lat_min=-1, lon_max=1, lon_min=1)
+    # Check that no error raised:
+    # Check lat_min == lat_max
+    GeoBoundingBox(lat_max=1, lat_min=1, lon_max=1, lon_min=-1)
+    # Check lon_min == lon_max
+    GeoBoundingBox(lat_max=1, lat_min=-1, lon_max=1, lon_min=1)
 
 
 def test_geoboundingbox_coordinate_bounds():

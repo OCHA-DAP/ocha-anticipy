@@ -28,19 +28,19 @@ class GeoBoundingBox:
     ----------
     lat_max : float
         The northern latitude boundary of the area (degrees).
-        The value must be between -90 and 90, and greater than the
+        The value must be between -90 and 90, and greater than or equal to the
         southern boundary.
     lat_min : float
         The southern latitude boundary of the area (degrees).
-        The value must be between -90 and 90, and less than the
+        The value must be between -90 and 90, and less than or equal to the
         northern boundary.
     lon_max : float
         The easternmost longitude boundary of the area (degrees).
-        The value must be between -180 and 180, and greater than the
-        western boundary.
+        The value must be between -180 and 180, and greater than or equal to
+        the western boundary.
     lon_min : float
         The westernmost longitude boundary of the area (degrees).
-        The value must be between -180 and 180, and less than the
+        The value must be between -180 and 180, and less than or equal to the
         eastern boundary.
     """
 
@@ -70,9 +70,9 @@ class GeoBoundingBox:
     @lat_min.setter
     def lat_min(self, lat_min):
         _check_latitude(lat_min)
-        if not lat_min < self.lat_max:
+        if not lat_min <= self.lat_max:
             raise AttributeError(
-                "The maximum latitude must be greater than "
+                "The maximum latitude must be greater than or equal to"
                 "the minimum latitude"
             )
         self._lat_min = Decimal(lat_min)
@@ -95,9 +95,9 @@ class GeoBoundingBox:
     @lon_min.setter
     def lon_min(self, lon_min):
         _check_longitude(lon_min)
-        if not lon_min < self.lon_max:
+        if not lon_min <= self.lon_max:
             raise AttributeError(
-                "The maximum longitude must be greater than "
+                "The maximum longitude must be greater than or equal to "
                 "the minimum longitude"
             )
         self._lon_min = Decimal(lon_min)
