@@ -42,15 +42,16 @@ def check_file_existence(
     If filepath exists, returns filepath. Otherwise, returns the result of
     the decorated function.
     """
-    filepath = kwargs.get("filepath")
-    if filepath is None:
+    try:
+        filepath = kwargs["filepath"]
+    except KeyError as err:
         raise KeyError(
             (
                 "`filepath` must be passed as a keyword "
                 "argument for the `check_file_existence`"
                 " decorator to work."
             )
-        )
+        ) from err
     if filepath.exists() and not kwargs.get("clobber", False):
         logger.info(
             f"File {filepath} exists and clobber set to False, "
