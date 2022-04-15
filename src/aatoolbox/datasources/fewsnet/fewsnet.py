@@ -13,7 +13,6 @@ import logging
 import zipfile
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Optional
 
 import geopandas as gpd
 from hdx.location.country import Country
@@ -35,6 +34,8 @@ _BASE_URL_REGION = (
 
 _VALID_PROJECTION_PERIODS_LITERAL = Literal["CS", "ML1", "ML2"]
 _VALID_PROJECTION_PERIODS = ["CS", "ML1", "ML2"]
+# TODO: this needs fixing
+# _VALID_PROJECTION_PERIODS_LITERAL = Literal[tuple(_VALID_PROJECTION_PERIODS)]
 
 
 class FewsNet(DataSource):
@@ -65,13 +66,15 @@ class FewsNet(DataSource):
         self._iso2 = Country.get_iso2_from_iso3(self._country_config.iso3)
         if self._iso2 is None:
             raise KeyError(
-                "No ISO2 found for the given ISO3. Check your ISO3."
+                "No ISO2 found for the given ISO3. Check your ISO3, currently:"
+                f" {self._country_config.iso3}."
             )
 
         if self._country_config.fewsnet is None:
-            raise KeyError(
+            raise AttributeError(
                 "The country configuration file does not contain"
-                "any region name. Please update and try again."
+                "any FEWS NET region name. Please update the config file and "
+                "try again. See the documentation for the valid region names. "
             )
 
         self._region_name = self._country_config.fewsnet.region_name
@@ -85,7 +88,7 @@ class FewsNet(DataSource):
         pub_year: int,
         pub_month: int,
         clobber: bool = False,
-    ) -> Optional[Path]:
+    ) -> Path:
         """
         Retrieve the raw FEWS NET data.
 
@@ -102,6 +105,10 @@ class FewsNet(DataSource):
             commonly refers to the month of the Current Situation period
         clobber : bool, default = False
             If True, overwrites existing raw files
+
+        Returns
+        -------
+        Path to the downloaded file.
 
         Examples
         --------
@@ -121,17 +128,19 @@ class FewsNet(DataSource):
                 pub_month=pub_month_str,
                 clobber=clobber,
             )
-        except ValueError:
+        except zipfile.BadZipFile:
             try:
                 return self._download_region(
                     pub_year=pub_year,
                     pub_month=pub_month_str,
                     clobber=clobber,
                 )
-            except ValueError:
+            except zipfile.BadZipFile:
                 raise RuntimeError(
                     "No country or regional data found for"
-                    f" {pub_year}-{pub_month_str}"
+                    f" {pub_year}-{pub_month_str}. Check on the FEWS NET "
+                    "website that data for your given date and country/region "
+                    "exists."
                 )
 
     def process(self, *args, **kwargs):
@@ -220,7 +229,7 @@ class FewsNet(DataSource):
         pub_year: int,
         pub_month: str,
         clobber: bool,
-    ) -> Optional[Path]:
+    ) -> Path:
         """
         Download fewsnet data that covers the iso2 country.
 
@@ -233,20 +242,19 @@ class FewsNet(DataSource):
             iso2=self._iso2, YYYY=pub_year, MM=pub_month
         )
 
-        output_dir_country = self._download(
+        return self._download(
             url=url_country_date,
             area=self._iso2,
             pub_year=pub_year,
             pub_month=pub_month,
         )
-        return output_dir_country
 
     def _download_region(
         self,
         pub_year: int,
         pub_month: str,
         clobber: bool,
-    ) -> Optional[Path]:
+    ) -> Path:
         """
         Download fewsnet data that covers the region the iso3 belongs to.
 
@@ -262,15 +270,14 @@ class FewsNet(DataSource):
             MM=pub_month,
         )
 
-        output_dir_region = self._download(
+        return self._download(
             url=url_region_date,
             area=self._region_code,
             pub_year=pub_year,
             pub_month=pub_month,
         )
-        return output_dir_region
 
-    def _download(self, url, area, pub_year, pub_month):
+    def _download(self, url, area, pub_year, pub_month) -> Path:
         """
         Define output names and call _download_zip.
 
@@ -289,14 +296,13 @@ class FewsNet(DataSource):
         output_dir = self._get_raw_dir_date(
             area=area, pub_year=pub_year, pub_month=pub_month
         )
-        _download_zip(
+        return _download_zip(
             filepath=output_dir,
             zip_filename=self._get_zip_filename(
                 area=area, pub_year=pub_year, pub_month=pub_month
             ),
             url=url,
         )
-        return output_dir
 
     def _get_raw_dir_date(self, area, pub_year, pub_month):
         return self._raw_base_dir / f"{area}_{pub_year}{pub_month}"
@@ -324,12 +330,12 @@ class FewsNet(DataSource):
             )
             if region_dir.is_dir():
                 return region_dir
-            else:
-                raise FileNotFoundError(
-                    f"No data found for {pub_year}-{pub_month} covering "
-                    "{self_country_configiso3} or {self._region_name}. "
-                    "Please make sure the data exists and is downloaded"
-                )
+
+        raise FileNotFoundError(
+            f"No data found for {pub_year}-{pub_month} covering "
+            "{self._country_config.iso3} or {self._region_name}. "
+            "Please make sure the data exists and is downloaded"
+        )
 
     def _get_raw_file_projection_period(self, dir_path, projection_period):
         file_path = dir_path / f"{dir_path.name}_{projection_period}.shp"
@@ -347,7 +353,7 @@ def _download_zip(
     filepath: Path,
     zip_filename: str,
     url: str,
-) -> Optional[Path]:
+) -> Path:
     """
     Download and unzip the file at the url.
 
@@ -374,14 +380,14 @@ def _download_zip(
             unzip(zip_file_path=zip_path, save_dir=filepath)
             logger.debug(f"Unzipped to {filepath}")
 
-        except zipfile.BadZipFile:
+        except zipfile.BadZipFile as err:
             # indicates that the url returned something that wasn't a
             # zip, happens often and indicates data for the given
             # country - year-month is not available
 
-            raise ValueError(
+            raise zipfile.BadZipFile(
                 f"No zip data returned from url {url} "
                 f"check that the area and year-month publication exist."
-            )
+            ) from err
 
     return filepath
