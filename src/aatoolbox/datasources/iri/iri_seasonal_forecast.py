@@ -19,8 +19,8 @@ from typing_extensions import Literal
 import aatoolbox.utils.raster  # noqa: F401
 from aatoolbox.config.countryconfig import CountryConfig
 from aatoolbox.datasources.datasource import DataSource
+from aatoolbox.utils.check_file_existence import check_file_existence
 from aatoolbox.utils.geoboundingbox import GeoBoundingBox
-from aatoolbox.utils.io import check_file_existence
 
 logger = logging.getLogger(__name__)
 
@@ -97,7 +97,7 @@ class _IriForecast(DataSource):
         output_filepath.parent.mkdir(parents=True, exist_ok=True)
         url = self._get_url()
         logger.info("Downloading IRI NetCDF file.")
-        return _download(
+        return self._download(
             filepath=output_filepath,
             url=url,
             iri_auth=iri_auth,
@@ -123,7 +123,9 @@ class _IriForecast(DataSource):
         ds = self._load_raw()
         processed_file_path = self._get_processed_path()
         processed_file_path.parent.mkdir(parents=True, exist_ok=True)
-        return _process(filepath=processed_file_path, ds=ds, clobber=clobber)
+        return self._process(
+            filepath=processed_file_path, ds=ds, clobber=clobber
+        )
 
     def load(self) -> xr.Dataset:
         """
@@ -200,32 +202,32 @@ class _IriForecast(DataSource):
                 f"and that the file {self._get_raw_path()} exists. "
             ) from err
 
+    @check_file_existence
+    def _download(
+        self, filepath: Path, url: str, iri_auth: str, clobber: bool
+    ) -> Path:
 
-@check_file_existence
-def _download(filepath: Path, url: str, iri_auth: str, clobber: bool) -> Path:
+        response = requests.get(
+            url,
+            # have to authenticate by using a cookie
+            cookies={"__dlauth_id": iri_auth},
+        )
+        with open(filepath, "wb") as out_file:
+            out_file.write(response.content)
+        return filepath
 
-    response = requests.get(
-        url,
-        # have to authenticate by using a cookie
-        cookies={"__dlauth_id": iri_auth},
-    )
-    with open(filepath, "wb") as out_file:
-        out_file.write(response.content)
-    return filepath
+    @check_file_existence
+    def _process(self, filepath: Path, ds, clobber: bool) -> Path:
+        # fix dates
+        ds.aat.set_time_dim(t_dim="F", inplace=True)
+        ds.aat.correct_calendar(inplace=True)
+        ds = xr.decode_cf(ds)
 
-
-@check_file_existence
-def _process(filepath: Path, ds, clobber: bool) -> Path:
-    # fix dates
-    ds.aat.set_time_dim(t_dim="F", inplace=True)
-    ds.aat.correct_calendar(inplace=True)
-    ds = xr.decode_cf(ds)
-
-    # IRI accepts -180 to 180 longitudes and 0 to 360
-    # but automatically converts them to -180 to 180
-    # so we don't need to do that
-    ds.to_netcdf(filepath)
-    return filepath
+        # IRI accepts -180 to 180 longitudes and 0 to 360
+        # but automatically converts them to -180 to 180
+        # so we don't need to do that
+        ds.to_netcdf(filepath)
+        return filepath
 
 
 class IriForecastProb(_IriForecast):
