@@ -2,7 +2,7 @@
 Functionality to retrieve and modify boundary coordinates.
 
 It is possible to create an ``GeoBoundingBox`` object either from
-north, south, east, west coordinates,
+lat_max, lat_min, lon_max, lon_min coordinates,
 or from a shapefile that has been read in with geopandas.
 """
 import logging
@@ -26,79 +26,87 @@ class GeoBoundingBox:
 
     Parameters
     ----------
-    north : float
+    lat_max : float
         The northern latitude boundary of the area (degrees).
         The value must be between -90 and 90, and greater than the
         southern boundary.
-    south : float
+    lat_min : float
         The southern latitude boundary of the area (degrees).
         The value must be between -90 and 90, and less than the
         northern boundary.
-    east : float
+    lon_max : float
         The easternmost longitude boundary of the area (degrees).
         The value must be between -180 and 180, and greater than the
         western boundary.
-    west : float
+    lon_min : float
         The westernmost longitude boundary of the area (degrees).
         The value must be between -180 and 180, and less than the
         eastern boundary.
     """
 
-    def __init__(self, north: float, south: float, east: float, west: float):
-        self.north = north
-        self.south = south
-        self.east = east
-        self.west = west
+    def __init__(
+        self, lat_max: float, lat_min: float, lon_max: float, lon_min: float
+    ):
+        self.lat_max = lat_max
+        self.lat_min = lat_min
+        self.lon_max = lon_max
+        self.lon_min = lon_min
 
     @property
-    def north(self) -> float:
+    def lat_max(self) -> float:
         """Get the northern latitude boundary of the area (degrees)."""
-        return float(self._north)
+        return float(self._lat_max)
 
-    @north.setter
-    def north(self, north):
-        _check_latitude(north)
-        self._north = Decimal(north)
+    @lat_max.setter
+    def lat_max(self, lat_max):
+        _check_latitude(lat_max)
+        self._lat_max = Decimal(lat_max)
 
     @property
-    def south(self) -> float:
+    def lat_min(self) -> float:
         """Get the southern latitude boundary of the area (degrees)."""
-        return float(self._south)
+        return float(self._lat_min)
 
-    @south.setter
-    def south(self, south):
-        _check_latitude(south)
-        if not south < self.north:
-            raise AttributeError("North must be > South")
-        self._south = Decimal(south)
+    @lat_min.setter
+    def lat_min(self, lat_min):
+        _check_latitude(lat_min)
+        if not lat_min < self.lat_max:
+            raise AttributeError(
+                "The maximum latitude must be greater than "
+                "the minimum latitude"
+            )
+        self._lat_min = Decimal(lat_min)
 
     @property
-    def east(self) -> float:
+    def lon_max(self) -> float:
         """Get the eastern longitude boundary of the area (degrees)."""
-        return float(self._east)
+        return float(self._lon_max)
 
-    @east.setter
-    def east(self, east):
-        _check_longitude(east)
-        self._east = Decimal(east)
+    @lon_max.setter
+    def lon_max(self, lon_max):
+        _check_longitude(lon_max)
+        self._lon_max = Decimal(lon_max)
 
     @property
-    def west(self) -> float:
+    def lon_min(self) -> float:
         """Get the western longitude boundary of the area (degrees)."""
-        return float(self._west)
+        return float(self._lon_min)
 
-    @west.setter
-    def west(self, west):
-        _check_longitude(west)
-        if not west < self.east:
-            raise AttributeError("East must be > West")
-        self._west = Decimal(west)
+    @lon_min.setter
+    def lon_min(self, lon_min):
+        _check_longitude(lon_min)
+        if not lon_min < self.lon_max:
+            raise AttributeError(
+                "The maximum longitude must be greater than "
+                "the minimum longitude"
+            )
+        self._lon_min = Decimal(lon_min)
 
     def __repr__(self):
         """Print bounding box string."""
         return (
-            f"N: {self.north}\nS: {self.south}\n"
-            f"E: {self.east}\nW: {self.west}"
+            f"N: {self.lat_max}\nS: {self.lat_min}\n"
+            f"E: {self.lon_max}\nW: {self.lon_min}"
         )
 
     @classmethod
@@ -124,10 +132,10 @@ class GeoBoundingBox:
         >>> geobb = GeoBoundingBox.from_shape(df_admin_boundaries)
         """
         return cls(
-            north=shape.total_bounds[3],
-            south=shape.total_bounds[1],
-            east=shape.total_bounds[2],
-            west=shape.total_bounds[0],
+            lat_max=shape.total_bounds[3],
+            lat_min=shape.total_bounds[1],
+            lon_max=shape.total_bounds[2],
+            lon_min=shape.total_bounds[0],
         )
 
     def round_coords(
@@ -157,12 +165,12 @@ class GeoBoundingBox:
         """
         # TODO: add examples above
         new_coords = {}
-        for direction in ["north", "west", "south", "east"]:
+        for direction in ["lat_max", "lon_min", "lat_min", "lon_max"]:
             coord = getattr(self, f"_{direction}")
-            if direction in ("north", "east"):
+            if direction in ("lat_max", "lon_max"):
                 function = np.ceil.__call__  # needed for mypy
                 offset_factor = Decimal(1)
-            elif direction in ("south", "west"):
+            elif direction in ("lat_min", "lon_min"):
                 function = np.floor.__call__  # needed for mypy
                 offset_factor = Decimal(-1)
             rounded_coord = function(coord / Decimal(round_val)) * Decimal(
@@ -194,8 +202,8 @@ class GeoBoundingBox:
                 return f"p{coord:.{p}f}"
 
         return (
-            f"N{_str_format(self.north)}S{_str_format(self.south)}"
-            f"E{_str_format(self.east)}W{_str_format(self.west)}"
+            f"N{_str_format(self.lat_max)}S{_str_format(self.lat_min)}"
+            f"E{_str_format(self.lon_max)}W{_str_format(self.lon_min)}"
             # replace the decimal dot with a d for a better filename
             .replace(".", "d")
         )
