@@ -1,6 +1,6 @@
 """Function for checking file existence."""
 import logging
-from typing import Any, Callable, TypeVar
+from typing import Any, Callable, Optional, TypeVar
 
 import wrapt
 
@@ -14,7 +14,7 @@ F = TypeVar("F", bound=Callable[..., Any])
 
 @wrapt.decorator
 def check_file_existence(
-    wrapped: F, instance: DataSource, args: list, kwargs: dict
+    wrapped: F, instance: Optional[DataSource], args: list, kwargs: dict
 ) -> F:
     """
     Don't overwrite existing data.
@@ -29,7 +29,7 @@ def check_file_existence(
         The function to wrap. The function must have "filepath" as
         a keyword parameter, and it can also have an optional
         "clobber" boolean keyword parameter.
-    instance : DataSource
+    instance : Optional[DataSource]
         Object the wrapped function is bound to. Not used within, but
         ensures that instance methods do not pass `self` to args.
     args : list
