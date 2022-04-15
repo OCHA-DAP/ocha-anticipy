@@ -171,8 +171,10 @@ class _IriForecast(DataSource):
         )
         return (
             f"{base_url}"
-            f"X/%28{self._geobb.west}%29%28{self._geobb.east}%29RANGEEDGES/"
-            f"Y/%28{self._geobb.north}%29%28{self._geobb.south}%29RANGEEDGES/"
+            f"X/%28{self._geobb.lon_min}%29%28{self._geobb.lon_max}"
+            f"%29RANGEEDGES/"
+            f"Y/%28{self._geobb.lat_max}%29%28{self._geobb.lat_min}"
+            f"%29RANGEEDGES/"
             "data.nc"
         )
 
@@ -250,10 +252,10 @@ class IriForecastProb(_IriForecast):
     >>> from aatoolbox import create_country_config, \
     ...     GeoBoundingBox, IriForecastProb
     >>> country_config = create_country_config(iso3="bfa")
-    >>> geo_bounding_box = GeoBoundingBox(north=13.0,
-    ...                                   south=12.0,
-    ...                                   east=-3.0,
-    ...                                   west=-2.0)
+    >>> geo_bounding_box = GeoBoundingBox(lat_max=13.0,
+    ...                                   lat_min=12.0,
+    ...                                   lon_max=-3.0,
+    ...                                   lon_min=-2.0)
     >>>
     >>> # Initialize class and retrieve data
     >>> iri = IriForecastProb(country_config,geo_bounding_box)
@@ -292,10 +294,10 @@ class IriForecastDominant(_IriForecast):
     >>> from aatoolbox import create_country_config, \
     ...     GeoBoundingBox, IriForecastDominant
     >>> country_config = create_country_config(iso3="bfa")
-    >>> geo_bounding_box = GeoBoundingBox(north=13.0,
-    ...                                   south=12.0,
-    ...                                   east=-3.0,
-    ...                                   west=-2.0)
+    >>> geo_bounding_box = GeoBoundingBox(lat_max=13.0,
+    ...                                   lat_min=12.0,
+    ...                                   lon_max=-3.0,
+    ...                                   lon_min=-2.0)
     >>>
     >>> # Initialize class and retrieve data
     >>> iri = IriForecastDominant(country_config,geo_bounding_box)
