@@ -35,9 +35,14 @@ def test_country_not_implemented():
         create_country_config(iso3="abc")
 
 
-def test_input_iso3():
+@pytest.fixture
+def bad_iso3s():
+    """Input ISO3s that should throw an error."""
+    return ["abcd", "ab", "123"]
+
+
+def test_input_iso3(bad_iso3s):
     """Test that user input iso3 is validated, but can be uppercase."""
-    bad_iso3s = ["abcd", "ab", "123"]
     with pytest.raises(ValueError):
         for iso3 in bad_iso3s:
             create_country_config(iso3=iso3)
@@ -51,13 +56,19 @@ def test_uppercase_input_iso3(mock_parse_yaml):
     assert "abc.yaml" in str(args[0])
 
 
-def test_config_iso3(mock_parse_yaml):
+def test_config_iso3(mock_parse_yaml, bad_iso3s):
     """Test that iso3 in config file is validated."""
-    bad_iso3s = ["ABC", "abcd", "ab", "123"]
     mock_parse_yaml(output_list=[{"iso3": iso3} for iso3 in bad_iso3s])
     with pytest.raises(ValueError):
         for _ in bad_iso3s:
             create_country_config(iso3="abc")
+
+
+def test_uppercase_config_iso3(mock_parse_yaml):
+    """Test that uppercase iso3 in config file is converted to lowercase."""
+    mock_parse_yaml(output_list=[{"iso3": "ABC"}])
+    country_config = create_country_config(iso3="abc")
+    assert country_config.iso3 == "abc"
 
 
 def test_validate_codab_layer_base_name(mock_parse_yaml):

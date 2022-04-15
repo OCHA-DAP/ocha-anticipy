@@ -23,4 +23,4 @@ def mock_aa_data_dir(tmp_path_factory, mocker):
 @pytest.fixture
 def mock_country_config():
     """Fixture for pipeline with test config params."""
-    return create_custom_country_config(filename=CONFIG_FILE)
+    return create_custom_country_config(filepath=CONFIG_FILE)

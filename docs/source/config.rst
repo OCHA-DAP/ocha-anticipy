@@ -3,7 +3,7 @@ Country Configuration
 
 Before executing any components of the pipeline, you'll need to create
 a country configuration object. These objects are derived from either
-build-in or user provided YAML files, and specify general country information
+built-in or user provided YAML files, and specify general country information
 such as the ISO3, in addition to country- and data-source specific
 information, such as the COD AB shapefile layer names.
 
@@ -14,12 +14,12 @@ Several countries are already supported out-of-the box,
 and we are continuously adding more.
 
 A list of countries that we currently support:
-- Burkina Faso
-- Bangladesh
-- Democratic Republic of the Congo
-- Ethiopia
-- Malawi
-- Nepal
+- Burkina Faso (BFA)
+- Bangladesh (BGD)
+- Democratic Republic of the Congo (COD)
+- Ethiopia (ETH)
+- Malawi (MWI)
+- Nepal (NPL)
 
 Please contact us
 or create an issue if you would like to see more countries

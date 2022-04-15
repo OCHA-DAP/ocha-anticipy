@@ -48,9 +48,7 @@ class CountryConfig(BaseModel):
 
     @validator("iso3")
     def _validate_iso3(cls, iso3):
-        if len(iso3) != 3 or not str.islower(iso3) or not str.isalpha(iso3):
-            raise ValueError("ISO3 must be a lowercase three letter string.")
-        return iso3
+        return _validate_iso3(iso3)
 
 
 def create_country_config(iso3: str) -> CountryConfig:
@@ -66,11 +64,10 @@ def create_country_config(iso3: str) -> CountryConfig:
     -------
     CountryConfig instance
     """
-    if len(iso3) != 3 or not str.isalpha(iso3):
-        raise ValueError("ISO3 must be a three letter string.")
+    iso3 = _validate_iso3(iso3)
     try:
         parameters = parse_yaml(
-            Path(__file__).parent.resolve() / f"countries/{iso3.lower()}.yaml"
+            Path(__file__).parent.resolve() / f"countries/{iso3}.yaml"
         )
     except FileNotFoundError as err:
         raise FileNotFoundError(
@@ -82,17 +79,23 @@ def create_country_config(iso3: str) -> CountryConfig:
     return CountryConfig(**parameters)
 
 
-def create_custom_country_config(filename: Union[str, Path]) -> CountryConfig:
+def create_custom_country_config(filepath: Union[str, Path]) -> CountryConfig:
     """
     Return a custom country configuration object.
 
     Parameters
     ----------
-    filename: str, pathlib.Path
+    filepath: str, pathlib.Path
         Path to the configuration file
 
     Returns
     -------
     CountryConfig instance
     """
-    return CountryConfig(**parse_yaml(filename))
+    return CountryConfig(**parse_yaml(filepath))
+
+
+def _validate_iso3(iso3: str):
+    if len(iso3) != 3 or not str.isalpha(iso3):
+        raise ValueError("ISO3 must be a three letter string.")
+    return iso3.lower()
