@@ -198,10 +198,14 @@ class FewsNet(DataSource):
         >>> gdf_eth_fn_202106 = fewsnet.load(pub_year=2021,pub_month=6,
         ... projection_period = "ML1")
         """
-        projperiods = ValidProjectionPeriods._value2member_map_
-        if projection_period not in projperiods:  # type: ignore
+        logger.warning(
+            "load() now returns the raw data. In the future this "
+            "will return processed data."
+        )
+        projperiods = [pp.value for pp in ValidProjectionPeriods]
+        if projection_period not in projperiods:
             raise ValueError(
-                "`projection_period` is not a valid projection"  # type: ignore
+                "`projection_period` is not a valid projection"
                 f" period. It must be one of {', '.join(projperiods)}"
             )
 
