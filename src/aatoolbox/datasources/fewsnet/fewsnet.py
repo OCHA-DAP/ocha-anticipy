@@ -87,6 +87,8 @@ class FewsNet(DataSource):
                 "try again. See the documentation for the valid region names. "
             )
 
+        # assigning the fewsnet specific vars cause else mypy will complain
+        # later that they might be None
         self._region_name = self._country_config.fewsnet.region_name
         self._region_code = self._country_config.fewsnet.region_code
 
