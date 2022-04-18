@@ -30,3 +30,14 @@ def mock_country_config(mocker):
         return_value=parse_yaml(CONFIG_FILE),
     )
     return create_country_config(iso3=ISO3)
+
+
+def pytest_configure(config):
+    """Create custom markers to add to tests."""
+    config.addinivalue_line(
+        "markers",
+        (
+            "nomockiso2: do not mock the get_iso2_from_iso3 function. "
+            "Used for FEWS NET"
+        ),
+    )

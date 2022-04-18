@@ -72,7 +72,7 @@ class FewsNet(DataSource):
 
         if self._country_config.fewsnet is None:
             raise AttributeError(
-                "The country configuration file does not contain"
+                "The country configuration file does not contain "
                 "any FEWS NET region name. Please update the config file and "
                 "try again. See the documentation for the valid region names. "
             )

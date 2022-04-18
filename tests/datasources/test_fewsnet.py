@@ -1,4 +1,6 @@
 """Tests for the FewsNet module."""
+import zipfile
+
 import pytest
 from conftest import ISO2
 
@@ -12,12 +14,34 @@ _PUB_MONTH_STR = f"{7:02d}"
 
 
 @pytest.fixture(autouse=True)
-def mock_iso2(mocker):
+def mock_iso2(mocker, request):
     """Mock iso2 to iso3 conversion."""
+    if request.node.get_closest_marker("nomockiso2"):
+        return
     mocker.patch(
         "aatoolbox.datasources.fewsnet.fewsnet.Country.get_iso2_from_iso3",
         return_value=ISO2.upper(),
     )
+
+
+@pytest.mark.nomockiso2
+def test_no_iso2(mock_country_config):
+    """
+    Test that if no valid iso2 can be found, a keyerror is returned.
+
+    Since we use a fake iso3, no iso2 can be found and thus should produce an
+    error. For the other tests, we mock the iso3-to-iso2 conversion to prevent
+    this error.
+    """
+    with pytest.raises(KeyError):
+        FewsNet(country_config=mock_country_config)
+
+
+def test_no_fewsnet_config(mock_country_config):
+    """Test AttributeError when no FEWS NET config."""
+    mock_country_config.fewsnet = None
+    with pytest.raises(AttributeError):
+        FewsNet(country_config=mock_country_config)
 
 
 def test_download_country(
@@ -157,17 +181,17 @@ def mock_countryregion(mocker):
                 return mocker.patch(
                     "aatoolbox.datasources.fewsnet.fewsnet."
                     "FewsNet._download_country",
-                    side_effect=ValueError,
+                    side_effect=zipfile.BadZipFile,
                 )
             else:
                 return mocker.patch(
                     "aatoolbox.datasources.fewsnet.fewsnet."
                     "FewsNet._download_country",
-                    side_effect=ValueError,
+                    side_effect=zipfile.BadZipFile,
                 ), mocker.patch(
                     "aatoolbox.datasources.fewsnet.fewsnet."
                     "FewsNet._download_region",
-                    side_effect=ValueError,
+                    side_effect=zipfile.BadZipFile,
                 )
 
     return _mock_countryregion
