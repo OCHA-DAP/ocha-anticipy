@@ -1,8 +1,7 @@
 """Fixtures for all pipeline-related tests."""
 import pytest
 
-from aatoolbox import create_country_config
-from aatoolbox.utils.io import parse_yaml
+from aatoolbox import create_custom_country_config
 
 CONFIG_FILE = "tests/datasources/fake_config.yaml"
 ISO3 = "abc"
@@ -23,13 +22,9 @@ def mock_aa_data_dir(tmp_path_factory, mocker):
 
 
 @pytest.fixture
-def mock_country_config(mocker):
+def mock_country_config():
     """Fixture for pipeline with test config params."""
-    mocker.patch(
-        "aatoolbox.config.countryconfig.parse_yaml",
-        return_value=parse_yaml(CONFIG_FILE),
-    )
-    return create_country_config(iso3=ISO3)
+    return create_custom_country_config(filepath=CONFIG_FILE)
 
 
 def pytest_configure(config):
