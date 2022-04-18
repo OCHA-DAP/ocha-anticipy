@@ -1,5 +1,7 @@
 """Tests for check_file_existence decorator."""
 
+import pytest
+
 from aatoolbox.utils.check_file_existence import check_file_existence
 
 
@@ -21,3 +23,15 @@ def test_fp_exists_clobber(tmp_path):
     tmp_path.touch()
     output_filepath = downloader(filepath=tmp_path, clobber=True)
     assert output_filepath == "a"
+
+
+def test_fp_not_exists(tmp_path):
+    """Test that filepath returned if Path does not exist."""
+    output_filepath = downloader(filepath=tmp_path, clobber=True)
+    assert output_filepath == "a"
+
+
+def test_key_error(tmp_path):
+    """Test that KeyError raised when filepath not a kwarg."""
+    with pytest.raises(KeyError):
+        downloader(tmp_path, True)
