@@ -41,6 +41,11 @@ def check_file_existence(
     -------
     If filepath exists, returns filepath. Otherwise, returns the result of
     the decorated function.
+
+    Raises
+    ------
+    KeyError
+        If `filepath` not passed as kwarg.
     """
     try:
         filepath = kwargs["filepath"]
