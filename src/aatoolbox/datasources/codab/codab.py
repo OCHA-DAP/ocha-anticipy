@@ -16,7 +16,6 @@ GeoPandas dataframe:
 >>> npl_admin1 = codab.load(admin_level=1)
 """
 import logging
-import typing
 from pathlib import Path
 
 import geopandas as gpd
@@ -45,14 +44,13 @@ class CodAB(DataSource):
             country_config,
             datasource_base_dir="cod_ab",
             is_public=True,
-            config_attribute_name="codab",
+            config_datasource_name="codab",
         )
         self._raw_filepath = (
             self._raw_base_dir / f"{self._country_config.iso3}_"
             f"{self._datasource_base_dir}.shp.zip"
         )
 
-    @typing.no_type_check
     def download(self, clobber: bool = False) -> Path:
         """
         Download COD AB file from HDX.
@@ -77,7 +75,7 @@ class CodAB(DataSource):
         return _download(
             filepath=self._raw_filepath,
             hdx_address=f"cod-ab-{self._country_config.iso3}",
-            hdx_dataset_name=self._country_config.codab.hdx_dataset_name,
+            hdx_dataset_name=self._datasource_config.hdx_dataset_name,
             clobber=clobber,
         )
 
@@ -89,7 +87,6 @@ class CodAB(DataSource):
         """
         logger.info("`process()` method not implemented for CodAB.")
 
-    @typing.no_type_check
     def load(self, admin_level: int) -> gpd.GeoDataFrame:  # type: ignore
         """
         Get the COD AB data by admin level.
@@ -119,7 +116,7 @@ class CodAB(DataSource):
         >>> codab = CodAB(country_config=country_config)
         >>> npl_admin2 = codab.load(admin_level=2)
         """
-        admin_level_max = self._country_config.codab.admin_level_max
+        admin_level_max = self._datasource_config.admin_level_max
         if admin_level > admin_level_max:
             raise AttributeError(
                 f"Admin level {admin_level} requested, but maximum set to "
@@ -127,12 +124,11 @@ class CodAB(DataSource):
                 f"config file"
             )
         return self._load_admin_layer(
-            layer_name=self._country_config.codab.layer_base_name.format(
+            layer_name=self._datasource_config.layer_base_name.format(
                 admin_level=admin_level
             )
         )
 
-    @typing.no_type_check
     def load_custom(self, custom_layer_number: int = 0) -> gpd.GeoDataFrame:
         """
         Get the COD AB data from a custom (non-level) layer.
@@ -167,7 +163,7 @@ class CodAB(DataSource):
         try:
             # Ignore mypy for this line because custom_layer_names could be
             # None, but this is handled by the caught exceptions
-            layer_name = self._country_config.codab.custom_layer_names[
+            layer_name = self._datasource_config.custom_layer_names[
                 custom_layer_number
             ]  # type: ignore
         except (IndexError, TypeError) as err:

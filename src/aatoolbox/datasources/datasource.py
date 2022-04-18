@@ -31,7 +31,7 @@ class DataSource(ABC):
     is_global_processed: bool, default = False
         Whether the processed dataset should be saved in the `glb` folder.
         This is normally done when it has global or regional coverage.
-    config_attribute_name: str = None
+    config_datasource_name: str = None
         The name of the attribute in the config file
     """
 
@@ -43,14 +43,12 @@ class DataSource(ABC):
         is_public: bool = False,
         is_global_raw: bool = False,
         is_global_processed: bool = False,
-        config_attribute_name: str = None,
+        config_datasource_name: str = None,
     ):
-        if config_attribute_name is not None and not hasattr(
-            country_config, config_attribute_name
-        ):
-            raise AttributeError(
-                f"{config_attribute_name} needs to be implemented in the "
-                f"config file. See the documentation for more details."
+        if config_datasource_name is not None:
+            self._datasource_config = self._config_attribute_name_validator(
+                config_datasource_name=config_datasource_name,
+                country_config=country_config,
             )
         self._country_config = country_config
         self._datasource_base_dir = datasource_base_dir
@@ -61,6 +59,17 @@ class DataSource(ABC):
         self._processed_base_dir = self._get_base_dir(
             is_public=is_public, is_raw=False, is_global=is_global_processed
         )
+
+    def _config_attribute_name_validator(
+        self, config_datasource_name: str, country_config: CountryConfig
+    ):
+        try:
+            return getattr(country_config, config_datasource_name)
+        except AttributeError as err:
+            raise AttributeError(
+                f"{config_datasource_name} needs to be added to the the "
+                f"config file. See the documentation for more details."
+            ) from err
 
     def _get_base_dir(
         self,
