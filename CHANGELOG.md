@@ -16,6 +16,7 @@ and this project adheres to
 - Implemented unit testing for `AatRaster` module with full coverage
 - Implemented downloading and processing for IRI seasonal precipitation forecast
 - Added config for DRC (of which the iso3 is COD)
+- User can now create a config object from a custom filepath
 
 ### Changed
 
@@ -24,6 +25,7 @@ and this project adheres to
 - `GeoBoundingBox` input parameters changed from `north`, `south`, `east`, and `west`
   to `lat_max`, `lat_min`, `lon_max`, `lon_min`
 - `GeoBoundingBox.round` returns `GeoBoundingBox` instance (instead of being in place)
+- COD AB is now optional in the configuration file
 
 ### Removed
 
