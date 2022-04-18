@@ -11,12 +11,12 @@ Check their website to see which countries are included.
 import datetime
 import logging
 import zipfile
+from enum import Enum
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import geopandas as gpd
 from hdx.location.country import Country
-from typing_extensions import Literal
 
 from aatoolbox.datasources.datasource import DataSource
 from aatoolbox.utils.io import check_file_existence, download_url, unzip
@@ -32,10 +32,20 @@ _BASE_URL_REGION = (
     "HFIC/{region_code}/{region_name}{YYYY}{MM}.zip"
 )
 
-_VALID_PROJECTION_PERIODS_LITERAL = Literal["CS", "ML1", "ML2"]
-_VALID_PROJECTION_PERIODS = ["CS", "ML1", "ML2"]
-# TODO: this needs fixing
-# _VALID_PROJECTION_PERIODS_LITERAL = Literal[tuple(_VALID_PROJECTION_PERIODS)]
+
+# Use Enum such that it can function as type-checking
+# as well as check if user-inputed string is valid
+class ValidProjectionPeriods(Enum):
+    """
+    Define Enum for Valid Projection Periods.
+
+    Use Enum such that it can function as type-checking
+    as well as check if user-inputed string is valid
+    """
+
+    CS = "CS"
+    ML1 = "ML1"
+    ML2 = "ML2"
 
 
 class FewsNet(DataSource):
@@ -155,7 +165,7 @@ class FewsNet(DataSource):
         self,
         pub_year: int,
         pub_month: int,
-        projection_period: _VALID_PROJECTION_PERIODS_LITERAL,
+        projection_period: ValidProjectionPeriods,
     ) -> gpd.GeoDataFrame:
         """
         Load FEWS NET data.
@@ -188,10 +198,11 @@ class FewsNet(DataSource):
         >>> gdf_eth_fn_202106 = fewsnet.load(pub_year=2021,pub_month=6,
         ... projection_period = "ML1")
         """
-        if projection_period not in _VALID_PROJECTION_PERIODS:
+        projperiods = ValidProjectionPeriods._value2member_map_
+        if projection_period not in projperiods:  # type: ignore
             raise ValueError(
-                "`projection_period` is not a valid projection_period. "
-                f"It must be one of {', '.join(_VALID_PROJECTION_PERIODS)}"
+                "`projection_period` is not a valid projection"  # type: ignore
+                f" period. It must be one of {', '.join(projperiods)}"
             )
 
         self._check_date_validity(pub_year=pub_year, pub_month=pub_month)
