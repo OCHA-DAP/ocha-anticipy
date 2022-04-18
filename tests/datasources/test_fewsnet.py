@@ -132,8 +132,8 @@ def test_date_valid(mock_country_config):
     """Test error when input date is not valid."""
     fewsnet = FewsNet(country_config=mock_country_config)
     with pytest.raises(ValueError):
-        fewsnet._check_date_validity(pub_year=2000, pub_month=12)
         fewsnet._check_date_validity(pub_year=2000, pub_month=13)
+        fewsnet._check_date_validity(pub_year=2000, pub_month=12)
         fewsnet._check_date_validity(pub_year=2100, pub_month=12)
 
 
