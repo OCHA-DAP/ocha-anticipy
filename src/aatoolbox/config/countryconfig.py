@@ -59,11 +59,11 @@ class FewsNetConfig(BaseModel):
         if v not in valid_regionnames:
             raise ValueError(
                 f"Invalid region name: {v}. "
-                f"Should be one of {valid_regionnames}"
+                f"Should be one of {', '.join(valid_regionnames)}"
             )
         return v
 
-    @root_validator(pre=False)
+    @root_validator(pre=False, skip_on_failure=True)
     def _set_region_code(cls, values) -> dict:
         """Set region code based on region name."""
         values["region_code"] = values["region_name_code_mapping"][

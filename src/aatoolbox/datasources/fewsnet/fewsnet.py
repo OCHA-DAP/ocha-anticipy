@@ -145,13 +145,13 @@ class FewsNet(DataSource):
                     pub_month=pub_month_str,
                     clobber=clobber,
                 )
-            except zipfile.BadZipFile:
+            except zipfile.BadZipFile as err:
                 raise RuntimeError(
                     "No country or regional data found for"
                     f" {pub_year}-{pub_month_str}. Check on the FEWS NET "
                     "website that data for your given date and country/region "
                     "exists."
-                )
+                ) from err
 
     def process(self, *args, **kwargs):
         """
@@ -215,7 +215,8 @@ class FewsNet(DataSource):
         )
         return gpd.read_file(file_path)
 
-    def _check_date_validity(self, pub_year, pub_month):
+    @staticmethod
+    def _check_date_validity(pub_year, pub_month):
         try:
             pub_date = datetime.datetime(year=pub_year, month=pub_month, day=1)
         except ValueError as err:
@@ -318,7 +319,8 @@ class FewsNet(DataSource):
     def _get_raw_dir_date(self, area, pub_year, pub_month):
         return self._raw_base_dir / f"{area}_{pub_year}{pub_month}"
 
-    def _get_zip_filename(self, area, pub_year, pub_month):
+    @staticmethod
+    def _get_zip_filename(area, pub_year, pub_month):
         return f"{area}{pub_year}{pub_month}.zip"
 
     def _find_raw_dir_date(self, pub_year, pub_month):
@@ -331,16 +333,15 @@ class FewsNet(DataSource):
         country_dir = self._get_raw_dir_date(
             area=self._iso2, pub_year=pub_year, pub_month=pub_month
         )
+        region_dir = self._get_raw_dir_date(
+            area=self._region_code,
+            pub_year=pub_year,
+            pub_month=pub_month,
+        )
         if country_dir.is_dir():
             return country_dir
-        else:
-            region_dir = self._get_raw_dir_date(
-                area=self._region_code,
-                pub_year=pub_year,
-                pub_month=pub_month,
-            )
-            if region_dir.is_dir():
-                return region_dir
+        elif region_dir.is_dir():
+            return region_dir
 
         raise FileNotFoundError(
             f"No data found for {pub_year}-{pub_month} covering "
@@ -348,7 +349,8 @@ class FewsNet(DataSource):
             "Please make sure the data exists and is downloaded"
         )
 
-    def _get_raw_file_projection_period(self, dir_path, projection_period):
+    @staticmethod
+    def _get_raw_file_projection_period(dir_path, projection_period):
         file_path = dir_path / f"{dir_path.name}_{projection_period}.shp"
         if file_path.is_file():
             return file_path
