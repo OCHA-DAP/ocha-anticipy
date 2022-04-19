@@ -19,14 +19,14 @@ def test_fp_exists_no_clobber(tmp_path):
 
 
 def test_fp_exists_clobber(tmp_path):
-    """Test that filepath returned if Path exists and clobber False."""
+    """Test that function returned if Path exists and clobber True."""
     tmp_path.touch()
     output_filepath = downloader(filepath=tmp_path, clobber=True)
     assert output_filepath == "a"
 
 
 def test_fp_not_exists(tmp_path):
-    """Test that filepath returned if Path does not exist."""
+    """Test that function returned if Path does not exist."""
     output_filepath = downloader(filepath=tmp_path, clobber=True)
     assert output_filepath == "a"
 
