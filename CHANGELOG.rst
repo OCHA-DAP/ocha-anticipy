@@ -1,7 +1,5 @@
 .. raw:: html
 
-   <!-- markdownlint-disable-file MD024 -->
-
 Changelog
 =========
 
@@ -60,19 +58,13 @@ Fixed
 [0.3.1] - 2022-01-06
 --------------------
 
-.. _fixed-1:
-
 Fixed
 ~~~~~
 
 -  GitHub action to publish on PyPI when tagged was not running
 
-.. _section-1:
-
 [0.3.0] - 2022-01-06
 --------------------
-
-.. _added-1:
 
 Added
 ~~~~~
@@ -97,8 +89,6 @@ Added
 -  Version number is now specified in ``src/aatoolbox/_version.py``
 -  GitHub actions to run unit tests (using ``tox.ini``) and push to PyPI
 
-.. _changed-1:
-
 Changed
 ~~~~~~~
 
@@ -111,32 +101,22 @@ Changed
 -  Documentation to be generated using ``sphinx-build`` rather than
    through ``setup.py``
 
-.. _removed-1:
-
 Removed
 ~~~~~~~
 
 -  ``Makefile`` for generating requirements files
 -  ``setup.py`` as it was only required for ``scm``
 
-.. _section-2:
-
 [0.2.1] - 2021-10-15
 --------------------
-
-.. _fixed-2:
 
 Fixed
 ~~~~~
 
 -  Version number reading function used wrong package name
 
-.. _section-3:
-
 [0.2.0] - 2021-10-15
 --------------------
-
-.. _added-2:
 
 Added
 ~~~~~
@@ -144,12 +124,8 @@ Added
 -  Configuration class
 -  Base class for data manipulation
 
-.. _section-4:
-
 [0.1.0] - 2021-10-12
 --------------------
-
-.. _added-3:
 
 Added
 ~~~~~
