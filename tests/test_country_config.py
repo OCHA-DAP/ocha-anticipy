@@ -5,7 +5,6 @@ from typing import Dict, List
 import pytest
 
 from aatoolbox import create_country_config
-from aatoolbox.config.countryconfig import FewsNetConfig
 
 
 @pytest.fixture
@@ -90,34 +89,5 @@ def test_validate_codab_layer_base_name(mock_parse_yaml):
     # Check that correct config runs without issue
     create_country_config(iso3="abc")
     # Check that incorrect config raises error
-    with pytest.raises(ValueError):
-        create_country_config(iso3="abc")
-
-
-def test_validate_fewsnet_region_name(mock_parse_yaml):
-    """Test that fewsnet requires correct region name."""
-    config_base = {
-        "iso3": "abc",
-        "fewsnet": {"region_name": ""},
-    }
-    config_correct = copy.deepcopy(config_base)
-    config_correct["fewsnet"]["region_name"] += "east-africa"
-    config_incorrect = copy.deepcopy(config_base)
-    config_incorrect["fewsnet"]["region_name"] += "fake_region_name"
-    mock_parse_yaml(output_list=[config_correct, config_incorrect])
-    # Check that correct config runs without issue
-    country_config_valid = create_country_config(iso3="abc")
-    assert country_config_valid.fewsnet == FewsNetConfig(
-        region_name_code_mapping={
-            "caribbean-central-america": "LAC",
-            "central-asia": "CA",
-            "east-africa": "EA",
-            "southern-africa": "SA",
-            "west-africa": "WA",
-        },
-        region_name="east-africa",
-        region_code="EA",
-    )
-    # Check that config with incorrect region_name raises error
     with pytest.raises(ValueError):
         create_country_config(iso3="abc")
