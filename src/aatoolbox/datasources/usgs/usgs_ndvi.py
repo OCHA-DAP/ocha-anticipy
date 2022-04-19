@@ -34,7 +34,7 @@ import logging
 from datetime import date
 from io import BytesIO
 from pathlib import Path
-from typing import List, Tuple, Union, cast
+from typing import List, Tuple, Union
 from urllib.error import HTTPError
 from urllib.request import urlopen
 from zipfile import ZipFile
@@ -49,12 +49,12 @@ from typing_extensions import Literal
 import aatoolbox.utils.raster  # noqa: F401
 from aatoolbox.config.countryconfig import CountryConfig
 from aatoolbox.datasources.datasource import DataSource
-from aatoolbox.utils._dates import (
+from aatoolbox.utils.dates import (
     _compare_dekads_gt,
     _compare_dekads_lt,
-    _date_to_dekad,
     _dekad_to_date,
     _expand_dekads,
+    _get_dekadal_date,
 )
 
 # TODO: use check_file_existence once the fix is merged
@@ -73,9 +73,13 @@ _VALID_AREAS = Literal[
     "central_america",
     "hispaniola",
 ]
-_VALID_TYPES = Literal[
+_VALID_DATA_VARIABLES = Literal[
     "smoothed", "percent_median", "median_anomaly", "difference"
 ]
+
+_N_DEKADS_PER_YEAR = 36
+
+_DATE_TYPE = Union[date, str, Tuple[int, int], None]
 
 
 class _UsgsNdvi(DataSource):
@@ -87,19 +91,22 @@ class _UsgsNdvi(DataSource):
         Country configuration
     coverage_area : str
         Area of coverage
-    data_type : str
-        Data type
-    start_date : Union[date, str, Tuple[int], None]
+    data_variable : str
+        Data variable date
+    start_date : _DATE_TYPE, default = None
         Start date. Can be passed as a ``datetime.date``
-        object and the relevant dekad will be determined,
-        as a date string in ISO8601 format, or as a
-        year-dekad tuple, i.e. (2020, 1).
-    end_date : Union[date, str, Tuple[int], None]
+        object or a data string in ISO8601 format, and
+        the relevant dekad will be determined. Or pass
+        directly as year-dekad tuple, e.g. (2020, 1).
+        If ``None``, ``start_date`` is set to earliest
+        date with data: 2002, dekad 19.
+    end_date : _DATE_TYPE, default = None
         End date. Can be passed as a ``datetime.date``
         object and the relevant dekad will be determined,
         as a date string in ISO8601 format, or as a
-        year-dekad tuple, i.e. (2020, 1).
-    processed_file_suffix : str
+        year-dekad tuple, i.e. (2020, 1). If ``None``,
+        ``end_date`` is set to ``date.today()``.
+    processed_file_suffix : str, default = ""
         Suffix for processed file.
     """
 
@@ -107,9 +114,9 @@ class _UsgsNdvi(DataSource):
         self,
         country_config: CountryConfig,
         coverage_area: _VALID_AREAS,
-        data_type: _VALID_TYPES,
-        start_date: Union[date, str, Tuple[int], None] = None,
-        end_date: Union[date, str, Tuple[int], None] = None,
+        data_variable: _VALID_DATA_VARIABLES,
+        start_date: _DATE_TYPE = None,
+        end_date: _DATE_TYPE = None,
         processed_file_suffix: str = "",
     ):
         super().__init__(
@@ -122,40 +129,33 @@ class _UsgsNdvi(DataSource):
 
         # set data type directly in init because should not be
         # changed in an instance
-        valid_types = _VALID_TYPES.__args__  # type: ignore
-        if data_type not in valid_types:
+        valid_types = _VALID_DATA_VARIABLES.__args__  # type: ignore
+        if data_variable not in valid_types:
             raise ValueError(
-                "`data_type` is not a valid string value. "
+                "`data_variable` is not a valid string value. "
                 f"It must be one of {*valid_types,}"
             )
-        self._data_type = data_type
+        self._data_variable = data_variable
 
         # url code and file suffix
-        loc_data_types = {
+        loc_data_variables = {
             "smoothed": ("temporallysmoothedndvi", ""),
             "percent_median": ("percentofmedian", "pct"),
             "median_anomaly": ("mediananomaly", "stmdn"),
             "difference": ("differencepreviousyear", "dif"),
         }
-        data_type_values = loc_data_types[data_type]
-        self._data_type_url = data_type_values[0]
-        self._data_type_suffix = data_type_values[1]
+        data_variable_values = loc_data_variables[data_variable]
+        self._data_variable_url = data_variable_values[0]
+        self._data_variable_suffix = data_variable_values[1]
 
         # set dates for data download and processing
-        if start_date is None:
-            # earliest dekad of data is 2002-19
-            self._start_year, self._start_dekad = 2002, 19
-        elif isinstance(start_date, (str, date)):
-            self._start_year, self._start_dekad = _date_to_dekad(start_date)
-        else:
-            self._start_year, self._start_dekad = cast(list, start_date)
+        self._start_year, self._start_dekad = _get_dekadal_date(
+            input_date=start_date, default_date=(2002, 19)
+        )
 
-        if end_date is None:
-            self._end_year, self._end_dekad = _date_to_dekad(date.today())
-        elif isinstance(start_date, (str, date)):
-            self._end_year, self._end_dekad = _date_to_dekad(end_date)
-        else:
-            self._end_year, self._end_dekad = cast(list, end_date)
+        self._end_year, self._end_dekad = _get_dekadal_date(
+            input_date=end_date, default_date=date.today()
+        )
 
         # set processed file suffix
         self.processed_file_suffix = processed_file_suffix
@@ -253,7 +253,7 @@ class _UsgsNdvi(DataSource):
         >>> UsgsNdviSmoothed.download()
         """
         for year in range(self._start_year, self._end_year + 1):
-            for dekad in range(1, 37):
+            for dekad in range(1, _N_DEKADS_PER_YEAR + 1):
                 if year == self._start_year and dekad < self._start_dekad:
                     continue
                 if year == self._end_year and dekad > self._end_dekad:
@@ -264,7 +264,7 @@ class _UsgsNdvi(DataSource):
                     )
         return self._raw_base_dir
 
-    def process(
+    def process(  # type: ignore
         self,
         gdf: gpd.GeoDataFrame,
         feature_col: str,
@@ -383,7 +383,7 @@ class _UsgsNdvi(DataSource):
                 if cols_same:
                     # remove processed dates from dates to process
                     process_dates = [
-                        date for d in process_dates if d not in processed_dates
+                        d for d in process_dates if d not in processed_dates
                     ]
                     if len(process_dates) == 0:
                         logger.info(
@@ -494,12 +494,14 @@ class _UsgsNdvi(DataSource):
 
         return df
 
-    def load_raster(self, date: Union[date, str, Tuple[int]]) -> xr.DataArray:
+    def load_raster(
+        self, date: Union[date, str, Tuple[int, int]]
+    ) -> xr.DataArray:
         """Load raster for specific year and dekad.
 
         Parameters
         ----------
-        date : Union[date, str, Tuple[int]]
+        date : Union[date, str, Tuple[int, int]]
             Date. Can be passed as a ``datetime.date``
             object and the relevant dekad will be determined,
             as a date string in ISO8601 format, or as a
@@ -515,10 +517,7 @@ class _UsgsNdvi(DataSource):
         FileNotFoundError
             If the requested file cannot be found.
         """
-        if isinstance(date, (tuple, str)):
-            year, dekad = _date_to_dekad(date)
-        else:
-            year, dekad = cast(list, date)
+        year, dekad = _get_dekadal_date(input_date=date)
 
         filepath = self._get_raw_path(year=year, dekad=dekad)
         try:
@@ -587,7 +586,7 @@ class _UsgsNdvi(DataSource):
         """
         file_name = (
             f"{self._region_prefix}{year-2000:02}"
-            f"{dekad:02}{self._data_type_suffix}"
+            f"{dekad:02}{self._data_variable_suffix}"
         )
         return file_name
 
@@ -618,10 +617,12 @@ class _UsgsNdvi(DataSource):
             List of year and dekad lists for files already
             in the system.
         """
-        regex = fr"{self._region_prefix}[0-9]{{4}}{self._data_type_suffix}.tif"
+        regex = (
+            fr"{self._region_prefix}[0-9]{{4}}{self._data_variable_suffix}.tif"
+        )
         downloaded_dekads = [
             self._fp_year_dekad(filename)
-            for filename in self._raw_base_dir
+            for filename in self._raw_base_dir.iterdir()
             if re.search(regex, filename)
         ]
         return downloaded_dekads
@@ -642,7 +643,7 @@ class _UsgsNdvi(DataSource):
         """
         file_name = (
             f"{self._country_config.iso3}"
-            f"_usgs_ndvi_{self._data_type}"
+            f"_usgs_ndvi_{self._data_variable}"
             f"{'_' if len(self.processed_file_suffix) else ''}"
             f"{self.processed_file_suffix}.csv"
         )
@@ -663,7 +664,8 @@ class _UsgsNdvi(DataSource):
         """
         return (
             f"https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/fews/web/"
-            f"{self._region_url}/dekadal/emodis/ndvi_c6/{self._data_type_url}/"
+            f"{self._region_url}/dekadal/emodis"
+            f"/ndvi_c6/{self._data_variable_url}/"
             f"downloads/dekadal/{filename}.zip"
         )
 
@@ -752,12 +754,12 @@ class UsgsNdviSmoothed(_UsgsNdvi):
         Country configuration
     coverage_area : str
         Area of coverage
-    start_date : Union[date, str, Tuple[int], None]
+    start_date : Union[date, str, Tuple[int, int], None]
         Start date. Can be passed as a ``datetime.date``
         object and the relevant dekad will be determined,
         as a date string in ISO8601 format, or as a
         year-dekad tuple, i.e. (2020, 1).
-    end_date : Union[date, str, Tuple[int], None]
+    end_date : Union[date, str, Tuple[int, int], None]
         End date. Can be passed as a ``datetime.date``
         object and the relevant dekad will be determined,
         as a date string in ISO8601 format, or as a
@@ -770,14 +772,14 @@ class UsgsNdviSmoothed(_UsgsNdvi):
         self,
         country_config: CountryConfig,
         coverage_area: _VALID_AREAS,
-        start_date: Union[date, str, Tuple[int], None] = None,
-        end_date: Union[date, str, Tuple[int], None] = None,
+        start_date: Union[date, str, Tuple[int, int], None] = None,
+        end_date: Union[date, str, Tuple[int, int], None] = None,
         processed_file_suffix: str = "",
     ):
         super().__init__(
             country_config=country_config,
             coverage_area=coverage_area,
-            data_type="smoothed",
+            data_variable="smoothed",
             start_date=start_date,
             end_date=end_date,
             processed_file_suffix=processed_file_suffix,
@@ -797,12 +799,12 @@ class UsgsNdviPctMedian(_UsgsNdvi):
         Country configuration
     coverage_area : str
         Area of coverage
-    start_date : Union[date, str, Tuple[int], None]
+    start_date : Union[date, str, Tuple[int, int], None]
         Start date. Can be passed as a ``datetime.date``
         object and the relevant dekad will be determined,
         as a date string in ISO8601 format, or as a
         year-dekad tuple, i.e. (2020, 1).
-    end_date : Union[date, str, Tuple[int], None]
+    end_date : Union[date, str, Tuple[int, int], None]
         End date. Can be passed as a ``datetime.date``
         object and the relevant dekad will be determined,
         as a date string in ISO8601 format, or as a
@@ -815,14 +817,14 @@ class UsgsNdviPctMedian(_UsgsNdvi):
         self,
         country_config: CountryConfig,
         coverage_area: _VALID_AREAS,
-        start_date: Union[date, str, Tuple[int], None] = None,
-        end_date: Union[date, str, Tuple[int], None] = None,
+        start_date: Union[date, str, Tuple[int, int], None] = None,
+        end_date: Union[date, str, Tuple[int, int], None] = None,
         processed_file_suffix: str = "",
     ):
         super().__init__(
             country_config=country_config,
             coverage_area=coverage_area,
-            data_type="percent_median",
+            data_variable="percent_median",
             start_date=start_date,
             end_date=end_date,
             processed_file_suffix=processed_file_suffix,
@@ -844,12 +846,12 @@ class UsgsNdviMedianAnomaly(_UsgsNdvi):
         Country configuration
     coverage_area : str
         Area of coverage
-    start_date : Union[date, str, Tuple[int], None]
+    start_date : Union[date, str, Tuple[int, int], None]
         Start date. Can be passed as a ``datetime.date``
         object and the relevant dekad will be determined,
         as a date string in ISO8601 format, or as a
         year-dekad tuple, i.e. (2020, 1).
-    end_date : Union[date, str, Tuple[int], None]
+    end_date : Union[date, str, Tuple[int, int], None]
         End date. Can be passed as a ``datetime.date``
         object and the relevant dekad will be determined,
         as a date string in ISO8601 format, or as a
@@ -862,14 +864,14 @@ class UsgsNdviMedianAnomaly(_UsgsNdvi):
         self,
         country_config: CountryConfig,
         coverage_area: _VALID_AREAS,
-        start_date: Union[date, str, Tuple[int], None] = None,
-        end_date: Union[date, str, Tuple[int], None] = None,
+        start_date: Union[date, str, Tuple[int, int], None] = None,
+        end_date: Union[date, str, Tuple[int, int], None] = None,
         processed_file_suffix: str = "",
     ):
         super().__init__(
             country_config=country_config,
             coverage_area=coverage_area,
-            data_type="median_anomaly",
+            data_variable="median_anomaly",
             start_date=start_date,
             end_date=end_date,
             processed_file_suffix=processed_file_suffix,
@@ -892,12 +894,12 @@ class UsgsNdviYearDifference(_UsgsNdvi):
         Country configuration
     coverage_area : str
         Area of coverage
-    start_date : Union[date, str, Tuple[int], None]
+    start_date : Union[date, str, Tuple[int, int], None]
         Start date. Can be passed as a ``datetime.date``
         object and the relevant dekad will be determined,
         as a date string in ISO8601 format, or as a
         year-dekad tuple, i.e. (2020, 1).
-    end_date : Union[date, str, Tuple[int], None]
+    end_date : Union[date, str, Tuple[int, int], None]
         End date. Can be passed as a ``datetime.date``
         object and the relevant dekad will be determined,
         as a date string in ISO8601 format, or as a
@@ -910,14 +912,14 @@ class UsgsNdviYearDifference(_UsgsNdvi):
         self,
         country_config: CountryConfig,
         coverage_area: _VALID_AREAS,
-        start_date: Union[date, str, Tuple[int], None] = None,
-        end_date: Union[date, str, Tuple[int], None] = None,
+        start_date: Union[date, str, Tuple[int, int], None] = None,
+        end_date: Union[date, str, Tuple[int, int], None] = None,
         processed_file_suffix: str = "",
     ):
         super().__init__(
             country_config=country_config,
             coverage_area=coverage_area,
-            data_type="percent_median",
+            data_variable="percent_median",
             start_date=start_date,
             end_date=end_date,
             processed_file_suffix=processed_file_suffix,
