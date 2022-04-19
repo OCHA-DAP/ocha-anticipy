@@ -1,13 +1,4 @@
-"""Class to download and load IRI's seasonal forecast.
-
-Data is downloaded from `IRI's maproom
-<https://iridl.ldeo.columbia.edu/maproom/Global/Forecasts/NMME_Seasonal_Forecasts/Precipitation_ELR.html>`_
-
-For now only the tercile precipitation forecast has been
-implemented. This forecast is published in two formats,
-namely the dominant tercile probability and the probability
-per tercile. Both variations are implemented here.
-"""
+"""Class to download and load IRI's seasonal forecast."""
 import logging
 import os
 from pathlib import Path
