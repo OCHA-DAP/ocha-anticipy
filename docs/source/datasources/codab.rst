@@ -13,7 +13,7 @@ delineate a country's borders and internal regions.
 A key feature of the COD AB datasets are P-codes, which are unique
 alphanumeric identifiers for each geographic region.
 
-The COD ABs are downloaded from `HDX <https://data.humdata.org/>`_.
+The COD ABs are downloaded from `HDX <https://data.humdata.org/cod>`_.
 
 
 Usage
@@ -47,6 +47,14 @@ GeoPandas dataframe:
 
     npl_admin1 = codab.load(admin_level=1)
 
+Some COD AB files have additional layers that don't correspond to
+an admin level. For example, Nepal has a districts layer, which
+is provided in the config file as the first custom layer:
+
+.. code-block:: python
+
+    npl_districts = codab.load_custom(custom_layer_number=0)
+
 The full code snippet is below in case you would like to copy it:
 
 .. code-block:: python
@@ -56,3 +64,29 @@ The full code snippet is below in case you would like to copy it:
     codab = CodAB(country_config=country_config)
     codab.download()
     npl_admin1 = codab.load(admin_level=1)
+    npl_districts = codab.load_custom(custom_layer_number=0)
+
+Configuration
+-------------
+
+The COD AB portion of the configuration file
+should be setup as follows:
+
+.. code-block:: yaml
+
+    codab:
+      hdx_dataset_name: npl_admbnda_nd_20201117_SHP.zip
+      layer_base_name: npl_admbnda_adm{admin_level}_nd_20201117.shp
+      admin_level_max: 2
+      custom_layer_names:
+        - npl_admbnda_districts_nd_20201117
+
+Below is an explanation of the different parameters:
+
+``hdx_dataset_name``: str
+
+``layer_base_name``: str
+
+``admin_level_max``: int
+
+``custom_layer_name``: str, optional
