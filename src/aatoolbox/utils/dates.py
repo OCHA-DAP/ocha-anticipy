@@ -31,6 +31,14 @@ def _get_dekadal_date(
         input_date = cast(Tuple[int, int], input_date)
         if len(input_date) == 2:
             year, dekad = input_date
+            # assert year-dekad values appropriate, not too strict
+            if year < 1000 or year > 9999 or dekad < 1 or dekad > 36:
+                raise ValueError(
+                    f"(year, dekad) tuple ({year}, {dekad}) invalid. "
+                    "Year should be a 4-digit year and dekad between "
+                    "1 and 36."
+                )
+
         else:
             raise ValueError(
                 (

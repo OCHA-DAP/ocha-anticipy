@@ -36,7 +36,7 @@ import logging
 from datetime import date
 from io import BytesIO
 from pathlib import Path
-from typing import List, Tuple, Union
+from typing import List, Optional, Tuple, Union
 from urllib.error import HTTPError
 from urllib.request import urlopen
 from zipfile import ZipFile
@@ -61,20 +61,10 @@ from aatoolbox.utils.dates import (
 
 # TODO: use check_file_existence once the fix is merged
 # that allows it to work on class methods (PR is open)
-# from aatoolbox.utils.io import check_file_existence
+# from aatoolbox.utils.check_file_existence import check_file_existence
 
 logger = logging.getLogger(__name__)
 
-_VALID_AREAS = Literal[
-    "north_africa",
-    "east_africa",
-    "southern_africa",
-    "west_africa",
-    "central_asia",
-    "yemen",
-    "central_america",
-    "hispaniola",
-]
 _VALID_DATA_VARIABLES = Literal[
     "smoothed", "percent_median", "median_anomaly", "difference"
 ]
@@ -82,6 +72,7 @@ _VALID_DATA_VARIABLES = Literal[
 _N_DEKADS_PER_YEAR = 36
 
 _DATE_TYPE = Union[date, str, Tuple[int, int], None]
+_EARLIEST_DATE = (2002, 19)
 
 
 class _UsgsNdvi(DataSource):
@@ -91,8 +82,6 @@ class _UsgsNdvi(DataSource):
     ----------
     country_config : CountryConfig
         Country configuration
-    coverage_area : str
-        Area of coverage
     data_variable : str
         Data variable date
     start_date : _DATE_TYPE, default = None
@@ -108,18 +97,17 @@ class _UsgsNdvi(DataSource):
         as a date string in ISO8601 format, or as a
         year-dekad tuple, i.e. (2020, 1). If ``None``,
         ``end_date`` is set to ``date.today()``.
-    processed_file_suffix : str, default = ""
+    processed_file_suffix : Optional[str], default = None
         Suffix for processed file.
     """
 
     def __init__(
         self,
         country_config: CountryConfig,
-        coverage_area: _VALID_AREAS,
         data_variable: _VALID_DATA_VARIABLES,
         start_date: _DATE_TYPE = None,
         end_date: _DATE_TYPE = None,
-        processed_file_suffix: str = "",
+        processed_file_suffix: Optional[str] = None,
     ):
         super().__init__(
             country_config=country_config,
@@ -127,7 +115,16 @@ class _UsgsNdvi(DataSource):
             is_public=True,
             is_global_raw=True,
         )
-        self.coverage_area = coverage_area
+
+        # set area url and prefix from config
+        if self._country_config.usgs_ndvi is None:
+            raise AttributeError(
+                "The country configuration file does not contain "
+                "any USGS NDVI area name. Please update the config file and "
+                "try again. See the documentation for the valid area names."
+            )
+        self._area_url = self._country_config.usgs_ndvi.area_url
+        self._area_prefix = self._country_config.usgs_ndvi.area_prefix
 
         # set data type directly in init because should not be
         # changed in an instance
@@ -152,51 +149,27 @@ class _UsgsNdvi(DataSource):
 
         # set dates for data download and processing
         self._start_year, self._start_dekad = _get_dekadal_date(
-            input_date=start_date, default_date=(2002, 19)
+            input_date=start_date, default_date=_EARLIEST_DATE
         )
 
         self._end_year, self._end_dekad = _get_dekadal_date(
             input_date=end_date, default_date=date.today()
         )
 
+        # warn if dates outside earliest dates
+        earliest_year, earliest_dekad = _EARLIEST_DATE
+        if self._start_year < earliest_year or (
+            self._start_year == earliest_year
+            and self._start_dekad < earliest_dekad
+        ):
+            logger.warning(
+                "Start date is before earliest date data is available. "
+                f"Data will be downloaded from {earliest_year}, dekad "
+                f"{earliest_dekad}."
+            )
+
         # set processed file suffix
         self.processed_file_suffix = processed_file_suffix
-
-    @property
-    def coverage_area(self):
-        """str: Coverage area for NDVI data.
-
-        If the area is set to a valid value, the relevant
-        URLs and directory pathings are switched.
-        """
-        return self._coverage_area
-
-    @coverage_area.setter
-    def coverage_area(self, value: _VALID_AREAS):
-        valid_args = _VALID_AREAS.__args__  # type: ignore
-        if value not in valid_args:
-            raise ValueError(
-                "`coverage_area` is not a valid string value. "
-                f"It must be one of '{*valid_args,}'."
-            )
-        self._coverage_area = value
-
-        # also adjust relevant URL and file attributes
-        # when coverage area is set
-        loc_region_types = {
-            "north_africa": ("africa/north", "na"),
-            "east_africa": ("africa/east", "ea"),
-            "southern_africa": ("africa/southern", "sa"),
-            "west_africa": ("africa/west", "wa"),
-            "central_asia": ("asia/centralasia", "cta"),
-            "yemen": ("asia/middleeast/yemen", "yem"),
-            "central_america": ("lac/camcar/centralamerica", "ca"),
-            "hispaniola": ("lac/camcar/caribbean/hispaniola", "hi"),
-        }
-
-        region_values = loc_region_types[value]
-        self._region_url = region_values[0]
-        self._region_prefix = region_values[1]
 
     @property
     def processed_file_suffix(self):
@@ -210,7 +183,9 @@ class _UsgsNdvi(DataSource):
         return self._processed_file_suffix
 
     @processed_file_suffix.setter
-    def processed_file_suffix(self, value):
+    def processed_file_suffix(self, value: Optional[str]):
+        if value is None:
+            value = ""
         if not isinstance(value, str):
             raise ValueError("`processed_file_suffix` must be a string.")
         self._processed_file_suffix = value
@@ -240,15 +215,14 @@ class _UsgsNdvi(DataSource):
         >>> from aatoolbox import create_country_config, \
         ...  CodAB, UsgsNdviSmoothed
         >>>
-        >>> # Retrieve admin 2 boundaries for Nepal
-        >>> country_config = create_country_config(iso3="npl")
+        >>> # Retrieve admin 2 boundaries for Burkina Faso
+        >>> country_config = create_country_config(iso3="bfa")
         >>> codab = CodAB(country_config=country_config)
-        >>> npl_admin2 = codab.load(admin_level=2)
+        >>> bfa_admin2 = codab.load(admin_level=2)
         >>>
         >>> # setup NDVI
         >>> UsgsNdviSmoothed(
         ...     country_config=country_config,
-        ...     coverage_area="west_africa",
         ...     start_date=[2020, 1],
         ...     end_date=[2020, 3]
         ... )
@@ -297,7 +271,7 @@ class _UsgsNdvi(DataSource):
             If True, overwrites existing processed dates. If
             the new file matches the old file, dates will be
             reprocessed and appended to the data frame. If
-            files do not much, the old file will be replaced.
+            files do not match, the old file will be replaced.
             If False, stats are only calculated for year-dekads
             that have not already been calculated within the
             file. However, if False and files do not match,
@@ -316,25 +290,30 @@ class _UsgsNdvi(DataSource):
         >>> from aatoolbox import create_country_config, \
         ...  CodAB, UsgsNdviSmoothed
         >>>
-        >>> # Retrieve admin 2 boundaries for Nepal
-        >>> country_config = create_country_config(iso3="npl")
+        >>> # Retrieve admin 2 boundaries for Burkina Faso
+        >>> country_config = create_country_config(iso3="bfa")
         >>> codab = CodAB(country_config=country_config)
-        >>> npl_admin2 = codab.load(admin_level=2)
-        >>> npl_admin1 = codab.load(admin_level=2)
+        >>> bfa_admin2 = codab.load(admin_level=2)
+        >>> bfa_admin1 = codab.load(admin_level=2)
         >>>
         >>> # setup NDVI
         >>> UsgsNdviSmoothed(
         ...     country_config=country_config,
-        ...     coverage_area="west_africa",
         ...     start_date=[2020, 1],
         ...     end_date=[2020, 3]
         ... )
         >>> UsgsNdviSmoothed.download()
-        >>> UsgsNdviSmoothed.process()
+        >>> UsgsNdviSmoothed.process(
+        ...     gdf=bfa_admin2,
+        ...     feature_col="ADM2_FR"
+        ... )
         >>>
-        >>> # process for admin
+        >>> # process for admin1
         >>> UsgsNdviSmoothed.processed_file_suffix = "adm1"
-        >>> UsgsNdviSmoothed.process()
+        >>> UsgsNdviSmoothed.process(
+        ...     gdf=bfa_admin1,
+        ...     feature_col="ADM1_FR"
+        ... )
         """
         processed_path = self._get_processed_path()
 
@@ -457,20 +436,22 @@ class _UsgsNdvi(DataSource):
         >>> from aatoolbox import create_country_config, \
         ...  CodAB, UsgsNdviSmoothed
         >>>
-        >>> # Retrieve admin 2 boundaries for Nepal
-        >>> country_config = create_country_config(iso3="npl")
+        >>> # Retrieve admin 2 boundaries for Burkina Faso
+        >>> country_config = create_country_config(iso3="bfa")
         >>> codab = CodAB(country_config=country_config)
-        >>> npl_admin2 = codab.load(admin_level=2)
+        >>> bfa_admin2 = codab.load(admin_level=2)
         >>>
         >>> # setup NDVI
         >>> UsgsNdviSmoothed(
         ...     country_config=country_config,
-        ...     coverage_area="west_africa",
         ...     start_date=[2020, 1],
         ...     end_date=[2020, 3]
         ... )
         >>> UsgsNdviSmoothed.download()
-        >>> UsgsNdviSmoothed.process()
+        >>> UsgsNdviSmoothed.process(
+        ...    gdf=bfa_admin2,
+        ...    feature_col="ADM2_FR"
+        )
         >>> UsgsNdviSmoothed.load()
         """
         processed_path = self._get_processed_path()
@@ -570,128 +551,6 @@ class _UsgsNdvi(DataSource):
                 f"Cannot open the .tif file {filepath}. {file_warning}"
             ) from err
 
-    def _get_raw_filename(self, year: int, dekad: int) -> str:
-        """Get raw filename (excluding file type suffix).
-
-        Parameters
-        ----------
-        year : int
-            4-digit year
-        dekad : int
-            Dekad
-
-        Returns
-        -------
-        str
-            File path prefix for .zip file at URL and
-            for .tif files stored within the .zip
-        """
-        file_name = (
-            f"{self._region_prefix}{year-2000:02}"
-            f"{dekad:02}{self._data_variable_suffix}"
-        )
-        return file_name
-
-    def _get_raw_path(self, year: int, dekad: int) -> Path:
-        """Get raw filepath.
-
-        Parameters
-        ----------
-        year : int
-            4-digit year
-        dekad : int
-            Dekad
-
-        Returns
-        -------
-        Path
-            Path to raw file
-        """
-        filename = self._get_raw_filename(year=year, dekad=dekad)
-        return self._raw_base_dir / f"{filename}.tif"
-
-    def _list_downloaded_dekads(self) -> List[List[int]]:
-        """Get list of downloaded years/dekads.
-
-        Returns
-        -------
-        List
-            List of year and dekad lists for files already
-            in the system.
-        """
-        regex = (
-            fr"{self._region_prefix}[0-9]{{4}}{self._data_variable_suffix}.tif"
-        )
-        downloaded_dekads = [
-            self._fp_year_dekad(filename)
-            for filename in self._raw_base_dir.iterdir()
-            if re.search(regex, filename)
-        ]
-        return downloaded_dekads
-
-    def _get_processed_path(self) -> Path:
-        return self._processed_base_dir / self._get_processed_filename()
-
-    def _get_processed_filename(self) -> str:
-        """Return processed filename.
-
-        Returns the processed filename. The suffix
-        is set using ``self.processed_file_suffix``.
-
-        Returns
-        -------
-        str
-            Processed filename
-        """
-        file_name = (
-            f"{self._country_config.iso3}"
-            f"_usgs_ndvi_{self._data_variable}"
-            f"{'_' if len(self.processed_file_suffix) else ''}"
-            f"{self.processed_file_suffix}.csv"
-        )
-        return file_name
-
-    def _get_url(self, filename) -> str:
-        """Get USGS NDVI URL.
-
-        Parameters
-        ----------
-        filename : str
-            File name string generated for specific year, dekad, and data type
-
-        Returns
-        -------
-        str
-            Download URL string
-        """
-        return (
-            f"https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/fews/web/"
-            f"{self._region_url}/dekadal/emodis"
-            f"/ndvi_c6/{self._data_variable_url}/"
-            f"downloads/dekadal/{filename}.zip"
-        )
-
-    # TODO: potentially move from static method to
-    # wider USGS function repository
-    @staticmethod
-    def _fp_year_dekad(path: Path) -> List[int]:
-        """Extract year and dekad from filepath.
-
-        Parameters
-        ----------
-        path : Path
-            Filepath
-
-        Returns
-        -------
-        list
-            List of year and dekad
-        """
-        filename = path.stem
-        # find two groups, first for year second for dekad
-        regex = re.compile(r"(\d{2})(\d{2})")
-        return [int(x) for x in regex.findall(filename)[0]]
-
     def _download_ndvi_dekad(
         self, year: int, dekad: int, clobber: bool
     ) -> None:
@@ -739,6 +598,109 @@ class _UsgsNdvi(DataSource):
         resp.close()
         return filepath
 
+    def _get_raw_filename(self, year: int, dekad: int) -> str:
+        """Get raw filename (excluding file type suffix).
+
+        Parameters
+        ----------
+        year : int
+            4-digit year
+        dekad : int
+            Dekad
+
+        Returns
+        -------
+        str
+            File path prefix for .zip file at URL and
+            for .tif files stored within the .zip
+        """
+        file_name = (
+            f"{self._area_prefix}{year-2000:02}"
+            f"{dekad:02}{self._data_variable_suffix}"
+        )
+        return file_name
+
+    def _get_raw_path(self, year: int, dekad: int) -> Path:
+        """Get raw filepath.
+
+        Parameters
+        ----------
+        year : int
+            4-digit year
+        dekad : int
+            Dekad
+
+        Returns
+        -------
+        Path
+            Path to raw file
+        """
+        filename = self._get_raw_filename(year=year, dekad=dekad)
+        return self._raw_base_dir / f"{filename}.tif"
+
+    def _get_processed_filename(self) -> str:
+        """Return processed filename.
+
+        Returns the processed filename. The suffix
+        is set using ``self.processed_file_suffix``.
+
+        Returns
+        -------
+        str
+            Processed filename
+        """
+        file_name = (
+            f"{self._country_config.iso3}"
+            f"_usgs_ndvi_{self._data_variable}"
+            f"{'_' if len(self.processed_file_suffix) else ''}"
+            f"{self.processed_file_suffix}.csv"
+        )
+        return file_name
+
+    def _get_processed_path(self) -> Path:
+        return self._processed_base_dir / self._get_processed_filename()
+
+    def _get_url(self, filename) -> str:
+        """Get USGS NDVI URL.
+
+        Parameters
+        ----------
+        filename : str
+            File name string generated for specific year, dekad, and data type
+
+        Returns
+        -------
+        str
+            Download URL string
+        """
+        return (
+            f"https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/fews/web/"
+            f"{self._area_url}/dekadal/emodis"
+            f"/ndvi_c6/{self._data_variable_url}/"
+            f"downloads/dekadal/{filename}.zip"
+        )
+
+    # TODO: potentially move from static method to
+    # wider USGS function repository
+    @staticmethod
+    def _fp_year_dekad(path: Path) -> List[int]:
+        """Extract year and dekad from filepath.
+
+        Parameters
+        ----------
+        path : Path
+            Filepath
+
+        Returns
+        -------
+        list
+            List of year and dekad
+        """
+        filename = path.stem
+        # find two groups, first for year second for dekad
+        regex = re.compile(r"(\d{2})(\d{2})")
+        return [int(x) for x in regex.findall(filename)[0]]
+
 
 class UsgsNdviSmoothed(_UsgsNdvi):
     """Base class to retrieve smoothed NDVI data.
@@ -754,8 +716,6 @@ class UsgsNdviSmoothed(_UsgsNdvi):
     ----------
     country_config : CountryConfig
         Country configuration
-    coverage_area : str
-        Area of coverage
     start_date : Union[date, str, Tuple[int, int], None]
         Start date. Can be passed as a ``datetime.date``
         object and the relevant dekad will be determined,
@@ -773,14 +733,12 @@ class UsgsNdviSmoothed(_UsgsNdvi):
     def __init__(
         self,
         country_config: CountryConfig,
-        coverage_area: _VALID_AREAS,
         start_date: Union[date, str, Tuple[int, int], None] = None,
         end_date: Union[date, str, Tuple[int, int], None] = None,
         processed_file_suffix: str = "",
     ):
         super().__init__(
             country_config=country_config,
-            coverage_area=coverage_area,
             data_variable="smoothed",
             start_date=start_date,
             end_date=end_date,
@@ -799,8 +757,6 @@ class UsgsNdviPctMedian(_UsgsNdvi):
     ----------
     country_config : CountryConfig
         Country configuration
-    coverage_area : str
-        Area of coverage
     start_date : Union[date, str, Tuple[int, int], None]
         Start date. Can be passed as a ``datetime.date``
         object and the relevant dekad will be determined,
@@ -818,14 +774,12 @@ class UsgsNdviPctMedian(_UsgsNdvi):
     def __init__(
         self,
         country_config: CountryConfig,
-        coverage_area: _VALID_AREAS,
         start_date: Union[date, str, Tuple[int, int], None] = None,
         end_date: Union[date, str, Tuple[int, int], None] = None,
         processed_file_suffix: str = "",
     ):
         super().__init__(
             country_config=country_config,
-            coverage_area=coverage_area,
             data_variable="percent_median",
             start_date=start_date,
             end_date=end_date,
@@ -846,8 +800,6 @@ class UsgsNdviMedianAnomaly(_UsgsNdvi):
     ----------
     country_config : CountryConfig
         Country configuration
-    coverage_area : str
-        Area of coverage
     start_date : Union[date, str, Tuple[int, int], None]
         Start date. Can be passed as a ``datetime.date``
         object and the relevant dekad will be determined,
@@ -865,14 +817,12 @@ class UsgsNdviMedianAnomaly(_UsgsNdvi):
     def __init__(
         self,
         country_config: CountryConfig,
-        coverage_area: _VALID_AREAS,
         start_date: Union[date, str, Tuple[int, int], None] = None,
         end_date: Union[date, str, Tuple[int, int], None] = None,
         processed_file_suffix: str = "",
     ):
         super().__init__(
             country_config=country_config,
-            coverage_area=coverage_area,
             data_variable="median_anomaly",
             start_date=start_date,
             end_date=end_date,
@@ -894,8 +844,6 @@ class UsgsNdviYearDifference(_UsgsNdvi):
     ----------
     country_config : CountryConfig
         Country configuration
-    coverage_area : str
-        Area of coverage
     start_date : Union[date, str, Tuple[int, int], None]
         Start date. Can be passed as a ``datetime.date``
         object and the relevant dekad will be determined,
@@ -913,14 +861,12 @@ class UsgsNdviYearDifference(_UsgsNdvi):
     def __init__(
         self,
         country_config: CountryConfig,
-        coverage_area: _VALID_AREAS,
         start_date: Union[date, str, Tuple[int, int], None] = None,
         end_date: Union[date, str, Tuple[int, int], None] = None,
         processed_file_suffix: str = "",
     ):
         super().__init__(
             country_config=country_config,
-            coverage_area=coverage_area,
             data_variable="percent_median",
             start_date=start_date,
             end_date=end_date,

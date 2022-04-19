@@ -108,7 +108,7 @@ cryptography==35.0.0
     # via
     #   -r requirements/requirements.txt
     #   pyopenssl
-dask==2022.04.0
+dask[complete]==2022.04.0
     # via
     #   -r requirements/requirements.txt
     #   distributed
@@ -207,10 +207,6 @@ imagesize==1.3.0
     # via
     #   -r requirements/requirements-docs.txt
     #   sphinx
-importlib-resources==5.7.0
-    # via
-    #   -r requirements/requirements.txt
-    #   jsonschema
 inflect==5.3.0
     # via
     #   -r requirements/requirements.txt
@@ -276,10 +272,6 @@ munch==2.5.0
     # via
     #   -r requirements/requirements.txt
     #   fiona
-mypy-extensions==0.4.3
-    # via
-    #   -r requirements/requirements.txt
-    #   typing-inspect
 ndg-httpsclient==0.5.1
     # via
     #   -r requirements/requirements.txt
@@ -627,11 +619,6 @@ typing-extensions==4.0.0
     #   -r requirements/requirements.txt
     #   bokeh
     #   pydantic
-    #   typing-inspect
-typing-inspect==0.7.1
-    # via
-    #   -r requirements/requirements.txt
-    #   defopt
 unidecode==1.3.2
     # via
     #   -r requirements/requirements.txt
@@ -682,10 +669,6 @@ zict==2.1.0
     # via
     #   -r requirements/requirements.txt
     #   distributed
-zipp==3.8.0
-    # via
-    #   -r requirements/requirements.txt
-    #   importlib-resources
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
