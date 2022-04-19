@@ -318,6 +318,8 @@ validators==0.18.2
     # via frictionless
 wheel==0.37.0
     # via libhxl
+wrapt==1.14.0
+    # via aa-toolbox (setup.cfg)
 xarray[parallel]==0.20.1
     # via
     #   aa-toolbox (setup.cfg)
