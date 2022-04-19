@@ -38,11 +38,11 @@ country config.
 The valid values of the region name are caribbean-central-america, central-asia, east-africa, southern-africa, and west-africa.
 An example country config for Ethiopia is:
 
-.. code-block:: python
+.. code-block:: yaml
 
-iso3: eth
-fewsnet:
-  region_name: east-africa
+    iso3: eth
+    fewsnet:
+        region_name: east-africa
 
 For a number of countries this config has been implemented already.
 For others, you can create a custom country config.
