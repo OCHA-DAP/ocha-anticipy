@@ -45,7 +45,7 @@ For guidance on setting up a development environment, see the
 ## Links
 
 - [Documentation](https://aa-toolbox.readthedocs.io/en/latest/)
-- [Changes](https://github.com/OCHA-DAP/pa-aa-toolbox/blob/main/CHANGELOG.md)
+- [Changes](https://github.com/OCHA-DAP/pa-aa-toolbox/blob/main/CHANGELOG.rst)
 - [PyPI Releases](https://pypi.org/project/aa-toolbox/)
 - [Source Code](https://github.com/OCHA-DAP/pa-aa-toolbox)
 - [Issue Tracker](https://github.com/OCHA-DAP/pa-aa-toolbox/issues)
