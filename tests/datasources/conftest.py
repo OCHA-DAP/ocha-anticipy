@@ -5,6 +5,7 @@ from aatoolbox import create_custom_country_config
 
 CONFIG_FILE = "tests/datasources/fake_config.yaml"
 ISO3 = "abc"
+ISO2 = "ab"
 
 
 @pytest.fixture(autouse=True)
@@ -24,3 +25,14 @@ def mock_aa_data_dir(tmp_path_factory, mocker):
 def mock_country_config():
     """Fixture for pipeline with test config params."""
     return create_custom_country_config(filepath=CONFIG_FILE)
+
+
+def pytest_configure(config):
+    """Create custom markers to add to tests."""
+    config.addinivalue_line(
+        "markers",
+        (
+            "nomockiso2: do not mock the get_iso2_from_iso3 function. "
+            "Used for FEWS NET"
+        ),
+    )

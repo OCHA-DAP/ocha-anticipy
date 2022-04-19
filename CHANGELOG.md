@@ -17,6 +17,7 @@ and this project adheres to
 - Implemented downloading and processing for IRI seasonal precipitation forecast
 - Added config for DRC (of which the iso3 is COD)
 - User can now create a config object from a custom filepath
+- FewsNet region names are now part of config files
 
 ### Changed
 
@@ -26,6 +27,7 @@ and this project adheres to
   to `lat_max`, `lat_min`, `lon_max`, `lon_min`
 - `GeoBoundingBox.round` returns `GeoBoundingBox` instance (instead of being in place)
 - COD AB is now optional in the configuration file
+- FewsNet download functionality follows `DataSource` structure
 
 ### Removed
 
