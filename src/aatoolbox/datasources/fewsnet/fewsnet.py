@@ -71,6 +71,7 @@ class FewsNet(DataSource):
             # at country level
             is_global_raw=True,
             is_global_processed=False,
+            config_datasource_name="fewsnet",
         )
 
         self._iso2 = Country.get_iso2_from_iso3(self._country_config.iso3)
@@ -86,11 +87,6 @@ class FewsNet(DataSource):
                 "any FEWS NET region name. Please update the config file and "
                 "try again. See the documentation for the valid region names. "
             )
-
-        # assigning the fewsnet specific vars cause else mypy will complain
-        # later that they might be None
-        self._region_name = self._country_config.fewsnet.region_name
-        self._region_code = self._country_config.fewsnet.region_code
 
     # mypy will give error Signature of "download" incompatible with supertype
     # "DataSource" due to `pub_year` and `pub_month` not being an arg in
@@ -282,15 +278,15 @@ class FewsNet(DataSource):
             If region data exists, return the saved dir else return None
         """
         url_region_date = _BASE_URL_REGION.format(
-            region_code=self._region_code,
-            region_name=self._region_name,
+            region_code=self._datasource_config.region_code,
+            region_name=self._datasource_config.region_name,
             YYYY=pub_year,
             MM=pub_month,
         )
 
         return self._download(
             url=url_region_date,
-            area=self._region_code,
+            area=self._datasource_config.region_code,
             pub_year=pub_year,
             pub_month=pub_month,
         )
@@ -340,7 +336,7 @@ class FewsNet(DataSource):
             area=self._iso2, pub_year=pub_year, pub_month=pub_month
         )
         region_dir = self._get_raw_dir_date(
-            area=self._region_code,
+            area=self._datasource_config.region_code,
             pub_year=pub_year,
             pub_month=pub_month,
         )
@@ -351,7 +347,8 @@ class FewsNet(DataSource):
 
         raise FileNotFoundError(
             f"No data found for {pub_year}-{pub_month} covering "
-            "{self._country_config.iso3} or {self._region_name}. "
+            "{self._country_config.iso3} "
+            "or {self._datasource_config.region_name}. "
             "Please make sure the data exists and is downloaded"
         )
 
