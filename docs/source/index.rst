@@ -26,6 +26,7 @@ additional functionality.
 
    introduction
    quickstart
+   config
    datasources
 
 API Reference
