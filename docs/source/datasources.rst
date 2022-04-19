@@ -7,4 +7,5 @@ AA Toolbox supports the following data sources:
    :maxdepth: 1
 
    datasources/codab
+   datasources/fewsnet
    datasources/iri_seasonal_forecast
