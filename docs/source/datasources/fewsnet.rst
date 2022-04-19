@@ -30,23 +30,7 @@ Usage
 -----
 
 To use this class, you first need to create a country configuration
-for the country you would like to use. Makes sure FEWS NET covers the country
-of interest. You can see which countries are covered on `their website <https://
-fews.net>`_ by clicking on *COUNTRIES & REGIONS*. Here you can also see which
-region the country belongs to. This information needs to be added to the
-country config.
-The valid values of the region name are caribbean-central-america, central-asia, east-africa, southern-africa, and west-africa.
-An example country config for Ethiopia is:
-
-.. code-block:: python
-
-iso3: eth
-fewsnet:
-  region_name: east-africa
-
-For a number of countries this config has been implemented already.
-For others, you can create a custom country config.
-Once you have created the config you can load it:
+for the country you would like to use:
 
 .. code-block:: python
 
@@ -63,8 +47,10 @@ Next you need to instantiate the FEWS NET class with the country config:
 Upon first use, you will need to downlaod the FEWS NET data.
 The code downloads one date per call. You thus need to input the
 publication year and month of your data of interest. This normally refers
-to the start month of the *Current Situation period*, which is indicated when you browse the data on the FEWS NET website.
-For some dates only regional data is available, other dates have availability of country files. The code automatically downloads the country file if available and else download the file covering the region the country is located in.
+to the start month of the *Current Situation period*, which is indicated
+when you browse the data on the FEWS NET website.
+For some dates only regional data is available, other dates have availability of country files.
+The code automatically downloads the country file if available and else download the file covering the region the country is located in.
 
 An example of the use of the download function:
 
@@ -73,7 +59,11 @@ An example of the use of the download function:
     fewsnet.download(pub_year=2021, pub_month=6)
 
 Next, use the load method to begin working with the data as a
-GeoPandas dataframe. The code loads one projection period per call. The valid inputs of the projeciton period are CS (Current Situation), ML1 (Near Term projection), and ML2 (Medium Term projection)
+GeoPandas dataframe. The code loads one projection period per call.
+The valid inputs of the projeciton period are
+``CS`` (Current Situation),
+``ML1`` (Near Term projection), and
+``ML2`` (Medium Term projection).
 An example of the load function thus is :
 
 .. code-block:: python
@@ -89,3 +79,26 @@ The full code snippet is below in case you would like to copy it:
     fewsnet = FewsNet(country_config=country_config)
     fewsnet.download(pub_year=2021, pub_month=6)
     gdf_202106_ml1 = fewsnet.load(pub_year=2021, pub_month=6, projection_period="ML1")
+
+Configuration
+-------------
+
+The FEWS NET portion of the configuration file
+should be setup as follows:
+
+.. code-block:: yaml
+
+    fewsnet:
+        region_name: east-africa
+
+Makes sure FEWS NET covers the country
+of interest. You can see which countries are covered on `their website <https://
+fews.net>`_ by clicking on *COUNTRIES & REGIONS*. Here you can also see which
+region the country belongs to. This information needs to be added to the
+country config.
+The valid values of the region name are
+``caribbean-central-america``,
+``central-asia``,
+``east-africa``,
+``southern-africa``, and
+``west-africa``.
