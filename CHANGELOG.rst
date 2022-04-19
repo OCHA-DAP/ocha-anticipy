@@ -1,5 +1,3 @@
-.. raw:: html
-
 Changelog
 =========
 
@@ -22,6 +20,8 @@ Added
 -  Added config for DRC (of which the iso3 is COD)
 -  User can now create a config object from a custom filepath
 -  FewsNet region names are now part of config files
+-  Documentation expanded and put on
+   `ReadTheDocs <https://aa-toolbox.readthedocs.io/>`_
 
 Changed
 ~~~~~~~
@@ -35,6 +35,7 @@ Changed
    of being in place)
 -  COD AB is now optional in the configuration file
 -  FewsNet download functionality follows ``DataSource`` structure
+-  This changelog converted from markdown to .rst
 
 Removed
 ~~~~~~~
