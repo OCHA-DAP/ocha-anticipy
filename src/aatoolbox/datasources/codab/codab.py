@@ -23,8 +23,8 @@ from fiona.errors import DriverError
 
 from aatoolbox.config.countryconfig import CountryConfig
 from aatoolbox.datasources.datasource import DataSource
+from aatoolbox.utils.check_file_existence import check_file_existence
 from aatoolbox.utils.hdx_api import load_dataset_from_hdx
-from aatoolbox.utils.io import check_file_existence
 
 logger = logging.getLogger(__name__)
 
@@ -72,7 +72,7 @@ class CodAB(DataSource):
         >>> codab = CodAB(country_config=country_config)
         >>> npl_cod_shapefile = codab.download()
         """
-        return _download(
+        return self._download(
             filepath=self._raw_filepath,
             hdx_address=f"cod-ab-{self._country_config.iso3}",
             hdx_dataset_name=self._datasource_config.hdx_dataset_name,
@@ -185,13 +185,16 @@ class CodAB(DataSource):
                 f"'{layer_name}'."
             ) from err
 
-
-@check_file_existence
-def _download(
-    filepath: Path, hdx_address: str, hdx_dataset_name: str, clobber: bool
-) -> Path:
-    return load_dataset_from_hdx(
-        hdx_address=hdx_address,
-        hdx_dataset_name=hdx_dataset_name,
-        output_filepath=filepath,
-    )
+    @check_file_existence
+    def _download(
+        self,
+        filepath: Path,
+        hdx_address: str,
+        hdx_dataset_name: str,
+        clobber: bool,
+    ) -> Path:
+        return load_dataset_from_hdx(
+            hdx_address=hdx_address,
+            hdx_dataset_name=hdx_dataset_name,
+            output_filepath=filepath,
+        )
