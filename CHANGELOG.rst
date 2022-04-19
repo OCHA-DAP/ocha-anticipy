@@ -1,5 +1,7 @@
 .. raw:: html
 
+   <!-- markdownlint-disable-file MD024 -->
+
 Changelog
 =========
 
@@ -20,12 +22,21 @@ Added
 -  Implemented downloading and processing for IRI seasonal precipitation
    forecast
 -  Added config for DRC (of which the iso3 is COD)
+-  User can now create a config object from a custom filepath
+-  FewsNet region names are now part of config files
 
 Changed
 ~~~~~~~
 
 -  ``DataSource`` is now an abstract base class with required
    ``download``, ``process`` and ``load`` methods
+-  ``GeoBoundingBox`` input parameters changed from ``north``,
+   ``south``, ``east``, and ``west`` to ``lat_max``, ``lat_min``,
+   ``lon_max``, ``lon_min``
+-  ``GeoBoundingBox.round`` returns ``GeoBoundingBox`` instance (instead
+   of being in place)
+-  COD AB is now optional in the configuration file
+-  FewsNet download functionality follows ``DataSource`` structure
 
 Removed
 ~~~~~~~
@@ -42,6 +53,9 @@ Fixed
 -  HDX API now uses “prod” server, and version >= 5.5.8 to avoid
    download error
 -  COD AB dataset URLs on HDX are standardized
+-  ``GeoBoundingBox`` won’t allow lat_max < lat_min or lon_max < lon_min
+-  ``GeoBoundingBox`` imposes -90 < latitude < 90 and -180 < longitude <
+   180
 
 [0.3.1] - 2022-01-06
 --------------------
