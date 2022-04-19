@@ -84,7 +84,7 @@ Added
    -  Malawi
    -  Nepal
 
--  ```pip-compile`` <https://github.com/jazzband/pip-tools#version-control-integration>`__
+-  `pip-compile <https://github.com/jazzband/pip-tools#version-control-integration>`__
    pre-commit hook to update requirements files
 -  Version number is now specified in ``src/aatoolbox/_version.py``
 -  GitHub actions to run unit tests (using ``tox.ini``) and push to PyPI
