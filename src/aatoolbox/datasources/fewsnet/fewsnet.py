@@ -19,7 +19,8 @@ import geopandas as gpd
 from hdx.location.country import Country
 
 from aatoolbox.datasources.datasource import DataSource
-from aatoolbox.utils.io import check_file_existence, download_url, unzip
+from aatoolbox.utils.check_file_existence import check_file_existence
+from aatoolbox.utils.io import download_url, unzip
 
 logger = logging.getLogger(__name__)
 _BASE_URL_COUNTRY = (
@@ -71,6 +72,7 @@ class FewsNet(DataSource):
             # at country level
             is_global_raw=True,
             is_global_processed=False,
+            config_datasource_name="fewsnet",
         )
 
         self._iso2 = Country.get_iso2_from_iso3(self._country_config.iso3)
@@ -86,11 +88,6 @@ class FewsNet(DataSource):
                 "any FEWS NET region name. Please update the config file and "
                 "try again. See the documentation for the valid region names. "
             )
-
-        # assigning the fewsnet specific vars cause else mypy will complain
-        # later that they might be None
-        self._region_name = self._country_config.fewsnet.region_name
-        self._region_code = self._country_config.fewsnet.region_code
 
     # mypy will give error Signature of "download" incompatible with supertype
     # "DataSource" due to `pub_year` and `pub_month` not being an arg in
@@ -207,7 +204,7 @@ class FewsNet(DataSource):
         projperiods = [pp.value for pp in ValidProjectionPeriods]
         if projection_period not in projperiods:
             raise ValueError(
-                "`projection_period` is not a valid projection"
+                f"{projection_period} is not a valid projection"
                 f" period. It must be one of {', '.join(projperiods)}"
             )
 
@@ -282,15 +279,15 @@ class FewsNet(DataSource):
             If region data exists, return the saved dir else return None
         """
         url_region_date = _BASE_URL_REGION.format(
-            region_code=self._region_code,
-            region_name=self._region_name,
+            region_code=self._datasource_config.region_code,
+            region_name=self._datasource_config.region_name,
             YYYY=pub_year,
             MM=pub_month,
         )
 
         return self._download(
             url=url_region_date,
-            area=self._region_code,
+            area=self._datasource_config.region_code,
             pub_year=pub_year,
             pub_month=pub_month,
         )
@@ -314,7 +311,7 @@ class FewsNet(DataSource):
         output_dir = self._get_raw_dir_date(
             area=area, pub_year=pub_year, pub_month=pub_month
         )
-        return _download_zip(
+        return self._download_zip(
             filepath=output_dir,
             zip_filename=self._get_zip_filename(
                 area=area, pub_year=pub_year, pub_month=pub_month
@@ -329,6 +326,51 @@ class FewsNet(DataSource):
     def _get_zip_filename(area, pub_year, pub_month):
         return f"{area}{pub_year}{pub_month}.zip"
 
+    @staticmethod
+    @check_file_existence
+    def _download_zip(
+        filepath: Path,
+        zip_filename: str,
+        url: str,
+    ) -> Path:
+        """
+        Download and unzip the file at the url.
+
+        Parameters
+        ----------
+        zip_filename : str
+            name of the zipfile
+        url : str
+            url that contains the zip file to be downloaded
+
+        Returns
+        -------
+        output_dir : Path
+            None if no valid file, else output_dir
+
+        """
+        # create tempdir to write zipfile to
+        with TemporaryDirectory() as temp_dir:
+            zip_path = Path(temp_dir) / zip_filename
+            download_url(url=url, save_path=zip_path)
+            logger.info(f"Downloaded {url} to {zip_path}")
+
+            try:
+                unzip(zip_file_path=zip_path, save_dir=filepath)
+                logger.debug(f"Unzipped to {filepath}")
+
+            except zipfile.BadZipFile as err:
+                # indicates that the url returned something that wasn't a
+                # zip, happens often and indicates data for the given
+                # country - year-month is not available
+
+                raise zipfile.BadZipFile(
+                    f"No zip data returned from url {url} "
+                    f"check that the area and year-month publication exist."
+                ) from err
+
+        return filepath
+
     def _find_raw_dir_date(self, pub_year, pub_month):
         """
         Check if a dir exists for the given `pub_year`-`pub_month`.
@@ -340,7 +382,7 @@ class FewsNet(DataSource):
             area=self._iso2, pub_year=pub_year, pub_month=pub_month
         )
         region_dir = self._get_raw_dir_date(
-            area=self._region_code,
+            area=self._datasource_config.region_code,
             pub_year=pub_year,
             pub_month=pub_month,
         )
@@ -351,7 +393,8 @@ class FewsNet(DataSource):
 
         raise FileNotFoundError(
             f"No data found for {pub_year}-{pub_month} covering "
-            "{self._country_config.iso3} or {self._region_name}. "
+            "{self._country_config.iso3} "
+            "or {self._datasource_config.region_name}. "
             "Please make sure the data exists and is downloaded"
         )
 
@@ -365,48 +408,3 @@ class FewsNet(DataSource):
                 f"File {file_path} not found. Make sure the projection "
                 f"period {projection_period} exists for {dir_path.name}."
             )
-
-
-@check_file_existence
-def _download_zip(
-    filepath: Path,
-    zip_filename: str,
-    url: str,
-) -> Path:
-    """
-    Download and unzip the file at the url.
-
-    Parameters
-    ----------
-    zip_filename : str
-        name of the zipfile
-    url : str
-        url that contains the zip file to be downloaded
-
-    Returns
-    -------
-    output_dir : Path
-        None if no valid file, else output_dir
-
-    """
-    # create tempdir to write zipfile to
-    with TemporaryDirectory() as temp_dir:
-        zip_path = Path(temp_dir) / zip_filename
-        download_url(url=url, save_path=zip_path)
-        logger.info(f"Downloaded {url} to {zip_path}")
-
-        try:
-            unzip(zip_file_path=zip_path, save_dir=filepath)
-            logger.debug(f"Unzipped to {filepath}")
-
-        except zipfile.BadZipFile as err:
-            # indicates that the url returned something that wasn't a
-            # zip, happens often and indicates data for the given
-            # country - year-month is not available
-
-            raise zipfile.BadZipFile(
-                f"No zip data returned from url {url} "
-                f"check that the area and year-month publication exist."
-            ) from err
-
-    return filepath
