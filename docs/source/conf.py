@@ -57,4 +57,4 @@ html_theme = "sphinx_rtd_theme"
 html_static_path = ["_static"]
 
 # Required by RTD
-master_doc = "index"
+master_doc = "source/index"
