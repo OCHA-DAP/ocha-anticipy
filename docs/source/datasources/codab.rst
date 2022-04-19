@@ -83,10 +83,21 @@ should be setup as follows:
 
 Below is an explanation of the different parameters:
 
-``hdx_dataset_name``: str
+``hdx_dataset_name``: The name of the shapefile dataset on HDX. It can be found by taking
+the filename as it appears on the HDX page. For example, you can see on the
+`page for Nepal <https://data.humdata.org/dataset/cod-ab-npl>`_ that the shapefile
+(i.e. with the ``.shp``. or ``.SHP`` extension) has the name
+``npl_admbnda_nd_20201117_SHP.zip``.
 
-``layer_base_name``: str
+``layer_base_name``: The baseline name of the different admin level layers, with the
+level number replaced by the variable ``{admin_level}``. To find this, you will need
+to open up the shpaefile in e.g. `QGIS <https://www.qgis.org/en/site/>`_.
+In the case of Nepal, the layers have the names ``npl_admbnda_adm0_nd_20201117.shp``,
+``npl_admbnda_adm1_nd_20201117.shp``, and ``npl_admbnda_adm2_nd_20201117.shp``
 
-``admin_level_max``: int
+``admin_level_max``: The maximum admin level available in the layers. In the case of Nepal,
+the layer level numbers range from 0 to 2, so the maximum should be 2.
 
-``custom_layer_name``: str, optional
+``custom_layer_name``: A place to list any other layers that don't correspond to the
+admin level format specified above. In the case of Nepal, there is a layer for districts
+with the name ``npl_admbnda_districts_nd_20201117``.
