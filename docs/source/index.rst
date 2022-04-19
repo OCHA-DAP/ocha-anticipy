@@ -21,7 +21,7 @@ additional functionality.
    introduction
    quickstart
    datasources/codab
-   datasources/iri
+   datasources/iri_seasonal_forecast
 
 API Reference
 -------------
