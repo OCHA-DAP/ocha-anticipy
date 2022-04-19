@@ -12,9 +12,9 @@ To set up the development environment, please install all packages from
    pip install -r requirements/requirements-dev.txt
 
 ``aa-toolbox`` makes use of
-```geopandas`` <https://geopandas.org/en/stable/>`__, which depends on
-```Fiona`` <https://github.com/Toblerity/Fiona>`__, so you will need to
-have ```GDAL`` <https://github.com/Toblerity/Fiona#installation>`__
+`geopandas <https://geopandas.org/en/stable/>`__, which depends on
+`Fiona <https://github.com/Toblerity/Fiona>`__, so you will need to
+have `GDAL <https://github.com/Toblerity/Fiona#installation>`__
 installed.
 
 Installation
@@ -69,7 +69,7 @@ To check if your changes pass pre-commit without committing, run:
 Packages
 --------
 
-```pip-tools`` <https://github.com/jazzband/pip-tools>`__ is used for
+`pip-tools <https://github.com/jazzband/pip-tools>`__ is used for
 package management.
 
 If you’ve introduced a new package to the source code (i.e. anywhere in
@@ -99,7 +99,7 @@ tagged according to `semantic
 versioning <https://semver.org/spec/v2.0.0.html>`__.
 
 Versioning is handled by
-```setuptools_scm`` <https://github.com/pypa/setuptools_scm>`__, and the
+`setuptools_scm <https://github.com/pypa/setuptools_scm>`__, and the
 configuration for this can be found in ``pyproject.toml``
 
 The ``aa-toolbox`` package is built and published to
