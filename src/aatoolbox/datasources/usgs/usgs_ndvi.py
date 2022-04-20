@@ -77,6 +77,10 @@ class _UsgsNdvi(DataSource):
         Country configuration
     data_variable : str
         Data variable date
+    data_variable_suffix : str
+        Data variable file string
+    data_variable_url : str
+        URL string for data variable
     start_date : _DATE_TYPE, default = None
         Start date. Can be passed as a ``datetime.date``
         object or a data string in ISO8601 format, and
@@ -122,7 +126,7 @@ class _UsgsNdvi(DataSource):
         self._area_prefix = self._country_config.usgs_ndvi.area_prefix
 
         # set data variable
-        self._data_variable_url = data_variable
+        self._data_variable = data_variable
         self._data_variable_url = data_variable_url
         self._data_variable_suffix = data_variable_suffix
 
@@ -351,7 +355,7 @@ class _UsgsNdvi(DataSource):
 
         return processed_path
 
-    def load(self, feature_col: str) -> pd.DataFrame:
+    def load(self, feature_col: str) -> pd.DataFrame:  # type: ignore
         """
         Load the processed USGS NDVI data.
 
