@@ -392,7 +392,8 @@ class _UsgsNdvi(DataSource):
             d2=self._end_dekad,
         )
         loaded_dates = df[["year", "dekad"]].values.tolist()
-        keep_rows = [d in load_dates for d in loaded_dates]
+        keep_rows = [tuple(d) in load_dates for d in loaded_dates]
+
         df = df.loc[keep_rows]
 
         return df

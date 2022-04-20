@@ -117,10 +117,10 @@ config, and use this to calculate basic statistics for the dekads we've loaded.
 
     eth_cod = CodAB(country_config=country_config)
     # assuming you've downloaded the file already
-    eth_gdf2 = eth_cod.load(admin_level=2)
+    eth_gdf0 = eth_cod.load(admin_level=0)
     ndvi_smooth.process(
-        gdf=eth_gdf2,
-        feature_col="ADM2_EN"
+        gdf=eth_gdf0,
+        feature_col="ADM0_EN"
     )
 
 We can then load in and use the calculated statistics using `load()`. Since the
@@ -128,4 +128,4 @@ processed file is saved based on the `feature_col` name, we have to pass
 `feature_col` to load in the correct data.
 
 .. code-block:: python
-    ndvi_smooth.load(feature_col="ADM2_EN")
+    ndvi_smooth.load(feature_col="ADM0_EN")
