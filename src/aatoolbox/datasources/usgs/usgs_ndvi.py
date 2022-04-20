@@ -28,11 +28,14 @@ presented as a percentile.
 
 Data by USGS is published quickly after the dekad.
 After about 1 month this data is updated with temporal smoothing
-and error correction for cloud cover.
+and error correction for cloud cover. Files for a specific
+dekad and region can range from 30MB up to over 100MB, so
+downloading and processing can take a long time.
 """
 
 # TODO: add progress bar
 import logging
+import re
 from datetime import date
 from io import BytesIO
 from pathlib import Path
@@ -43,10 +46,8 @@ from zipfile import ZipFile
 
 import geopandas as gpd
 import pandas as pd
-import regex as re
 import rioxarray  # noqa: F401
 import xarray as xr
-from typing_extensions import Literal
 
 import aatoolbox.utils.raster  # noqa: F401
 from aatoolbox.config.countryconfig import CountryConfig
@@ -59,17 +60,9 @@ from aatoolbox.utils.dates import (
     _get_dekadal_date,
 )
 
-# TODO: use check_file_existence once the fix is merged
-# that allows it to work on class methods (PR is open)
 # from aatoolbox.utils.check_file_existence import check_file_existence
 
 logger = logging.getLogger(__name__)
-
-_VALID_DATA_VARIABLES = Literal[
-    "smoothed", "percent_median", "median_anomaly", "difference"
-]
-
-_N_DEKADS_PER_YEAR = 36
 
 _DATE_TYPE = Union[date, str, Tuple[int, int], None]
 _EARLIEST_DATE = (2002, 19)
@@ -104,7 +97,9 @@ class _UsgsNdvi(DataSource):
     def __init__(
         self,
         country_config: CountryConfig,
-        data_variable: _VALID_DATA_VARIABLES,
+        data_variable: str,
+        data_variable_suffix: str,
+        data_variable_url: str,
         start_date: _DATE_TYPE = None,
         end_date: _DATE_TYPE = None,
         processed_file_suffix: Optional[str] = None,
@@ -126,26 +121,10 @@ class _UsgsNdvi(DataSource):
         self._area_url = self._country_config.usgs_ndvi.area_url
         self._area_prefix = self._country_config.usgs_ndvi.area_prefix
 
-        # set data type directly in init because should not be
-        # changed in an instance
-        valid_types = _VALID_DATA_VARIABLES.__args__  # type: ignore
-        if data_variable not in valid_types:
-            raise ValueError(
-                "`data_variable` is not a valid string value. "
-                f"It must be one of {*valid_types,}"
-            )
-        self._data_variable = data_variable
-
-        # url code and file suffix
-        loc_data_variables = {
-            "smoothed": ("temporallysmoothedndvi", ""),
-            "percent_median": ("percentofmedian", "pct"),
-            "median_anomaly": ("mediananomaly", "stmdn"),
-            "difference": ("differencepreviousyear", "dif"),
-        }
-        data_variable_values = loc_data_variables[data_variable]
-        self._data_variable_url = data_variable_values[0]
-        self._data_variable_suffix = data_variable_values[1]
+        # set data variable
+        self._data_variable_url = data_variable
+        self._data_variable_url = data_variable_url
+        self._data_variable_suffix = data_variable_suffix
 
         # set dates for data download and processing
         self._start_year, self._start_dekad = _get_dekadal_date(
@@ -221,23 +200,21 @@ class _UsgsNdvi(DataSource):
         >>> bfa_admin2 = codab.load(admin_level=2)
         >>>
         >>> # setup NDVI
-        >>> UsgsNdviSmoothed(
+        >>> bfa_ndvi = UsgsNdviSmoothed(
         ...     country_config=country_config,
         ...     start_date=[2020, 1],
         ...     end_date=[2020, 3]
         ... )
-        >>> UsgsNdviSmoothed.download()
+        >>> bfa_ndvi.download()
         """
-        for year in range(self._start_year, self._end_year + 1):
-            for dekad in range(1, _N_DEKADS_PER_YEAR + 1):
-                if year == self._start_year and dekad < self._start_dekad:
-                    continue
-                if year == self._end_year and dekad > self._end_dekad:
-                    break
-                else:
-                    self._download_ndvi_dekad(
-                        year=year, dekad=dekad, clobber=clobber
-                    )
+        download_dekads = _expand_dekads(
+            y1=self._start_year,
+            d1=self._start_dekad,
+            y2=self._end_year,
+            d2=self._end_dekad,
+        )
+        for year, dekad in download_dekads:
+            self._download_ndvi_dekad(year=year, dekad=dekad, clobber=clobber)
         return self._raw_base_dir
 
     def process(  # type: ignore
@@ -267,6 +244,9 @@ class _UsgsNdvi(DataSource):
         feature_col : str
             Column in ``gdf`` to use as row/feature identifier.
             and dates. Passed to ``aat.compute_raster_stats()``.
+            The string is also used as a suffix to the
+            processed file path for unique identication of
+            analyses done on different files and columns.
         clobber : bool, default = False
             If True, overwrites existing processed dates. If
             the new file matches the old file, dates will be
@@ -294,31 +274,31 @@ class _UsgsNdvi(DataSource):
         >>> country_config = create_country_config(iso3="bfa")
         >>> codab = CodAB(country_config=country_config)
         >>> bfa_admin2 = codab.load(admin_level=2)
-        >>> bfa_admin1 = codab.load(admin_level=2)
+        >>> bfa_admin1 = codab.load(admin_level=1)
         >>>
         >>> # setup NDVI
-        >>> UsgsNdviSmoothed(
+        >>> bfa_ndvi = UsgsNdviSmoothed(
         ...     country_config=country_config,
         ...     start_date=[2020, 1],
         ...     end_date=[2020, 3]
         ... )
-        >>> UsgsNdviSmoothed.download()
-        >>> UsgsNdviSmoothed.process(
+        >>> bfa_ndvi.download()
+        >>> bfa_ndvi.process(
         ...     gdf=bfa_admin2,
         ...     feature_col="ADM2_FR"
         ... )
         >>>
         >>> # process for admin1
-        >>> UsgsNdviSmoothed.processed_file_suffix = "adm1"
-        >>> UsgsNdviSmoothed.process(
+        >>> bfa_ndvi.processed_file_suffix = "adm1"
+        >>> bfa_ndvi.process(
         ...     gdf=bfa_admin1,
         ...     feature_col="ADM1_FR"
         ... )
         """
-        processed_path = self._get_processed_path()
+        processed_path = self._get_processed_path(feature_col=feature_col)
 
         # get dates for processing
-        process_dates = _expand_dekads(
+        dates_to_process = _expand_dekads(
             y1=self._start_year,
             d1=self._start_dekad,
             y2=self._end_year,
@@ -329,78 +309,32 @@ class _UsgsNdvi(DataSource):
         # if clobber or check dates already processed
         # if not
         if processed_path.is_file():
-            df = self.load()
-
-            # check that the processed file has the same analyzed
-            # indicators and column for aggregation as passed
-            # to process()
-            cols = kwargs.get(
-                "stats_list", ["mean", "std", "min", "max", "sum", "count"]
+            dates_to_process, df = self._determine_process_dates(
+                clobber=clobber,
+                feature_col=feature_col,
+                dates_to_process=dates_to_process,
+                kwargs=kwargs,
             )
-            percentile_list = kwargs.get("percentile_list")
-            if percentile_list is not None:
-                for percent in percentile_list:
-                    cols.append(f"{percent}quant")
-            cols.append(feature_col)
-            ncols = df.shape[1]
-            exist_cols = df.columns[3:ncols].tolist()
-            cols_same = cols == exist_cols
 
-            # get dates that have already been processed
-            processed_dates = df[["year", "dekad"]].values.tolist()
-            if clobber:
-                if cols_same:
-                    # remove processed dates from file
-                    # so they can be reprocessed
-                    keep_rows = [
-                        d not in process_dates for d in processed_dates
-                    ]
-                    df = df[keep_rows]
-                else:
-                    # erase old data frame since columns don't match
-                    # but clobber=True
-                    df = pd.DataFrame()
-            else:
-                if cols_same:
-                    # remove processed dates from dates to process
-                    process_dates = [
-                        d for d in process_dates if d not in processed_dates
-                    ]
-                    if len(process_dates) == 0:
-                        logger.info(
-                            (
-                                "No new data to process between "
-                                f"{self._start_year}, "
-                                f"dekad {self._start_dekad} "
-                                f"and {self._end_year}, "
-                                f"dekad {self._end_dekad}, "
-                                "set `clobber = True` to re-process this data."
-                            )
-                        )
-                        return processed_path
-                else:
-                    raise ValueError(
-                        (
-                            "`clobber` set to False but "
-                            "the statistics and column to "
-                            "process to do not match existing "
-                            "processed file. Use `self.load()`"
-                            "to check existing processed file "
-                            "and reconcile call to `process()`. "
-                            "Consider setting the "
-                            "`self.processed_file_suffix` if you "
-                            "want to store separate analysis (such "
-                            "as at a different disaggregation)."
-                        )
+            if not dates_to_process:
+                logger.info(
+                    (
+                        "No new data to process between "
+                        f"{self._start_year}, "
+                        f"dekad {self._start_dekad} "
+                        f"and {self._end_year}, "
+                        f"dekad {self._end_dekad}, "
+                        "set `clobber = True` to re-process this data."
                     )
+                )
+                return processed_path
         else:
-            # empty data frame for concatting later
             df = pd.DataFrame()
 
         # process data for necessary dates
         data = [df]
-        for d in process_dates:
-            da = self.load_raster(d)
+        for process_date in dates_to_process:
+            da = self.load_raster(process_date)
             stats = da.aat.compute_raster_stats(
                 gdf=gdf, feature_col=feature_col, **kwargs
             )
@@ -417,9 +351,17 @@ class _UsgsNdvi(DataSource):
 
         return processed_path
 
-    def load(self) -> pd.DataFrame:
+    def load(self, feature_col: str) -> pd.DataFrame:
         """
         Load the processed USGS NDVI data.
+
+        Parameters
+        ----------
+        feature_col : str
+            String is  used as a suffix to the
+            processed file path for unique identication of
+            analyses done on different files and columns.
+            The same value must be passed to ``process()``.
 
         Returns
         -------
@@ -442,19 +384,19 @@ class _UsgsNdvi(DataSource):
         >>> bfa_admin2 = codab.load(admin_level=2)
         >>>
         >>> # setup NDVI
-        >>> UsgsNdviSmoothed(
+        >>> bfa_ndvi = UsgsNdviSmoothed(
         ...     country_config=country_config,
         ...     start_date=[2020, 1],
         ...     end_date=[2020, 3]
         ... )
-        >>> UsgsNdviSmoothed.download()
-        >>> UsgsNdviSmoothed.process(
+        >>> bfa_ndvi.download()
+        >>> bfa_ndvi.process(
         ...    gdf=bfa_admin2,
         ...    feature_col="ADM2_FR"
         )
-        >>> UsgsNdviSmoothed.load()
+        >>> bfa_ndvi.load()
         """
-        processed_path = self._get_processed_path()
+        processed_path = self._get_processed_path(feature_col=feature_col)
         try:
             df = pd.read_csv(processed_path, parse_dates=["date"])
         except FileNotFoundError as err:
@@ -473,7 +415,7 @@ class _UsgsNdvi(DataSource):
         )
         loaded_dates = df[["year", "dekad"]].values.tolist()
         keep_rows = [d in load_dates for d in loaded_dates]
-        df = df[keep_rows]
+        df = df.loc[keep_rows]
 
         return df
 
@@ -502,7 +444,7 @@ class _UsgsNdvi(DataSource):
         """
         year, dekad = _get_dekadal_date(input_date=date)
 
-        filepath = self._get_raw_path(year=year, dekad=dekad)
+        filepath = self._get_raw_path(year=year, dekad=dekad, local=True)
         try:
             da = rioxarray.open_rasterio(filepath)
             # assign coordinates for year/dekad
@@ -565,16 +507,21 @@ class _UsgsNdvi(DataSource):
         clobber : bool
             If True, overwrites existing file
         """
-        filepath = self._get_raw_path(year=year, dekad=dekad)
-        self._download(filepath=filepath, clobber=clobber)
+        filepath = self._get_raw_path(year=year, dekad=dekad, local=True)
+        url_filename = self._get_raw_filename(
+            year=year, dekad=dekad, local=False
+        )
+        self._download(
+            filepath=filepath, url_filename=url_filename, clobber=clobber
+        )
 
     # @check_file_existence
-    def _download(self, filepath: Path, clobber: bool):
+    def _download(self, filepath: Path, url_filename: str, clobber: bool):
         # filepath just necessary for checking file existence
-        # now just extract filepath
-        filename = filepath.stem
+        # now just extract filename
+        local_filename = filepath.stem
 
-        url = self._get_url(filename=filename)
+        url = self._get_url(filename=url_filename)
         try:
             resp = urlopen(url)
         except HTTPError:
@@ -583,7 +530,7 @@ class _UsgsNdvi(DataSource):
                 f"No NDVI data available for "
                 f"dekad {dekad} of {year}, skipping."
             )
-            pass
+            return
 
         # open file within memory
         zf = ZipFile(BytesIO(resp.read()))
@@ -592,13 +539,111 @@ class _UsgsNdvi(DataSource):
         for file in zf.infolist():
             if file.filename.endswith(".tif"):
                 # rename the file to standardize to name of zip
-                file.filename = f"{filename}.tif"
+                file.filename = f"{local_filename}.tif"
                 zf.extract(file, self._raw_base_dir)
 
         resp.close()
         return filepath
 
-    def _get_raw_filename(self, year: int, dekad: int) -> str:
+    def _determine_process_dates(
+        self,
+        clobber: bool,
+        feature_col: str,
+        dates_to_process: list,
+        kwargs: dict,
+    ) -> Tuple[list, pd.DataFrame]:
+        """Determine dates to process.
+
+        Parameters
+        ----------
+        clobber : bool
+            If True, overwrites existing file
+        feature_col : str
+            Column in ``gdf`` to use as row/feature identifier.
+            and dates. Passed to ``aat.compute_raster_stats()``.
+        dates_to_process : list
+            List of dates to process
+        kwargs : dict
+             Additional keyword arguments passed to
+            ``aat.computer_raster_stats()``. Here used to
+            compare processed file with processing.
+
+        Returns
+        -------
+        Tuple[list, pd.DataFrame]
+            Returns a list of dates to process, filtered
+            based on clobber, and a data frame of existing
+            data to build upon in processing
+
+        Raises
+        ------
+        ValueError
+            Raised if not `clobber` but the statistics
+            and `feature_col` for processing do not
+            match the existing file.
+        """
+        df = self.load(feature_col=feature_col)
+
+        # check that the processed file has the same analyzed
+        # indicators and column for aggregation as passed
+        # to process()
+        cols = kwargs.get(
+            "stats_list", ["mean", "std", "min", "max", "sum", "count"]
+        )
+        percentile_list = kwargs.get("percentile_list")
+        if percentile_list is not None:
+            for percent in percentile_list:
+                cols.append(f"{percent}quant")
+        cols.append(feature_col)
+        exist_cols = df.columns[3:].tolist()
+        cols_same = cols == exist_cols
+
+        # get dates that have already been processed
+        dates_already_processed = df[["year", "dekad"]].values.tolist()
+
+        if not cols_same:
+            if clobber:
+                # erase old data frame since columns don't match
+                # but clobber=True
+                logger.warning(
+                    "Original data frame with columns "
+                    f"{', '.join(exist_cols)} being overwritten "
+                    f"by data frame with columns {', '.join(cols)}."
+                )
+                df = pd.DataFrame()
+            else:
+                raise ValueError(
+                    (
+                        "`clobber` set to False but "
+                        "the statistics and column to "
+                        "process to do not match existing "
+                        "processed file. Use `self.load()`"
+                        "to check existing processed file "
+                        "and reconcile call to `process()`. "
+                        "Consider setting the "
+                        "`self.processed_file_suffix` if you "
+                        "want to store separate analysis (such "
+                        "as at a different disaggregation)."
+                    )
+                )
+        else:
+            if clobber:
+                # remove processed dates from file
+                # so they can be reprocessed
+                keep_rows = [
+                    d not in dates_to_process for d in dates_already_processed
+                ]
+                df = df.loc[keep_rows]
+            else:
+                # remove processed dates from dates to process
+                dates_to_process = [
+                    d
+                    for d in dates_to_process
+                    if d not in dates_already_processed
+                ]
+        return (dates_to_process, df)
+
+    def _get_raw_filename(self, year: int, dekad: int, local: bool) -> str:
         """Get raw filename (excluding file type suffix).
 
         Parameters
@@ -607,6 +652,12 @@ class _UsgsNdvi(DataSource):
             4-digit year
         dekad : int
             Dekad
+        local : bool
+            If True, returns filepath for local storage,
+            which includes full 4-digit year and _
+            separating with dekad. If False, filepath
+            corresponds to the zip file stored in the
+            USGS server.
 
         Returns
         -------
@@ -614,13 +665,17 @@ class _UsgsNdvi(DataSource):
             File path prefix for .zip file at URL and
             for .tif files stored within the .zip
         """
+        if local:
+            file_year = f"{year:04}_"
+        else:
+            file_year = f"{year-2000:02}"
         file_name = (
-            f"{self._area_prefix}{year-2000:02}"
+            f"{self._area_prefix}{file_year}"
             f"{dekad:02}{self._data_variable_suffix}"
         )
         return file_name
 
-    def _get_raw_path(self, year: int, dekad: int) -> Path:
+    def _get_raw_path(self, year: int, dekad: int, local: bool) -> Path:
         """Get raw filepath.
 
         Parameters
@@ -629,20 +684,27 @@ class _UsgsNdvi(DataSource):
             4-digit year
         dekad : int
             Dekad
+        local : bool
+            If True, returns filepath for local storage,
+            which includes full 4-digit year and _
+            separating with dekad. If False, filepath
+            corresponds to the zip file stored in the
+            USGS server.
 
         Returns
         -------
         Path
             Path to raw file
         """
-        filename = self._get_raw_filename(year=year, dekad=dekad)
+        filename = self._get_raw_filename(year=year, dekad=dekad, local=local)
         return self._raw_base_dir / f"{filename}.tif"
 
-    def _get_processed_filename(self) -> str:
+    def _get_processed_filename(self, feature_col: str) -> str:
         """Return processed filename.
 
         Returns the processed filename. The suffix
-        is set using ``self.processed_file_suffix``.
+        of the filename is always the ``feature_col``
+        the statistics are aggregated to.
 
         Returns
         -------
@@ -652,13 +714,14 @@ class _UsgsNdvi(DataSource):
         file_name = (
             f"{self._country_config.iso3}"
             f"_usgs_ndvi_{self._data_variable}"
-            f"{'_' if len(self.processed_file_suffix) else ''}"
-            f"{self.processed_file_suffix}.csv"
+            f"_{feature_col}.csv"
         )
         return file_name
 
-    def _get_processed_path(self) -> Path:
-        return self._processed_base_dir / self._get_processed_filename()
+    def _get_processed_path(self, feature_col: str) -> Path:
+        return self._processed_base_dir / self._get_processed_filename(
+            feature_col=feature_col
+        )
 
     def _get_url(self, filename) -> str:
         """Get USGS NDVI URL.
@@ -698,7 +761,7 @@ class _UsgsNdvi(DataSource):
         """
         filename = path.stem
         # find two groups, first for year second for dekad
-        regex = re.compile(r"(\d{2})(\d{2})")
+        regex = re.compile(r"(\d{4})_(\d{2})")
         return [int(x) for x in regex.findall(filename)[0]]
 
 
@@ -740,6 +803,8 @@ class UsgsNdviSmoothed(_UsgsNdvi):
         super().__init__(
             country_config=country_config,
             data_variable="smoothed",
+            data_variable_suffix="",
+            data_variable_url="temporallysmoothedndvi",
             start_date=start_date,
             end_date=end_date,
             processed_file_suffix=processed_file_suffix,
@@ -781,6 +846,8 @@ class UsgsNdviPctMedian(_UsgsNdvi):
         super().__init__(
             country_config=country_config,
             data_variable="percent_median",
+            data_variable_suffix="pct",
+            data_variable_url="percentofmedian",
             start_date=start_date,
             end_date=end_date,
             processed_file_suffix=processed_file_suffix,
@@ -824,6 +891,8 @@ class UsgsNdviMedianAnomaly(_UsgsNdvi):
         super().__init__(
             country_config=country_config,
             data_variable="median_anomaly",
+            data_variable_suffix="stmdn",
+            data_variable_url="mediananomaly",
             start_date=start_date,
             end_date=end_date,
             processed_file_suffix=processed_file_suffix,
@@ -867,7 +936,9 @@ class UsgsNdviYearDifference(_UsgsNdvi):
     ):
         super().__init__(
             country_config=country_config,
-            data_variable="percent_median",
+            data_variable="difference",
+            data_variable_suffix="dif",
+            data_variable_url="differencepreviousyear",
             start_date=start_date,
             end_date=end_date,
             processed_file_suffix=processed_file_suffix,
