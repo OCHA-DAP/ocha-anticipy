@@ -70,8 +70,6 @@ class UsgsNdviSmoothed(_UsgsNdvi):
         object and the relevant dekad will be determined,
         as a date string in ISO8601 format, or as a
         year-dekad tuple, i.e. (2020, 1).
-    processed_file_suffix : str
-        Suffix for processed file.
     """
 
     def __init__(
@@ -79,7 +77,6 @@ class UsgsNdviSmoothed(_UsgsNdvi):
         country_config: CountryConfig,
         start_date: Union[date, str, Tuple[int, int], None] = None,
         end_date: Union[date, str, Tuple[int, int], None] = None,
-        processed_file_suffix: str = "",
     ):
         super().__init__(
             country_config=country_config,
@@ -88,7 +85,6 @@ class UsgsNdviSmoothed(_UsgsNdvi):
             data_variable_url="temporallysmoothedndvi",
             start_date=start_date,
             end_date=end_date,
-            processed_file_suffix=processed_file_suffix,
         )
 
 
@@ -113,8 +109,6 @@ class UsgsNdviPctMedian(_UsgsNdvi):
         object and the relevant dekad will be determined,
         as a date string in ISO8601 format, or as a
         year-dekad tuple, i.e. (2020, 1).
-    processed_file_suffix : str
-        Suffix for processed file.
     """
 
     def __init__(
@@ -122,7 +116,6 @@ class UsgsNdviPctMedian(_UsgsNdvi):
         country_config: CountryConfig,
         start_date: Union[date, str, Tuple[int, int], None] = None,
         end_date: Union[date, str, Tuple[int, int], None] = None,
-        processed_file_suffix: str = "",
     ):
         super().__init__(
             country_config=country_config,
@@ -131,7 +124,6 @@ class UsgsNdviPctMedian(_UsgsNdvi):
             data_variable_url="percentofmedian",
             start_date=start_date,
             end_date=end_date,
-            processed_file_suffix=processed_file_suffix,
         )
 
 
@@ -158,8 +150,6 @@ class UsgsNdviMedianAnomaly(_UsgsNdvi):
         object and the relevant dekad will be determined,
         as a date string in ISO8601 format, or as a
         year-dekad tuple, i.e. (2020, 1).
-    processed_file_suffix : str
-        Suffix for processed file.
     """
 
     def __init__(
@@ -167,7 +157,6 @@ class UsgsNdviMedianAnomaly(_UsgsNdvi):
         country_config: CountryConfig,
         start_date: Union[date, str, Tuple[int, int], None] = None,
         end_date: Union[date, str, Tuple[int, int], None] = None,
-        processed_file_suffix: str = "",
     ):
         super().__init__(
             country_config=country_config,
@@ -176,7 +165,6 @@ class UsgsNdviMedianAnomaly(_UsgsNdvi):
             data_variable_url="mediananomaly",
             start_date=start_date,
             end_date=end_date,
-            processed_file_suffix=processed_file_suffix,
         )
 
 
@@ -204,8 +192,6 @@ class UsgsNdviYearDifference(_UsgsNdvi):
         object and the relevant dekad will be determined,
         as a date string in ISO8601 format, or as a
         year-dekad tuple, i.e. (2020, 1).
-    processed_file_suffix : str
-        Suffix for processed file.
     """
 
     def __init__(
@@ -213,7 +199,6 @@ class UsgsNdviYearDifference(_UsgsNdvi):
         country_config: CountryConfig,
         start_date: Union[date, str, Tuple[int, int], None] = None,
         end_date: Union[date, str, Tuple[int, int], None] = None,
-        processed_file_suffix: str = "",
     ):
         super().__init__(
             country_config=country_config,
@@ -222,5 +207,4 @@ class UsgsNdviYearDifference(_UsgsNdvi):
             data_variable_url="differencepreviousyear",
             start_date=start_date,
             end_date=end_date,
-            processed_file_suffix=processed_file_suffix,
         )

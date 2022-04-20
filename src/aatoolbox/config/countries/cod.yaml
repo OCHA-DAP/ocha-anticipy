@@ -9,4 +9,4 @@ codab:
 fewsnet:
   region_name: southern-africa
 usgs_ndvi:
-  region_name: southern-africa
+  area_name: southern-africa

@@ -39,7 +39,7 @@ import re
 from datetime import date
 from io import BytesIO
 from pathlib import Path
-from typing import List, Optional, Tuple, Union
+from typing import List, Tuple, Union
 from urllib.error import HTTPError
 from urllib.request import urlopen
 from zipfile import ZipFile
@@ -94,8 +94,6 @@ class _UsgsNdvi(DataSource):
         as a date string in ISO8601 format, or as a
         year-dekad tuple, i.e. (2020, 1). If ``None``,
         ``end_date`` is set to ``date.today()``.
-    processed_file_suffix : Optional[str], default = None
-        Suffix for processed file.
     """
 
     def __init__(
@@ -106,7 +104,6 @@ class _UsgsNdvi(DataSource):
         data_variable_url: str,
         start_date: _DATE_TYPE = None,
         end_date: _DATE_TYPE = None,
-        processed_file_suffix: Optional[str] = None,
     ):
         super().__init__(
             country_config=country_config,
@@ -150,28 +147,6 @@ class _UsgsNdvi(DataSource):
                 f"Data will be downloaded from {earliest_year}, dekad "
                 f"{earliest_dekad}."
             )
-
-        # set processed file suffix
-        self.processed_file_suffix = processed_file_suffix
-
-    @property
-    def processed_file_suffix(self):
-        """str: Suffix for processed data.
-
-        NDVI processed data is stored by default
-        in a single file. However, suffixes can be
-        specified in order to aggregate data to
-        different areas.
-        """
-        return self._processed_file_suffix
-
-    @processed_file_suffix.setter
-    def processed_file_suffix(self, value: Optional[str]):
-        if value is None:
-            value = ""
-        if not isinstance(value, str):
-            raise ValueError("`processed_file_suffix` must be a string.")
-        self._processed_file_suffix = value
 
     def download(self, clobber: bool = False) -> Path:
         """Download raw NDVI data as .tif files.
@@ -234,9 +209,8 @@ class _UsgsNdvi(DataSource):
         ``geometries``, usually a geopandas
         dataframes ``geometry`` feature. ``kwargs``
         are passed on to ``aat.computer_raster_stats()``.
-        ``self.processed_file_suffix`` is used to define
-        the unique processed files, and should be changed
-        if the user wants to analyze across multiple files.
+        The ``feature_col`` is used to define
+        the unique processed file.
 
         Parameters
         ----------
@@ -293,7 +267,6 @@ class _UsgsNdvi(DataSource):
         ... )
         >>>
         >>> # process for admin1
-        >>> bfa_ndvi.processed_file_suffix = "adm1"
         >>> bfa_ndvi.process(
         ...     gdf=bfa_admin1,
         ...     feature_col="ADM1_FR"
@@ -302,7 +275,7 @@ class _UsgsNdvi(DataSource):
         processed_path = self._get_processed_path(feature_col=feature_col)
 
         # get dates for processing
-        dates_to_process = _expand_dekads(
+        all_dates_to_process = _expand_dekads(
             y1=self._start_year,
             d1=self._start_dekad,
             y2=self._end_year,
@@ -316,7 +289,7 @@ class _UsgsNdvi(DataSource):
             dates_to_process, df = self._determine_process_dates(
                 clobber=clobber,
                 feature_col=feature_col,
-                dates_to_process=dates_to_process,
+                dates_to_process=all_dates_to_process,
                 kwargs=kwargs,
             )
 
@@ -333,6 +306,7 @@ class _UsgsNdvi(DataSource):
                 )
                 return processed_path
         else:
+            dates_to_process = all_dates_to_process
             df = pd.DataFrame()
 
         # process data for necessary dates
@@ -398,7 +372,7 @@ class _UsgsNdvi(DataSource):
         ...    gdf=bfa_admin2,
         ...    feature_col="ADM2_FR"
         )
-        >>> bfa_ndvi.load()
+        >>> bfa_ndvi.load(feature_col="ADM2_FR")
         """
         processed_path = self._get_processed_path(feature_col=feature_col)
         try:
@@ -619,15 +593,12 @@ class _UsgsNdvi(DataSource):
                 raise ValueError(
                     (
                         "`clobber` set to False but "
-                        "the statistics and column to "
-                        "process to do not match existing "
-                        "processed file. Use `self.load()`"
-                        "to check existing processed file "
-                        "and reconcile call to `process()`. "
-                        "Consider setting the "
-                        "`self.processed_file_suffix` if you "
-                        "want to store separate analysis (such "
-                        "as at a different disaggregation)."
+                        "the statistics for aggregation "
+                        "do not match existing processed "
+                        f"file for {feature_col}. Use "
+                        f"`self.load(feature_col={feature_col})`"
+                        " to check existing processed file and "
+                        "reconcile call to `process()`."
                     )
                 )
         else:

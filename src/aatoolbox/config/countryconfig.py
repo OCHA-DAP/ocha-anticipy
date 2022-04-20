@@ -117,8 +117,9 @@ class UsgsNdviConfig(BaseModel):
     @root_validator(pre=False, skip_on_failure=True)
     def _set_area_codes(cls, values) -> dict:
         """Set NDVI url and prefix from area."""
-        area_values = values["area_name_mapping"]["area_name"]
-        values["area_url"], values["area_prefix"] = area_values
+        values["area_url"], values["area_prefix"] = values[
+            "area_name_mapping"
+        ][values["area_name"]]
         return values
 
 
