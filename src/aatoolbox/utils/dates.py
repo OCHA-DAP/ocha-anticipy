@@ -85,7 +85,7 @@ def _date_to_dekad(date_obj: date) -> Tuple[int, int]:
     days within that month.
     """
     year = date_obj.year
-    dekad = (date_obj.day // 10) + ((date_obj.month - 1) * 3) + 1
+    dekad = min(date_obj.day // 10, 2) + ((date_obj.month - 1) * 3) + 1
     return (year, dekad)
 
 

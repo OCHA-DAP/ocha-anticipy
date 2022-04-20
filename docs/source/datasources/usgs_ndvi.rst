@@ -59,7 +59,7 @@ An example country config for Ethiopia is:
 
     iso3: eth
     usgs_ndvi:
-    region_name: east-africa
+        region_name: east-africa
 
 For a number of countries this config has been implemented already.
 For others, you can create a custom country config.
@@ -77,8 +77,8 @@ sample of data from a few dekads, corresponding to the dates in January:
 
 .. code-block:: python
 
-    from aatoolbox import UsgsNdviTemporallySmoothed
-    ndvi_smooth = UsgsNdviTemporallySmoothed(
+    from aatoolbox import UsgsNdviSmoothed
+    ndvi_smooth = UsgsNdviSmoothed(
         country_config=country_config,
         start_date="2021-01-01",
         end_date="2021-01-31"
