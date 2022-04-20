@@ -6,4 +6,4 @@ codab:
 fewsnet:
   region_name: west-africa
 usgs_ndvi:
-  region_name: west-africa
+  area_name: west-africa
