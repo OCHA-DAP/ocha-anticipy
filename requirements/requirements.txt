@@ -1,11 +1,12 @@
-affine==2.3.0
+affine==2.3.1
     # via rasterio
 appdirs==1.4.4
     # via requests-cache
-attrs==21.2.0
+attrs==21.4.0
     # via
     #   cattrs
     #   fiona
+    #   jsonlines
     #   jsonschema
     #   rasterio
     #   requests-cache
@@ -13,7 +14,7 @@ basicauth==0.4.1
     # via hdx-python-utilities
 bokeh==2.4.2
     # via dask
-cattrs==1.8.0
+cattrs==1.10.0
     # via requests-cache
 certifi==2021.10.8
     # via
@@ -25,11 +26,11 @@ cffi==1.15.0
     # via cryptography
 chardet==4.0.0
     # via frictionless
-charset-normalizer==2.0.7
+charset-normalizer==2.0.12
     # via requests
-ckanapi==4.6
+ckanapi==4.7
     # via hdx-python-api
-click==8.0.3
+click==8.1.2
     # via
     #   click-plugins
     #   cligj
@@ -51,21 +52,21 @@ cloudpickle==2.0.0
     #   distributed
 colorama==0.4.4
     # via typer
-cryptography==35.0.0
+cryptography==36.0.2
     # via pyopenssl
-dask==2022.04.0
+dask==2022.04.1
     # via
     #   distributed
     #   xarray
-decorator==5.1.0
+decorator==5.1.1
     # via
     #   jsonpath-ng
     #   validators
 defopt==6.3.0
     # via hdx-python-api
-distributed==2022.04.0
+distributed==2022.04.1
     # via dask
-dnspython==2.1.0
+dnspython==2.2.1
     # via email-validator
 docopt==0.6.2
     # via
@@ -79,9 +80,9 @@ et-xmlfile==1.1.0
     # via openpyxl
 exchangerates==0.3.4
     # via hdx-python-country
-fiona==1.8.20
+fiona==1.8.21
     # via geopandas
-frictionless[excel,json]==4.28.3
+frictionless[excel,json]==4.29.0
     # via hdx-python-utilities
 fsspec==2022.3.0
     # via dask
@@ -93,7 +94,7 @@ hdx-python-country==3.1.7
     # via
     #   aa-toolbox (setup.cfg)
     #   hdx-python-api
-hdx-python-utilities==3.2.1
+hdx-python-utilities==3.2.3
     # via hdx-python-country
 heapdict==1.0.1
     # via zict
@@ -103,18 +104,18 @@ idna==3.3
     #   requests
 ijson==3.1.4
     # via frictionless
-importlib-resources==5.7.0
+importlib-resources==5.7.1
     # via jsonschema
-inflect==5.3.0
+inflect==5.5.2
     # via quantulum3
 isodate==0.6.1
     # via frictionless
-jinja2==3.0.3
+jinja2==3.1.1
     # via
     #   bokeh
     #   dask
     #   distributed
-jsonlines==2.0.0
+jsonlines==3.0.0
     # via frictionless
 jsonpath-ng==1.5.3
     # via libhxl
@@ -122,15 +123,15 @@ jsonschema==4.4.0
     # via frictionless
 libhxl==4.25
     # via hdx-python-country
-locket==0.2.1
+locket==1.0.0
     # via partd
 loguru==0.6.0
     # via hdx-python-utilities
-lxml==4.6.4
+lxml==4.8.0
     # via exchangerates
 marko==1.2.0
     # via frictionless
-markupsafe==2.0.1
+markupsafe==2.1.1
     # via jinja2
 msgpack==1.0.3
     # via distributed
@@ -142,7 +143,7 @@ ndg-httpsclient==0.5.1
     # via hdx-python-api
 num2words==0.5.10
     # via quantulum3
-numpy==1.19.5
+numpy==1.22.3
     # via
     #   aa-toolbox (setup.cfg)
     #   bokeh
@@ -159,7 +160,8 @@ packaging==21.3
     #   dask
     #   distributed
     #   rioxarray
-pandas==1.3.4
+    #   xarray
+pandas==1.4.2
     # via
     #   dask
     #   geopandas
@@ -184,13 +186,13 @@ pyasn1==0.4.8
     #   ndg-httpsclient
 pycparser==2.21
     # via cffi
-pydantic==1.8.2
+pydantic==1.9.0
     # via aa-toolbox (setup.cfg)
-pyopenssl==21.0.0
+pyopenssl==22.0.0
     # via
     #   hdx-python-api
     #   ndg-httpsclient
-pyparsing==3.0.6
+pyparsing==3.0.8
     # via
     #   packaging
     #   snuggs
@@ -210,11 +212,11 @@ python-dateutil==2.8.2
     #   pandas
 python-io-wrapper==0.2
     # via libhxl
-python-slugify==5.0.2
+python-slugify==6.1.1
     # via
     #   ckanapi
     #   frictionless
-pytz==2021.3
+pytz==2022.1
     # via pandas
 pyyaml==6.0
     # via
@@ -223,13 +225,13 @@ pyyaml==6.0
     #   dask
     #   distributed
     #   frictionless
-quantulum3==0.7.9
+quantulum3==0.7.10
     # via hdx-python-api
 rasterio==1.2.10
     # via rioxarray
 ratelimit==2.2.1
     # via hdx-python-utilities
-requests==2.26.0
+requests==2.27.1
     # via
     #   aa-toolbox (setup.cfg)
     #   ckanapi
@@ -238,19 +240,19 @@ requests==2.26.0
     #   libhxl
     #   requests-cache
     #   requests-file
-requests-cache==0.8.1
+requests-cache==0.9.3
     # via libhxl
 requests-file==1.5.1
     # via hdx-python-utilities
 rfc3986==2.0.0
     # via frictionless
-rioxarray==0.8.0
+rioxarray==0.10.3
     # via aa-toolbox (setup.cfg)
-ruamel.yaml==0.17.17
+ruamel.yaml==0.17.21
     # via hdx-python-utilities
 ruamel.yaml.clib==0.2.6
     # via ruamel.yaml
-shapely==1.8.0
+shapely==1.8.1.post1
     # via geopandas
 shellingham==1.4.0
     # via typer
@@ -266,7 +268,6 @@ six==1.16.0
     #   jsonpath-ng
     #   munch
     #   pockets
-    #   pyopenssl
     #   python-dateutil
     #   requests-file
     #   sphinxcontrib-napoleon
@@ -295,7 +296,7 @@ tornado==6.1
     #   distributed
 typer[all]==0.4.1
     # via frictionless
-typing-extensions==4.0.0
+typing-extensions==4.2.0
     # via
     #   aa-toolbox (setup.cfg)
     #   bokeh
@@ -303,24 +304,24 @@ typing-extensions==4.0.0
     #   typing-inspect
 typing-inspect==0.7.1
     # via defopt
-unidecode==1.3.2
+unidecode==1.3.4
     # via
     #   libhxl
     #   pyphonetics
 url-normalize==1.4.3
     # via requests-cache
-urllib3==1.26.7
+urllib3==1.26.9
     # via
     #   distributed
     #   requests
     #   requests-cache
 validators==0.18.2
     # via frictionless
-wheel==0.37.0
+wheel==0.37.1
     # via libhxl
 wrapt==1.14.0
     # via aa-toolbox (setup.cfg)
-xarray[parallel]==0.20.1
+xarray[parallel]==2022.3.0
     # via
     #   aa-toolbox (setup.cfg)
     #   rioxarray
