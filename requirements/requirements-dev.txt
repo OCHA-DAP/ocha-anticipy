@@ -1,4 +1,4 @@
-affine==2.3.0
+affine==2.3.1
     # via
     #   -r requirements/requirements.txt
     #   rasterio
@@ -10,24 +10,21 @@ appdirs==1.4.4
     # via
     #   -r requirements/requirements.txt
     #   requests-cache
-attrs==21.2.0
+attrs==21.4.0
     # via
     #   -r requirements/requirements-tests.txt
     #   -r requirements/requirements.txt
     #   cattrs
     #   fiona
+    #   jsonlines
     #   jsonschema
     #   pytest
     #   rasterio
     #   requests-cache
-babel==2.9.1
+babel==2.10.1
     # via
     #   -r requirements/requirements-docs.txt
     #   sphinx
-backports.entry-points-selectable==1.1.1
-    # via
-    #   -r requirements/requirements-tests.txt
-    #   virtualenv
 basicauth==0.4.1
     # via
     #   -r requirements/requirements.txt
@@ -36,7 +33,7 @@ bokeh==2.4.2
     # via
     #   -r requirements/requirements.txt
     #   dask
-cattrs==1.8.0
+cattrs==1.10.0
     # via
     #   -r requirements/requirements.txt
     #   requests-cache
@@ -54,7 +51,7 @@ cffi==1.15.0
     #   cryptography
 cfgv==3.3.1
     # via pre-commit
-cftime==1.5.2
+cftime==1.6.0
     # via
     #   -r requirements/requirements-tests.txt
     #   netcdf4
@@ -62,16 +59,16 @@ chardet==4.0.0
     # via
     #   -r requirements/requirements.txt
     #   frictionless
-charset-normalizer==2.0.7
+charset-normalizer==2.0.12
     # via
     #   -r requirements/requirements-docs.txt
     #   -r requirements/requirements.txt
     #   requests
-ckanapi==4.6
+ckanapi==4.7
     # via
     #   -r requirements/requirements.txt
     #   hdx-python-api
-click==8.0.3
+click==8.1.2
     # via
     #   -r requirements/requirements.txt
     #   click-plugins
@@ -100,20 +97,20 @@ colorama==0.4.4
     # via
     #   -r requirements/requirements.txt
     #   typer
-coverage[toml]==6.1.2
+coverage[toml]==6.3.2
     # via
     #   -r requirements/requirements-tests.txt
     #   pytest-cov
-cryptography==35.0.0
+cryptography==36.0.2
     # via
     #   -r requirements/requirements.txt
     #   pyopenssl
-dask==2022.04.0
+dask==2022.04.1
     # via
     #   -r requirements/requirements.txt
     #   distributed
     #   xarray
-decorator==5.1.0
+decorator==5.1.1
     # via
     #   -r requirements/requirements.txt
     #   jsonpath-ng
@@ -122,15 +119,15 @@ defopt==6.3.0
     # via
     #   -r requirements/requirements.txt
     #   hdx-python-api
-distlib==0.3.3
+distlib==0.3.4
     # via
     #   -r requirements/requirements-tests.txt
     #   virtualenv
-distributed==2022.04.0
+distributed==2022.04.1
     # via
     #   -r requirements/requirements.txt
     #   dask
-dnspython==2.1.0
+dnspython==2.2.1
     # via
     #   -r requirements/requirements.txt
     #   email-validator
@@ -158,16 +155,16 @@ exchangerates==0.3.4
     # via
     #   -r requirements/requirements.txt
     #   hdx-python-country
-filelock==3.4.0
+filelock==3.6.0
     # via
     #   -r requirements/requirements-tests.txt
     #   tox
     #   virtualenv
-fiona==1.8.20
+fiona==1.8.21
     # via
     #   -r requirements/requirements.txt
     #   geopandas
-frictionless[excel,json]==4.28.3
+frictionless[excel,json]==4.29.0
     # via
     #   -r requirements/requirements.txt
     #   hdx-python-utilities
@@ -183,7 +180,7 @@ hdx-python-country==3.1.7
     # via
     #   -r requirements/requirements.txt
     #   hdx-python-api
-hdx-python-utilities==3.2.1
+hdx-python-utilities==3.2.3
     # via
     #   -r requirements/requirements.txt
     #   hdx-python-country
@@ -191,7 +188,7 @@ heapdict==1.0.1
     # via
     #   -r requirements/requirements.txt
     #   zict
-identify==2.3.7
+identify==2.4.12
     # via pre-commit
 idna==3.3
     # via
@@ -207,7 +204,15 @@ imagesize==1.3.0
     # via
     #   -r requirements/requirements-docs.txt
     #   sphinx
-inflect==5.3.0
+importlib-metadata==4.11.3
+    # via
+    #   -r requirements/requirements-docs.txt
+    #   sphinx
+importlib-resources==5.7.1
+    # via
+    #   -r requirements/requirements.txt
+    #   jsonschema
+inflect==5.5.2
     # via
     #   -r requirements/requirements.txt
     #   quantulum3
@@ -219,7 +224,7 @@ isodate==0.6.1
     # via
     #   -r requirements/requirements.txt
     #   frictionless
-jinja2==3.0.3
+jinja2==3.1.1
     # via
     #   -r requirements/requirements-docs.txt
     #   -r requirements/requirements.txt
@@ -227,7 +232,7 @@ jinja2==3.0.3
     #   dask
     #   distributed
     #   sphinx
-jsonlines==2.0.0
+jsonlines==3.0.0
     # via
     #   -r requirements/requirements.txt
     #   frictionless
@@ -243,7 +248,7 @@ libhxl==4.25
     # via
     #   -r requirements/requirements.txt
     #   hdx-python-country
-locket==0.2.1
+locket==1.0.0
     # via
     #   -r requirements/requirements.txt
     #   partd
@@ -251,7 +256,7 @@ loguru==0.6.0
     # via
     #   -r requirements/requirements.txt
     #   hdx-python-utilities
-lxml==4.6.4
+lxml==4.8.0
     # via
     #   -r requirements/requirements.txt
     #   exchangerates
@@ -259,7 +264,7 @@ marko==1.2.0
     # via
     #   -r requirements/requirements.txt
     #   frictionless
-markupsafe==2.0.1
+markupsafe==2.1.1
     # via
     #   -r requirements/requirements-docs.txt
     #   -r requirements/requirements.txt
@@ -284,7 +289,7 @@ num2words==0.5.10
     # via
     #   -r requirements/requirements.txt
     #   quantulum3
-numpy==1.19.5
+numpy==1.22.3
     # via
     #   -r requirements/requirements-tests.txt
     #   -r requirements/requirements.txt
@@ -312,7 +317,8 @@ packaging==21.3
     #   rioxarray
     #   sphinx
     #   tox
-pandas==1.3.4
+    #   xarray
+pandas==1.4.2
     # via
     #   -r requirements/requirements.txt
     #   dask
@@ -322,7 +328,7 @@ partd==1.2.0
     # via
     #   -r requirements/requirements.txt
     #   dask
-pbr==5.8.0
+pbr==5.8.1
     # via
     #   -r requirements/requirements-docs.txt
     #   sphinxcontrib-apidoc
@@ -336,9 +342,9 @@ pillow==9.1.0
     # via
     #   -r requirements/requirements.txt
     #   bokeh
-pip-tools==6.4.0
+pip-tools==6.6.0
     # via -r requirements/dev.in
-platformdirs==2.4.0
+platformdirs==2.5.2
     # via
     #   -r requirements/requirements-tests.txt
     #   virtualenv
@@ -356,7 +362,7 @@ pockets==0.9.1
     # via
     #   -r requirements/requirements.txt
     #   sphinxcontrib-napoleon
-pre-commit==2.15.0
+pre-commit==2.18.1
     # via -r requirements/dev.in
 psutil==5.9.0
     # via
@@ -376,18 +382,18 @@ pycparser==2.21
     # via
     #   -r requirements/requirements.txt
     #   cffi
-pydantic==1.8.2
+pydantic==1.9.0
     # via -r requirements/requirements.txt
-pygments==2.10.0
+pygments==2.11.2
     # via
     #   -r requirements/requirements-docs.txt
     #   sphinx
-pyopenssl==21.0.0
+pyopenssl==22.0.0
     # via
     #   -r requirements/requirements.txt
     #   hdx-python-api
     #   ndg-httpsclient
-pyparsing==3.0.6
+pyparsing==3.0.8
     # via
     #   -r requirements/requirements-docs.txt
     #   -r requirements/requirements-tests.txt
@@ -407,14 +413,14 @@ pyrsistent==0.18.1
     # via
     #   -r requirements/requirements.txt
     #   jsonschema
-pytest==6.2.5
+pytest==7.1.1
     # via
     #   -r requirements/requirements-tests.txt
     #   pytest-cov
     #   pytest-mock
 pytest-cov==3.0.0
     # via -r requirements/requirements-tests.txt
-pytest-mock==3.6.1
+pytest-mock==3.7.0
     # via -r requirements/requirements-tests.txt
 python-dateutil==2.8.2
     # via
@@ -427,12 +433,12 @@ python-io-wrapper==0.2
     # via
     #   -r requirements/requirements.txt
     #   libhxl
-python-slugify==5.0.2
+python-slugify==6.1.1
     # via
     #   -r requirements/requirements.txt
     #   ckanapi
     #   frictionless
-pytz==2021.3
+pytz==2022.1
     # via
     #   -r requirements/requirements-docs.txt
     #   -r requirements/requirements.txt
@@ -446,7 +452,7 @@ pyyaml==6.0
     #   distributed
     #   frictionless
     #   pre-commit
-quantulum3==0.7.9
+quantulum3==0.7.10
     # via
     #   -r requirements/requirements.txt
     #   hdx-python-api
@@ -458,7 +464,7 @@ ratelimit==2.2.1
     # via
     #   -r requirements/requirements.txt
     #   hdx-python-utilities
-requests==2.26.0
+requests==2.27.1
     # via
     #   -r requirements/requirements-docs.txt
     #   -r requirements/requirements.txt
@@ -469,7 +475,7 @@ requests==2.26.0
     #   requests-cache
     #   requests-file
     #   sphinx
-requests-cache==0.8.1
+requests-cache==0.9.3
     # via
     #   -r requirements/requirements.txt
     #   libhxl
@@ -481,9 +487,9 @@ rfc3986==2.0.0
     # via
     #   -r requirements/requirements.txt
     #   frictionless
-rioxarray==0.8.0
+rioxarray==0.10.3
     # via -r requirements/requirements.txt
-ruamel.yaml==0.17.17
+ruamel.yaml==0.17.21
     # via
     #   -r requirements/requirements.txt
     #   hdx-python-utilities
@@ -491,7 +497,7 @@ ruamel.yaml.clib==0.2.6
     # via
     #   -r requirements/requirements.txt
     #   ruamel.yaml
-shapely==1.8.0
+shapely==1.8.1.post1
     # via
     #   -r requirements/requirements.txt
     #   geopandas
@@ -515,7 +521,6 @@ six==1.16.0
     #   jsonpath-ng
     #   munch
     #   pockets
-    #   pyopenssl
     #   python-dateutil
     #   requests-file
     #   sphinxcontrib-napoleon
@@ -535,7 +540,7 @@ sortedcontainers==2.4.0
     # via
     #   -r requirements/requirements.txt
     #   distributed
-sphinx==4.3.0
+sphinx==4.5.0
     # via
     #   -r requirements/requirements-docs.txt
     #   sphinx-rtd-theme
@@ -588,13 +593,13 @@ toml==0.10.2
     # via
     #   -r requirements/requirements-tests.txt
     #   pre-commit
-    #   pytest
     #   tox
-tomli==1.2.2
+tomli==2.0.1
     # via
     #   -r requirements/requirements-tests.txt
     #   coverage
     #   pep517
+    #   pytest
 toolz==0.11.2
     # via
     #   -r requirements/requirements.txt
@@ -606,18 +611,24 @@ tornado==6.1
     #   -r requirements/requirements.txt
     #   bokeh
     #   distributed
-tox==3.24.5
+tox==3.25.0
     # via -r requirements/requirements-tests.txt
 typer[all]==0.4.1
     # via
     #   -r requirements/requirements.txt
     #   frictionless
-typing-extensions==4.0.0
+typing-extensions==4.2.0
     # via
     #   -r requirements/requirements.txt
     #   bokeh
     #   pydantic
-unidecode==1.3.2
+
+    #   typing-inspect
+typing-inspect==0.7.1
+    # via
+    #   -r requirements/requirements.txt
+    #   defopt
+unidecode==1.3.4
     # via
     #   -r requirements/requirements.txt
     #   libhxl
@@ -626,7 +637,7 @@ url-normalize==1.4.3
     # via
     #   -r requirements/requirements.txt
     #   requests-cache
-urllib3==1.26.7
+urllib3==1.26.9
     # via
     #   -r requirements/requirements-docs.txt
     #   -r requirements/requirements.txt
@@ -637,19 +648,19 @@ validators==0.18.2
     # via
     #   -r requirements/requirements.txt
     #   frictionless
-virtualenv==20.10.0
+virtualenv==20.14.1
     # via
     #   -r requirements/requirements-tests.txt
     #   pre-commit
     #   tox
-wheel==0.37.0
+wheel==0.37.1
     # via
     #   -r requirements/requirements.txt
     #   libhxl
     #   pip-tools
 wrapt==1.14.0
     # via -r requirements/requirements.txt
-xarray[parallel]==0.20.1
+xarray[parallel]==2022.3.0
     # via
     #   -r requirements/requirements.txt
     #   rioxarray
@@ -669,6 +680,12 @@ zict==2.1.0
     # via
     #   -r requirements/requirements.txt
     #   distributed
+zipp==3.8.0
+    # via
+    #   -r requirements/requirements-docs.txt
+    #   -r requirements/requirements.txt
+    #   importlib-metadata
+    #   importlib-resources
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
