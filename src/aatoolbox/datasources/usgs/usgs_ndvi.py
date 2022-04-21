@@ -518,7 +518,12 @@ class _UsgsNdvi(DataSource):
 
         if filepath.exists():
             file_time = datetime.fromtimestamp(filepath.stat().st_mtime)
-            url_time = resp.headers["last-modified"]
+            url_time_str = resp.headers["last-modified"]
+            url_time = datetime.strptime(
+                url_time_str,
+                # Fri, 27 Mar 2015 08:05:42 GMT
+                "%a, %d %b %Y %X %Z",
+            )
             if not clobber and url_time <= file_time:
                 logger.info(
                     f"File {filepath} exists, clobber set to False, and "
