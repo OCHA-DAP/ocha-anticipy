@@ -101,14 +101,14 @@ above is equally appropriate.
 
 .. code-block:: python
 
-    ndvi_2021_01 = ndvi_smooth.load_raster(date=(2021, 01))
+    ndvi_2021_01 = ndvi_smooth.load_raster(date=(2021, 1))
 
 If time series analysis is desired on the NDVI data, the user can manually do this
 using loaded in data arrays. However, given the size of the individual raster files,
 this module provides the `process()` method that calculate statistics for
 a given area. For this, we need to provide a geodataframe and column to aggregate to.
 
-Let's load the second-level administrative boundaries for Ethiopia from our country
+Let's load the country administrative boundaries for Ethiopia from our country
 config, and use this to calculate basic statistics for the dekads we've loaded.
 
 .. code-block:: python
