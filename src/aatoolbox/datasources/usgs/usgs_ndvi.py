@@ -36,7 +36,7 @@ downloading and processing can take a long time.
 # TODO: add progress bar
 import logging
 import re
-from datetime import date
+from datetime import date, datetime
 from io import BytesIO
 from pathlib import Path
 from typing import List, Tuple, Union
@@ -48,6 +48,7 @@ import geopandas as gpd
 import pandas as pd
 import rioxarray  # noqa: F401
 import xarray as xr
+from rasterio.errors import RasterioIOError
 
 import aatoolbox.utils.raster  # noqa: F401
 from aatoolbox.config.countryconfig import CountryConfig
@@ -426,6 +427,8 @@ class _UsgsNdvi(DataSource):
         filepath = self._get_raw_path(year=year, dekad=dekad, local=True)
         try:
             da = rioxarray.open_rasterio(filepath)
+            # get time file was updated
+            file_time = datetime.fromtimestamp(filepath.stat().st_mtime)
             # assign coordinates for year/dekad
             # time dimension
             da = (
@@ -434,6 +437,7 @@ class _UsgsNdvi(DataSource):
                         "year": year,
                         "dekad": dekad,
                         "date": _dekad_to_date(year=year, dekad=dekad),
+                        "modified": file_time,
                     }
                 )
                 .expand_dims("date")
@@ -442,7 +446,7 @@ class _UsgsNdvi(DataSource):
 
             return da
 
-        except FileNotFoundError as err:
+        except RasterioIOError as err:
             # check if the requested date is outside the instance bounds
             # don't prevent loading, but use for meaningful error
             gt_end = _compare_dekads_gt(
@@ -574,11 +578,12 @@ class _UsgsNdvi(DataSource):
             for percent in percentile_list:
                 cols.append(f"{percent}quant")
         cols.append(feature_col)
-        exist_cols = df.columns[3:].tolist()
+        exist_cols = df.columns[4:].tolist()
         cols_same = cols == exist_cols
 
         # get dates that have already been processed
         dates_already_processed = df[["year", "dekad"]].values.tolist()
+        dates_already_processed = [tuple(d) for d in dates_already_processed]
 
         if not cols_same:
             if clobber:
