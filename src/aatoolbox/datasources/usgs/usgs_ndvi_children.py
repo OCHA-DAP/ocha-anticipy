@@ -131,7 +131,8 @@ class UsgsNdviMedianAnomaly(_UsgsNdvi):
     """Base class to retrieve NDVI anomaly data.
 
     The retrieved data is NDVI anomaly data calculated
-    as a subtraction of the median value from the
+    as a subtraction of the median value, based on data
+    from 2003 - 2017, from the
     current value. Negative values indicate less
     vegetation than the median, positive values indicate
     more vegetation.

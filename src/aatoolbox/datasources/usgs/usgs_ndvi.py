@@ -34,12 +34,13 @@ downloading and processing can take a long time.
 """
 
 # TODO: add progress bar
+import functools
 import logging
 import re
 from datetime import date, datetime
 from io import BytesIO
 from pathlib import Path
-from typing import List, Tuple, Union
+from typing import Generator, List, Optional, Tuple, Union
 from urllib.error import HTTPError
 from urllib.request import urlopen
 from zipfile import ZipFile
@@ -277,7 +278,18 @@ class _UsgsNdvi(DataSource):
         ...     feature_col="ADM1_FR"
         ... )
         """
-        processed_path = self._get_processed_path(feature_col=feature_col)
+        # get statistics for processing
+        stats_list = kwargs.pop(
+            "stats_list", ["mean", "std", "min", "max", "sum", "count"]
+        )
+        percentile_list = kwargs.pop("percentile_list", None)
+
+        if not stats_list and not percentile_list:
+            raise ValueError(
+                "At least one of `stats_list` or "
+                "`percentile_list` must not be `None` "
+                "when passed to `process()`."
+            )
 
         # get dates for processing
         all_dates_to_process = _expand_dekads(
@@ -287,52 +299,30 @@ class _UsgsNdvi(DataSource):
             d2=self._end_dekad,
         )
 
-        # check to see if file exists and remove
-        # if clobber or check dates already processed
-        # if not
-        if processed_path.is_file():
-            dates_to_process, df = self._determine_process_dates(
-                clobber=clobber,
-                feature_col=feature_col,
-                dates_to_process=all_dates_to_process,
-                kwargs=kwargs,
-            )
-
-            if not dates_to_process:
-                logger.info(
-                    (
-                        "No new data to process between "
-                        f"{self._start_year}, "
-                        f"dekad {self._start_dekad} "
-                        f"and {self._end_year}, "
-                        f"dekad {self._end_dekad}, "
-                        "set `clobber = True` to re-process this data."
-                    )
+        if stats_list is not None:
+            for stat in stats_list:
+                self._process(
+                    clobber=clobber,
+                    gdf=gdf,
+                    feature_col=feature_col,
+                    dates_to_process=all_dates_to_process,
+                    stats_list=[stat],
+                    percentile_list=None,
+                    kwargs=kwargs,
                 )
-                return processed_path
-        else:
-            dates_to_process = all_dates_to_process
-            df = pd.DataFrame()
 
-        # process data for necessary dates
-        data = [df]
-        for process_date in dates_to_process:
-            da = self.load_raster(process_date)
-            stats = da.aat.compute_raster_stats(
-                gdf=gdf, feature_col=feature_col, **kwargs
-            )
-            data.append(stats)
-
-        # join data together and sort
-        df = pd.concat(data)
-        df.sort_values(by="date", inplace=True)
-        df.reset_index(inplace=True, drop=True)
-
-        # saving file
-        self._processed_base_dir.mkdir(parents=True, exist_ok=True)
-        df.to_csv(processed_path, index=False)
-
-        return processed_path
+        if percentile_list is not None:
+            for percent in percentile_list:
+                self._process(
+                    clobber=clobber,
+                    gdf=gdf,
+                    feature_col=feature_col,
+                    dates_to_process=all_dates_to_process,
+                    stats_list=None,
+                    percentile_list=[percent],
+                    kwargs=kwargs,
+                )
+        return self._processed_base_dir
 
     def load(self, feature_col: str) -> pd.DataFrame:  # type: ignore
         """
@@ -379,15 +369,18 @@ class _UsgsNdvi(DataSource):
         )
         >>> bfa_ndvi.load(feature_col="ADM2_FR")
         """
-        processed_path = self._get_processed_path(feature_col=feature_col)
-        try:
-            df = pd.read_csv(processed_path, parse_dates=["date", "modified"])
-        except FileNotFoundError as err:
-            raise FileNotFoundError(
-                f"Cannot open the CSV file {processed_path.name}. "
-                f"Make sure that you have already called the 'process' method "
-                f"and that the file {processed_path} exists."
-            ) from err
+        processed_files = self._find_processed_files(feature_col=feature_col)
+        processed_dfs = [
+            self._load(filepath=fp, drop_modified=True)
+            for fp in processed_files
+        ]
+
+        df = functools.reduce(
+            lambda df1, df2: pd.merge(
+                df1, df2, on=["date", "year", "dekad", feature_col]
+            ),
+            processed_dfs,
+        )
 
         # filter loaded data frame between our instances dates
         load_dates = _expand_dekads(
@@ -396,10 +389,15 @@ class _UsgsNdvi(DataSource):
             y2=self._end_year,
             d2=self._end_dekad,
         )
+
         loaded_dates = df[["year", "dekad"]].values.tolist()
         keep_rows = [tuple(d) in load_dates for d in loaded_dates]
 
         df = df.loc[keep_rows]
+
+        # put feature column as 1st column
+        df_feature_col = df.pop(feature_col)
+        df.insert(loc=0, column=feature_col, value=df_feature_col)
 
         return df
 
@@ -545,12 +543,74 @@ class _UsgsNdvi(DataSource):
         resp.close()
         return filepath
 
-    def _determine_process_dates(
+    def _process(
         self,
         clobber: bool,
+        gdf: gpd.GeoDataFrame,
         feature_col: str,
         dates_to_process: list,
-        kwargs: dict,
+        stats_list: Optional[List[str]],
+        percentile_list: Optional[List[str]],
+        kwargs,
+    ) -> Path:
+        """Process data for particular statistic."""
+        # get processed path for particular statistic
+        if stats_list:
+            stat = stats_list[0]
+        elif percentile_list:
+            stat = f"{percentile_list[0]}quant"
+        processed_path = self._get_processed_path(
+            feature_col=feature_col, stat=stat
+        )
+
+        if processed_path.is_file():
+            dates_to_process, df = self._determine_process_dates(
+                clobber=clobber,
+                filepath=processed_path,
+                dates_to_process=dates_to_process,
+            )
+
+            if not dates_to_process:
+                logger.info(
+                    (
+                        "No new {stat} data to process between "
+                        f"{self._start_year}, "
+                        f"dekad {self._start_dekad} "
+                        f"and {self._end_year}, "
+                        f"dekad {self._end_dekad}, "
+                        "set `clobber = True` to re-process this data."
+                    )
+                )
+                return processed_path
+        else:
+            df = pd.DataFrame()
+
+        # process data for necessary dates
+        data = [df]
+        for process_date in dates_to_process:
+            da = self.load_raster(process_date)
+            stats = da.aat.compute_raster_stats(
+                gdf=gdf,
+                feature_col=feature_col,
+                stats_list=stats_list,
+                percentile_list=percentile_list,
+                **kwargs,
+            )
+            data.append(stats)
+
+        # join data together and sort
+        df = pd.concat(data)
+        df.sort_values(by="date", inplace=True)
+        df.reset_index(inplace=True, drop=True)
+
+        # saving file
+        self._processed_base_dir.mkdir(parents=True, exist_ok=True)
+        df.to_csv(processed_path, index=False)
+
+        return processed_path
+
+    def _determine_process_dates(
+        self, clobber: bool, filepath: Path, dates_to_process: list
     ) -> Tuple[list, pd.DataFrame]:
         """Determine dates to process.
 
@@ -558,15 +618,10 @@ class _UsgsNdvi(DataSource):
         ----------
         clobber : bool
             If True, overwrites existing file
-        feature_col : str
-            Column in ``gdf`` to use as row/feature identifier.
-            and dates. Passed to ``aat.compute_raster_stats()``.
+        filepath : Path
+            Filepath to the existing processed file.
         dates_to_process : list
             List of dates to process
-        kwargs : dict
-             Additional keyword arguments passed to
-            ``aat.computer_raster_stats()``. Here used to
-            compare processed file with processing.
 
         Returns
         -------
@@ -582,21 +637,7 @@ class _UsgsNdvi(DataSource):
             and `feature_col` for processing do not
             match the existing file.
         """
-        df = self.load(feature_col=feature_col)
-
-        # check that the processed file has the same analyzed
-        # indicators and column for aggregation as passed
-        # to process()
-        cols = kwargs.get(
-            "stats_list", ["mean", "std", "min", "max", "sum", "count"]
-        )
-        percentile_list = kwargs.get("percentile_list")
-        if percentile_list is not None:
-            for percent in percentile_list:
-                cols.append(f"{percent}quant")
-        cols.append(feature_col)
-        exist_cols = df.columns[4:].tolist()
-        cols_same = cols == exist_cols
+        df = self._load(filepath=filepath)
 
         # get dates that have already been processed
         dates_already_processed = df[
@@ -606,54 +647,31 @@ class _UsgsNdvi(DataSource):
             tuple(d[0:2]): d[2] for d in dates_already_processed
         }
 
-        if not cols_same:
-            if clobber:
-                # erase old data frame since columns don't match
-                # but clobber=True
-                logger.warning(
-                    "Original data frame with columns "
-                    f"{', '.join(exist_cols)} being overwritten "
-                    f"by data frame with columns {', '.join(cols)}."
-                )
-                df = pd.DataFrame()
-            else:
-                raise ValueError(
-                    (
-                        "`clobber` set to False but "
-                        "the statistics for aggregation "
-                        "do not match existing processed "
-                        f"file for {feature_col}. Use "
-                        f"`self.load(feature_col={feature_col})`"
-                        " to check existing processed file and "
-                        "reconcile call to `process()`."
-                    )
-                )
+        if clobber:
+            # remove processed dates from file
+            # so they can be reprocessed
+            keep_rows = [
+                d not in dates_to_process
+                for d in list(dates_already_processed.keys())
+            ]
+            df = df.loc[keep_rows]
         else:
-            if clobber:
-                # remove processed dates from file
-                # so they can be reprocessed
-                keep_rows = [
-                    d not in dates_to_process
-                    for d in list(dates_already_processed.keys())
-                ]
-                df = df.loc[keep_rows]
-            else:
-                # remove processed dates from dates to process
-                dates_to_process = [
-                    d
-                    for d in dates_to_process
-                    if d not in list(dates_already_processed.keys())
-                    or self._get_modified_time(year=d[0], dekad=d[1])
-                    > dates_already_processed[d]
-                ]
+            # remove processed dates from dates to process
+            dates_to_process = [
+                d
+                for d in dates_to_process
+                if d not in list(dates_already_processed.keys())
+                or self._get_modified_time(year=d[0], dekad=d[1])
+                > dates_already_processed[d]
+            ]
 
-                # incase dates still processed based on
-                # modified time remove from the df
-                keep_rows = [
-                    d not in dates_to_process
-                    for d in list(dates_already_processed.keys())
-                ]
-                df = df.loc[keep_rows]
+            # incase dates still processed based on
+            # modified time remove from the df
+            keep_rows = [
+                d not in dates_to_process
+                for d in list(dates_already_processed.keys())
+            ]
+            df = df.loc[keep_rows]
         return (dates_to_process, df)
 
     def _get_raw_filename(self, year: int, dekad: int, local: bool) -> str:
@@ -687,6 +705,27 @@ class _UsgsNdvi(DataSource):
             f"{dekad:02}{self._data_variable_suffix}"
         )
         return file_name
+
+    def _load(self, filepath: Path, drop_modified: bool = False):
+        """Load processed data.
+
+        Parameters
+        ----------
+        filepath : Path
+            Filepath to processed data
+        drop_modified : bool, default = False
+            Drop modified column, used for merging data frames
+            together.
+
+        Returns
+        -------
+        pd.DataFrame
+            Processed data frame
+        """
+        df = pd.read_csv(filepath, parse_dates=["date", "modified"])
+        if drop_modified:
+            df.drop(["modified"], axis=1, inplace=True)
+        return df
 
     def _get_raw_path(self, year: int, dekad: int, local: bool) -> Path:
         """Get raw filepath.
@@ -733,7 +772,7 @@ class _UsgsNdvi(DataSource):
         filepath = self._get_raw_path(year=year, dekad=dekad, local=True)
         return datetime.fromtimestamp(filepath.stat().st_mtime)
 
-    def _get_processed_filename(self, feature_col: str) -> str:
+    def _get_processed_filename(self, feature_col: str, stat: str) -> str:
         """Return processed filename.
 
         Returns the processed filename. The suffix
@@ -745,17 +784,29 @@ class _UsgsNdvi(DataSource):
         str
             Processed filename
         """
-        file_name = (
-            f"{self._country_config.iso3}"
-            f"_usgs_ndvi_{self._data_variable}"
-            f"_{feature_col}.csv"
-        )
-        return file_name
-
-    def _get_processed_path(self, feature_col: str) -> Path:
-        return self._processed_base_dir / self._get_processed_filename(
+        base_file_name = self._get_processed_base_filename(
             feature_col=feature_col
         )
+        return f"{base_file_name}_{stat}.csv"
+
+    def _get_processed_base_filename(self, feature_col: str) -> str:
+        base_file_name = (
+            f"{self._country_config.iso3}"
+            f"_usgs_ndvi_{self._data_variable}"
+            f"_{feature_col}"
+        )
+        return base_file_name
+
+    def _get_processed_path(self, feature_col: str, stat: str) -> Path:
+        return self._processed_base_dir / self._get_processed_filename(
+            feature_col=feature_col, stat=stat
+        )
+
+    def _find_processed_files(self, feature_col: str) -> Generator:
+        base_file_name = self._get_processed_base_filename(
+            feature_col=feature_col
+        )
+        return self._processed_base_dir.glob(f"{base_file_name}_*.csv")
 
     def _get_url(self, filename) -> str:
         """Get USGS NDVI URL.
