@@ -213,6 +213,12 @@ class _UsgsNdvi(DataSource):
         The ``feature_col`` is used to define
         the unique processed file.
 
+        The processing keeps track of the latest timestamp of
+        when the raw raster files were modified. If the latest
+        timestamp of the raw data is greater than when it was
+        last processed, the file will automatically be
+        re-processed.
+
         Parameters
         ----------
         gdf : geopandas.GeoDataFrame
@@ -377,7 +383,7 @@ class _UsgsNdvi(DataSource):
         """
         processed_path = self._get_processed_path(feature_col=feature_col)
         try:
-            df = pd.read_csv(processed_path, parse_dates=["date"])
+            df = pd.read_csv(processed_path, parse_dates=["date", "modified"])
         except FileNotFoundError as err:
             raise FileNotFoundError(
                 f"Cannot open the CSV file {processed_path.name}. "
@@ -582,8 +588,12 @@ class _UsgsNdvi(DataSource):
         cols_same = cols == exist_cols
 
         # get dates that have already been processed
-        dates_already_processed = df[["year", "dekad"]].values.tolist()
-        dates_already_processed = [tuple(d) for d in dates_already_processed]
+        dates_already_processed = df[
+            ["year", "dekad", "modified"]
+        ].values.tolist()
+        dates_already_processed = {
+            tuple(d[0:2]): d[2] for d in dates_already_processed
+        }
 
         if not cols_same:
             if clobber:
@@ -612,7 +622,8 @@ class _UsgsNdvi(DataSource):
                 # remove processed dates from file
                 # so they can be reprocessed
                 keep_rows = [
-                    d not in dates_to_process for d in dates_already_processed
+                    d not in dates_to_process
+                    for d in list(dates_already_processed.keys())
                 ]
                 df = df.loc[keep_rows]
             else:
@@ -620,8 +631,18 @@ class _UsgsNdvi(DataSource):
                 dates_to_process = [
                     d
                     for d in dates_to_process
-                    if d not in dates_already_processed
+                    if d not in list(dates_already_processed.keys())
+                    or self._get_modified_time(year=d[0], dekad=d[1])
+                    > dates_already_processed[d]
                 ]
+
+                # incase dates still processed based on
+                # modified time remove from the df
+                keep_rows = [
+                    d not in dates_to_process
+                    for d in list(dates_already_processed.keys())
+                ]
+                df = df.loc[keep_rows]
         return (dates_to_process, df)
 
     def _get_raw_filename(self, year: int, dekad: int, local: bool) -> str:
@@ -679,6 +700,27 @@ class _UsgsNdvi(DataSource):
         """
         filename = self._get_raw_filename(year=year, dekad=dekad, local=local)
         return self._raw_base_dir / f"{filename}.tif"
+
+    def _get_modified_time(self, year: int, dekad: int) -> datetime:
+        """Get modified time of raw file.
+
+        Used to determine when to re-process
+        or re-download raw raster files.
+
+        Parameters
+        ----------
+        year : int
+            4-digit year
+        dekad : int
+            Dekad
+
+        Returns
+        -------
+        datetime
+            Timestamp of when file was modified.
+        """
+        filepath = self._get_raw_path(year=year, dekad=dekad, local=True)
+        return datetime.fromtimestamp(filepath.stat().st_mtime)
 
     def _get_processed_filename(self, feature_col: str) -> str:
         """Return processed filename.
