@@ -61,8 +61,6 @@ from aatoolbox.utils.dates import (
     _get_dekadal_date,
 )
 
-# from aatoolbox.utils.check_file_existence import check_file_existence
-
 logger = logging.getLogger(__name__)
 
 _DATE_TYPE = Union[date, str, Tuple[int, int], None]
@@ -504,10 +502,7 @@ class _UsgsNdvi(DataSource):
             filepath=filepath, url_filename=url_filename, clobber=clobber
         )
 
-    # @check_file_existence
     def _download(self, filepath: Path, url_filename: str, clobber: bool):
-        # filepath just necessary for checking file existence
-        # now just extract filename
         local_filename = filepath.stem
 
         url = self._get_url(filename=url_filename)
@@ -520,6 +515,17 @@ class _UsgsNdvi(DataSource):
                 f"dekad {dekad} of {year}, skipping."
             )
             return
+
+        if filepath.exists():
+            file_time = datetime.fromtimestamp(filepath.stat().st_mtime)
+            url_time = resp.headers["last-modified"]
+            if not clobber and url_time <= file_time:
+                logger.info(
+                    f"File {filepath} exists, clobber set to False, and "
+                    "file not been modified since last download. "
+                    "Using existing files."
+                )
+                return filepath
 
         # open file within memory
         zf = ZipFile(BytesIO(resp.read()))
