@@ -4,7 +4,7 @@ Data is downloaded from the `USGS FEWS NET data portal
 <https://earlywarning.usgs.gov/fews>`_. Data is
 generated from eMODIS AQUA, with full methodological
 details available on the `Documentation page
-<https://earlywarning.usgs.gov/fews/product/449>`_
+<https://earlywarning.usgs.gov/fews/product/449#documentation>`_
 for the specific product. The available areas of
 coverage are:
 
