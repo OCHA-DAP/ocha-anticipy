@@ -108,7 +108,7 @@ cryptography==35.0.0
     # via
     #   -r requirements/requirements.txt
     #   pyopenssl
-dask[complete]==2022.04.0
+dask==2022.04.0
     # via
     #   -r requirements/requirements.txt
     #   distributed
@@ -458,8 +458,6 @@ ratelimit==2.2.1
     # via
     #   -r requirements/requirements.txt
     #   hdx-python-utilities
-regex==2022.3.15
-    # via -r requirements/requirements.txt
 requests==2.26.0
     # via
     #   -r requirements/requirements-docs.txt
