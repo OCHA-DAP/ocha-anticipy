@@ -23,13 +23,13 @@ difference from the previous year, and median anomaly presented as a percentile.
 details are available on the `Documentation page <https://earlywarning.usgs.gov/fews/product/449#documentation>`_
 for the specific coverage area. The data is made available for the following areas of coverage:
 
-- `north_africa<https://earlywarning.usgs.gov/fews/product/449>`_
-- `east_africa<https://earlywarning.usgs.gov/fews/product/448>`_
-- `southern_africa<https://earlywarning.usgs.gov/fews/product/450>`_
-- `west_africa<https://earlywarning.usgs.gov/fews/product/451>`_
-- `central_asia<https://earlywarning.usgs.gov/fews/product/493>`_
+- `north-africa<https://earlywarning.usgs.gov/fews/product/449>`_
+- `east-africa<https://earlywarning.usgs.gov/fews/product/448>`_
+- `southern-africa<https://earlywarning.usgs.gov/fews/product/450>`_
+- `west-africa<https://earlywarning.usgs.gov/fews/product/451>`_
+- `central-asia<https://earlywarning.usgs.gov/fews/product/493>`_
 - `yemen<https://earlywarning.usgs.gov/fews/product/502>`_
-- `central_america<https://earlywarning.usgs.gov/fews/product/445>`_
+- `central-america<https://earlywarning.usgs.gov/fews/product/445>`_
 - `hispaniola<https://earlywarning.usgs.gov/fews/product/446>`_
 
 Data is published at the dekadal level, and is released soon after the end of the dekad.
