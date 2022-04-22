@@ -1,40 +1,42 @@
 """Class to download and load CHIRPS observational precipitation data.
 
-#TODO: add more documentation on CHIRPS (possibly in other file).
-`CHIRPS <https://www.chc.ucsb.edu/data/chirps>`_ is a global
-observational precipitation dataset, produced by the Climate Hazards
-Center (CHC).
-#TODO: maybe we should double-check with IRI that there is no extra delay in
-#the data being available from the Maproom compared to CHC's FTP server.
-The data can be downloaded from several platforms. This script downloads the
-data from `IRI's maproom
-<http://iridl.ldeo.columbia.edu/SOURCES/.UCSB/.CHIRPS/.v2p0>`_ as this allows
-selection of geographical area.
+Climate Hazards Group InfraRed Precipitation with Station data (`CHIRPS
+<https://www.chc.ucsb.edu/data/chirps>`_) is a 35+ year quasi-global rainfall
+dataset, produced by the Climate Hazards Center (CHC). Spanning 50°S-50°N
+(and all longitudes) and ranging from 1981 to near-present, CHIRPS
+incorporates climatology, 0.05° resolution satellite imagery, and in-situ
+station data to create gridded rainfall time series for trend analysis
+and seasonal drought monitoring.
+
+Read more about CHIRPS here: https://www.nature.com/articles/sdata201566
+
+This script downloads data from `IRI's maproom
+<http://iridl.ldeo.columbia.edu/SOURCES/.UCSB/.CHIRPS/.v2p0>`_ as the
+platform allows for the selection of geographical areas.
 """
 
+import calendar
 import logging
-from datetime import datetime
+from abc import abstractmethod
+from datetime import date, datetime
 from pathlib import Path
 from typing import Optional, Union
 
+import pandas as pd
 import requests
 import xarray as xr
-from typing_extensions import Literal
 
-import aatoolbox.utils.raster  # noqa: F401
 from aatoolbox.config.countryconfig import CountryConfig
 from aatoolbox.datasources.datasource import DataSource
+from aatoolbox.utils.check_file_existence import check_file_existence
 from aatoolbox.utils.geoboundingbox import GeoBoundingBox
-from aatoolbox.utils.io import check_file_existence
 
 logger = logging.getLogger(__name__)
-
-_MODULE_BASENAME = "chirps"
 
 
 class Chirps(DataSource):
     """
-    Base class to retrieve CHIRPS observational precipitation data.
+    Base class object to retrieve CHIRPS observational precipitation data.
 
     Parameters
     ----------
@@ -44,60 +46,66 @@ class Chirps(DataSource):
         the bounding coordinates of the area that should be included in the
         data.
     frequency: str
+        time resolution of the data to be downloaded. It can be "daily" or
+        "monthly"
     resolution: float
         resolution of data to be downloaded. Can be
         0.05 or 0.25
-    #TODO: check if want to allow dekad as well. Atm only implemented daily
-    # and monthly
-    frequency: str
-        Time aggregation of the data to be downloaded.
-        Can be "daily", "dekad", or "monthly"
-    #TODO: add example
     """
 
+    @abstractmethod
     def __init__(
         self,
         country_config: CountryConfig,
         geo_bounding_box: GeoBoundingBox,
-        # TODO: use input arg or have separate class for both?
-        frequency: Literal["daily", "monthly"],
+        frequency: str,
         resolution: float = 0.05,
     ):
         super().__init__(
             country_config=country_config,
-            module_base_dir=_MODULE_BASENAME,
+            datasource_base_dir="chirps",
             is_public=True,
         )
+
         # round coordinates to correspond with the grid the CHIRPS data is on
         # non-rounded coordinates can be given to the URL which then
         # automatically rounds them, but for file saving we prefer to do
         # this ourselves
-        # TODO: We should probably make a copy of this as it's being
-        #  passed directly by the user
-        geo_bounding_box.round_coords(round_val=resolution)
-        self._geobb = geo_bounding_box
+        self._geobb = geo_bounding_box.round_coords(round_val=resolution)
         self._frequency = frequency
+        self._resolution = resolution
+
+        valid_frequencies = ("daily", "monthly")
+        if self._frequency not in valid_frequencies:
+            raise ValueError(
+                f"The available frequencies are {*valid_frequencies,}"
+            )
 
         if resolution not in (0.05, 0.25):
             raise ValueError(
-                f"The given resolution is {resolution}, which is "
+                f"The given resolution is {self._resolution}, which is "
                 "not available. Has to be 0.05 or 0.25."
             )
 
-        if self._frequency == "monthly" and resolution == 0.25:
+        if self._frequency == "monthly" and self._resolution == 0.25:
             logger.error(
-                "Monthly data with a resolution of 0.25 is not "
-                "available. Automatically switching to 0.05 "
+                f"{self._frequency}.capitalize() data with a resolution of "
+                "0.25 is not available. Automatically switching to 0.05 "
                 "resolution."
             )
-            resolution = 0.05
+            self._resolution = 0.05
 
-        self._resolution = resolution
-
+    # mypy will give error Signature of "download" incompatible with supertype
+    # "DataSource" due to the arguments not being present in
+    # `DataSource`. This is however valid so ignore mypy
     def download(
         self,
-        min_year: int = None,
-        max_year: int = None,
+        start_year: int = None,
+        end_year: int = None,
+        start_month: int = None,
+        end_month: int = None,
+        start_day: int = None,
+        end_day: int = None,
         clobber: bool = False,
     ):
         """
@@ -105,173 +113,522 @@ class Chirps(DataSource):
 
         Parameters
         ----------
+        start_year: int, default = None
+            Data will be donwloaded starting from year `start_year`.
+            If None, it is set to 1981.
+        end_year: int, default = None
+            Data will be donwloaded up to year `end_year`.
+            If None, it is set to the year for which most recent data
+            is available.
+        start_month: int, default = None
+            Data will be donwloaded starting from month `start_month`.
+            If None, it is set to January.
+        end_month: int, default = None
+            Data will be donwloaded up to month `end_month`.
+            If None, it is set to the December if the year was specified,
+            otherwise to the month of the year for which most recent data
+            is available.
+        start_day: int, default = None
+            Data will be donwloaded starting from day `start_day`.
+            If None, it is set to 1. Argument ignored when downloading
+            monthly data.
+        end_day: int, default = None
+            Data will be donwloaded up to day `end_day`.
+            If None, it is set to the last day of the month if year and month
+            were specified, otherwise to the day of the month of the year
+            for which most recent data is available.
+            Argument ignored when downloading monthly data.
         clobber : bool, default = False
             If True, overwrites existing raw files
-        min_year: int, default = None
-            If not None, download data starting from `min_year`
-        max_year: int, default = None
-            If not None, download data up to `max_year`
+        """
+        if self._frequency == "monthly":
+            start_day = None
+            end_day = None
+
+        # Create a list of date tuples and a summarising sentence to be printed
+        date_list, sentence_to_print = self._create_date_list(
+            start_year=start_year,
+            end_year=end_year,
+            start_month=start_month,
+            end_month=end_month,
+            start_day=start_day,
+            end_day=end_day,
+        )
+
+        # Print information on data overwriting
+        clobber_dict = {True: "", False: "not "}
+
+        if len(date_list) > 0:
+            sentence_to_print += (
+                f" Data already present in the folder "
+                f"will {clobber_dict[clobber]}be overwritten."
+            )
+
+        logger.info(sentence_to_print)
+
+        # Data download
+        if self._frequency == "daily":
+            for (year, month, day) in date_list:
+                self._download(
+                    year=year, month=month, day=day, clobber=clobber
+                )
+        else:
+            for (year, month) in date_list:
+                self._download(
+                    year=year, month=month, day=None, clobber=clobber
+                )
+
+    def process(self, clobber: bool = False):
+        """
+        Process the CHIRPS data.
+
+        Should only be called after data has been download.
+
+        Parameters
+        ----------
+        clobber : bool, default = False
+            If True, overwrites existing processed files.
+
+        """
+        # Get the path where raw data is stored
+        raw_path = self._get_raw_path(year=None, month=None, day=None)
+        # Create a list with all raw data downloaded
+        filepath_list = list(raw_path.parents[0].glob(raw_path.name))
+        if len(filepath_list) > 0:
+            for filepath in filepath_list:
+                ds = xr.open_dataset(filepath, decode_times=False)
+                processed_file_path = self._get_processed_path(filepath)
+                processed_file_path.parent.mkdir(parents=True, exist_ok=True)
+                _process(filepath=processed_file_path, ds=ds, clobber=clobber)
+        else:
+            raise FileNotFoundError(
+                f"Cannot find any netcdf file in the form"
+                f"{raw_path}. Make "
+                f"sure that you have downloaded some data."
+            )
+
+    def load(
+        self,
+        start_year: int = None,
+        end_year: int = None,
+        start_month: int = None,
+        end_month: int = None,
+        start_day: int = None,
+        end_day: int = None,
+    ) -> xr.Dataset:
+        """
+        Load the CHIRPS data.
+
+        Should only be called after the data
+        has been downloaded and processed. If no arguments are specified,
+        all data in the processed data folder (with the appropriate
+        resolution, frequency and corresponding to the chosen location)
+        will be loaded. If only some of the arguments are
+        specified, the others will be set according to the conventions
+        below.
+
+        Parameters
+        ----------
+        start_year: int, default = None
+            Data will be loaded starting from year `start_year`.
+            If None, it is set to 1981.
+        end_year: int, default = None
+            Data will be loaded up to year `end_year`.
+            If None, it is set to the year for which most recent data
+            is available.
+        start_month: int, default = None
+            Data will be loaded starting from month `start_month`.
+            If None, it is set to January.
+        end_month: int, default = None
+            Data will be loaded up to month `end_month`.
+            If None, it is set to the December if the year was specified,
+            otherwise to the month of the year for which most recent data
+            is available.
+        start_day: int, default = None
+            Data will be loaded starting from day `start_day`.
+            If None, it is set to 1. Argument ignored when downloading
+            monthly data.
+        end_day: int, default = None
+            Data will be loaded up to day `end_day`.
+            If None, it is set to the last day of the month if year and month
+            were specified, otherwise to the day of the month of the year
+            for which most recent data is available.
+            Argument ignored when downloading monthly data.
 
         Returns
         -------
-        The downloaded filepath
+        The processed CHIRPS dataset.
         """
-        # TODO: I am in doubt here. Reason that I splitted up to years is cause
-        # all years together is pretty large
-        # However, you will still have to download the last year again each
-        # time you want to update data.
-        # Another option is to have one file per date, but then you have so
-        # many dates and probably full download takes longer
-        if min_year is None:
-            min_year = 1981
-        if max_year is None:
-            # TODO: CHIRPS is not updated immediately, so at the beginning of
-            # the year data might not be available. IRI still downloads a
-            # file, but this file is often not a valid netcdf file, so check
-            # that (can also do this at the processing step)
-            max_year = datetime.today().year
+        if self._frequency == "monthly":
+            start_day = None
+            end_day = None
 
-        for year in range(min_year, max_year + 1):
-            self._download_year(year=year, clobber=clobber)
+        # If no arguments are specified, all data in the processed data folder
+        # (with the appropriate resolution, frequency and corresponding to the
+        # chosen location) will be loaded
+        if all(
+            [
+                x is None
+                for x in [
+                    start_year,
+                    end_year,
+                    start_month,
+                    end_month,
+                    start_day,
+                    end_day,
+                ]
+            ]
+        ):
+            raw_path = self._get_raw_path(year=None, month=None, day=None)
+            processed_path = self._get_processed_path(raw_path)
+            filepath_list = list(
+                processed_path.parents[0].glob(processed_path.name)
+            )
+        # otherwise data loaded according to the range given as an input
+        else:
+            date_list, _ = self._create_date_list(
+                start_year=start_year,
+                end_year=end_year,
+                start_month=start_month,
+                end_month=end_month,
+                start_day=start_day,
+                end_day=end_day,
+            )
+            if self._frequency == "monthly":
+                filepath_list = [
+                    self._get_raw_path(year=year, month=month, day=None)
+                    for (year, month) in date_list
+                ]
+            else:
+                filepath_list = [
+                    self._get_raw_path(year=year, month=month, day=day)
+                    for (year, month, day) in date_list
+                ]
+        filepath_list.sort()
 
-    def _download_year(self, year, clobber):
-        output_filepath = self._get_raw_path(year=year)
+        # Merge all files in one dataset
+        if len(filepath_list) == 0:
+            raise FileNotFoundError(
+                f"Cannot find any netcdf file in the form"
+                f"{processed_path}. Make "
+                f"sure that you have already called the 'process' method."
+            )
+        else:
+            try:
+                ds = xr.open_mfdataset(
+                    filepath_list,
+                    decode_times=False,
+                )
+                # include the names of all files that are included in the ds
+                ds.attrs["included_files"] = [f.stem for f in filepath_list]
+            except FileNotFoundError:
+                raise FileNotFoundError(
+                    "Cannot find one or more netcdf files corresponding "
+                    "to the selected range. Make sure that you already "
+                    "downloaded and processed those data."
+                )
+
+        return ds.rio.write_crs("EPSG:4326", inplace=True)
+
+    def _download(self, year, month, day, clobber):
+        # Preparatory steps for the actual download
+        output_filepath = self._get_raw_path(year=year, month=month, day=day)
         output_filepath.parent.mkdir(parents=True, exist_ok=True)
-        url = self._get_url(year=year)
-        return _download(
+        url = self._get_url(year=year, month=month, day=day)
+        # Actual download
+        return _actual_download(
             filepath=output_filepath,
             url=url,
             clobber=clobber,
         )
 
-    # TODO: Combining all in one file, but does mean you have to set clobber to
-    # True everytime you want to update it
-    def process(self, clobber: bool = False) -> Path:
-        """
-        Process the CHIRPS data.
+    def _create_date_list(
+        self, start_year, end_year, start_month, end_month, start_day, end_day
+    ):
 
-        Should only be called after the ``download`` method has been
-        executed.
+        # Check whether the input dates are valid, assign dates when not
+        # specified and create list of tuples containing the range of
+        # dates of interest
 
-        Parameters
-        ----------
-        clobber : bool, default = False
-            If True, overwrites existing processed files
+        if (
+            start_month is not None or start_day is not None
+        ) and start_year is None:
+            raise ValueError(
+                "If you specify starting month or day, you also "
+                "need to specify the starting year."
+            )
 
-        Returns
-        -------
-        The processed filepath
-        """
-        # TODO: for the iri forecast processing (which was used as a base here)
-        # _load_raw() was needed to allow mocking for the tests. However, might
-        # not be needed here
-        ds = self._load_raw()
-        processed_file_path = self._get_processed_path()
-        processed_file_path.parent.mkdir(parents=True, exist_ok=True)
-        return _process(filepath=processed_file_path, ds=ds, clobber=clobber)
+        if (end_month is not None or end_day is not None) and end_year is None:
+            raise ValueError(
+                "If you specify end month or day, you also "
+                "need to specify the end year."
+            )
 
-    def load(self) -> xr.Dataset:
-        """
-        Load the CHIRPS data.
+        if start_day is not None and start_month is None:
+            raise ValueError(
+                "If you specify the starting day, you also "
+                "need to specify the starting month."
+            )
 
-        Should only be called after the ``download`` and ``process`` methods
-        have been executed.
+        if end_day is not None and end_month is None:
+            raise ValueError(
+                "If you specify the end day, you also "
+                "need to specify the end month."
+            )
 
-        Returns
-        -------
-        The processed CHIRPS dataset
-        """
-        processed_path = self._get_processed_path()
+        start_avail_date = date(year=1981, month=1, day=1)
+        end_avail_date = self._get_last_available_date()
+
+        if start_year is None:
+            start_year = start_avail_date.year
+            start_month = start_avail_date.month
+            start_day = start_avail_date.day
+        if end_year is None:
+            end_year = end_avail_date.year
+            end_month = end_avail_date.month
+            end_day = end_avail_date.day
+
+        if start_month is None:
+            start_month = 1
+        if end_month is None:
+            if end_year == end_avail_date.year:
+                end_month = end_avail_date.month
+            else:
+                end_month = 12
+
+        if start_day is None:
+            start_day = 1
+        if end_day is None:
+            if (
+                end_year == end_avail_date.year
+                and end_month == end_avail_date.month
+            ):
+                end_day = end_avail_date.day
+            else:
+                end_day = calendar.monthrange(end_year, end_month)[1]
+
         try:
-            ds = xr.load_dataset(processed_path, decode_times=False)
-        except FileNotFoundError as err:
-            raise FileNotFoundError(
-                f"Cannot open the netcdf file {processed_path}. "
-                f"Make sure that you have already called the 'process' method "
-                f"and that the file {processed_path} exists. "
-            ) from err
-        # TODO: Save coordinate system to a general config
-        return ds.rio.write_crs("EPSG:4326", inplace=True)
+            start_date = date(
+                year=start_year, month=start_month, day=start_day
+            )
+            end_date = date(year=end_year, month=end_month, day=end_day)
+        except ValueError:
+            raise ValueError(
+                "(One of) the dates identified by the "
+                "given inputs are not valid."
+            )
 
-    def _get_file_name(self, year: Optional[Union[int, str]]) -> str:
-        # set wildcard for year, to get general filename pattern
+        if not start_avail_date <= start_date <= end_date <= end_avail_date:
+            raise ValueError(
+                "Check that the input dates are ordered in the "
+                f"following way: {start_avail_date} <= start date "
+                f"<= end date <= {end_avail_date}. The two dates above "
+                "indicate the range for which CHIRPS data are "
+                "currently available."
+            )
+
+        if self._frequency == "monthly":
+            date_list = [
+                (d.split("-")[0], d.split("-")[1])
+                for d in pd.date_range(
+                    f"{start_year}-{start_month}",
+                    f"{end_year}-{end_month}",
+                    freq="MS",
+                )
+                .strftime("%Y-%m")
+                .tolist()
+            ]
+        elif self._frequency == "daily":
+            date_list = [
+                (d.split("-")[0], d.split("-")[1], d.split("-")[2])
+                for d in pd.date_range(
+                    f"{start_year}-{start_month}-{start_day}",
+                    f"{end_year}-{end_month}-{end_day}",
+                    freq="D",
+                )
+                .strftime("%Y-%m-%d")
+                .tolist()
+            ]
+
+        # Create a sentence containing information on the downloaded data
+        if len(date_list) == 0:
+            sentence_to_print = (
+                "No data will be downloaded. "
+                "There is no {self._frequency} available within the "
+                "chosen range of dates."
+            )
+        else:
+            sentence_to_print = (
+                f"{self._frequency.capitalize()} "
+                "data will be downloaded, starting from "
+                f"{'-'.join(date_list[0])} to {'-'.join(date_list[-1])}."
+            )
+
+        return date_list, sentence_to_print
+
+    def _get_file_name(
+        self,
+        year: Optional[Union[int, str]],
+        month: Optional[Union[int, str]],
+        day: Optional[Union[int, str]],
+    ) -> str:
+        # Set wildcard for year, to get general filename pattern
         # used to find all files with pattern in folder
         if year is None:
             year = "*"
-        file_name = (
-            f"{self._country_config.iso3}"
-            f"_chirps_{year}_"
-            f"{self._frequency}_r{self._resolution}"
-            f"_{self._geobb.get_filename_repr(p=0)}.nc"
+        if month is None:
+            month = "*"
+        else:
+            if len(f"{month}") == 1:
+                month = f"0{month}"
+        if day is None:
+            day = "*"
+        else:
+            if len(f"{day}") == 1:
+                day = f"0{day}"
+
+        file_name_base = (
+            f"{self._country_config.iso3}_chirps_"
+            f"{self._frequency}_{year}_{month}_"
         )
-        return file_name
-
-    def _get_file_name_processed(self) -> str:
-        file_name = (
-            f"{self._country_config.iso3}"
-            f"_chirps_"
-            f"{self._frequency}_r{self._resolution}"
-            f"_{self._geobb.get_filename_repr(p=0)}.nc"
-        )
-        return file_name
-
-    def _get_raw_path(self, year: Optional[int]) -> Path:
-        return self._raw_base_dir / self._get_file_name(year=year)
-
-    def _get_processed_path(self) -> Path:
-        return self._processed_base_dir / self._get_file_name_processed()
-
-    def _get_url(self, year: int) -> str:
         if self._frequency == "daily":
-            base_url = (
-                "http://iridl.ldeo.columbia.edu/SOURCES/.UCSB/"
+            file_name_base += f"{day}_"
+        file_name = (
+            f"{file_name_base}"
+            f"r{self._resolution}"
+            f"_{self._geobb.get_filename_repr(p=0)}.nc"
+        )
+        return file_name
+
+    def _get_raw_path(
+        self, year: Optional[str], month: Optional[str], day: Optional[str]
+    ) -> Path:
+        return self._raw_base_dir / self._get_file_name(
+            year=year, month=month, day=day
+        )
+
+    def _get_processed_path(self, raw_path: Path) -> Path:
+        return self._processed_base_dir / raw_path.parts[-1]
+
+    def _get_url(self, year: str, month: str, day: str) -> str:
+
+        # Convert month from month number (in string format) to
+        # three-letter name
+        month = calendar.month_abbr[int(month)]
+
+        if self._frequency == "daily":
+            url = (
+                "https://iridl.ldeo.columbia.edu/SOURCES/.UCSB/"
                 f".CHIRPS/.v2p0/.daily-improved/.global/."
                 f"{str(self._resolution).replace('.', 'p')}/.prcp/"
+                f"T/%28{day}%20{month}%20{year}%29%28{day}%20{month}%20{year}"
+                "%29RANGEEDGES/data.nc"
             )
-        else:
-            base_url = (
+        else:  # monthly
+            url = (
                 "https://iridl.ldeo.columbia.edu/SOURCES/.UCSB/"
                 ".CHIRPS/.v2p0/.monthly/.global/.precipitation/"
+                f"T/%28{month}%20{year}%29%28{month}%20{year}"
+                "%29RANGEEDGES/data.nc"
+            )
+        return url
+
+    def _get_last_available_date(self):
+        """Get the most recent date for which data is available."""
+        if self._frequency == "daily":
+            url = (
+                "https://iridl.ldeo.columbia.edu/SOURCES/.UCSB/.CHIRPS/.v2p0/"
+                ".daily-improved/.global/"
+                f"{str(self._resolution).replace('.', 'p')}/"
+                ".T/last/subgrid/0./add/T/table%3A/1/%3Atable/.csv"
             )
 
-        return (
-            f"{base_url}"
-            f"X/%28{self._geobb.west}%29%28{self._geobb.east}%29RANGEEDGES/"
-            f"Y/%28{self._geobb.north}%29%28{self._geobb.south}%29RANGEEDGES/"
-            f"T/%281%20Jan%20{year}%29"
-            f"%2831%20Dec%20{year}%29RANGEEDGES/"
-            "data.nc"
-        )
+            datetime_object = datetime.strptime(
+                pd.read_csv(url).values[0][0], "%d %b %Y"
+            )
 
-    def _load_raw(self) -> xr.Dataset:
-        raw_path = self._get_raw_path(year=None)
-        # load all files with filepattern
-        filepath_list = list(raw_path.parents[0].glob(raw_path.name))
-        try:
-            with xr.open_mfdataset(
-                filepath_list,
-                decode_times=False,
-            ) as ds:
-                # include the names of all files that are included in the ds
-                ds.attrs["included_files"] = [f.stem for f in filepath_list]
-                #     ds.to_netcdf(output_filepath)
-                # ds = xr.load_dataset(
-                #     self._get_raw_path(year=year),
-                #     decode_times=False,
-                # )
-                return ds
-        # TODO: change to if filepath_list is empty
-        except FileNotFoundError as err:
-            raise FileNotFoundError(
-                f"Cannot find the netcdf file "
-                f"{self._get_raw_path(year=None)}. Make "
-                f"sure that you have already called the 'download' method "
-                f"and that the file {self._get_raw_path(year=None)} exists. "
-            ) from err
+        else:  # monthly
+            url = (
+                "https://iridl.ldeo.columbia.edu/SOURCES/.UCSB/.CHIRPS/.v2p0/"
+                ".monthly/.global/"
+                ".T/last/subgrid/0./add/T/table%3A/1/%3Atable/.csv"
+            )
+
+            datetime_object = datetime.strptime(
+                pd.read_csv(url).values[0][0], "%b %Y"
+            )
+            day = calendar.monthrange(
+                datetime_object.year, datetime_object.month
+            )[1]
+            datetime_object = datetime_object.replace(day=day)
+
+        return datetime_object.date()
+
+
+class ChirpsMonthly(Chirps):
+    """
+    .
+
+    Examples
+    --------
+    >>> from aatoolbox import create_country_config, CodAB, ChirpsMonthly
+    >>> country_config = create_country_config(iso3="bfa")
+    >>> codab = CodAB(country_config=country_config)
+    >>> codab.download()
+    >>> admin0 = codab.load(admin_level=0)
+    >>> geo_bounding_box = GeoBoundingBox.from_shape(admin0)
+    >>> chirps_monthly = ChirpsMonthly(country_config=country_config,
+                                    geo_bounding_box=geo_bounding_box)
+    >>> chirps_monthly.download(
+            start_year=2007,
+            end_year=2020,
+            start_month=10,
+            end_month,2
+            )
+    >>> chirps_monthly.process()
+    >>> chirps_monthly_data = chirps_daily.load()
+    """
+
+    if Chirps.__doc__ is not None:
+        __doc__ = Chirps.__doc__ + __doc__
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, frequency="monthly", **kwargs)
+
+
+class ChirpsDaily(Chirps):
+    """
+    .
+
+    Examples
+    --------
+    >>> from aatoolbox import create_country_config, CodAB, ChirpsMonthly
+    >>> country_config = create_country_config(iso3="bfa")
+    >>> codab = CodAB(country_config=country_config)
+    >>> codab.download()
+    >>> admin0 = codab.load(admin_level=0)
+    >>> geo_bounding_box = GeoBoundingBox.from_shape(admin0)
+    >>> chirps_daily = ChirpsDaily(country_config=country_config,
+                                    geo_bounding_box=geo_bounding_box)
+    >>> chirps_daily.download(start_year=2007, start_month=10, start_day=23)
+    >>> chirps_daily.process()
+    >>> chirps_daily_data = chirps_daily.load(
+        start_year=2012,
+        end_year=end_2021,
+        start_month=6,
+        end_month=4
+        )
+    """
+
+    if Chirps.__doc__ is not None:
+        __doc__ = Chirps.__doc__ + __doc__
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, frequency="daily", **kwargs)
 
 
 @check_file_existence
-def _download(filepath: Path, url: str, clobber: bool) -> Path:
+def _actual_download(filepath: Path, url: str, clobber: bool) -> Path:
     logger.info("Downloading CHIRPS NetCDF file.")
     response = requests.get(
         url,
@@ -286,16 +643,5 @@ def _process(filepath: Path, ds, clobber: bool) -> Path:
     # fix dates
     ds.aat.correct_calendar(inplace=True)
     ds = xr.decode_cf(ds)
-
-    # IRI downloads in the order you give the coordinates
-    # so make sure to invert them
-    # IRI accepts -180 to 180 longitudes and 0 to 360
-    # but automatically converts them to -180 to 180
-    # so we don't need to do that
-    # TODO: can be removed once we have a check in the
-    #  geoboundingbox class for south<north
-    # TODO: for some reason the `inplace` is not working
-    #  re-add when we fixed that
-    ds = ds.aat.invert_coordinates()
     ds.to_netcdf(filepath)
     return filepath
