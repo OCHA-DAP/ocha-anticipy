@@ -1,8 +1,8 @@
 """Country configuration setting base class."""
 from pathlib import Path
-from typing import Optional
+from typing import Dict, Optional, Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, root_validator, validator
 
 from aatoolbox.utils.io import parse_yaml
 
@@ -12,9 +12,6 @@ class CodABConfig(BaseModel):
 
     Parameters
     ----------
-    hdx_address: str
-        The page where the COD AB dataset resides on on HDX. Can be found
-        by taking the portion of the url after ``data.humdata.org/dataset/``
     hdx_dataset_name: str
         COD AB dataset name on HDX. Can be found by taking the filename as it
         appears on the dataset page.
@@ -28,35 +25,119 @@ class CodABConfig(BaseModel):
         Any additional layer names that don't fit into the admin level paradigm
     """
 
-    hdx_address: str
     hdx_dataset_name: str
-    layer_base_name: str  # TODO: validate that it has {admin_level}
+    layer_base_name: str
     admin_level_max: int
     custom_layer_names: Optional[list]
+
+    @validator("layer_base_name")
+    def _validate_layer_base_name(cls, layer_base_name):
+        if "{admin_level}" not in layer_base_name:
+            raise ValueError(
+                "The layer base name must contain "
+                "an {admin_level} placeholder."
+            )
+        return layer_base_name
+
+
+class FewsNetConfig(BaseModel):
+    """FEWS NET configuration.
+
+    Parameters
+    ----------
+    region_name: str
+        Name of the region the country belongs to. Needed to download the
+        regional FEWS NET data
+    """
+
+    # values dictionary gets build in order attributes are listed
+    # so first define the dict before the region_name
+    region_name_code_mapping: Dict[str, str] = {
+        "caribbean-central-america": "LAC",
+        "central-asia": "CA",
+        "east-africa": "EA",
+        "southern-africa": "SA",
+        "west-africa": "WA",
+    }
+    region_name: str
+
+    @validator("region_name")
+    def regionname_valid(cls, v, values):
+        """Check that regionname is one of the valid ones."""
+        valid_regionnames = values["region_name_code_mapping"].keys()
+        if v not in valid_regionnames:
+            raise ValueError(
+                f"Invalid region name: {v}. "
+                f"Should be one of {', '.join(valid_regionnames)}"
+            )
+        return v
+
+    @root_validator(pre=False, skip_on_failure=True)
+    def _set_region_code(cls, values) -> dict:
+        """Set region code based on region name."""
+        values["region_code"] = values["region_name_code_mapping"][
+            values["region_name"]
+        ]
+        return values
 
 
 class CountryConfig(BaseModel):
     """Country configuration."""
 
     iso3: str
-    codab: CodABConfig
+    codab: Optional[CodABConfig]
+    fewsnet: Optional[FewsNetConfig]
+
+    @validator("iso3")
+    def _validate_iso3(cls, iso3):
+        return _validate_iso3(iso3)
 
 
-def get_country_config(iso3: str) -> CountryConfig:
+def create_country_config(iso3: str) -> CountryConfig:
     """
-    Return a country configuration object.
+    Return a country configuration object from AA Toolbox.
 
     Parameters
     ----------
     iso3 : str
-        Country ISO3, must e exactly 3 characters long
+        Country ISO3, must be exactly 3 letters long
 
     Returns
     -------
     CountryConfig instance
     """
-    # TODO: validate iso3
-    parameters = parse_yaml(
-        Path(__file__).parent.resolve() / f"countries/{iso3}.yaml"
-    )
+    iso3 = _validate_iso3(iso3)
+    try:
+        parameters = parse_yaml(
+            Path(__file__).parent.resolve() / f"countries/{iso3}.yaml"
+        )
+    except FileNotFoundError as err:
+        raise FileNotFoundError(
+            f"A configuration file for {iso3.upper()} is not yet available "
+            f"in AA Toolbox. Try using a custom configuration file with "
+            f"create_custom_country_config instead, or contact us to "
+            f"request that we add this country."
+        ) from err
     return CountryConfig(**parameters)
+
+
+def create_custom_country_config(filepath: Union[str, Path]) -> CountryConfig:
+    """
+    Return a custom country configuration object.
+
+    Parameters
+    ----------
+    filepath: str, pathlib.Path
+        Path to the configuration file
+
+    Returns
+    -------
+    CountryConfig instance
+    """
+    return CountryConfig(**parse_yaml(filepath))
+
+
+def _validate_iso3(iso3: str):
+    if len(iso3) != 3 or not str.isalpha(iso3):
+        raise ValueError("ISO3 must be a three letter string.")
+    return iso3.lower()
