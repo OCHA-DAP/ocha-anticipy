@@ -110,6 +110,7 @@ class _UsgsNdvi(DataSource):
             datasource_base_dir="usgs_ndvi",
             is_public=True,
             is_global_raw=True,
+            config_datasource_name="usgs_ndvi",
         )
 
         # set area url and prefix from config
@@ -119,8 +120,8 @@ class _UsgsNdvi(DataSource):
                 "any USGS NDVI area name. Please update the config file and "
                 "try again. See the documentation for the valid area names."
             )
-        self._area_url = self._country_config.usgs_ndvi.area_url
-        self._area_prefix = self._country_config.usgs_ndvi.area_prefix
+        self._area_url = self._datasource_config.area_url
+        self._area_prefix = self._datasource_config.area_prefix
 
         # set data variable
         self._data_variable = data_variable
