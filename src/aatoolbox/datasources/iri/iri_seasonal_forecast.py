@@ -1,13 +1,4 @@
-"""Class to download and load IRI's seasonal forecast.
-
-Data is downloaded from `IRI's maproom
-<https://iridl.ldeo.columbia.edu/maproom/Global/Forecasts/NMME_Seasonal_Forecasts/Precipitation_ELR.html>`_
-
-For now only the tercile precipitation forecast has been
-implemented. This forecast is published in two formats,
-namely the dominant tercile probability and the probability
-per tercile. Both variations are implemented here.
-"""
+"""Class to download and load IRI's seasonal forecast."""
 import logging
 import os
 from pathlib import Path
@@ -19,8 +10,8 @@ from typing_extensions import Literal
 import aatoolbox.utils.raster  # noqa: F401
 from aatoolbox.config.countryconfig import CountryConfig
 from aatoolbox.datasources.datasource import DataSource
+from aatoolbox.utils.check_file_existence import check_file_existence
 from aatoolbox.utils.geoboundingbox import GeoBoundingBox
-from aatoolbox.utils.io import check_file_existence
 
 logger = logging.getLogger(__name__)
 
@@ -97,7 +88,7 @@ class _IriForecast(DataSource):
         output_filepath.parent.mkdir(parents=True, exist_ok=True)
         url = self._get_url()
         logger.info("Downloading IRI NetCDF file.")
-        return _download(
+        return self._download(
             filepath=output_filepath,
             url=url,
             iri_auth=iri_auth,
@@ -123,7 +114,9 @@ class _IriForecast(DataSource):
         ds = self._load_raw()
         processed_file_path = self._get_processed_path()
         processed_file_path.parent.mkdir(parents=True, exist_ok=True)
-        return _process(filepath=processed_file_path, ds=ds, clobber=clobber)
+        return self._process(
+            filepath=processed_file_path, ds=ds, clobber=clobber
+        )
 
     def load(self) -> xr.Dataset:
         """
@@ -171,8 +164,10 @@ class _IriForecast(DataSource):
         )
         return (
             f"{base_url}"
-            f"X/%28{self._geobb.west}%29%28{self._geobb.east}%29RANGEEDGES/"
-            f"Y/%28{self._geobb.north}%29%28{self._geobb.south}%29RANGEEDGES/"
+            f"X/%28{self._geobb.lon_min}%29%28{self._geobb.lon_max}"
+            f"%29RANGEEDGES/"
+            f"Y/%28{self._geobb.lat_max}%29%28{self._geobb.lat_min}"
+            f"%29RANGEEDGES/"
             "data.nc"
         )
 
@@ -200,32 +195,32 @@ class _IriForecast(DataSource):
                 f"and that the file {self._get_raw_path()} exists. "
             ) from err
 
+    @check_file_existence
+    def _download(
+        self, filepath: Path, url: str, iri_auth: str, clobber: bool
+    ) -> Path:
 
-@check_file_existence
-def _download(filepath: Path, url: str, iri_auth: str, clobber: bool) -> Path:
+        response = requests.get(
+            url,
+            # have to authenticate by using a cookie
+            cookies={"__dlauth_id": iri_auth},
+        )
+        with open(filepath, "wb") as out_file:
+            out_file.write(response.content)
+        return filepath
 
-    response = requests.get(
-        url,
-        # have to authenticate by using a cookie
-        cookies={"__dlauth_id": iri_auth},
-    )
-    with open(filepath, "wb") as out_file:
-        out_file.write(response.content)
-    return filepath
+    @check_file_existence
+    def _process(self, filepath: Path, ds, clobber: bool) -> Path:
+        # fix dates
+        ds.aat.set_time_dim(t_dim="F", inplace=True)
+        ds.aat.correct_calendar(inplace=True)
+        ds = xr.decode_cf(ds)
 
-
-@check_file_existence
-def _process(filepath: Path, ds, clobber: bool) -> Path:
-    # fix dates
-    ds.aat.set_time_dim(t_dim="F", inplace=True)
-    ds.aat.correct_calendar(inplace=True)
-    ds = xr.decode_cf(ds)
-
-    # IRI accepts -180 to 180 longitudes and 0 to 360
-    # but automatically converts them to -180 to 180
-    # so we don't need to do that
-    ds.to_netcdf(filepath)
-    return filepath
+        # IRI accepts -180 to 180 longitudes and 0 to 360
+        # but automatically converts them to -180 to 180
+        # so we don't need to do that
+        ds.to_netcdf(filepath)
+        return filepath
 
 
 class IriForecastProb(_IriForecast):
@@ -250,10 +245,10 @@ class IriForecastProb(_IriForecast):
     >>> from aatoolbox import create_country_config, \
     ...     GeoBoundingBox, IriForecastProb
     >>> country_config = create_country_config(iso3="bfa")
-    >>> geo_bounding_box = GeoBoundingBox(north=13.0,
-    ...                                   south=12.0,
-    ...                                   east=-3.0,
-    ...                                   west=-2.0)
+    >>> geo_bounding_box = GeoBoundingBox(lat_max=13.0,
+    ...                                   lat_min=12.0,
+    ...                                   lon_max=-3.0,
+    ...                                   lon_min=-2.0)
     >>>
     >>> # Initialize class and retrieve data
     >>> iri = IriForecastProb(country_config,geo_bounding_box)
@@ -292,10 +287,10 @@ class IriForecastDominant(_IriForecast):
     >>> from aatoolbox import create_country_config, \
     ...     GeoBoundingBox, IriForecastDominant
     >>> country_config = create_country_config(iso3="bfa")
-    >>> geo_bounding_box = GeoBoundingBox(north=13.0,
-    ...                                   south=12.0,
-    ...                                   east=-3.0,
-    ...                                   west=-2.0)
+    >>> geo_bounding_box = GeoBoundingBox(lat_max=13.0,
+    ...                                   lat_min=12.0,
+    ...                                   lon_max=-3.0,
+    ...                                   lon_min=-2.0)
     >>>
     >>> # Initialize class and retrieve data
     >>> iri = IriForecastDominant(country_config,geo_bounding_box)

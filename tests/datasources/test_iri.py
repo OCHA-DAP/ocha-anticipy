@@ -17,7 +17,9 @@ FAKE_IRI_AUTH = "FAKE_IRI_AUTH"
 @pytest.fixture
 def mock_iri(mock_country_config):
     """Create IRI class with mock country config."""
-    geo_bounding_box = GeoBoundingBox(north=6, south=3.2, east=2, west=-3)
+    geo_bounding_box = GeoBoundingBox(
+        lat_max=6, lat_min=3.2, lon_max=2, lon_min=-3
+    )
 
     def _mock_iri(prob_forecast: bool = True):
         if prob_forecast:
@@ -44,7 +46,10 @@ def mock_download(mocker, mock_iri):
     test, can be either 'prob' or 'dominant'.
     """
     download_mock = mocker.patch(
-        "aatoolbox.datasources.iri.iri_seasonal_forecast._download"
+        (
+            "aatoolbox.datasources.iri.iri_seasonal_forecast"
+            "._IriForecast._download"
+        )
     )
 
     mocker.patch.dict(
@@ -181,7 +186,12 @@ def test_iri_load(
     mock_country_config,
 ):
     """Test that load_codab calls the HDX API to download."""
-    mocker.patch("aatoolbox.datasources.iri.iri_seasonal_forecast._download")
+    mocker.patch(
+        (
+            "aatoolbox.datasources.iri.iri_seasonal_forecast"
+            "._IriForecast._download"
+        )
+    )
 
     iri = mock_iri()
     iri.load()

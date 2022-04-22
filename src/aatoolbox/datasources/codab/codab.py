@@ -1,20 +1,4 @@
-"""Download and manipulate COD administrative boundaries.
-
-To use this class, you first need to create a country configuration
-for the country you would like to use:
->>> from aatoolbox import create_country_config
->>> country_config = create_country_config(iso3="npl")
-
-Next you need to instantiate the CodAB class with the country config:
->>> codab = CodAB(country_config=country_config)
-
-Upon first use, you will need to downlaod the COD AB data:
->>> codab.download()
-
-Finally, use the load method to begin working with the data as a
-GeoPandas dataframe:
->>> npl_admin1 = codab.load(admin_level=1)
-"""
+"""Download and manipulate COD administrative boundaries."""
 import logging
 from pathlib import Path
 
@@ -23,8 +7,8 @@ from fiona.errors import DriverError
 
 from aatoolbox.config.countryconfig import CountryConfig
 from aatoolbox.datasources.datasource import DataSource
+from aatoolbox.utils.check_file_existence import check_file_existence
 from aatoolbox.utils.hdx_api import load_dataset_from_hdx
-from aatoolbox.utils.io import check_file_existence
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +25,10 @@ class CodAB(DataSource):
 
     def __init__(self, country_config: CountryConfig):
         super().__init__(
-            country_config, datasource_base_dir="cod_ab", is_public=True
+            country_config,
+            datasource_base_dir="cod_ab",
+            is_public=True,
+            config_datasource_name="codab",
         )
         self._raw_filepath = (
             self._raw_base_dir / f"{self._country_config.iso3}_"
@@ -69,10 +56,10 @@ class CodAB(DataSource):
         >>> codab = CodAB(country_config=country_config)
         >>> npl_cod_shapefile = codab.download()
         """
-        return _download(
+        return self._download(
             filepath=self._raw_filepath,
             hdx_address=f"cod-ab-{self._country_config.iso3}",
-            hdx_dataset_name=self._country_config.codab.hdx_dataset_name,
+            hdx_dataset_name=self._datasource_config.hdx_dataset_name,
             clobber=clobber,
         )
 
@@ -113,7 +100,7 @@ class CodAB(DataSource):
         >>> codab = CodAB(country_config=country_config)
         >>> npl_admin2 = codab.load(admin_level=2)
         """
-        admin_level_max = self._country_config.codab.admin_level_max
+        admin_level_max = self._datasource_config.admin_level_max
         if admin_level > admin_level_max:
             raise AttributeError(
                 f"Admin level {admin_level} requested, but maximum set to "
@@ -121,7 +108,7 @@ class CodAB(DataSource):
                 f"config file"
             )
         return self._load_admin_layer(
-            layer_name=self._country_config.codab.layer_base_name.format(
+            layer_name=self._datasource_config.layer_base_name.format(
                 admin_level=admin_level
             )
         )
@@ -160,7 +147,7 @@ class CodAB(DataSource):
         try:
             # Ignore mypy for this line because custom_layer_names could be
             # None, but this is handled by the caught exceptions
-            layer_name = self._country_config.codab.custom_layer_names[
+            layer_name = self._datasource_config.custom_layer_names[
                 custom_layer_number
             ]  # type: ignore
         except (IndexError, TypeError) as err:
@@ -182,13 +169,16 @@ class CodAB(DataSource):
                 f"'{layer_name}'."
             ) from err
 
-
-@check_file_existence
-def _download(
-    filepath: Path, hdx_address: str, hdx_dataset_name: str, clobber: bool
-) -> Path:
-    return load_dataset_from_hdx(
-        hdx_address=hdx_address,
-        hdx_dataset_name=hdx_dataset_name,
-        output_filepath=filepath,
-    )
+    @check_file_existence
+    def _download(
+        self,
+        filepath: Path,
+        hdx_address: str,
+        hdx_dataset_name: str,
+        clobber: bool,
+    ) -> Path:
+        return load_dataset_from_hdx(
+            hdx_address=hdx_address,
+            hdx_dataset_name=hdx_dataset_name,
+            output_filepath=filepath,
+        )

@@ -70,7 +70,8 @@ instance/
 
 # Sphinx documentation
 docs/build/
-docs/source/*.rst
+docs/source/modules.rst
+docs/source/aatoolbox*.rst
 
 # PyBuilder
 target/
@@ -129,8 +130,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# PyCharm
+# IDEs
 .idea/
+.vscode/
 
 # Mac DSStore
 .DS_Store
