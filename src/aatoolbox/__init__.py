@@ -14,7 +14,12 @@ from aatoolbox.datasources.iri.iri_seasonal_forecast import (
     IriForecastDominant,
     IriForecastProb,
 )
+from aatoolbox.datasources.chirps.chirps import (
+    ChirpsDaily,
+    ChirpsMonthly,
+)
 from aatoolbox.utils.geoboundingbox import GeoBoundingBox
+
 
 from ._version import version as __version__
 
@@ -26,5 +31,7 @@ __all__ = (
     "IriForecastProb",
     "IriForecastDominant",
     "FewsNet",
+    "ChirpsDaily",
+    "ChirpsMonthly",
     "__version__",
 )

@@ -1,20 +1,4 @@
-"""Class to download and load CHIRPS observational precipitation data.
-
-Climate Hazards Group InfraRed Precipitation with Station data (`CHIRPS
-<https://www.chc.ucsb.edu/data/chirps>`_) is a 35+ year quasi-global rainfall
-dataset, produced by the Climate Hazards Center (CHC). Spanning 50°S-50°N
-(and all longitudes) and ranging from 1981 to near-present, CHIRPS
-incorporates climatology, 0.05° resolution satellite imagery, and in-situ
-station data to create gridded rainfall time series for trend analysis
-and seasonal drought monitoring.
-
-Read more about CHIRPS here: https://www.nature.com/articles/sdata201566
-
-This script downloads data from `IRI's maproom
-<http://iridl.ldeo.columbia.edu/SOURCES/.UCSB/.CHIRPS/.v2p0>`_ as the
-platform allows for the selection of geographical areas.
-"""
-
+"""Class to download and load CHIRPS observational precipitation data."""
 import calendar
 import logging
 from abc import abstractmethod
