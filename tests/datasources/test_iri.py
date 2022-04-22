@@ -10,14 +10,16 @@ from xarray.coding.cftimeindex import CFTimeIndex
 
 from aatoolbox import GeoBoundingBox, IriForecastDominant, IriForecastProb
 
-MODULE_BASENAME = "iri"
+DATASOURCE_BASE_DIR = "iri"
 FAKE_IRI_AUTH = "FAKE_IRI_AUTH"
 
 
 @pytest.fixture
 def mock_iri(mock_country_config):
     """Create IRI class with mock country config."""
-    geo_bounding_box = GeoBoundingBox(north=6, south=3.2, east=2, west=-3)
+    geo_bounding_box = GeoBoundingBox(
+        lat_max=6, lat_min=3.2, lon_max=2, lon_min=-3
+    )
 
     def _mock_iri(prob_forecast: bool = True):
         if prob_forecast:
@@ -44,7 +46,10 @@ def mock_download(mocker, mock_iri):
     test, can be either 'prob' or 'dominant'.
     """
     download_mock = mocker.patch(
-        "aatoolbox.datasources.iri.iri_seasonal_forecast._download"
+        (
+            "aatoolbox.datasources.iri.iri_seasonal_forecast"
+            "._IriForecast._download"
+        )
     )
 
     mocker.patch.dict(
@@ -77,7 +82,7 @@ def test_download_call_prob(
 
     assert filepath == (
         mock_aa_data_dir
-        / f"private/raw/{mock_country_config.iso3}/{MODULE_BASENAME}/"
+        / f"private/raw/{mock_country_config.iso3}/{DATASOURCE_BASE_DIR}/"
         f"abc_iri_forecast_seasonal_precipitation_"
         f"tercile_prob_Np6Sp3Ep2Wm3.nc"
     )
@@ -97,7 +102,7 @@ def test_download_call_dominant(
 
     assert filepath == (
         mock_aa_data_dir
-        / f"private/raw/{mock_country_config.iso3}/{MODULE_BASENAME}/"
+        / f"private/raw/{mock_country_config.iso3}/{DATASOURCE_BASE_DIR}/"
         f"abc_iri_forecast_seasonal_"
         f"precipitation_tercile_dominant_Np6Sp3Ep2Wm3.nc"
     )
@@ -110,7 +115,7 @@ def test_process(mocker, mock_iri, mock_aa_data_dir, mock_country_config):
         dims=("L", "X", "Y", "F"),
         coords={
             "L": [1, 2],
-            "X": [3, -2],
+            "X": [2, -3],
             "Y": [97, 90],
             "F": [685.5, 686.5],
         },
@@ -131,9 +136,9 @@ def test_process(mocker, mock_iri, mock_aa_data_dir, mock_country_config):
 
     processed_path = iri.process()
     assert processed_path == (
-        mock_aa_data_dir
-        / f"private/processed/{mock_country_config.iso3}/{MODULE_BASENAME}/"
-        f"{mock_country_config.iso3}_iri_forecast_seasonal_precipitation_"
+        mock_aa_data_dir / f"private/processed/{mock_country_config.iso3}/"
+        f"{DATASOURCE_BASE_DIR}/{mock_country_config.iso3}_"
+        f"iri_forecast_seasonal_precipitation_"
         f"tercile_prob_Np6Sp3Ep2Wm3.nc"
     )
 
@@ -145,14 +150,10 @@ def test_process(mocker, mock_iri, mock_aa_data_dir, mock_country_config):
         ]
     )
 
-    expected_values = [
-        [[[4, 5], [6, 7]], [[0, 1], [2, 3]]],
-        [[[12, 13], [14, 15]], [[8, 9], [10, 11]]],
-    ]
-    assert np.array_equal(da_processed.X.values, [-2, 3])
+    assert np.array_equal(da_processed.X.values, [2, -3])
     assert np.array_equal(da_processed.Y.values, [97, 90])
     assert da_processed.get_index("F").equals(expected_f)
-    assert np.array_equal(da_processed.prob.values, expected_values)
+    assert np.array_equal(da_processed.prob.values, ds.prob.values)
 
 
 def test_process_if_download_not_called(mock_iri):
@@ -185,7 +186,12 @@ def test_iri_load(
     mock_country_config,
 ):
     """Test that load_codab calls the HDX API to download."""
-    mocker.patch("aatoolbox.datasources.iri.iri_seasonal_forecast._download")
+    mocker.patch(
+        (
+            "aatoolbox.datasources.iri.iri_seasonal_forecast"
+            "._IriForecast._download"
+        )
+    )
 
     iri = mock_iri()
     iri.load()
@@ -194,7 +200,7 @@ def test_iri_load(
             mocker.call(
                 mock_aa_data_dir
                 / f"private/processed/{mock_country_config.iso3}/"
-                f"{MODULE_BASENAME}/{mock_country_config.iso3}"
+                f"{DATASOURCE_BASE_DIR}/{mock_country_config.iso3}"
                 f"_iri_forecast_seasonal_precipitation_"
                 f"tercile_prob_Np6Sp3Ep2Wm3.nc"
             ),

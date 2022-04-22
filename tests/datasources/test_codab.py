@@ -5,7 +5,7 @@ import pytest
 
 from aatoolbox import CodAB
 
-MODULE_BASENAME = "cod_ab"
+DATASOURCE_BASE_DIR = "cod_ab"
 
 
 @pytest.fixture
@@ -31,8 +31,8 @@ def test_codab_download(mock_aa_data_dir, mock_country_config, downloader):
         hdx_dataset_name=mock_country_config.codab.hdx_dataset_name,
         output_filepath=mock_aa_data_dir
         / f"public/raw/{mock_country_config.iso3}/"
-        f"{MODULE_BASENAME}/{mock_country_config.iso3}_"
-        f"{MODULE_BASENAME}.shp.zip",
+        f"{DATASOURCE_BASE_DIR}/{mock_country_config.iso3}_"
+        f"{DATASOURCE_BASE_DIR}.shp.zip",
     )
 
 
@@ -49,8 +49,8 @@ def test_codab_load_admin_level(
 
     gpd_read_file.assert_called_with(
         f"zip:///{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
-        f"{MODULE_BASENAME}/{mock_country_config.iso3}_{MODULE_BASENAME}"
-        f".shp.zip/{expected_layer_name}"
+        f"{DATASOURCE_BASE_DIR}/{mock_country_config.iso3}_"
+        f"{DATASOURCE_BASE_DIR}.shp.zip/{expected_layer_name}"
     )
 
 
@@ -70,8 +70,9 @@ def test_codab_custom(mock_aa_data_dir, mock_country_config, gpd_read_file):
     codab.load_custom(custom_layer_number)
     gpd_read_file.assert_called_with(
         f"zip:///{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
-        f"{MODULE_BASENAME}/{mock_country_config.iso3}_{MODULE_BASENAME}"
-        f".shp.zip/{custom_layer_name_list[custom_layer_number]}"
+        f"{DATASOURCE_BASE_DIR}/{mock_country_config.iso3}_"
+        f"{DATASOURCE_BASE_DIR}.shp.zip/"
+        f"{custom_layer_name_list[custom_layer_number]}"
     )
 
 

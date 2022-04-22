@@ -54,7 +54,7 @@ class Glofas(DataSource):
     ):
         super().__init__(
             country_config=country_config,
-            module_base_dir=_MODULE_BASENAME,
+            datasource_base_dir=_MODULE_BASENAME,
             is_public=True,
         )
         # The GloFAS API on CDS requires coordinates have the format x.x5
@@ -146,10 +146,10 @@ class Glofas(DataSource):
                 str(x + 1).zfill(2) for x in range(31)
             ],
             "area": [
-                self._geo_bounding_box.north,
-                self._geo_bounding_box.west,
-                self._geo_bounding_box.south,
-                self._geo_bounding_box.east,
+                self._geo_bounding_box.lat_max,
+                self._geo_bounding_box.lon_min,
+                self._geo_bounding_box.lat_min,
+                self._geo_bounding_box.lon_max,
             ],
         }
         if leadtime_max is not None:
