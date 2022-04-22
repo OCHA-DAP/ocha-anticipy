@@ -224,13 +224,13 @@ class FewsNet(DataSource):
             pub_date = datetime.datetime(year=pub_year, month=pub_month, day=1)
         except ValueError as err:
             raise ValueError(
-                "The combination f pub_year-pub_month, {pub_year}-{pub_month},"
-                " is not a valid date."
+                f"The combination f pub_year-pub_month, "
+                f"{pub_year}-{pub_month}, is not a valid date."
             ) from err
         if pub_date < datetime.datetime(year=2009, month=1, day=1):
             raise ValueError(
-                "FEWSNET publishes data since 2009, so adjust your pub_year to"
-                " be >=2009, currently {pub_year}"
+                f"FEWSNET publishes data since 2009, so adjust your pub_year "
+                f"to be >=2009, currently {pub_year}"
             )
         elif pub_date > datetime.datetime.now():
             raise ValueError(
@@ -402,9 +402,9 @@ class FewsNet(DataSource):
 
         raise FileNotFoundError(
             f"No data found for {pub_year}-{pub_month_str} covering "
-            "{self._country_config.iso3} "
-            "or {self._datasource_config.region_name}. "
-            "Please make sure the data exists and is downloaded"
+            f"{self._country_config.iso3} "
+            f"or {self._datasource_config.region_name}. "
+            f"Please make sure the data exists and is downloaded"
         )
 
     @staticmethod
