@@ -32,6 +32,8 @@ def test_fp_not_exists(tmp_path):
 
 
 def test_key_error(tmp_path):
-    """Test that KeyError raised when filepath not a kwarg."""
+    """Test that KeyError raised when filepath or clobber not a kwarg."""
     with pytest.raises(KeyError):
-        downloader(tmp_path, True)
+        downloader(filepath=tmp_path)
+        downloader(clobber=True)
+        downloader()
