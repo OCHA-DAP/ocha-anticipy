@@ -128,20 +128,20 @@ class FewsNet(DataSource):
         >>> eth_fn_202106_path = fewsnet.download(pub_year=2021,pub_month=6)
         """
         self._check_date_validity(pub_year=pub_year, pub_month=pub_month)
-        pub_month_str = f"{pub_month:02d}"
+        pub_month_str = self._get_pub_month_str(pub_month)
         # we prefer the country data as this more nicely structured
         # thus first check if that is available
         try:
             return self._download_country(
                 pub_year=pub_year,
-                pub_month=pub_month_str,
+                pub_month_str=pub_month_str,
                 clobber=clobber,
             )
         except zipfile.BadZipFile:
             try:
                 return self._download_region(
                     pub_year=pub_year,
-                    pub_month=pub_month_str,
+                    pub_month_str=pub_month_str,
                     clobber=clobber,
                 )
             except zipfile.BadZipFile as err:
@@ -209,9 +209,9 @@ class FewsNet(DataSource):
             )
 
         self._check_date_validity(pub_year=pub_year, pub_month=pub_month)
-        pub_month_str = f"{pub_month:02d}"
+        pub_month_str = self._get_pub_month_str(pub_month)
         dir_path = self._find_raw_dir_date(
-            pub_year=pub_year, pub_month=pub_month_str
+            pub_year=pub_year, pub_month_str=pub_month_str
         )
         file_path = self._get_raw_file_projection_period(
             dir_path=dir_path, projection_period=projection_period
@@ -219,7 +219,7 @@ class FewsNet(DataSource):
         return gpd.read_file(file_path)
 
     @staticmethod
-    def _check_date_validity(pub_year, pub_month):
+    def _check_date_validity(pub_year: int, pub_month: int):
         try:
             pub_date = datetime.datetime(year=pub_year, month=pub_month, day=1)
         except ValueError as err:
@@ -239,11 +239,12 @@ class FewsNet(DataSource):
                 "situation period."
             )
 
+    @staticmethod
+    def _get_pub_month_str(pub_month: int):
+        return f"{pub_month:02d}"
+
     def _download_country(
-        self,
-        pub_year: int,
-        pub_month: str,
-        clobber: bool,
+        self, pub_year: int, pub_month_str: str, clobber: bool
     ) -> Path:
         """
         Download fewsnet data that covers the iso2 country.
@@ -254,20 +255,21 @@ class FewsNet(DataSource):
             if data found return the output_dir, else return None
         """
         url_country_date = _BASE_URL_COUNTRY.format(
-            iso2=self._iso2, YYYY=pub_year, MM=pub_month
+            iso2=self._iso2, YYYY=pub_year, MM=pub_month_str
         )
 
         return self._download(
             url=url_country_date,
             area=self._iso2,
             pub_year=pub_year,
-            pub_month=pub_month,
+            pub_month_str=pub_month_str,
+            clobber=clobber,
         )
 
     def _download_region(
         self,
         pub_year: int,
-        pub_month: str,
+        pub_month_str: str,
         clobber: bool,
     ) -> Path:
         """
@@ -282,17 +284,25 @@ class FewsNet(DataSource):
             region_code=self._datasource_config.region_code,
             region_name=self._datasource_config.region_name,
             YYYY=pub_year,
-            MM=pub_month,
+            MM=pub_month_str,
         )
 
         return self._download(
             url=url_region_date,
             area=self._datasource_config.region_code,
             pub_year=pub_year,
-            pub_month=pub_month,
+            pub_month_str=pub_month_str,
+            clobber=clobber,
         )
 
-    def _download(self, url, area, pub_year, pub_month) -> Path:
+    def _download(
+        self,
+        url: str,
+        area: str,
+        pub_year: int,
+        pub_month_str: str,
+        clobber: bool,
+    ) -> Path:
         """
         Define output names and call _download_zip.
 
@@ -303,35 +313,34 @@ class FewsNet(DataSource):
             or the region code
         pub_year: int
             publication year of the data that should be downloaded
-        pub_month: int
+        pub_month: str
             publication month of the data that should be downloaded. This
             commonly refers to the month of the Current Situation period
         """
         # filenames have upper iso2/regioncode, so use that for dirs as well
         output_dir = self._get_raw_dir_date(
-            area=area, pub_year=pub_year, pub_month=pub_month
+            area=area, pub_year=pub_year, pub_month_str=pub_month_str
         )
         return self._download_zip(
             filepath=output_dir,
             zip_filename=self._get_zip_filename(
-                area=area, pub_year=pub_year, pub_month=pub_month
+                area=area, pub_year=pub_year, pub_month_str=pub_month_str
             ),
             url=url,
+            clobber=clobber,
         )
 
-    def _get_raw_dir_date(self, area, pub_year, pub_month):
-        return self._raw_base_dir / f"{area}_{pub_year}{pub_month}"
+    def _get_raw_dir_date(self, area: str, pub_year: int, pub_month_str: str):
+        return self._raw_base_dir / f"{area}_{pub_year}{pub_month_str}"
 
     @staticmethod
-    def _get_zip_filename(area, pub_year, pub_month):
-        return f"{area}{pub_year}{pub_month}.zip"
+    def _get_zip_filename(area, pub_year, pub_month_str):
+        return f"{area}{pub_year}{pub_month_str}.zip"
 
     @staticmethod
     @check_file_existence
     def _download_zip(
-        filepath: Path,
-        zip_filename: str,
-        url: str,
+        filepath: Path, zip_filename: str, url: str, clobber: bool
     ) -> Path:
         """
         Download and unzip the file at the url.
@@ -371,7 +380,7 @@ class FewsNet(DataSource):
 
         return filepath
 
-    def _find_raw_dir_date(self, pub_year, pub_month):
+    def _find_raw_dir_date(self, pub_year: int, pub_month_str: str):
         """
         Check if a dir exists for the given `pub_year`-`pub_month`.
 
@@ -379,12 +388,12 @@ class FewsNet(DataSource):
         If exists, returns the dir path.
         """
         country_dir = self._get_raw_dir_date(
-            area=self._iso2, pub_year=pub_year, pub_month=pub_month
+            area=self._iso2, pub_year=pub_year, pub_month_str=pub_month_str
         )
         region_dir = self._get_raw_dir_date(
             area=self._datasource_config.region_code,
             pub_year=pub_year,
-            pub_month=pub_month,
+            pub_month_str=pub_month_str,
         )
         if country_dir.is_dir():
             return country_dir
@@ -392,14 +401,16 @@ class FewsNet(DataSource):
             return region_dir
 
         raise FileNotFoundError(
-            f"No data found for {pub_year}-{pub_month} covering "
+            f"No data found for {pub_year}-{pub_month_str} covering "
             "{self._country_config.iso3} "
             "or {self._datasource_config.region_name}. "
             "Please make sure the data exists and is downloaded"
         )
 
     @staticmethod
-    def _get_raw_file_projection_period(dir_path, projection_period):
+    def _get_raw_file_projection_period(
+        dir_path: Path, projection_period: ValidProjectionPeriods
+    ):
         file_path = dir_path / f"{dir_path.name}_{projection_period}.shp"
         if file_path.is_file():
             return file_path

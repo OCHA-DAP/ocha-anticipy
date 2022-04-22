@@ -108,7 +108,7 @@ class AatRasterMixin:
 
     def set_time_dim(
         self, t_dim: str, inplace: bool = False
-    ) -> Union[xr.DataArray, xr.Dataset]:
+    ) -> Optional[Union[xr.DataArray, xr.Dataset]]:
         """Set the time dimension of the dataset.
 
         Parameters
@@ -149,7 +149,7 @@ class AatRasterMixin:
 
     def correct_calendar(
         self, inplace: bool = False
-    ) -> Union[xr.DataArray, xr.Dataset]:
+    ) -> Optional[Union[xr.DataArray, xr.Dataset]]:
         """Correct calendar attribute for recognition by xarray.
 
         Some datasets come with a wrong calendar attribute that isn't
@@ -300,7 +300,7 @@ class AatRasterMixin:
 
     def change_longitude_range(
         self, to_180_range: bool = True, inplace: bool = False
-    ) -> Union[xr.DataArray, xr.Dataset]:
+    ) -> Optional[Union[xr.DataArray, xr.Dataset]]:
         """Convert longitude range between -180 to 180 and 0 to 360.
 
         The standard longitude range is from -180 to 180, while some
