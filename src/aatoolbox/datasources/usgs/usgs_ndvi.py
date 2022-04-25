@@ -138,8 +138,6 @@ class _UsgsNdvi(DataSource):
         >>>
         >>> # Retrieve admin 2 boundaries for Burkina Faso
         >>> country_config = create_country_config(iso3="bfa")
-        >>> codab = CodAB(country_config=country_config)
-        >>> bfa_admin2 = codab.load(admin_level=2)
         >>>
         >>> # setup NDVI
         >>> bfa_ndvi = UsgsNdviSmoothed(

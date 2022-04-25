@@ -1,36 +1,11 @@
 """Classes to download and process USGS FEWS NET NDVI data.
 
-Data is downloaded from the `USGS FEWS NET data portal
-<https://earlywarning.usgs.gov/fews>`_. Data is
-generated from eMODIS AQUA, with full methodological
-details available on the `Documentation page
-<https://earlywarning.usgs.gov/fews/product/449#documentation>`_
-for the specific product. The available areas of
-coverage are:
-
-- `North Africa<https://earlywarning.usgs.gov/fews/product/449>`_
-- `East Africa<https://earlywarning.usgs.gov/fews/product/448>`_
-- `Southern Africa<https://earlywarning.usgs.gov/fews/product/450>`_
-- `West Africa<https://earlywarning.usgs.gov/fews/product/451>`_
-- `Central Asia<https://earlywarning.usgs.gov/fews/product/493>`_
-- `Yemen<https://earlywarning.usgs.gov/fews/product/502>`_
-- `Central America<https://earlywarning.usgs.gov/fews/product/445>`_
-- `Hispaniola<https://earlywarning.usgs.gov/fews/product/446>`_
-
-Data is made available on the backend USGS file explorer. For example,
-dekadal temporally smooth NDVI data for West Africa is available at
-`this link
-<https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/fews/web/africa/west/dekadal/emodis/ndvi_c6/temporallysmoothedndvi/downloads/monthly/>`_
-
-The products include temporally smoothed NDVI, median anomaly,
-difference from the previous year, and median anomaly
-presented as a percentile.
-
-Data by USGS is published quickly after the dekad.
-After about 1 month this data is updated with temporal smoothing
-and error correction for cloud cover. Files for a specific
-dekad and region can range from 30MB up to over 100MB, so
-downloading and processing can take a long time.
+Download, process, and load NDVI data published
+in the `USGS FEWS NET data portal
+<https://earlywarning.usgs.gov/fews>`_. Classes available
+to process temporally smoothed NDVI values, percent of
+median values, difference to median values, and difference
+from current value to the previous year's value.
 """
 
 # TODO: add progress bar
@@ -60,16 +35,44 @@ class UsgsNdviSmoothed(_UsgsNdvi):
     ----------
     country_config : CountryConfig
         Country configuration
-    start_date : Union[date, str, Tuple[int, int], None]
+    start_date : _DATE_TYPE, default = None
         Start date. Can be passed as a ``datetime.date``
-        object and the relevant dekad will be determined,
-        as a date string in ISO8601 format, or as a
-        year-dekad tuple, i.e. (2020, 1).
-    end_date : Union[date, str, Tuple[int, int], None]
+        object or a data string in ISO8601 format, and
+        the relevant dekad will be determined. Or pass
+        directly as year-dekad tuple, e.g. (2020, 1).
+        If ``None``, ``start_date`` is set to earliest
+        date with data: 2002, dekad 19.
+    end_date : _DATE_TYPE, default = None
         End date. Can be passed as a ``datetime.date``
         object and the relevant dekad will be determined,
         as a date string in ISO8601 format, or as a
-        year-dekad tuple, i.e. (2020, 1).
+        year-dekad tuple, i.e. (2020, 1). If ``None``,
+        ``end_date`` is set to ``date.today()``.
+
+    Examples
+    --------
+    >>> from aatoolbox import create_country_config, \
+    ...  CodAB, UsgsNdviSmoothed
+    >>>
+    >>> # Retrieve admin 2 boundaries for Burkina Faso
+    >>> country_config = create_country_config(iso3="bfa")
+    >>> codab = CodAB(country_config=country_config)
+    >>> bfa_admin2 = codab.load(admin_level=2)
+    >>>
+    >>> # setup NDVI
+    >>> bfa_ndvi = UsgsNdviSmoothed(
+    ...     country_config=country_config,
+    ...     start_date=[2020, 1],
+    ...     end_date=[2020, 3]
+    ... )
+    >>> bfa_ndvi.download()
+    >>> bfa_ndvi.process(
+    ...     gdf=bfa_admin2,
+    ...     feature_col="ADM2_FR"
+    ... )
+    >>>
+    >>> # load in processed data
+    >>> df = bfa_ndvi.load(feature_col="ADM2_FR")
     """
 
     def __init__(
@@ -99,16 +102,44 @@ class UsgsNdviPctMedian(_UsgsNdvi):
     ----------
     country_config : CountryConfig
         Country configuration
-    start_date : Union[date, str, Tuple[int, int], None]
+    start_date : _DATE_TYPE, default = None
         Start date. Can be passed as a ``datetime.date``
-        object and the relevant dekad will be determined,
-        as a date string in ISO8601 format, or as a
-        year-dekad tuple, i.e. (2020, 1).
-    end_date : Union[date, str, Tuple[int, int], None]
+        object or a data string in ISO8601 format, and
+        the relevant dekad will be determined. Or pass
+        directly as year-dekad tuple, e.g. (2020, 1).
+        If ``None``, ``start_date`` is set to earliest
+        date with data: 2002, dekad 19.
+    end_date : _DATE_TYPE, default = None
         End date. Can be passed as a ``datetime.date``
         object and the relevant dekad will be determined,
         as a date string in ISO8601 format, or as a
-        year-dekad tuple, i.e. (2020, 1).
+        year-dekad tuple, i.e. (2020, 1). If ``None``,
+        ``end_date`` is set to ``date.today()``.
+
+    Examples
+    --------
+    >>> from aatoolbox import create_country_config, \
+    ...  CodAB, UsgsNdviPctMedian
+    >>>
+    >>> # Retrieve admin 2 boundaries for Burkina Faso
+    >>> country_config = create_country_config(iso3="bfa")
+    >>> codab = CodAB(country_config=country_config)
+    >>> bfa_admin2 = codab.load(admin_level=2)
+    >>>
+    >>> # setup NDVI
+    >>> bfa_ndvi = UsgsNdviPctMedian(
+    ...     country_config=country_config,
+    ...     start_date=[2020, 1],
+    ...     end_date=[2020, 3]
+    ... )
+    >>> bfa_ndvi.download()
+    >>> bfa_ndvi.process(
+    ...     gdf=bfa_admin2,
+    ...     feature_col="ADM2_FR"
+    ... )
+    >>>
+    >>> # load in processed data
+    >>> df = bfa_ndvi.load(feature_col="ADM2_FR")
     """
 
     def __init__(
@@ -141,16 +172,44 @@ class UsgsNdviMedianAnomaly(_UsgsNdvi):
     ----------
     country_config : CountryConfig
         Country configuration
-    start_date : Union[date, str, Tuple[int, int], None]
+    start_date : _DATE_TYPE, default = None
         Start date. Can be passed as a ``datetime.date``
-        object and the relevant dekad will be determined,
-        as a date string in ISO8601 format, or as a
-        year-dekad tuple, i.e. (2020, 1).
-    end_date : Union[date, str, Tuple[int, int], None]
+        object or a data string in ISO8601 format, and
+        the relevant dekad will be determined. Or pass
+        directly as year-dekad tuple, e.g. (2020, 1).
+        If ``None``, ``start_date`` is set to earliest
+        date with data: 2002, dekad 19.
+    end_date : _DATE_TYPE, default = None
         End date. Can be passed as a ``datetime.date``
         object and the relevant dekad will be determined,
         as a date string in ISO8601 format, or as a
-        year-dekad tuple, i.e. (2020, 1).
+        year-dekad tuple, i.e. (2020, 1). If ``None``,
+        ``end_date`` is set to ``date.today()``.
+
+    Examples
+    --------
+    >>> from aatoolbox import create_country_config, \
+    ...  CodAB, UsgsNdviMedianAnomaly
+    >>>
+    >>> # Retrieve admin 2 boundaries for Burkina Faso
+    >>> country_config = create_country_config(iso3="bfa")
+    >>> codab = CodAB(country_config=country_config)
+    >>> bfa_admin2 = codab.load(admin_level=2)
+    >>>
+    >>> # setup NDVI
+    >>> bfa_ndvi = UsgsNdviMedianAnomaly(
+    ...     country_config=country_config,
+    ...     start_date=[2020, 1],
+    ...     end_date=[2020, 3]
+    ... )
+    >>> bfa_ndvi.download()
+    >>> bfa_ndvi.process(
+    ...     gdf=bfa_admin2,
+    ...     feature_col="ADM2_FR"
+    ... )
+    >>>
+    >>> # load in processed data
+    >>> df = bfa_ndvi.load(feature_col="ADM2_FR")
     """
 
     def __init__(
@@ -183,16 +242,44 @@ class UsgsNdviYearDifference(_UsgsNdvi):
     ----------
     country_config : CountryConfig
         Country configuration
-    start_date : Union[date, str, Tuple[int, int], None]
+    start_date : _DATE_TYPE, default = None
         Start date. Can be passed as a ``datetime.date``
-        object and the relevant dekad will be determined,
-        as a date string in ISO8601 format, or as a
-        year-dekad tuple, i.e. (2020, 1).
-    end_date : Union[date, str, Tuple[int, int], None]
+        object or a data string in ISO8601 format, and
+        the relevant dekad will be determined. Or pass
+        directly as year-dekad tuple, e.g. (2020, 1).
+        If ``None``, ``start_date`` is set to earliest
+        date with data: 2002, dekad 19.
+    end_date : _DATE_TYPE, default = None
         End date. Can be passed as a ``datetime.date``
         object and the relevant dekad will be determined,
         as a date string in ISO8601 format, or as a
-        year-dekad tuple, i.e. (2020, 1).
+        year-dekad tuple, i.e. (2020, 1). If ``None``,
+        ``end_date`` is set to ``date.today()``.
+
+    Examples
+    --------
+    >>> from aatoolbox import create_country_config, \
+    ...  CodAB, UsgsNdviDifference
+    >>>
+    >>> # Retrieve admin 2 boundaries for Burkina Faso
+    >>> country_config = create_country_config(iso3="bfa")
+    >>> codab = CodAB(country_config=country_config)
+    >>> bfa_admin2 = codab.load(admin_level=2)
+    >>>
+    >>> # setup NDVI
+    >>> bfa_ndvi = UsgsNdviDifference(
+    ...     country_config=country_config,
+    ...     start_date=[2020, 1],
+    ...     end_date=[2020, 3]
+    ... )
+    >>> bfa_ndvi.download()
+    >>> bfa_ndvi.process(
+    ...     gdf=bfa_admin2,
+    ...     feature_col="ADM2_FR"
+    ... )
+    >>>
+    >>> # load in processed data
+    >>> df = bfa_ndvi.load(feature_col="ADM2_FR")
     """
 
     def __init__(
