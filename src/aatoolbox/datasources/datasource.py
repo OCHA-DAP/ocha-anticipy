@@ -60,8 +60,9 @@ class DataSource(ABC):
             is_public=is_public, is_raw=False, is_global=is_global_processed
         )
 
+    @staticmethod
     def _config_attribute_name_validator(
-        self, config_datasource_name: str, country_config: CountryConfig
+        config_datasource_name: str, country_config: CountryConfig
     ):
         try:
             return getattr(country_config, config_datasource_name)

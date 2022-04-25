@@ -1,36 +1,8 @@
-"""Class to download and process USGS FEWS NET NDVI data.
+"""Class to download and process USGS NDVI data.
 
-Data is downloaded from the `USGS FEWS NET data portal
-<https://earlywarning.usgs.gov/fews>`_. Data is
-generated from eMODIS AQUA, with full methodological
-details available on the `Documentation page
-<https://earlywarning.usgs.gov/fews/product/449#documentation>`_
-for the specific product. The available areas of
-coverage are:
-
-- `North Africa<https://earlywarning.usgs.gov/fews/product/449>`_
-- `East Africa<https://earlywarning.usgs.gov/fews/product/448>`_
-- `Southern Africa<https://earlywarning.usgs.gov/fews/product/450>`_
-- `West Africa<https://earlywarning.usgs.gov/fews/product/451>`_
-- `Central Asia<https://earlywarning.usgs.gov/fews/product/493>`_
-- `Yemen<https://earlywarning.usgs.gov/fews/product/502>`_
-- `Central America<https://earlywarning.usgs.gov/fews/product/445>`_
-- `Hispaniola<https://earlywarning.usgs.gov/fews/product/446>`_
-
-Data is made available on the backend USGS file explorer. For example,
-dekadal temporally smooth NDVI data for West Africa is available at
-`this link
-<https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/fews/web/africa/west/dekadal/emodis/ndvi_c6/temporallysmoothedndvi/downloads/monthly/>`_
-
-The products include temporally smoothed NDVI, median anomaly,
-difference from the previous year, and median anomaly
-presented as a percentile.
-
-Data by USGS is published quickly after the dekad.
-After about 1 month this data is updated with temporal smoothing
-and error correction for cloud cover. Files for a specific
-dekad and region can range from 30MB up to over 100MB, so
-downloading and processing can take a long time.
+Download, process, and load NDVI data published
+in the `USGS FEWS NET data portal
+<https://earlywarning.usgs.gov/fews>`_.
 """
 
 # TODO: add progress bar
@@ -54,12 +26,12 @@ from rasterio.errors import RasterioIOError
 import aatoolbox.utils.raster  # noqa: F401
 from aatoolbox.config.countryconfig import CountryConfig
 from aatoolbox.datasources.datasource import DataSource
-from aatoolbox.utils.dates import (
-    _compare_dekads_gt,
-    _compare_dekads_lt,
-    _dekad_to_date,
-    _expand_dekads,
-    _get_dekadal_date,
+from aatoolbox.utils._dates import (
+    compare_dekads_gt,
+    compare_dekads_lt,
+    dekad_to_date,
+    expand_dekads,
+    get_dekadal_date,
 )
 
 logger = logging.getLogger(__name__)
@@ -120,8 +92,6 @@ class _UsgsNdvi(DataSource):
                 "any USGS NDVI area name. Please update the config file and "
                 "try again. See the documentation for the valid area names."
             )
-        self._area_url = self._datasource_config.area_url
-        self._area_prefix = self._datasource_config.area_prefix
 
         # set data variable
         self._data_variable = data_variable
@@ -129,11 +99,11 @@ class _UsgsNdvi(DataSource):
         self._data_variable_suffix = data_variable_suffix
 
         # set dates for data download and processing
-        self._start_year, self._start_dekad = _get_dekadal_date(
+        self._start_year, self._start_dekad = get_dekadal_date(
             input_date=start_date, default_date=_EARLIEST_DATE
         )
 
-        self._end_year, self._end_dekad = _get_dekadal_date(
+        self._end_year, self._end_dekad = get_dekadal_date(
             input_date=end_date, default_date=date.today()
         )
 
@@ -187,7 +157,7 @@ class _UsgsNdvi(DataSource):
         ... )
         >>> bfa_ndvi.download()
         """
-        download_dekads = _expand_dekads(
+        download_dekads = expand_dekads(
             y1=self._start_year,
             d1=self._start_dekad,
             y2=self._end_year,
@@ -293,7 +263,7 @@ class _UsgsNdvi(DataSource):
             )
 
         # get dates for processing
-        all_dates_to_process = _expand_dekads(
+        all_dates_to_process = expand_dekads(
             y1=self._start_year,
             d1=self._start_dekad,
             y2=self._end_year,
@@ -384,7 +354,7 @@ class _UsgsNdvi(DataSource):
         )
 
         # filter loaded data frame between our instances dates
-        load_dates = _expand_dekads(
+        load_dates = expand_dekads(
             y1=self._start_year,
             d1=self._start_dekad,
             y2=self._end_year,
@@ -425,7 +395,7 @@ class _UsgsNdvi(DataSource):
         FileNotFoundError
             If the requested file cannot be found.
         """
-        year, dekad = _get_dekadal_date(input_date=date)
+        year, dekad = get_dekadal_date(input_date=date)
 
         filepath = self._get_raw_path(year=year, dekad=dekad, local=True)
         try:
@@ -439,7 +409,7 @@ class _UsgsNdvi(DataSource):
                     {
                         "year": year,
                         "dekad": dekad,
-                        "date": _dekad_to_date(year=year, dekad=dekad),
+                        "date": dekad_to_date(year=year, dekad=dekad),
                         "modified": file_time,
                     }
                 )
@@ -452,10 +422,10 @@ class _UsgsNdvi(DataSource):
         except RasterioIOError as err:
             # check if the requested date is outside the instance bounds
             # don't prevent loading, but use for meaningful error
-            gt_end = _compare_dekads_gt(
+            gt_end = compare_dekads_gt(
                 y1=year, d1=dekad, y2=self._end_year, d2=self._end_dekad
             )
-            lt_start = _compare_dekads_lt(
+            lt_start = compare_dekads_lt(
                 y1=year, d1=dekad, y2=self._start_year, d2=self._start_dekad
             )
             if gt_end or lt_start:
@@ -565,7 +535,10 @@ class _UsgsNdvi(DataSource):
         )
 
         if processed_path.is_file():
-            dates_to_process, df = self._determine_process_dates(
+            (
+                dates_to_process,
+                df_already_processed,
+            ) = self._determine_process_dates(
                 clobber=clobber,
                 filepath=processed_path,
                 dates_to_process=dates_to_process,
@@ -584,10 +557,11 @@ class _UsgsNdvi(DataSource):
                 )
                 return processed_path
         else:
-            df = pd.DataFrame()
+            # no dates already processed
+            df_already_processed = pd.DataFrame()
 
         # process data for necessary dates
-        data = [df]
+        data = [df_already_processed]
         for process_date in dates_to_process:
             da = self.load_raster(process_date)
             stats = da.aat.compute_raster_stats(
@@ -600,9 +574,7 @@ class _UsgsNdvi(DataSource):
             data.append(stats)
 
         # join data together and sort
-        df = pd.concat(data)
-        df.sort_values(by="date", inplace=True)
-        df.reset_index(inplace=True, drop=True)
+        df = pd.concat(data).sort_values(by="date").reset_index(drop=True)
 
         # saving file
         self._processed_base_dir.mkdir(parents=True, exist_ok=True)
@@ -702,12 +674,13 @@ class _UsgsNdvi(DataSource):
         else:
             file_year = f"{year-2000:02}"
         file_name = (
-            f"{self._area_prefix}{file_year}"
+            f"{self._datasource_config.area_prefix}{file_year}"
             f"{dekad:02}{self._data_variable_suffix}"
         )
         return file_name
 
-    def _load(self, filepath: Path, drop_modified: bool = False):
+    @staticmethod
+    def _load(filepath: Path, drop_modified: bool = False):
         """Load processed data.
 
         Parameters
@@ -824,7 +797,7 @@ class _UsgsNdvi(DataSource):
         """
         return (
             f"https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/fews/web/"
-            f"{self._area_url}/dekadal/emodis"
+            f"{self._datasource_config.area_url}/dekadal/emodis"
             f"/ndvi_c6/{self._data_variable_url}/"
             f"downloads/dekadal/{filename}.zip"
         )
