@@ -254,6 +254,18 @@ class _UsgsNdvi(DataSource):
                 "when passed to `process()`."
             )
 
+        # getting stats and percentiles for processing
+        stats_list = [] if not stats_list else stats_list
+        percentile_list = (
+            []
+            if not percentile_list
+            else [str(percent) for percent in percentile_list]
+        )
+        process_stats = stats_list + percentile_list
+        percentile_identifier = [True] * len(stats_list) + [False] * len(
+            percentile_list
+        )
+
         # get dates for processing
         all_dates_to_process = expand_dekads(
             y1=self._start_year,
@@ -262,29 +274,17 @@ class _UsgsNdvi(DataSource):
             d2=self._end_dekad,
         )
 
-        if stats_list is not None:
-            for stat in stats_list:
-                self._process(
-                    clobber=clobber,
-                    gdf=gdf,
-                    feature_col=feature_col,
-                    dates_to_process=all_dates_to_process,
-                    stats_list=[stat],
-                    percentile_list=None,
-                    kwargs=kwargs,
-                )
+        for stat, is_percentile in zip(process_stats, percentile_identifier):
+            self._process(
+                clobber=clobber,
+                gdf=gdf,
+                feature_col=feature_col,
+                dates_to_process=all_dates_to_process,
+                stat=stat,
+                is_percentile=is_percentile,
+                kwargs=kwargs,
+            )
 
-        if percentile_list is not None:
-            for percent in percentile_list:
-                self._process(
-                    clobber=clobber,
-                    gdf=gdf,
-                    feature_col=feature_col,
-                    dates_to_process=all_dates_to_process,
-                    stats_list=None,
-                    percentile_list=[percent],
-                    kwargs=kwargs,
-                )
         return self._processed_base_dir
 
     def load(self, feature_col: str) -> pd.DataFrame:  # type: ignore
@@ -512,16 +512,21 @@ class _UsgsNdvi(DataSource):
         gdf: gpd.GeoDataFrame,
         feature_col: str,
         dates_to_process: list,
-        stats_list: Optional[List[str]],
-        percentile_list: Optional[List[str]],
+        stat: str,
+        is_percentile: bool,
         kwargs,
     ) -> Path:
         """Process data for particular statistic."""
         # get processed path for particular statistic
-        if stats_list:
-            stat = stats_list[0]
-        elif percentile_list:
-            stat = f"{percentile_list[0]}quant"
+        percentile_list: Optional[List[int]]
+        if is_percentile:
+            stats_list = None
+            percentile_list = [int(stat)]
+            stat = f"{stat}quant"
+        else:
+            stats_list = [stat]
+            percentile_list = None
+
         processed_path = self._get_processed_path(
             feature_col=feature_col, stat=stat
         )
