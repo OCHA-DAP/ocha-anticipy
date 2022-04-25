@@ -4,7 +4,15 @@ Development
 Environment
 -----------
 
-To set up the development environment, please install all packages from
+Development is currently done using Python 3.9. We recommend using a virtual
+environment such as ``venv``:
+
+.. code:: shell
+
+    python3.9 -m venv venv
+    source venv/bin/activate
+
+In your virtual environment, please install all packages from
 ``requirements/requirements-dev.txt``:
 
 .. code:: shell
