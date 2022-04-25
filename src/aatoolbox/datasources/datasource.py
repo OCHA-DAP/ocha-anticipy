@@ -73,7 +73,7 @@ class DataSource(ABC):
         # the case when it is None.
         if datasource_config is None:
             raise AttributeError(
-                f"{config_datasource_name} needs to be added to the the "
+                f"{config_datasource_name} needs to be added to the "
                 f"config file. See the documentation for more details."
             )
         return datasource_config

@@ -22,13 +22,6 @@ def gpd_read_file(mocker):
     return mocker.patch("aatoolbox.datasources.codab.codab.gpd.read_file")
 
 
-def test_no_codab_config(mock_country_config):
-    """Test AttributeError when no COD AB config."""
-    mock_country_config.codab = None
-    with pytest.raises(AttributeError):
-        CodAB(country_config=mock_country_config)
-
-
 def test_codab_download(mock_aa_data_dir, mock_country_config, downloader):
     """Test that load_codab calls the HDX API to download."""
     codab = CodAB(country_config=mock_country_config)
