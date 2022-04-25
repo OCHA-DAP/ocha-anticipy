@@ -85,14 +85,6 @@ class _UsgsNdvi(DataSource):
             config_datasource_name="usgs_ndvi",
         )
 
-        # set area url and prefix from config
-        if self._country_config.usgs_ndvi is None:
-            raise AttributeError(
-                "The country configuration file does not contain "
-                "any USGS NDVI area name. Please update the config file and "
-                "try again. See the documentation for the valid area names."
-            )
-
         # set data variable
         self._data_variable = data_variable
         self._data_variable_url = data_variable_url
