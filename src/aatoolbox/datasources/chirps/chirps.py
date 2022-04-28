@@ -177,15 +177,16 @@ class _Chirps(DataSource):
 
         """
         # Create a list with all raw data downloaded
-        raw_path, filepath_list = self._get_downloaded_path_list()
+        filepath_list = self._get_downloaded_path_list()
         if len(filepath_list) > 0:
             for filepath in filepath_list:
                 ds = xr.open_dataset(filepath, decode_times=False)
                 processed_file_path = self._get_processed_path(filepath)
                 processed_file_path.parent.mkdir(parents=True, exist_ok=True)
-                last_filepath = _process(
+                last_filepath = self._process(
                     filepath=processed_file_path, ds=ds, clobber=clobber
                 )
+
         else:
             raise FileNotFoundError(
                 "Cannot find any netcdf file for the chosen combination "
@@ -291,7 +292,7 @@ class _Chirps(DataSource):
         output_filepath.parent.mkdir(parents=True, exist_ok=True)
         url = self._get_url(year=year, month=month, day=day)
         # Actual download
-        return _actual_download(
+        return self._actual_download(
             filepath=output_filepath,
             url=url,
             clobber=clobber,
@@ -523,7 +524,7 @@ class _Chirps(DataSource):
         """Create a list with all raw data downloaded."""
         # Get the path where raw data is stored
         raw_path = self._get_raw_path(year=None, month=None, day=None)
-        return raw_path, list(raw_path.parents[0].glob(raw_path.name))
+        return list(raw_path.parents[0].glob(raw_path.name))
 
     def _get_processed_path_list(self):
         """Create a list with all raw data downloaded."""
@@ -584,6 +585,26 @@ class _Chirps(DataSource):
         filepath_list.sort()
 
         return filepath_list
+
+    @check_file_existence
+    def _actual_download(
+        self, filepath: Path, url: str, clobber: bool
+    ) -> Path:
+        logger.info("Downloading CHIRPS NetCDF file.")
+        response = requests.get(
+            url,
+        )
+        with open(filepath, "wb") as out_file:
+            out_file.write(response.content)
+        return filepath
+
+    @check_file_existence
+    def _process(self, filepath: Path, ds, clobber: bool) -> Path:
+        # fix dates
+        ds.aat.correct_calendar(inplace=True)
+        ds = xr.decode_cf(ds)
+        ds.to_netcdf(filepath)
+        return filepath
 
 
 class ChirpsMonthly(_Chirps):
@@ -646,23 +667,3 @@ class ChirpsDaily(_Chirps):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, frequency="daily", **kwargs)
-
-
-@check_file_existence
-def _actual_download(filepath: Path, url: str, clobber: bool) -> Path:
-    logger.info("Downloading CHIRPS NetCDF file.")
-    response = requests.get(
-        url,
-    )
-    with open(filepath, "wb") as out_file:
-        out_file.write(response.content)
-    return filepath
-
-
-@check_file_existence
-def _process(filepath: Path, ds, clobber: bool) -> Path:
-    # fix dates
-    ds.aat.correct_calendar(inplace=True)
-    ds = xr.decode_cf(ds)
-    ds.to_netcdf(filepath)
-    return filepath
