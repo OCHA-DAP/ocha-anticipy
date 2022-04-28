@@ -105,7 +105,7 @@ cryptography==36.0.2
     # via
     #   -r requirements/requirements.txt
     #   pyopenssl
-dask==2022.04.1
+dask[complete]==2022.04.1
     # via
     #   -r requirements/requirements.txt
     #   distributed

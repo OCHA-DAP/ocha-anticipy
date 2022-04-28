@@ -1,20 +1,4 @@
-"""Class to download and load CHIRPS observational precipitation data.
-
-Climate Hazards Group InfraRed Precipitation with Station data (`CHIRPS
-<https://www.chc.ucsb.edu/data/chirps>`_) is a 35+ year quasi-global rainfall
-dataset, produced by the Climate Hazards Center (CHC). Spanning 50°S-50°N
-(and all longitudes) and ranging from 1981 to near-present, CHIRPS
-incorporates climatology, 0.05° resolution satellite imagery, and in-situ
-station data to create gridded rainfall time series for trend analysis
-and seasonal drought monitoring.
-
-Read more about CHIRPS here: https://www.nature.com/articles/sdata201566
-
-This script downloads data from `IRI's maproom
-<http://iridl.ldeo.columbia.edu/SOURCES/.UCSB/.CHIRPS/.v2p0>`_ as the
-platform allows for the selection of geographical areas.
-"""
-
+"""Class to download and load CHIRPS observational precipitation data."""
 import calendar
 import logging
 from abc import abstractmethod
@@ -34,7 +18,7 @@ from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 logger = logging.getLogger(__name__)
 
 
-class Chirps(DataSource):
+class _Chirps(DataSource):
     """
     Base class object to retrieve CHIRPS observational precipitation data.
 
@@ -169,14 +153,16 @@ class Chirps(DataSource):
         # Data download
         if self._frequency == "daily":
             for (year, month, day) in date_list:
-                self._download(
+                last_filepath = self._download(
                     year=year, month=month, day=day, clobber=clobber
                 )
         else:
             for (year, month) in date_list:
-                self._download(
+                last_filepath = self._download(
                     year=year, month=month, day=None, clobber=clobber
                 )
+
+        return last_filepath
 
     def process(self, clobber: bool = False):
         """
@@ -190,22 +176,24 @@ class Chirps(DataSource):
             If True, overwrites existing processed files.
 
         """
-        # Get the path where raw data is stored
-        raw_path = self._get_raw_path(year=None, month=None, day=None)
         # Create a list with all raw data downloaded
-        filepath_list = list(raw_path.parents[0].glob(raw_path.name))
+        raw_path, filepath_list = self._get_downloaded_path_list()
         if len(filepath_list) > 0:
             for filepath in filepath_list:
                 ds = xr.open_dataset(filepath, decode_times=False)
                 processed_file_path = self._get_processed_path(filepath)
                 processed_file_path.parent.mkdir(parents=True, exist_ok=True)
-                _process(filepath=processed_file_path, ds=ds, clobber=clobber)
+                last_filepath = _process(
+                    filepath=processed_file_path, ds=ds, clobber=clobber
+                )
         else:
             raise FileNotFoundError(
-                f"Cannot find any netcdf file in the form"
-                f"{raw_path}. Make "
-                f"sure that you have downloaded some data."
+                "Cannot find any netcdf file for the chosen combination "
+                "of frequency, resolution and area. Make sure "
+                "sure that you have downloaded some data."
             )
+
+        return last_filepath
 
     def load(
         self,
@@ -263,55 +251,22 @@ class Chirps(DataSource):
             start_day = None
             end_day = None
 
-        # If no arguments are specified, all data in the processed data folder
-        # (with the appropriate resolution, frequency and corresponding to the
-        # chosen location) will be loaded
-        if all(
-            [
-                x is None
-                for x in [
-                    start_year,
-                    end_year,
-                    start_month,
-                    end_month,
-                    start_day,
-                    end_day,
-                ]
-            ]
-        ):
-            raw_path = self._get_raw_path(year=None, month=None, day=None)
-            processed_path = self._get_processed_path(raw_path)
-            filepath_list = list(
-                processed_path.parents[0].glob(processed_path.name)
-            )
-        # otherwise data loaded according to the range given as an input
-        else:
-            date_list, _ = self._create_date_list(
-                start_year=start_year,
-                end_year=end_year,
-                start_month=start_month,
-                end_month=end_month,
-                start_day=start_day,
-                end_day=end_day,
-            )
-            if self._frequency == "monthly":
-                filepath_list = [
-                    self._get_raw_path(year=year, month=month, day=None)
-                    for (year, month) in date_list
-                ]
-            else:
-                filepath_list = [
-                    self._get_raw_path(year=year, month=month, day=day)
-                    for (year, month, day) in date_list
-                ]
-        filepath_list.sort()
+        # Get list of filepaths of files to be loaded
+        filepath_list = self._get_to_be_loaded_path_list(
+            start_year=start_year,
+            end_year=end_year,
+            start_month=start_month,
+            end_month=end_month,
+            start_day=start_day,
+            end_day=end_day,
+        )
 
         # Merge all files in one dataset
         if len(filepath_list) == 0:
             raise FileNotFoundError(
-                f"Cannot find any netcdf file in the form"
-                f"{processed_path}. Make "
-                f"sure that you have already called the 'process' method."
+                "Cannot find any netcdf file for the chosen combination "
+                "of frequency, resolution and area. Make sure "
+                "sure that you have already called the 'process' method."
             )
         else:
             try:
@@ -564,8 +519,74 @@ class Chirps(DataSource):
 
         return datetime_object.date()
 
+    def _get_downloaded_path_list(self):
+        """Create a list with all raw data downloaded."""
+        # Get the path where raw data is stored
+        raw_path = self._get_raw_path(year=None, month=None, day=None)
+        return raw_path, list(raw_path.parents[0].glob(raw_path.name))
 
-class ChirpsMonthly(Chirps):
+    def _get_processed_path_list(self):
+        """Create a list with all raw data downloaded."""
+        # Get the path where raw data is stored
+        raw_path = self._get_raw_path(year=None, month=None, day=None)
+        processed_path = self._get_processed_path(raw_path)
+        return processed_path, list(
+            processed_path.parents[0].glob(processed_path.name)
+        )
+
+    def _get_to_be_loaded_path_list(
+        self,
+        start_year: int = None,
+        end_year: int = None,
+        start_month: int = None,
+        end_month: int = None,
+        start_day: int = None,
+        end_day: int = None,
+    ):
+        """Get list of filepaths of files to be loaded."""
+        # If no arguments are specified, all data in the processed data folder
+        # (with the appropriate resolution, frequency and corresponding to the
+        # chosen location) will be loaded
+        if all(
+            [
+                x is None
+                for x in [
+                    start_year,
+                    end_year,
+                    start_month,
+                    end_month,
+                    start_day,
+                    end_day,
+                ]
+            ]
+        ):
+            _, filepath_list = self._get_processed_path_list()
+        # otherwise data loaded according to the range given as an input
+        else:
+            date_list, _ = self._create_date_list(
+                start_year=start_year,
+                end_year=end_year,
+                start_month=start_month,
+                end_month=end_month,
+                start_day=start_day,
+                end_day=end_day,
+            )
+            if self._frequency == "monthly":
+                filepath_list = [
+                    self._get_raw_path(year=year, month=month, day=None)
+                    for (year, month) in date_list
+                ]
+            else:
+                filepath_list = [
+                    self._get_raw_path(year=year, month=month, day=day)
+                    for (year, month, day) in date_list
+                ]
+        filepath_list.sort()
+
+        return filepath_list
+
+
+class ChirpsMonthly(_Chirps):
     """
     .
 
@@ -589,14 +610,14 @@ class ChirpsMonthly(Chirps):
     >>> chirps_monthly_data = chirps_daily.load()
     """
 
-    if Chirps.__doc__ is not None:
-        __doc__ = Chirps.__doc__ + __doc__
+    if _Chirps.__doc__ is not None:
+        __doc__ = _Chirps.__doc__ + __doc__
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, frequency="monthly", **kwargs)
 
 
-class ChirpsDaily(Chirps):
+class ChirpsDaily(_Chirps):
     """
     .
 
@@ -620,8 +641,8 @@ class ChirpsDaily(Chirps):
         )
     """
 
-    if Chirps.__doc__ is not None:
-        __doc__ = Chirps.__doc__ + __doc__
+    if _Chirps.__doc__ is not None:
+        __doc__ = _Chirps.__doc__ + __doc__
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, frequency="daily", **kwargs)

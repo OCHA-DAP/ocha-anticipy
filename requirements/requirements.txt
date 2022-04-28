@@ -54,7 +54,7 @@ colorama==0.4.4
     # via typer
 cryptography==36.0.2
     # via pyopenssl
-dask==2022.04.1
+dask[complete]==2022.04.1
     # via
     #   distributed
     #   xarray
