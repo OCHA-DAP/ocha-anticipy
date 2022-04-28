@@ -39,25 +39,26 @@ def check_file_existence(
 
     Returns
     -------
-    If filepath exists, returns filepath. Otherwise, returns the result of
-    the decorated function.
+    If filepath exists and clobber is False, returns filepath.
+    Otherwise, returns the result of the decorated function.
 
     Raises
     ------
     KeyError
-        If `filepath` not passed as kwarg.
+        If `filepath` or `clobber` are not passed as kwargs.
     """
     try:
         filepath = kwargs["filepath"]
+        clobber = kwargs["clobber"]
     except KeyError as err:
         raise KeyError(
             (
-                "`filepath` must be passed as a keyword "
-                "argument for the `check_file_existence`"
+                "`filepath` and `clobber` must be passed as keyword "
+                "arguments for the `check_file_existence`"
                 " decorator to work."
             )
         ) from err
-    if filepath.exists() and not kwargs.get("clobber", False):
+    if filepath.exists() and not clobber:
         logger.info(
             f"File {filepath} exists and clobber set to False, "
             f"using existing files"
