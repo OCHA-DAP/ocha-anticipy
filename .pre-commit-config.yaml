@@ -1,3 +1,6 @@
+default_language_version:
+    python: python3.9
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.0.1
@@ -46,28 +49,20 @@ repos:
     hooks:
       - id: pip-compile
         name: pip-compile requirements.txt
-        language: python
-        language_version: python3.9
         files: setup.cfg
         args: [setup.cfg, -q, -o, requirements/requirements.txt]
       - id: pip-compile
         name: pip-compile requirements-docs.txt
-        language: python
-        language_version: python3.9
         files: requirements/docs.in
         args: [ requirements/docs.in, -q, -o,
                 requirements/requirements-docs.txt ]
       - id: pip-compile
         name: pip-compile requirements-tests.txt
-        language: python
-        language_version: python3.9
         files: requirements/tests.in
         args: [requirements/tests.in, -q, -o,
                requirements/requirements-tests.txt]
       - id: pip-compile
         name: pip-compile requirements-dev.txt
-        language: python
-        language_version: python3.9
         files: requirements/(dev.in|docs.in|tests.in|requirements.txt)
         args: [requirements/dev.in, -q, -o,
                requirements/requirements-dev.txt]
