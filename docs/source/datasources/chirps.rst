@@ -7,20 +7,23 @@ Background
 The Climate Hazards Center at UC Santa Barbara (`CHC <https://www.chc.ucsb.edu/>`_),
 in collaboration with scientists at the USGS Earth Resources Observation and Science
 (`EROS <https://www.usgs.gov/centers/eros>`_) Center, created the Climate Hazards group
-Infrared Precipitation with Stations `CHIRPS <https://www.chc.ucsb.edu/data/chirps>`_
+Infrared Precipitation with Stations (`CHIRPS <https://www.chc.ucsb.edu/data/chirps>`_)
 environmental record.
 
-CHIRPS is a quasi-global (50&deg;S-50°N), high resolution (0.05°), daily, pentadal,
+CHIRPS is a quasi-global (50°S-50°N), high resolution (0.05°), daily, pentadal,
 and monthly precipitation dataset, ranging from 1981 to near-present. It incorporates
 CHPclim (CHC in-house climatology), 0.05° resolution satellite imagery, and in-situ station
 data to create gridded rainfall time series for trend analysis and seasonal drought
-monitoring. More information are available here: `<https://www.nature.com/articles/sdata201566>`.
+monitoring. More information are available `here <https://www.nature.com/articles/sdata201566>`_.
 
 Through the AA toolbox, it is possible to have access to daily and monthly data.
 
 The data is downloaded from `IRI's maproom
 <http://iridl.ldeo.columbia.edu/SOURCES/.UCSB/.CHIRPS/.v2p0>`_ as the platform allows
-for the selection of geographical areas.
+for the selection of geographical areas, and the delay in the upload
+of the data between CHC servers and IRI servers is less than one day.
+The data for a certain month is usually available two-three weeks after the end
+of the month.
 
 
 Usage
@@ -54,7 +57,7 @@ Next, an instance of the class GeoBoundingBox needs to be created:
     geo_bounding_box = GeoBoundingBox.from_shape(admin0)
 
 Finally you can make use of the Chirps classes: two classes are
-available, depending on the time resolution of interest. Daily
+available, one to retrieve daily data and one to retrieve monthly data. Daily
 data are available with two spatial resolutions (0.05 and 0.25 degrees),
 whereas monthly data can be obtained only with a 0.05-degree resolution.
 
@@ -115,10 +118,10 @@ Below are two examples of the use of the ``load`` method, respectively for daily
 
     chirps_monthly_data = chirps_monthly.load()
     chirps_daily_data = chirps_daily.load(
-        start_year=start_year,
-        end_year=end_year,
-        start_month=start_month,
-        end_month=end_month,
-        start_day=start_day,
-        end_day=end_day
+        start_year=2021,
+        end_year=2021,
+        start_month=5,
+        end_month=9,
+        start_day=30,
+        end_day=5
         )

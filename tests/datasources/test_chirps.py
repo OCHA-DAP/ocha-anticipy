@@ -104,6 +104,8 @@ def test_download_monthly(
     assert url == (
         "https://iridl.ldeo.columbia.edu/SOURCES/.UCSB/"
         ".CHIRPS/.v2p0/.monthly/.global/.precipitation/"
+        f"X/%28-3.0%29%282.0%29RANGEEDGES/"
+        f"Y/%286.0%29%283.2%29RANGEEDGES/"
         f"T/%28{_END_MONTH_STR}%20{_END_YEAR}%29"
         f"%28{_END_MONTH_STR}%20{_END_YEAR}"
         "%29RANGEEDGES/data.nc"
@@ -134,6 +136,8 @@ def test_download_daily(mock_aa_data_dir, mock_country_config, mock_download):
     assert url == (
         "https://iridl.ldeo.columbia.edu/SOURCES/.UCSB/"
         ".CHIRPS/.v2p0/.daily-improved/.global/.0p05/.prcp/"
+        f"X/%28-3.0%29%282.0%29RANGEEDGES/"
+        f"Y/%286.0%29%283.2%29RANGEEDGES/"
         f"T/%28{_END_DAY:02d}%20{_END_MONTH_STR}%20{_END_YEAR}"
         f"%29%28{_END_DAY:02d}%20{_END_MONTH_STR}%20{_END_YEAR}"
         "%29RANGEEDGES/data.nc"
@@ -189,7 +193,7 @@ def test_date_valid(mock_chirps):
     """Test error when input date is not valid."""
     chirps = mock_chirps(frequency="monthly")
     with pytest.raises(ValueError):
-        chirps._create_date_list(
+        chirps._check_dates_validity(
             start_year=_START_YEAR,
             end_year=_END_YEAR_FUTURE,
             start_month=_START_MONTH,
@@ -197,7 +201,7 @@ def test_date_valid(mock_chirps):
             start_day=_START_DAY,
             end_day=_END_DAY,
         )
-        chirps._create_date_list(
+        chirps._check_dates_validity(
             start_year=_START_YEAR,
             end_year=_END_YEAR_FUTURE,
             start_month=_START_MONTH,
@@ -205,7 +209,7 @@ def test_date_valid(mock_chirps):
             start_day=_START_DAY,
             end_day=_END_DAY,
         )
-        chirps._create_date_list(
+        chirps._check_dates_validity(
             start_year=_START_YEAR,
             end_year=_END_YEAR_FUTURE,
             start_month=_START_MONTH,

@@ -32,7 +32,7 @@ class _Chirps(DataSource):
     frequency: str
         time resolution of the data to be downloaded. It can be "daily" or
         "monthly"
-    resolution: float
+    resolution: float, default = 0.05
         resolution of data to be downloaded. Can be
         0.05 or 0.25
     """
@@ -65,7 +65,8 @@ class _Chirps(DataSource):
                 f"The available frequencies are {*valid_frequencies,}"
             )
 
-        if resolution not in (0.05, 0.25):
+        valid_resolutions = (0.05, 0.25)
+        if resolution not in valid_resolutions:
             raise ValueError(
                 f"The given resolution is {self._resolution}, which is "
                 "not available. Has to be 0.05 or 0.25."
@@ -81,7 +82,7 @@ class _Chirps(DataSource):
 
     # mypy will give error Signature of "download" incompatible with supertype
     # "DataSource" due to the arguments not being present in
-    # `DataSource`. This is however valid so ignore mypy
+    # `DataSource`. This is however valid so ignore mypy.
     def download(
         self,
         start_year: int = None,
@@ -124,6 +125,10 @@ class _Chirps(DataSource):
             Argument ignored when downloading monthly data.
         clobber : bool, default = False
             If True, overwrites existing raw files
+
+        Returns
+        -------
+        The filepath of the last file downloaded.
         """
         if self._frequency == "monthly":
             start_day = None
@@ -175,6 +180,9 @@ class _Chirps(DataSource):
         clobber : bool, default = False
             If True, overwrites existing processed files.
 
+        Returns
+        -------
+        The filepath of the last file processed.
         """
         # Create a list with all raw data downloaded
         filepath_list = self._get_downloaded_path_list()
@@ -277,12 +285,12 @@ class _Chirps(DataSource):
                 )
                 # include the names of all files that are included in the ds
                 ds.attrs["included_files"] = [f.stem for f in filepath_list]
-            except FileNotFoundError:
+            except FileNotFoundError as err:
                 raise FileNotFoundError(
                     "Cannot find one or more netcdf files corresponding "
                     "to the selected range. Make sure that you already "
                     "downloaded and processed those data."
-                )
+                ) from err
 
         return ds.rio.write_crs("EPSG:4326", inplace=True)
 
@@ -301,11 +309,64 @@ class _Chirps(DataSource):
     def _create_date_list(
         self, start_year, end_year, start_month, end_month, start_day, end_day
     ):
+        """Create list of tuples containing the range of dates of interest."""
+        start_date, end_date = self._check_dates_validity(
+            start_year=start_year,
+            end_year=end_year,
+            start_month=start_month,
+            end_month=end_month,
+            start_day=start_day,
+            end_day=end_day,
+        )
 
-        # Check whether the input dates are valid, assign dates when not
-        # specified and create list of tuples containing the range of
-        # dates of interest
+        if self._frequency == "monthly":
+            date_list = [
+                (d.split("-")[0], d.split("-")[1])
+                for d in pd.date_range(
+                    start_date,
+                    end_date,
+                    freq="SMS",
+                )
+                .strftime("%Y-%m")
+                .tolist()
+            ]
+        elif self._frequency == "daily":
+            date_list = [
+                (d.split("-")[0], d.split("-")[1], d.split("-")[2])
+                for d in pd.date_range(
+                    start_date,
+                    end_date,
+                    freq="D",
+                )
+                .strftime("%Y-%m-%d")
+                .tolist()
+            ]
 
+        # Create a sentence containing information on the downloaded data
+        if len(date_list) == 0:
+            sentence_to_print = (
+                "No data will be downloaded. "
+                "There is no {self._frequency} data available within the "
+                "chosen range of dates."
+            )
+        else:
+            sentence_to_print = (
+                f"{self._frequency.capitalize()} "
+                "data will be downloaded, starting from "
+                f"{'-'.join(date_list[0])} to {'-'.join(date_list[-1])}."
+            )
+
+        return date_list, sentence_to_print
+
+    def _check_dates_validity(
+        self, start_year, end_year, start_month, end_month, start_day, end_day
+    ):
+        """
+        Check dates vailidity.
+
+        Check whether the input dates are valid, assign dates when not
+        specified.
+        """
         if (
             start_month is not None or start_day is not None
         ) and start_year is None:
@@ -370,57 +431,22 @@ class _Chirps(DataSource):
             end_date = date(year=end_year, month=end_month, day=end_day)
         except ValueError:
             raise ValueError(
-                "(One of) the dates identified by the "
-                "given inputs are not valid."
+                "(One of) the dates identified by the given inputs ("
+                f"({start_year}-{start_month}-{start_day}), "
+                f"({start_year}-{start_month}-{start_day})"
+                ") are not valid."
             )
 
         if not start_avail_date <= start_date <= end_date <= end_avail_date:
             raise ValueError(
-                "Check that the input dates are ordered in the "
-                f"following way: {start_avail_date} <= start date "
-                f"<= end date <= {end_avail_date}. The two dates above "
+                "Make sure that the input dates are ordered in the "
+                f"following way: {start_avail_date} <= {start_date} "
+                f"<= {end_date} <= {end_avail_date}. The two dates above "
                 "indicate the range for which CHIRPS data are "
                 "currently available."
             )
 
-        if self._frequency == "monthly":
-            date_list = [
-                (d.split("-")[0], d.split("-")[1])
-                for d in pd.date_range(
-                    f"{start_year}-{start_month}",
-                    f"{end_year}-{end_month}",
-                    freq="MS",
-                )
-                .strftime("%Y-%m")
-                .tolist()
-            ]
-        elif self._frequency == "daily":
-            date_list = [
-                (d.split("-")[0], d.split("-")[1], d.split("-")[2])
-                for d in pd.date_range(
-                    f"{start_year}-{start_month}-{start_day}",
-                    f"{end_year}-{end_month}-{end_day}",
-                    freq="D",
-                )
-                .strftime("%Y-%m-%d")
-                .tolist()
-            ]
-
-        # Create a sentence containing information on the downloaded data
-        if len(date_list) == 0:
-            sentence_to_print = (
-                "No data will be downloaded. "
-                "There is no {self._frequency} available within the "
-                "chosen range of dates."
-            )
-        else:
-            sentence_to_print = (
-                f"{self._frequency.capitalize()} "
-                "data will be downloaded, starting from "
-                f"{'-'.join(date_list[0])} to {'-'.join(date_list[-1])}."
-            )
-
-        return date_list, sentence_to_print
+        return start_date, end_date
 
     def _get_file_name(
         self,
@@ -470,21 +496,35 @@ class _Chirps(DataSource):
 
         # Convert month from month number (in string format) to
         # three-letter name
-        month = calendar.month_abbr[int(month)]
+        month_name = calendar.month_abbr[int(month)]
+
+        base_url = (
+            "https://iridl.ldeo.columbia.edu/SOURCES/.UCSB/.CHIRPS/.v2p0/"
+        )
+
+        location_url = (
+            f"X/%28{self._geobb.lon_min}%29%28{self._geobb.lon_max}"
+            f"%29RANGEEDGES/"
+            f"Y/%28{self._geobb.lat_max}%29%28{self._geobb.lat_min}"
+            f"%29RANGEEDGES/"
+        )
 
         if self._frequency == "daily":
             url = (
-                "https://iridl.ldeo.columbia.edu/SOURCES/.UCSB/"
-                f".CHIRPS/.v2p0/.daily-improved/.global/."
+                f"{base_url}"
+                ".daily-improved/.global/."
                 f"{str(self._resolution).replace('.', 'p')}/.prcp/"
-                f"T/%28{day}%20{month}%20{year}%29%28{day}%20{month}%20{year}"
+                f"{location_url}"
+                f"T/%28{day}%20{month_name}%20{year}%29%28{day}"
+                f"%20{month_name}%20{year}"
                 "%29RANGEEDGES/data.nc"
             )
         else:  # monthly
             url = (
-                "https://iridl.ldeo.columbia.edu/SOURCES/.UCSB/"
-                ".CHIRPS/.v2p0/.monthly/.global/.precipitation/"
-                f"T/%28{month}%20{year}%29%28{month}%20{year}"
+                f"{base_url}"
+                ".monthly/.global/.precipitation/"
+                f"{location_url}"
+                f"T/%28{month_name}%20{year}%29%28{month_name}%20{year}"
                 "%29RANGEEDGES/data.nc"
             )
         return url
@@ -492,6 +532,8 @@ class _Chirps(DataSource):
     def _get_last_available_date(self):
         """Get the most recent date for which data is available."""
         if self._frequency == "daily":
+            # The url contains a table where the last date available is
+            # specified.
             url = (
                 "https://iridl.ldeo.columbia.edu/SOURCES/.UCSB/.CHIRPS/.v2p0/"
                 ".daily-improved/.global/"
@@ -609,7 +651,7 @@ class _Chirps(DataSource):
 
 class ChirpsMonthly(_Chirps):
     """
-    .
+    Subclass for monthly data.
 
     Examples
     --------
@@ -622,11 +664,11 @@ class ChirpsMonthly(_Chirps):
     >>> chirps_monthly = ChirpsMonthly(country_config=country_config,
                                     geo_bounding_box=geo_bounding_box)
     >>> chirps_monthly.download(
-            start_year=2007,
-            end_year=2020,
-            start_month=10,
-            end_month,2
-            )
+    ... start_year=2007,
+    ... end_year=2020,
+    ... start_month=10,
+    ... end_month,2
+    ... )
     >>> chirps_monthly.process()
     >>> chirps_monthly_data = chirps_daily.load()
     """
@@ -640,7 +682,7 @@ class ChirpsMonthly(_Chirps):
 
 class ChirpsDaily(_Chirps):
     """
-    .
+    Subclass for daily data.
 
     Examples
     --------
@@ -655,11 +697,11 @@ class ChirpsDaily(_Chirps):
     >>> chirps_daily.download(start_year=2007, start_month=10, start_day=23)
     >>> chirps_daily.process()
     >>> chirps_daily_data = chirps_daily.load(
-        start_year=2012,
-        end_year=end_2021,
-        start_month=6,
-        end_month=4
-        )
+    ... start_year=2012,
+    ... end_year=end_2021,
+    ... start_month=6,
+    ... end_month=4
+    ... )
     """
 
     if _Chirps.__doc__ is not None:
