@@ -6,6 +6,7 @@ from datetime import date, datetime
 from pathlib import Path
 from typing import Optional, Union
 
+import cftime
 import pandas as pd
 import requests
 import xarray as xr
@@ -59,12 +60,6 @@ class _Chirps(DataSource):
         self._frequency = frequency
         self._resolution = resolution
 
-        valid_frequencies = ("daily", "monthly")
-        if self._frequency not in valid_frequencies:
-            raise ValueError(
-                f"The available frequencies are {*valid_frequencies,}"
-            )
-
         valid_resolutions = (0.05, 0.25)
         if resolution not in valid_resolutions:
             raise ValueError(
@@ -80,10 +75,7 @@ class _Chirps(DataSource):
             )
             self._resolution = 0.05
 
-    # mypy will give error Signature of "download" incompatible with supertype
-    # "DataSource" due to the arguments not being present in
-    # `DataSource`. This is however valid so ignore mypy.
-    def download(
+    def download(  # type: ignore
         self,
         start_year: int = None,
         end_year: int = None,
@@ -188,7 +180,14 @@ class _Chirps(DataSource):
         filepath_list = self._get_downloaded_path_list()
         if len(filepath_list) > 0:
             for filepath in filepath_list:
-                ds = xr.open_dataset(filepath, decode_times=False)
+                try:
+                    ds = xr.open_dataset(filepath, decode_times=False)
+                except ValueError as err:
+                    raise ValueError(
+                        f"The dataset {filepath} is not a valid netcdf file: "
+                        "something probbly went wrong during the download. "
+                        "Try downloading the file again."
+                    ) from err
                 processed_file_path = self._get_processed_path(filepath)
                 processed_file_path.parent.mkdir(parents=True, exist_ok=True)
                 last_filepath = self._process(
@@ -281,7 +280,6 @@ class _Chirps(DataSource):
             try:
                 ds = xr.open_mfdataset(
                     filepath_list,
-                    decode_times=False,
                 )
                 # include the names of all files that are included in the ds
                 ds.attrs["included_files"] = [f.stem for f in filepath_list]
@@ -343,20 +341,13 @@ class _Chirps(DataSource):
             ]
 
         # Create a sentence containing information on the downloaded data
-        if len(date_list) == 0:
-            sentence_to_print = (
-                "No data will be downloaded. "
-                "There is no {self._frequency} data available within the "
-                "chosen range of dates."
-            )
-        else:
-            sentence_to_print = (
-                f"{self._frequency.capitalize()} "
-                "data will be downloaded, starting from "
-                f"{'-'.join(date_list[0])} to {'-'.join(date_list[-1])}."
-            )
+        sentence_to_print = (
+            f"{self._frequency.capitalize()} "
+            "data will be downloaded, starting from "
+            f"{'-'.join(date_list[0])} to {'-'.join(date_list[-1])}."
+        )
 
-        return date_list, sentence_to_print
+        return sorted(set(date_list)), sentence_to_print
 
     def _check_dates_validity(
         self, start_year, end_year, start_month, end_month, start_day, end_day
@@ -429,13 +420,13 @@ class _Chirps(DataSource):
                 year=start_year, month=start_month, day=start_day
             )
             end_date = date(year=end_year, month=end_month, day=end_day)
-        except ValueError:
+        except ValueError as err:
             raise ValueError(
                 "(One of) the dates identified by the given inputs ("
                 f"({start_year}-{start_month}-{start_day}), "
                 f"({start_year}-{start_month}-{start_day})"
                 ") are not valid."
-            )
+            ) from err
 
         if not start_avail_date <= start_date <= end_date <= end_avail_date:
             raise ValueError(
@@ -460,14 +451,12 @@ class _Chirps(DataSource):
             year = "*"
         if month is None:
             month = "*"
-        else:
-            if len(f"{month}") == 1:
-                month = f"0{month}"
+        elif len(f"{month}") == 1:
+            month = f"0{month}"
         if day is None:
             day = "*"
-        else:
-            if len(f"{day}") == 1:
-                day = f"0{day}"
+        elif len(f"{day}") == 1:
+            day = f"0{day}"
 
         file_name_base = (
             f"{self._country_config.iso3}_chirps_"
@@ -643,8 +632,17 @@ class _Chirps(DataSource):
     @check_file_existence
     def _process(self, filepath: Path, ds, clobber: bool) -> Path:
         # fix dates
-        ds.aat.correct_calendar(inplace=True)
-        ds = xr.decode_cf(ds)
+        if self._frequency == "monthly":
+            ds.aat.correct_calendar(inplace=True)
+            ds = xr.decode_cf(ds)
+        else:
+            ds = ds.assign_coords(
+                T=cftime.datetime.fromordinal(
+                    ds.T.values, calendar="standard", has_year_zero=True
+                )
+            )
+            ds.aat.correct_calendar(inplace=True)
+            ds = ds.rename({"prcp": "precipitation"})
         ds.to_netcdf(filepath)
         return filepath
 

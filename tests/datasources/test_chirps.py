@@ -1,5 +1,6 @@
 """Tests for the FewsNet module."""
 import calendar
+from datetime import date
 
 import cftime
 import numpy as np
@@ -32,7 +33,7 @@ def mock_chirps(mock_country_config):
         lat_max=6, lat_min=3.2, lon_max=2, lon_min=-3
     )
 
-    def _mock_chirps(frequency: str = "daily"):
+    def _mock_chirps(frequency: str = "daily", resolution: float = 0.05):
         if frequency == "daily":
             chirps = ChirpsDaily(
                 country_config=mock_country_config,
@@ -46,6 +47,32 @@ def mock_chirps(mock_country_config):
         return chirps
 
     return _mock_chirps
+
+
+def test_valid_arguments_class(mock_country_config):
+    """Test for resolution in initialisation class."""
+    geo_bounding_box = GeoBoundingBox(
+        lat_max=6, lat_min=3.2, lon_max=2, lon_min=-3
+    )
+    with pytest.raises(ValueError):
+        ChirpsDaily(
+            country_config=mock_country_config,
+            geo_bounding_box=geo_bounding_box,
+            resolution=0.10,
+        )
+
+
+def test_switching_resolution_class(mock_country_config):
+    """Test for switching instance resolution for monthly class."""
+    geo_bounding_box = GeoBoundingBox(
+        lat_max=6, lat_min=3.2, lon_max=2, lon_min=-3
+    )
+    chirps = ChirpsMonthly(
+        country_config=mock_country_config,
+        geo_bounding_box=geo_bounding_box,
+        resolution=0.25,
+    )
+    assert chirps._resolution == 0.05
 
 
 @pytest.fixture
@@ -189,9 +216,17 @@ def test_create_date_list_monthly(mock_chirps):
     )
 
 
-def test_date_valid(mock_chirps):
+def test_date_valid(mocker, mock_chirps):
     """Test error when input date is not valid."""
-    chirps = mock_chirps(frequency="monthly")
+    mocker.patch(
+        (
+            "aatoolbox.datasources.chirps.chirps."
+            "_Chirps._get_last_available_date"
+        ),
+        return_value=date(year=2025, month=5, day=5),
+    )
+    chirps = mock_chirps(frequency="daily")
+
     with pytest.raises(ValueError):
         chirps._check_dates_validity(
             start_year=_START_YEAR,
@@ -217,6 +252,108 @@ def test_date_valid(mock_chirps):
             start_day=_START_DAY,
             end_day=_END_DAY_FUTURE,
         )
+        chirps._check_dates_validity(
+            start_year=None,
+            end_year=_END_YEAR,
+            start_month=_START_MONTH,
+            end_month=_END_MONTH,
+            start_day=_START_DAY,
+            end_day=_END_DAY,
+        )
+        chirps._check_dates_validity(
+            start_year=_START_YEAR,
+            end_year=None,
+            start_month=_START_MONTH,
+            end_month=_END_MONTH,
+            start_day=_START_DAY,
+            end_day=_END_DAY,
+        )
+        chirps._check_dates_validity(
+            start_year=_START_YEAR,
+            end_year=_END_YEAR,
+            start_month=None,
+            end_month=_END_MONTH,
+            start_day=_START_DAY,
+            end_day=_END_DAY,
+        )
+        chirps._check_dates_validity(
+            start_year=_START_YEAR,
+            end_year=_END_YEAR,
+            start_month=_START_MONTH,
+            end_month=None,
+            start_day=_START_DAY,
+            end_day=_END_DAY,
+        )
+        chirps._check_dates_validity(
+            start_year=_START_YEAR,
+            end_year=_END_YEAR,
+            start_month=_START_MONTH,
+            end_month=None,
+            start_day=_START_DAY,
+            end_day=_END_DAY,
+        )
+        chirps._check_dates_validity(
+            start_year=_START_YEAR,
+            end_year=_END_YEAR,
+            start_month=15,
+            end_month=None,
+            start_day=_START_DAY,
+            end_day=_END_DAY,
+        )
+
+
+def test_complete_date_when_incomplete(mocker, mock_chirps):
+    """Test error when input date is not valid."""
+    current_date = date(year=2025, month=5, day=5)
+    mocker.patch(
+        (
+            "aatoolbox.datasources.chirps.chirps."
+            "_Chirps._get_last_available_date"
+        ),
+        return_value=current_date,
+    )
+    chirps = mock_chirps(frequency="daily")
+
+    start_date, end_date = chirps._check_dates_validity(
+        start_year=None,
+        end_year=None,
+        start_month=None,
+        end_month=None,
+        start_day=None,
+        end_day=None,
+    )
+    assert start_date == date(year=1981, month=1, day=1)
+    assert end_date == current_date
+
+    start_date, end_date = chirps._check_dates_validity(
+        start_year=1990,
+        end_year=None,
+        start_month=None,
+        end_month=None,
+        start_day=None,
+        end_day=None,
+    )
+    assert start_date == date(year=1990, month=1, day=1)
+
+    start_date, end_date = chirps._check_dates_validity(
+        start_year=None,
+        end_year=2025,
+        start_month=None,
+        end_month=None,
+        start_day=None,
+        end_day=None,
+    )
+    assert end_date == current_date
+
+    start_date, end_date = chirps._check_dates_validity(
+        start_year=None,
+        end_year=2024,
+        start_month=None,
+        end_month=None,
+        start_day=None,
+        end_day=None,
+    )
+    assert end_date == date(year=2024, month=12, day=31)
 
 
 def test_process(mocker, mock_chirps, mock_aa_data_dir, mock_country_config):
@@ -280,6 +417,20 @@ def test_process(mocker, mock_chirps, mock_aa_data_dir, mock_country_config):
     assert np.array_equal(ds_processed.prec.values, ds.prec.values)
 
 
+def test_process_with_no_files(mocker, mock_chirps):
+    """Test process method where no files are present."""
+    mocker.patch(
+        (
+            "aatoolbox.datasources.chirps.chirps."
+            "_Chirps._get_downloaded_path_list"
+        ),
+        return_value=[],
+    )
+    with pytest.raises(FileNotFoundError):
+        chirps = mock_chirps(frequency="monthly")
+        chirps.process()
+
+
 @pytest.fixture
 def mock_xr_load_dataset(mocker):
     """Mock GeoPandas file reading function."""
@@ -321,9 +472,23 @@ def test_chirps_load(
     chirps.load()
     mock_xr_load_dataset.assert_has_calls(
         [
-            mocker.call(filepath_list, decode_times=False),
+            mocker.call(filepath_list),
         ]
     )
 
     ds = mock_xr_load_dataset()
     assert ds.attrs["included_files"] == [filepath_list[0].stem]
+
+
+def test_load_with_no_files(mocker, mock_chirps):
+    """Test load method when no files are present."""
+    mocker.patch(
+        (
+            "aatoolbox.datasources.chirps.chirps."
+            "_Chirps._get_to_be_loaded_path_list"
+        ),
+        return_value=[],
+    )
+    with pytest.raises(FileNotFoundError):
+        chirps = mock_chirps(frequency="monthly")
+        chirps.load()
