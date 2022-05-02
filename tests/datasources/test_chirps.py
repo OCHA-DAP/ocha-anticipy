@@ -1,4 +1,4 @@
-"""Tests for the FewsNet module."""
+"""Tests for the Chirps module."""
 import calendar
 from datetime import date
 
@@ -28,7 +28,7 @@ _END_MONTH_FUTURE_STR = calendar.month_abbr[_END_MONTH_FUTURE]
 
 @pytest.fixture
 def mock_chirps(mock_country_config):
-    """Create CHIRPS class with mock country config."""
+    """Create Chirps class with mock country config."""
     geo_bounding_box = GeoBoundingBox(
         lat_max=6, lat_min=3.2, lon_max=2, lon_min=-3
     )
@@ -77,12 +77,7 @@ def test_switching_resolution_class(mock_country_config):
 
 @pytest.fixture
 def mock_download(mocker, mock_chirps):
-    """
-    Call download with mocked _download.
-
-    `forecast_type` is the type of forecast to
-    test, can be either 'prob' or 'dominant'.
-    """
+    """Create mock for download method."""
     download_mock = mocker.patch(
         "aatoolbox.datasources.chirps.chirps._Chirps._actual_download"
     )
@@ -116,8 +111,7 @@ def mock_download(mocker, mock_chirps):
 def test_download_monthly(
     mock_aa_data_dir, mock_country_config, mock_download
 ):
-    # TODO: change docstrings
-    """Test that the correct country url and path is returned."""
+    """Test of call download for monthly data."""
     url, filepath = mock_download(
         frequency="monthly",
         start_year=_START_YEAR,
@@ -148,8 +142,7 @@ def test_download_monthly(
 
 
 def test_download_daily(mock_aa_data_dir, mock_country_config, mock_download):
-    # TODO: change docstrings
-    """Test that the correct country url and path is returned."""
+    """Test of call download for daily data."""
     url, filepath = mock_download(
         frequency="daily",
         start_year=_START_YEAR,
@@ -303,7 +296,7 @@ def test_date_valid(mocker, mock_chirps):
 
 
 def test_complete_date_when_incomplete(mocker, mock_chirps):
-    """Test error when input date is not valid."""
+    """Test automatic completion date when input fate is incomplete."""
     current_date = date(year=2025, month=5, day=5)
     mocker.patch(
         (
@@ -357,7 +350,7 @@ def test_complete_date_when_incomplete(mocker, mock_chirps):
 
 
 def test_process(mocker, mock_chirps, mock_aa_data_dir, mock_country_config):
-    """Test process for CHIRPS."""
+    """Test process for Chirps."""
     ds = xr.DataArray(
         np.reshape(a=np.arange(8), newshape=(2, 2, 2)),
         dims=("X", "Y", "T"),
