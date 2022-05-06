@@ -58,8 +58,9 @@ class Glofas(DataSource):
             is_public=True,
         )
         # The GloFAS API on CDS requires coordinates have the format x.x5
-        geo_bounding_box.round_coords(offset_val=0.05, round_val=0.1)
-        self._geo_bounding_box = geo_bounding_box
+        self._geo_bounding_box = geo_bounding_box.round_coords(
+            offset_val=0.05, round_val=0.1
+        )
         self._year_min = year_min
         self._year_max = year_max
         self._cds_name = cds_name

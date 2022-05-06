@@ -41,12 +41,11 @@ class TestDownload:
     """Tests for GloFAS downloading."""
 
     geo_bounding_box = GeoBoundingBox(
-        north=1.0, south=-2.2, east=3.3, west=-4.4
+        lat_max=1.0, lat_min=-2.2, lon_max=3.3, lon_min=-4.4
     )
     year = 2000
     leadtime_max = 3
     expected_geo_bounding_box = [1.05, -4.45, -2.25, 3.35]
-    expected_months = [str(x + 1).zfill(2) for x in range(12)]
     expected_days = [str(x + 1).zfill(2) for x in range(31)]
     expected_leadtime = ["24", "48", "72"]
 
@@ -82,13 +81,13 @@ class TestDownload:
             "request": {
                 "variable": "river_discharge_in_the_last_24_hours",
                 "format": "grib",
-                "dataset": ["consolidated_reanalysis"],
-                "hyear": f"{self.year}",
-                "hmonth": self.expected_months,
-                "hday": self.expected_days,
-                "geo_bounding_box": self.expected_geo_bounding_box,
+                "product_type": "consolidated",
                 "system_version": "version_3_1",
                 "hydrological_model": "lisflood",
+                "hyear": f"{self.year}",
+                "hmonth": [str(x + 1).zfill(2) for x in range(12)],
+                "hday": self.expected_days,
+                "area": self.expected_geo_bounding_box,
             },
             "target": Path(
                 f"{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}"
@@ -126,19 +125,20 @@ class TestDownload:
                     "control_forecast",
                     "ensemble_perturbed_forecasts",
                 ],
-                "year": f"{self.year}",
-                "month": self.expected_months,
-                "day": self.expected_days,
-                "geo_bounding_box": self.expected_geo_bounding_box,
                 "system_version": "operational",
                 "hydrological_model": "lisflood",
+                "year": f"{self.year}",
+                # TODO: write the test better to just make a single call
+                "month": "12",
+                "day": self.expected_days,
+                "area": self.expected_geo_bounding_box,
                 "leadtime_hour": self.expected_leadtime,
             },
             "target": Path(
                 f"{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
                 f"glofas/cems-glofas-forecast/"
                 f"{mock_country_config.iso3}_"
-                f"cems-glofas-forecast_2000_ltmax03d_Np1d1Sm2d2Ep3d4Wm4d5"
+                f"cems-glofas-forecast_2000-12_ltmax03d_Np1d1Sm2d2Ep3d4Wm4d5"
                 f".grib"
             ),
         }
@@ -171,19 +171,19 @@ class TestDownload:
                     "control_reforecast",
                     "ensemble_perturbed_reforecasts",
                 ],
-                "hyear": f"{self.year}",
-                "hmonth": self.expected_months,
-                "hday": self.expected_days,
-                "geo_bounding_box": self.expected_geo_bounding_box,
                 "system_version": "version_3_1",
                 "hydrological_model": "lisflood",
+                "hyear": f"{self.year}",
+                "hmonth": "12",
+                "hday": self.expected_days,
+                "area": self.expected_geo_bounding_box,
                 "leadtime_hour": self.expected_leadtime,
             },
             "target": Path(
                 f"{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
                 f"glofas/cems-glofas-reforecast/"
                 f"{mock_country_config.iso3}_"
-                f"cems-glofas-reforecast_2000_ltmax03d_Np1d1Sm2d2Ep3d4Wm4d5"
+                f"cems-glofas-reforecast_2000-12_ltmax03d_Np1d1Sm2d2Ep3d4Wm4d5"
                 f".grib"
             ),
         }
@@ -193,7 +193,9 @@ class TestDownload:
 class TestProcess:
     """Tests for GloFAS processing."""
 
-    geo_bounding_box = GeoBoundingBox(north=1, south=-2, east=3, west=-4)
+    geo_bounding_box = GeoBoundingBox(
+        lat_max=1, lat_min=-2, lon_max=3, lon_min=-4
+    )
     year = 2000
     leadtime_max = 3
     numbers = [0, 1, 2, 3, 4, 5, 6]
@@ -234,16 +236,16 @@ class TestProcess:
             coords["step"] = [np.datetime64(n + 1, "D") for n in range(5)]
         coords["latitude"] = (
             np.arange(
-                start=self.geo_bounding_box.south,
-                stop=self.geo_bounding_box.north + 2,
+                start=self.geo_bounding_box.lat_min,
+                stop=self.geo_bounding_box.lat_max + 2,
                 step=0.1,
             )
             - 0.05
         )
         coords["longitude"] = (
             np.arange(
-                start=self.geo_bounding_box.west,
-                stop=self.geo_bounding_box.east + 2,
+                start=self.geo_bounding_box.lon_min,
+                stop=self.geo_bounding_box.lon_max + 2,
                 step=0.1,
             )
             - 0.05
