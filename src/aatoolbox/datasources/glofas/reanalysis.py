@@ -24,10 +24,8 @@ class GlofasReanalysis(glofas.Glofas):
             date_variable_prefix="h",
         )
 
-    def download(
-        self,
-        year_min: int = None,
-        year_max: int = None,
+    def download(  # type: ignore
+        self, year_min: int = None, year_max: int = None, clobber: bool = False
     ):
         """
         Download GloFAS reanalysis.
@@ -36,6 +34,7 @@ class GlofasReanalysis(glofas.Glofas):
         ----------
         year_min :
         year_max :
+        clobber :
         """
         year_min = self._year_min if year_min is None else year_min
         year_max = self._year_max if year_max is None else year_max
@@ -45,9 +44,10 @@ class GlofasReanalysis(glofas.Glofas):
         )
         for year in range(year_min, year_max + 1):
             logger.info(f"...{year}")
-            super()._download(
+            filepath = self._get_raw_filepath(
                 year=year,
             )
+            super()._download(filepath=filepath, year=year, clobber=clobber)
 
     def process(
         self,
@@ -59,7 +59,6 @@ class GlofasReanalysis(glofas.Glofas):
 
         Parameters
         ----------
-        stations :
         year_min :
         year_max :
         """

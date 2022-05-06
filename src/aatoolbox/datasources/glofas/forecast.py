@@ -19,6 +19,7 @@ class _GlofasForecastBase(glofas.Glofas):
         split_by_month: bool = True,
         year_min: int = None,
         year_max: int = None,
+        clobber: bool = False,
     ):
         forecast_type = "reforecast" if is_reforecast else "forecast"
         year_min = self._year_min if year_min is None else year_min
@@ -32,10 +33,17 @@ class _GlofasForecastBase(glofas.Glofas):
             logger.info(f"...{year}")
             for month in month_range:
                 logger.debug(f"...{month}")
-                super()._download(
+                filepath = self._get_raw_filepath(
                     year=year,
                     month=month,
                     leadtime_max=leadtime_max,
+                )
+                super()._download(
+                    filepath=filepath,
+                    year=year,
+                    month=month,
+                    leadtime_max=leadtime_max,
+                    clobber=clobber,
                 )
 
     def _process(

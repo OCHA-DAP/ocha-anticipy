@@ -9,6 +9,7 @@ import xarray as xr
 
 from aatoolbox.config.countryconfig import CountryConfig
 from aatoolbox.datasources.datasource import DataSource
+from aatoolbox.utils.check_file_existence import check_file_existence
 from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
 _MODULE_BASENAME = "glofas"
@@ -78,24 +79,15 @@ class Glofas(DataSource):
         )
         return xr.load_dataset(filepath)
 
+    @check_file_existence
     def _download(
         self,
+        filepath: Path,
         year: int,
         month: int = None,
         leadtime_max: int = None,
-        use_cache: bool = True,
-    ):
-        filepath = self._get_raw_filepath(
-            year=year,
-            month=month,
-            leadtime_max=leadtime_max,
-        )
-        # If caching is on and file already exists, don't download again
-        if use_cache and filepath.exists():
-            logger.debug(
-                f"{filepath} already exists and cache is set to True, skipping"
-            )
-            return filepath
+        clobber=False,
+    ) -> Path:
         Path(filepath.parent).mkdir(parents=True, exist_ok=True)
         logger.debug(f"Querying for {filepath}...")
         cdsapi.Client().retrieve(
@@ -274,6 +266,7 @@ class Glofas(DataSource):
         return self._processed_base_dir / filename
 
 
+# TODO: see if this is fixed
 def expand_dims(
     ds: xr.Dataset, dataset_name: str, coord_names: list, expansion_dim: int
 ):
