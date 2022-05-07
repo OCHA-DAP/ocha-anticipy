@@ -14,7 +14,6 @@ from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
 _MODULE_BASENAME = "glofas"
 _HYDROLOGICAL_MODEL = "lisflood"
-_RIVER_DISCHARGE_VAR = "dis24"
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +40,8 @@ class Glofas(DataSource):
     date_variable_prefix : str, default = ""
         Some GloFAS datasets have the prefix "h" in front of some query keys
     """
+
+    _RIVER_DISCHARGE_VAR = "dis24"
 
     def __init__(
         self,
@@ -153,38 +154,6 @@ class Glofas(DataSource):
         logger.debug(f"Query: {query}")
         return query
 
-    @staticmethod
-    def _read_in_ensemble_and_perturbed_datasets(filepath_list: List[Path]):
-        ds_list = []
-        for data_type in ["cf", "pf"]:
-            with xr.open_mfdataset(
-                filepath_list,
-                engine="cfgrib",
-                backend_kwargs={
-                    "indexpath": "",
-                    "filter_by_keys": {"dataType": data_type},
-                },
-            ) as ds:
-                # Delete history attribute in order to merge
-                del ds.attrs["history"]
-                # Extra processing require for control forecast
-                if data_type == "cf":
-                    ds = expand_dims(
-                        ds=ds,
-                        dataset_name=_RIVER_DISCHARGE_VAR,
-                        coord_names=[
-                            "number",
-                            "time",
-                            "step",
-                            "latitude",
-                            "longitude",
-                        ],
-                        expansion_dim=0,
-                    )
-                ds_list.append(ds)
-        ds = xr.combine_by_coords(ds_list)
-        return ds
-
     def _get_reporting_point_dataset(
         self, ds: xr.Dataset, coord_names: List[str]
     ) -> xr.Dataset:
@@ -232,7 +201,7 @@ class Glofas(DataSource):
                         longitude=reporting_point.lon,
                         latitude=reporting_point.lat,
                         method="nearest",
-                    )[_RIVER_DISCHARGE_VAR].data,
+                    )[self._RIVER_DISCHARGE_VAR].data,
                 )
                 # fmt: off
                 for reporting_point in
@@ -242,14 +211,11 @@ class Glofas(DataSource):
             coords={coord_name: ds[coord_name] for coord_name in coord_names},
         )
 
+    @staticmethod
     def _write_to_processed_file(
-        self,
         ds: xr.Dataset,
-        leadtime_max: int = None,
+        filepath: Path,
     ) -> Path:
-        filepath = self._get_processed_filepath(
-            leadtime_max=leadtime_max,
-        )
         Path(filepath.parent).mkdir(parents=True, exist_ok=True)
         # Netcdf seems to have problems overwriting; delete the file if
         # it exists
@@ -265,27 +231,3 @@ class Glofas(DataSource):
             filename += f"_ltmax{str(leadtime_max).zfill(2)}d"
         filename += f"_{self._geo_bounding_box.get_filename_repr(p=1)}.nc"
         return self._processed_base_dir / filename
-
-
-# TODO: see if this is fixed
-def expand_dims(
-    ds: xr.Dataset, dataset_name: str, coord_names: list, expansion_dim: int
-):
-    """Expand dims to combine two datasets.
-
-    Using expand_dims seems to cause a bug with Dask like the one
-    described here: https://github.com/pydata/xarray/issues/873 (it's
-    supposed to be fixed though)
-    """
-    coords = {coord_name: ds[coord_name] for coord_name in coord_names}
-    coords[coord_names[expansion_dim]] = [coords[coord_names[expansion_dim]]]
-    ds = xr.Dataset(
-        data_vars={
-            dataset_name: (
-                coord_names,
-                np.expand_dims(ds[dataset_name].values, expansion_dim),
-            )
-        },
-        coords=coords,
-    )
-    return ds

@@ -1,10 +1,13 @@
 """Glofas reanalysis."""
 import datetime
 import logging
+from pathlib import Path
+from typing import List
 
 import xarray as xr
 
 from aatoolbox.datasources.glofas import glofas
+from aatoolbox.utils.check_file_existence import check_file_existence
 
 logger = logging.getLogger(__name__)
 
@@ -49,10 +52,8 @@ class GlofasReanalysis(glofas.Glofas):
             )
             super()._download(filepath=filepath, year=year, clobber=clobber)
 
-    def process(
-        self,
-        year_min: int = None,
-        year_max: int = None,
+    def process(  # type: ignore
+        self, year_min: int = None, year_max: int = None, clobber: bool = False
     ):
         """
         Process GloFAS data.
@@ -61,22 +62,39 @@ class GlofasReanalysis(glofas.Glofas):
         ----------
         year_min :
         year_max :
+        clobber :
         """
         year_min = self._year_min if year_min is None else year_min
         year_max = self._year_max if year_max is None else year_max
+        filepath = self._get_processed_filepath()
+        logger.info(
+            f"Processing GloFAS Reanalysis for {year_min} to {year_max}"
+        )
         # Get list of files to open
-        logger.info("Processing GloFAS Reanalysis")
-        filepath_list = [
+        input_filepath_list = [
             self._get_raw_filepath(
                 year=year,
             )
             for year in range(year_min, year_max + 1)
         ]
+
+        return self._process(
+            filepath=filepath,
+            input_filepath_list=input_filepath_list,
+            clobber=clobber,
+        )
+
+    @check_file_existence
+    def _process(
+        self, filepath: Path, input_filepath_list: List[Path], clobber: bool
+    ) -> Path:
         # Read in the product_type
-        logger.info(f"Reading in {len(filepath_list)} files")
+        logger.info(f"Reading in {len(input_filepath_list)} files")
 
         with xr.open_mfdataset(
-            filepath_list, engine="cfgrib", backend_kwargs={"indexpath": ""}
+            input_filepath_list,
+            engine="cfgrib",
+            backend_kwargs={"indexpath": ""},
         ) as ds:
             # Create a new product_type with just the station pixels
             logger.info(
@@ -85,7 +103,5 @@ class GlofasReanalysis(glofas.Glofas):
             ds_new = self._get_reporting_point_dataset(
                 ds=ds, coord_names=["time"]
             )
-        # Write out the new product_type to a file
-        return self._write_to_processed_file(
-            ds=ds_new,
-        )
+            # Write out the new product_type to a file
+            return self._write_to_processed_file(ds=ds_new, filepath=filepath)

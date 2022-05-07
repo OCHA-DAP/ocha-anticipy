@@ -9,10 +9,10 @@ import xarray as xr
 from cdsapi import Client
 
 from aatoolbox.config.countryconfig import CountryConfig
-from aatoolbox.datasources.glofas import glofas
 from aatoolbox.datasources.glofas.forecast import (
     GlofasForecast,
     GlofasReforecast,
+    _expand_dims,
 )
 from aatoolbox.datasources.glofas.reanalysis import GlofasReanalysis
 from aatoolbox.utils.geoboundingbox import GeoBoundingBox
@@ -28,7 +28,7 @@ def test_expand_dims():
     )
     ds.coords["z"] = 1
     assert "z" not in ds.dims.keys()
-    ds = glofas.expand_dims(
+    ds = _expand_dims(
         ds=ds,
         dataset_name="var_a",
         coord_names=["z", "x", "y"],
