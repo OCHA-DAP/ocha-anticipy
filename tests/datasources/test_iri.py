@@ -1,7 +1,4 @@
 """Tests for the IRI module."""
-
-from pathlib import Path
-
 import cftime
 import numpy as np
 import pytest
@@ -161,7 +158,7 @@ def test_process_if_download_not_called(mock_iri):
     iri = mock_iri()
     # Make sure file doesn't exist
     if iri._get_raw_path().exists():
-        Path.unlink(iri._get_raw_path())
+        iri._get_raw_path().unlink()
     with pytest.raises(FileNotFoundError) as excinfo:
         iri.process()
     assert (
@@ -213,7 +210,7 @@ def test_load_if_process_not_called(mock_iri):
     iri = mock_iri()
     # Make sure file doesn't exist
     if iri._get_processed_path().exists():
-        Path.unlink(iri._get_processed_path())
+        iri._get_processed_path().unlink()
     with pytest.raises(FileNotFoundError) as excinfo:
         iri.load()
     assert (

@@ -253,7 +253,8 @@ class Glofas(DataSource):
         Path(filepath.parent).mkdir(parents=True, exist_ok=True)
         # Netcdf seems to have problems overwriting; delete the file if
         # it exists
-        filepath.unlink(missing_ok=True)
+        if filepath.exists():
+            filepath.unlink()
         logger.info(f"Writing to {filepath}")
         ds.to_netcdf(filepath)
         return filepath

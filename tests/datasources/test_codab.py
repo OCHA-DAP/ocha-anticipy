@@ -1,6 +1,4 @@
 """Test COD AB methods."""
-from pathlib import Path
-
 import pytest
 
 from aatoolbox import CodAB
@@ -88,7 +86,7 @@ def test_codab_load_fail(mock_country_config):
     codab = CodAB(country_config=mock_country_config)
     # Remove file if it exists
     if codab._raw_filepath.exists():
-        Path.unlink(codab._raw_filepath)
+        codab._raw_filepath.unlink()
     with pytest.raises(FileNotFoundError) as excinfo:
         codab.load(admin_level=0)
     assert (
