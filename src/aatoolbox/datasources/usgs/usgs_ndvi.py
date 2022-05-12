@@ -260,7 +260,7 @@ class _UsgsNdvi(DataSource):
             else [str(percent) for percent in percentile_list]
         )
         process_stats = stats_list + percentile_list
-        percentile_identifier = [True] * len(stats_list) + [False] * len(
+        percentile_identifier = [False] * len(stats_list) + [True] * len(
             percentile_list
         )
 
