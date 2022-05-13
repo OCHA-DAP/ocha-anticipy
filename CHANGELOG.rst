@@ -17,6 +17,14 @@ Fixed
 - The check in ``DataSource`` for the required configuration file
   section now also checks if the section is ``None``
 
+[0.4.1] - 2022-05-10
+--------------------
+
+Fixed
+~~~~~
+
+- Fixed error when loading zipped COD AB shapefiles on Windows
+
 [0.4.0] - 2022-04-21
 --------------------
 
