@@ -8,6 +8,14 @@ Changelog <https://keepachangelog.com/en/1.0.0/>`__, and this project
 adheres to `Semantic
 Versioning <https://semver.org/spec/v2.0.0.html>`__.
 
+[0.4.1] - 2022-05-10
+--------------------
+
+Fixed
+~~~~~
+
+- Fixed error when loading zipped COD AB shapefiles on Windows
+
 [0.4.0] - 2022-04-21
 --------------------
 
