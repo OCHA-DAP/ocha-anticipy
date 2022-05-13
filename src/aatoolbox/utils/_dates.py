@@ -1,7 +1,7 @@
 """Functions for dealing with dates."""
 
 import itertools
-from datetime import date, datetime
+from datetime import date
 from typing import List, Tuple, Union, cast
 
 
@@ -24,7 +24,15 @@ def get_dekadal_date(
 
     # convert date to various values
     if isinstance(input_date, str):
-        year, dekad = date_to_dekad(date.fromisoformat(input_date))
+        try:
+            input_as_date = date.fromisoformat(input_date)
+        except ValueError as err:
+            raise ValueError(
+                "`input_date` passed as a string must "
+                "follow ISO8601 date format: "
+                "YYYY-MM-DD."
+            ) from err
+        year, dekad = date_to_dekad(input_as_date)
     elif isinstance(input_date, date):
         year, dekad = date_to_dekad(input_date)
     else:
@@ -53,7 +61,7 @@ def get_dekadal_date(
     return (year, dekad)
 
 
-def dekad_to_date(year: int, dekad: int) -> date:
+def dekad_to_date(dekad: Tuple[int, int]) -> date:
     """Compute date from dekad and year.
 
     Date computed from dekad and year in
@@ -67,9 +75,10 @@ def dekad_to_date(year: int, dekad: int) -> date:
     the 3rd dekad being the remaining
     days within that month.
     """
-    month = ((dekad - 1) // 3) + 1
-    day = 10 * ((dekad - 1) % 3) + 1
-    return datetime(year=year, month=month, day=day)
+    year = dekad[0]
+    month = ((dekad[1] - 1) // 3) + 1
+    day = 10 * ((dekad[1] - 1) % 3) + 1
+    return date(year=year, month=month, day=day)
 
 
 def date_to_dekad(date_obj: date) -> Tuple[int, int]:
@@ -85,56 +94,75 @@ def date_to_dekad(date_obj: date) -> Tuple[int, int]:
     days within that month.
     """
     year = date_obj.year
-    dekad = min(date_obj.day // 10, 2) + ((date_obj.month - 1) * 3) + 1
+    dekad = min((date_obj.day - 1) // 10, 2) + ((date_obj.month - 1) * 3) + 1
     return (year, dekad)
 
 
-def compare_dekads_lt(y1: int, d1: int, y2: int, d2: int) -> bool:
+def compare_dekads_lt(
+    dekad1: Tuple[int, int], dekad2: Tuple[int, int]
+) -> bool:
     """Is year1/dekad1 less than year2/dekad2.
 
     Compare two pairs of years and dekads,
     that the first pair are less than the
     second pair.
     """
+    y1, d1 = dekad1
+    y2, d2 = dekad2
     return y1 < y2 or ((y1 == y2) and (d1 < d2))
 
 
-def compare_dekads_lte(y1: int, d1: int, y2: int, d2: int) -> bool:
+def compare_dekads_lte(
+    dekad1: Tuple[int, int], dekad2: Tuple[int, int]
+) -> bool:
     """Is year1/dekad1 less than or equal to year2/dekad2.
 
     Compare two pairs of years and dekads,
     that the first pair are less than or
     equal to the second pair.
     """
+    y1, d1 = dekad1
+    y2, d2 = dekad2
     return y1 < y2 or ((y1 == y2) and (d1 <= d2))
 
 
-def compare_dekads_gt(y1: int, d1: int, y2: int, d2: int) -> bool:
+def compare_dekads_gt(
+    dekad1: Tuple[int, int], dekad2: Tuple[int, int]
+) -> bool:
     """Is year1/dekad1 greater than year2/dekad2.
 
     Compare two pairs of years and dekads,
     that the first pair are greater than the
     second pair.
     """
-    return compare_dekads_lt(y1=y2, d1=d2, y2=y1, d2=d1)
+    return compare_dekads_lt(dekad1=dekad2, dekad2=dekad1)
 
 
-def compare_dekads_gte(y1: int, d1: int, y2: int, d2: int) -> bool:
+def compare_dekads_gte(
+    dekad1: Tuple[int, int], dekad2: Tuple[int, int]
+) -> bool:
     """Is year1/dekad1 greater than or equal to year2/dekad2.
 
     Compare two pairs of years and dekads,
     that the first pair are greater than or
     equal to the second pair.
     """
-    return compare_dekads_lte(y1=y2, d1=d2, y2=y1, d2=d1)
+    return compare_dekads_lte(dekad1=dekad2, dekad2=dekad1)
 
 
-def expand_dekads(y1: int, d1: int, y2: int, d2: int) -> List[Tuple[int, int]]:
+def expand_dekads(
+    dekad1: Tuple[int, int], dekad2: Tuple[int, int]
+) -> List[Tuple[int, int]]:
     """Expand for all years/dekads between two dates.
 
     Takes input year and dekads and returns a list
     of year/dekad lists.
     """
+    if compare_dekads_gt(dekad1, dekad2):
+        raise ValueError("`dekad1` must be less than or equal to `dekad2`.")
+
+    y1, d1 = dekad1
+    y2, d2 = dekad2
     year_range = range(y1, y2 + 1)
     dekad_range = range(1, 37)
     date_combos = itertools.product(*[year_range, dekad_range])

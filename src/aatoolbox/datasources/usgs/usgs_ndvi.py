@@ -91,24 +91,20 @@ class _UsgsNdvi(DataSource):
         self._data_variable_suffix = data_variable_suffix
 
         # set dates for data download and processing
-        self._start_year, self._start_dekad = get_dekadal_date(
+        self._start_date = get_dekadal_date(
             input_date=start_date, default_date=_EARLIEST_DATE
         )
 
-        self._end_year, self._end_dekad = get_dekadal_date(
+        self._end_date = get_dekadal_date(
             input_date=end_date, default_date=date.today()
         )
 
         # warn if dates outside earliest dates
-        earliest_year, earliest_dekad = _EARLIEST_DATE
-        if self._start_year < earliest_year or (
-            self._start_year == earliest_year
-            and self._start_dekad < earliest_dekad
-        ):
+        if compare_dekads_lt(self._start_date, _EARLIEST_DATE):
             logger.warning(
                 "Start date is before earliest date data is available. "
-                f"Data will be downloaded from {earliest_year}, dekad "
-                f"{earliest_dekad}."
+                f"Data will be downloaded from {_EARLIEST_DATE[0]}, dekad "
+                f"{_EARLIEST_DATE[1]}."
             )
 
     def download(self, clobber: bool = False) -> Path:
@@ -118,8 +114,8 @@ class _UsgsNdvi(DataSource):
         with data for individual regions, years, and
         dekads stored as separate .tif files. No
         authentication is required. Data is downloaded
-        for all available dekads from ``self.start_date``
-        to ``self.end_date``.
+        for all available dekads from ``self._start_date``
+        to ``self._end_date``.
 
         Parameters
         ----------
@@ -148,10 +144,7 @@ class _UsgsNdvi(DataSource):
         >>> bfa_ndvi.download()
         """
         download_dekads = expand_dekads(
-            y1=self._start_year,
-            d1=self._start_dekad,
-            y2=self._end_year,
-            d2=self._end_dekad,
+            dekad1=self._start_date, dekad2=self._end_date
         )
         for year, dekad in download_dekads:
             self._download_ndvi_dekad(year=year, dekad=dekad, clobber=clobber)
@@ -266,10 +259,7 @@ class _UsgsNdvi(DataSource):
 
         # get dates for processing
         all_dates_to_process = expand_dekads(
-            y1=self._start_year,
-            d1=self._start_dekad,
-            y2=self._end_year,
-            d2=self._end_dekad,
+            dekad1=self._start_date, dekad2=self._end_date
         )
 
         for stat, is_percentile in zip(process_stats, percentile_identifier):
@@ -345,10 +335,7 @@ class _UsgsNdvi(DataSource):
 
         # filter loaded data frame between our instances dates
         load_dates = expand_dekads(
-            y1=self._start_year,
-            d1=self._start_dekad,
-            y2=self._end_year,
-            d2=self._end_dekad,
+            dekad1=self._start_date, dekad2=self._end_date
         )
 
         loaded_dates = df[["year", "dekad"]].values.tolist()
@@ -399,7 +386,7 @@ class _UsgsNdvi(DataSource):
                     {
                         "year": year,
                         "dekad": dekad,
-                        "date": dekad_to_date(year=year, dekad=dekad),
+                        "date": dekad_to_date(dekad=(year, dekad)),
                         "modified": file_time,
                     }
                 )
@@ -413,18 +400,18 @@ class _UsgsNdvi(DataSource):
             # check if the requested date is outside the instance bounds
             # don't prevent loading, but use for meaningful error
             gt_end = compare_dekads_gt(
-                y1=year, d1=dekad, y2=self._end_year, d2=self._end_dekad
+                dekad1=(year, dekad), dekad2=self._end_date
             )
             lt_start = compare_dekads_lt(
-                y1=year, d1=dekad, y2=self._start_year, d2=self._start_dekad
+                dekad1=(year, dekad), dekad2=self._start_date
             )
             if gt_end or lt_start:
                 file_warning = (
                     f"The requested year and dekad, {year}-{dekad}"
                     f"are {'greater' if gt_end else 'less'} than the "
-                    f"instance {'end' if gt_end else 'start'} year and dekad"
-                    f", {self._end_year if gt_end else self._start_year}-"
-                    f"{self._end_dekad if gt_end else self._start_dekad}. "
+                    f"instance {'end' if gt_end else 'start'} year and dekad, "
+                    f"{self._end_date[0] if gt_end else self._start_date[0]}-"
+                    f"{self._end_date[1] if gt_end else self._start_date[1]}. "
                     "Calling the `download()` method will not download this "
                     "file, and you need to re-instantiate the class to "
                     "include these dates."
@@ -543,10 +530,10 @@ class _UsgsNdvi(DataSource):
                 logger.info(
                     (
                         "No new {stat} data to process between "
-                        f"{self._start_year}, "
-                        f"dekad {self._start_dekad} "
-                        f"and {self._end_year}, "
-                        f"dekad {self._end_dekad}, "
+                        f"{self._start_date[0]}, "
+                        f"dekad {self._start_date[1]} "
+                        f"and {self._end_date[0]}, "
+                        f"dekad {self._end_date[1]}, "
                         "set `clobber = True` to re-process this data."
                     )
                 )
