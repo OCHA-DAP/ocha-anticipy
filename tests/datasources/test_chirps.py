@@ -281,14 +281,19 @@ def test_process(mocker, mock_chirps, mock_aa_data_dir, mock_country_config):
     )
 
     processed_path = chirps.process()
+
     assert processed_path == (
         mock_aa_data_dir
         / f"public/processed/{mock_country_config.iso3}/{DATASOURCE_BASE_DIR}/"
+    )
+
+    processed_filename = mock_aa_data_dir / (
+        f"public/processed/{mock_country_config.iso3}/{DATASOURCE_BASE_DIR}/"
         f"abc_chirps_daily_{END_YEAR}_{END_MONTH}_{END_DAY}_"
         "r0.05_Np6Sp3Ep2Wm3.nc"
     )
 
-    ds_processed = xr.load_dataset(processed_path)
+    ds_processed = xr.load_dataset(processed_filename)
     expected_f = CFTimeIndex(
         [
             cftime.datetime(year=2017, month=2, day=16, calendar="360_day"),

@@ -63,8 +63,8 @@ whereas monthly data can be obtained only with a 0.05-degree resolution.
 
 Moreover, when downloading the data, you can choose start and end date
 of the dataset to be downloaded, by specifying both of them as `datetime.date`
-objects. Both parameters are optional: if not specified, the start and end 
-date will be respectively set to 1981-1-1 and the most recent date for which 
+objects. Both parameters are optional: if not specified, the start and end
+date will be respectively set to 1981-1-1 and the most recent date for which
 the data is available on the server. In the following example, monthly
 data ranging from February 2001 to March 2006 is downloaded.
 
@@ -80,7 +80,7 @@ data ranging from February 2001 to March 2006 is downloaded.
 
     chirps_monthly.download(start_date=start_date, end_date=end_date)
 
-Similarly, the code snippet below allows to download daily CHIRPS data with 
+Similarly, the code snippet below allows to download daily CHIRPS data with
 0.25 degrees resolution and ranging from October 23, 2007 to the most recent
 available data:
 
@@ -96,7 +96,7 @@ available data:
 
     chirps_daily.download(start_date=start_date)
 
-After having downloaded the datasets, a processing step is needed before 
+After having downloaded the datasets, a processing step is needed before
 being able to use them.
 
 .. code-block:: python
@@ -104,23 +104,23 @@ being able to use them.
     chirps_monthly.process()
     chirps_daily.process()
 
-Finally, the data can be loaded as an ``xarray`` dataset, which is the result 
-of the merging of all processed datasets, with fixed time resolution and 
-location. When calling the ``load()`` method, it is necessary to specify start 
-and end date of the data of interest. If no arguments are passed to the method, 
+Finally, the data can be loaded as an ``xarray`` dataset, which is the result
+of the merging of all processed datasets, with fixed time resolution and
+location. When calling the ``load()`` method, it is necessary to specify start
+and end date of the data of interest. If no arguments are passed to the method,
 the dates will be assigned according to what already said for the download
 method.
 
-Below are two examples of the use of the ``load`` method, 
+Below are two examples of the use of the ``load`` method,
 respectively for daily and monthly data.
 
 .. code-block:: python
 
     chirps_monthly_data = chirps_monthly.load(
-        start_date=start_date, 
+        start_date=start_date,
         end_date=end_date
         )
     chirps_daily_data = chirps_daily.load(
-        start_date=start_date, 
+        start_date=start_date,
         end_date=end_date
         )
