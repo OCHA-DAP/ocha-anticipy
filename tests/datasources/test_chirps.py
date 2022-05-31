@@ -71,16 +71,6 @@ def mock_xr_load_dataset(mocker):
     )
 
 
-@pytest.fixture
-def mock_get_current_date(mocker):
-    return mocker.patch(
-        ("aatoolbox.datasources.chirps.chirps.Chirps_daily"
-        "._get_last_available_date"
-        ),
-        return_value=CURRENT_DATE
-        )
-
-
 def test_valid_arguments_class(mock_country_config):
     """Test for resolution in initialisation class."""
     geo_bounding_box = GeoBoundingBox(
@@ -102,10 +92,11 @@ def mock_download(mocker, mock_chirps):
     )
 
     mocker.patch(
-        ("aatoolbox.datasources.chirps.chirps.ChirpsMonthly"
-        "._get_last_available_date"
+        (
+            "aatoolbox.datasources.chirps.chirps.ChirpsMonthly"
+            "._get_last_available_date"
         ),
-        return_value=CURRENT_DATE
+        return_value=CURRENT_DATE,
     )
 
     def _mock_download(
@@ -168,7 +159,6 @@ def test_download_monthly(
 
 def test_download_daily(mock_aa_data_dir, mock_country_config, mock_download):
     """Test of call download for daily data."""
-
     url_list, filepath_list = mock_download(
         frequency="daily",
         start_date=START_DATE,
@@ -222,37 +212,33 @@ def test_download_daily(mock_aa_data_dir, mock_country_config, mock_download):
 
 
 def test_download_future_date_monthly(mocker, mock_chirps):
-
+    """Test of call download (monthly) for future date."""
     mocker.patch(
-        ("aatoolbox.datasources.chirps.chirps.ChirpsMonthly"
-        "._get_last_available_date"
+        (
+            "aatoolbox.datasources.chirps.chirps.ChirpsMonthly"
+            "._get_last_available_date"
         ),
-        return_value=CURRENT_DATE
+        return_value=CURRENT_DATE,
     )
 
     with pytest.raises(ValueError):
         chirps = mock_chirps(frequency="monthly")
-        chirps.download( 
-            start_date=START_DATE, 
-            end_date=FUTURE_DATE
-            )
+        chirps.download(start_date=START_DATE, end_date=FUTURE_DATE)
 
 
 def test_download_future_date_daily(mocker, mock_chirps):
-
+    """Test of call download (daily) for future date."""
     mocker.patch(
-        ("aatoolbox.datasources.chirps.chirps.ChirpsDaily"
-        "._get_last_available_date"
+        (
+            "aatoolbox.datasources.chirps.chirps.ChirpsDaily"
+            "._get_last_available_date"
         ),
-        return_value=CURRENT_DATE
+        return_value=CURRENT_DATE,
     )
 
     with pytest.raises(ValueError):
         chirps = mock_chirps(frequency="daily")
-        chirps.download( 
-            start_date=START_DATE, 
-            end_date=FUTURE_DATE
-            )
+        chirps.download(start_date=START_DATE, end_date=FUTURE_DATE)
 
 
 def test_process(mocker, mock_chirps, mock_aa_data_dir, mock_country_config):

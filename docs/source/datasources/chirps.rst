@@ -62,11 +62,10 @@ data are available with two spatial resolutions (0.05 and 0.25 degrees),
 whereas monthly data can be obtained only with a 0.05-degree resolution.
 
 Moreover, when downloading the data, you can choose start and end date
-of the dataset to be downloaded, by specifying start and end year, month,
-and day. All parameters are optional: if not specified, the start
-and end year will be respectively set to 1981 and the most recent year
-for which the data is available on the server. Similar conventions
-apply to start and end month and day. In the following example, monthly
+of the dataset to be downloaded, by specifying both of them as `datetime.date`
+objects. Both parameters are optional: if not specified, the start and end 
+date will be respectively set to 1981-1-1 and the most recent date for which 
+the data is available on the server. In the following example, monthly
 data ranging from February 2001 to March 2006 is downloaded.
 
 .. code-block:: python
@@ -76,10 +75,14 @@ data ranging from February 2001 to March 2006 is downloaded.
     chirps_monthly = ChirpsMonthly(country_config=country_config,
                                    geo_bounding_box=geo_bounding_box)
 
-    chirps_monthly.download(start_year=2001, end_year=2006, start_month=2, end_month=3)
+    start_date = datetime.date(year=2001, month=2, day=1)
+    end_date = datetime.date(year=2006, month=3, day=31)
 
-Similarly, the code snippet below allows to download daily CHIRPS data with 0.25 degrees
-resolution and ranging from October 23, 2007 to the latest available data point:
+    chirps_monthly.download(start_date=start_date, end_date=end_date)
+
+Similarly, the code snippet below allows to download daily CHIRPS data with 
+0.25 degrees resolution and ranging from October 23, 2007 to the most recent
+available data:
 
 .. code-block:: python
 
@@ -88,40 +91,36 @@ resolution and ranging from October 23, 2007 to the latest available data point:
     chirps_daily = ChirpsDaily(country_config=country_config,
                                geo_bounding_box=geo_bounding_box)
 
-    chirps_daily.download(start_year=2007, start_month=10, start_day=23)
+    start_date = datetime.date(year=2007, month=10, day=23)
+    end_date = datetime.date(year=2020, month=3, day=2)
 
-After having downloaded the datasets, a processing step is needed before being able to use them.
+    chirps_daily.download(start_date=start_date)
+
+After having downloaded the datasets, a processing step is needed before 
+being able to use them.
 
 .. code-block:: python
 
     chirps_monthly.process()
     chirps_daily.process()
 
-Finally, the data can be loaded as an ``xarray`` dataset, which is the result of the merging of
-all processed datasets, with fixed time resolution and location. When calling the ``load()``
-method, it is possible to specify start and end date of the data of interest, expressed once
-again as start (end) year, month and day (the latter only valid in case of daily data). If
-no arguments are passed to the method, the loaded dataset will be constituted of all processed
-datasets. If only certain arguments are passed (such as start year and end year), the others will
-be automatically assigned following the conventions explained above.
+Finally, the data can be loaded as an ``xarray`` dataset, which is the result 
+of the merging of all processed datasets, with fixed time resolution and 
+location. When calling the ``load()`` method, it is necessary to specify start 
+and end date of the data of interest. If no arguments are passed to the method, 
+the dates will be assigned according to what already said for the download
+method.
 
-Below are two examples of the use of the ``load`` method, respectively for daily and monthly data.
+Below are two examples of the use of the ``load`` method, 
+respectively for daily and monthly data.
 
 .. code-block:: python
 
-    start_year = 2021
-    end_year = 2021
-    start_month = 5
-    end_month = 9
-    start_day = 30
-    end_day = 5
-
-    chirps_monthly_data = chirps_monthly.load()
+    chirps_monthly_data = chirps_monthly.load(
+        start_date=start_date, 
+        end_date=end_date
+        )
     chirps_daily_data = chirps_daily.load(
-        start_year=2021,
-        end_year=2021,
-        start_month=5,
-        end_month=9,
-        start_day=30,
-        end_day=5
+        start_date=start_date, 
+        end_date=end_date
         )

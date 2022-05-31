@@ -20,6 +20,8 @@ logger = logging.getLogger(__name__)
 
 frequency_dict = {"daily": "D", "monthly": "SMS"}
 
+first_available_date = date(year=1981, month=1, day=1)
+
 
 class _Chirps(DataSource):
     """
@@ -70,8 +72,8 @@ class _Chirps(DataSource):
 
     def download(  # type: ignore
         self,
-        start_date: date,
-        end_date: date,
+        start_date: date = first_available_date,
+        end_date: date = None,
         clobber: bool = False,
     ):
         """
@@ -83,7 +85,7 @@ class _Chirps(DataSource):
             Data will be donwloaded starting from date `start_date`.
             If None, it is set to 1981-1-1.
         end_date: datetime.date, default = None
-            Data will be donwloaded up to year `end_year`.
+            Data will be donwloaded up to date `end_date`.
             If None, it is set to the date for which most recent data
             is available.
         clobber : bool, default = False
@@ -91,8 +93,11 @@ class _Chirps(DataSource):
 
         Returns
         -------
-        The filepath of the last file downloaded.
+        The folder where the data is downloaded.
         """
+        if end_date is None:
+            end_date = self._get_last_available_date()
+
         # Create a list of date tuples and a summarising sentence to be printed
         date_list, sentence_to_print = self._create_date_list(
             start_date=start_date,
@@ -120,7 +125,7 @@ class _Chirps(DataSource):
 
         Returns
         -------
-        The filepath of the last file processed.
+        The folder where the data is processed.
         """
         # Create a list with all raw data downloaded
         filepath_list = self._get_downloaded_path_list()
@@ -145,23 +150,18 @@ class _Chirps(DataSource):
                 filepath=processed_file_path, ds=ds, clobber=clobber
             )
 
-        return last_filepath
+        return last_filepath.parents[0]
 
     def load(
         self,
-        start_date: date = None,
+        start_date: date = first_available_date,
         end_date: date = None,
     ) -> xr.Dataset:
         """
         Load the CHIRPS data.
 
         Should only be called after the data
-        has been downloaded and processed. If no arguments are specified,
-        all data in the processed data folder (with the appropriate
-        resolution, frequency and corresponding to the chosen location)
-        will be loaded. If only some of the arguments are
-        specified, the others will be set according to the conventions
-        below.
+        has been downloaded and processed.
 
         Parameters
         ----------
@@ -178,6 +178,9 @@ class _Chirps(DataSource):
         The processed CHIRPS dataset.
         """
         # Get list of filepaths of files to be loaded
+        if end_date is None:
+            end_date = self._get_last_available_date()
+
         filepath_list = self._get_to_be_loaded_path_list(
             start_date=start_date,
             end_date=end_date,
@@ -377,14 +380,15 @@ class ChirpsMonthly(_Chirps):
     >>> geo_bounding_box = GeoBoundingBox.from_shape(admin0)
     >>> chirps_monthly = ChirpsMonthly(country_config=country_config,
                                     geo_bounding_box=geo_bounding_box)
-    >>> chirps_monthly.download(
-    ... start_year=2007,
-    ... end_year=2020,
-    ... start_month=10,
-    ... end_month=2
-    ... )
+    >>> start_date = datetime.date(year=2007, month=10, day=23)
+    >>> end_date = datetime.date(year=2020, month=3, day=2)
+
+    >>> chirps_monthly.download(start_date=start_date, end_date=end_date)
     >>> chirps_monthly.process()
-    >>> chirps_monthly_data = chirps_daily.load()
+    >>> chirps_monthly_data = chirps_daily.load(
+    ... start_date=start_date,
+    ... end_date=end_dat
+    ... )
     """
 
     def __init__(self, *args, **kwargs):
@@ -482,13 +486,14 @@ class ChirpsDaily(_Chirps):
     >>> geo_bounding_box = GeoBoundingBox.from_shape(admin0)
     >>> chirps_daily = ChirpsDaily(country_config=country_config,
                                     geo_bounding_box=geo_bounding_box)
-    >>> chirps_daily.download(start_year=2007, start_month=10, start_day=23)
+    >>> start_date = datetime.date(year=2007, month=10, day=23)
+    >>> end_date = datetime.date(year=2020, month=3, day=2)
+
+    >>> chirps_daily.download(start_date=start_date, end_date=end_date)
     >>> chirps_daily.process()
     >>> chirps_daily_data = chirps_daily.load(
-    ... start_year=2012,
-    ... end_year=2021,
-    ... start_month=6,
-    ... end_month=4
+    ... start_date=start_date,
+    ... end_date=end_date
     ... )
     """
 
