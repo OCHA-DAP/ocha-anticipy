@@ -1,6 +1,6 @@
 """Base class for downloading and processing GloFAS raster data."""
-import asyncio
 import logging
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Union
@@ -37,6 +37,7 @@ class QueryParams:
     filepath: Path
     query: dict
     request_id: str = None  # type: ignore # TODO: fix
+    downloaded: bool = False
 
 
 class Glofas(DataSource):
@@ -101,44 +102,24 @@ class Glofas(DataSource):
         )
         return xr.load_dataset(filepath)
 
-    async def _download(
-        self, query_params_list: List[QueryParams], n_consumers: int = 5
+    def _download(
+        self,
+        query_params_list: List[QueryParams],
     ):
-        queue: asyncio.Queue = asyncio.Queue()
-        producers = [
-            asyncio.create_task(
-                self._download_producer(queue=queue, query_params=query_params)
-            )
-            for query_params in query_params_list
-        ]
-        consumers = [
-            asyncio.create_task(self._download_consumer(queue=queue))
-            for _ in range(n_consumers)
-        ]
-        await asyncio.gather(*producers)
-        await queue.join()  # Implicitly awaits consumers, too
-        for c in consumers:
-            c.cancel()
-
-    async def _download_producer(
-        self, queue: asyncio.Queue, query_params: QueryParams
-    ):
-        Path(query_params.filepath.parent).mkdir(parents=True, exist_ok=True)
-        query_params.request_id = (
-            cdsapi.Client(wait_until_complete=False, delete=False)
-            .retrieve(name=self._cds_name, request=query_params.query)
-            .reply["request_id"]
+        Path(query_params_list[0].filepath.parent).mkdir(
+            parents=True, exist_ok=True
         )
-        await queue.put(query_params)
-        logger.debug(f"Added {query_params.filepath} to queue")
-
-    @staticmethod
-    async def _download_consumer(
-        queue: asyncio.Queue, time_between_checks_seconds: int = 60
-    ):
-        while True:
-            query_params = await queue.get()
-            while True:
+        # First make the requests and store the request number
+        for query_params in query_params_list:
+            query_params.request_id = (
+                cdsapi.Client(wait_until_complete=False, delete=False)
+                .retrieve(name=self._cds_name, request=query_params.query)
+                .reply["request_id"]
+            )
+        # Loop through the request list and check status until all
+        # are downloaded
+        while query_params_list:
+            for query_params in query_params_list:
                 result = cdsapi.api.Result(
                     cdsapi.Client(wait_until_complete=False, delete=False),
                     {"request_id": query_params.request_id},
@@ -150,17 +131,18 @@ class Glofas(DataSource):
                     f"{query_params.filepath}, state is {state}"
                 )
                 if state == "completed":
-                    break
-                logger.debug(f"Waiting {time_between_checks_seconds} seconds")
-                await asyncio.sleep(time_between_checks_seconds)
-
-            logger.debug(
-                f"Request {query_params.request_id} for filename "
-                f"{query_params.filepath} is complete, downloading"
-            )
-            result.download(query_params.filepath)
-            logger.info(f"Filename {query_params.filepath} downloaded")
-            queue.task_done()
+                    result.download(query_params.filepath)
+                    query_params.downloaded = True
+            # Remove requests that have been downloaded
+            query_params_list = [
+                query_params
+                for query_params in query_params_list
+                if not query_params.downloaded
+            ]
+            # Sleep a bit before the next loop so that we're not
+            # hammering on cds
+            if query_params_list:
+                time.sleep(60)
 
     def _get_raw_filepath(
         self,
