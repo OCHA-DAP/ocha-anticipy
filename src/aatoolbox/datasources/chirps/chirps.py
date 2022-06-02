@@ -1,10 +1,12 @@
 """Class to download and load CHIRPS observational precipitation data."""
 import calendar
 import logging
+import ssl
 from abc import abstractmethod
 from datetime import date, datetime
 from pathlib import Path
 from typing import Optional
+from urllib.request import urlopen
 
 import cftime
 import pandas as pd
@@ -18,9 +20,11 @@ from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
 logger = logging.getLogger(__name__)
 
-frequency_dict = {"daily": "D", "monthly": "SMS"}
+_FIRST_AVAILABLE_DATE = date(year=1981, month=1, day=1)
 
-first_available_date = date(year=1981, month=1, day=1)
+_VALID_RESOLUTIONS = (0.05, 0.25)
+
+_BASE_URL = "https://iridl.ldeo.columbia.edu/SOURCES/.UCSB/.CHIRPS/.v2p0/"
 
 
 class _Chirps(DataSource):
@@ -39,6 +43,13 @@ class _Chirps(DataSource):
         "monthly".
     resolution: float, default = 0.05
         resolution of data to be downloaded. Can be 0.05 or 0.25.
+    start_date: datetime.date, default = None
+        Data will be considered starting from date `start_date`.
+        If None, it is set to 1981-1-1.
+    end_date: datetime.date, default = None
+        Data will be considered up to date `end_date`.
+        If None, it is set to the date for which most recent data
+        is available.
     """
 
     @abstractmethod
@@ -48,6 +59,8 @@ class _Chirps(DataSource):
         geo_bounding_box: GeoBoundingBox,
         frequency: str,
         resolution: float = 0.05,
+        start_date: date = _FIRST_AVAILABLE_DATE,
+        end_date: date = None,
     ):
         super().__init__(
             country_config=country_config,
@@ -63,8 +76,18 @@ class _Chirps(DataSource):
         self._frequency = frequency
         self._resolution = resolution
 
-        valid_resolutions = (0.05, 0.25)
-        if resolution not in valid_resolutions:
+        if end_date is None:
+            end_date = self._get_last_available_date()
+
+        self._check_dates_validity(
+            start_date=start_date,
+            end_date=end_date,
+        )
+
+        self._start_date = start_date
+        self._end_date = end_date
+
+        if resolution not in _VALID_RESOLUTIONS:
             raise ValueError(
                 f"The given resolution is {self._resolution}, which is "
                 "not available. Has to be 0.05 or 0.25."
@@ -72,8 +95,6 @@ class _Chirps(DataSource):
 
     def download(  # type: ignore
         self,
-        start_date: date = first_available_date,
-        end_date: date = None,
         clobber: bool = False,
     ):
         """
@@ -81,13 +102,6 @@ class _Chirps(DataSource):
 
         Parameters
         ----------
-        start_date: datetime.date, default = None
-            Data will be donwloaded starting from date `start_date`.
-            If None, it is set to 1981-1-1.
-        end_date: datetime.date, default = None
-            Data will be donwloaded up to date `end_date`.
-            If None, it is set to the date for which most recent data
-            is available.
         clobber : bool, default = False
             If True, overwrites existing raw files
 
@@ -95,16 +109,12 @@ class _Chirps(DataSource):
         -------
         The folder where the data is downloaded.
         """
-        if end_date is None:
-            end_date = self._get_last_available_date()
-
-        # Create a list of date tuples and a summarising sentence to be printed
-        date_list, sentence_to_print = self._create_date_list(
-            start_date=start_date,
-            end_date=end_date,
+        # Create a list of date tuples
+        date_list = self._create_date_list(
+            start_date=self._start_date,
+            end_date=self._end_date,
+            logging_level=logging.INFO,
         )
-
-        logger.info(sentence_to_print)
 
         # Data download
         for d in date_list:
@@ -128,13 +138,11 @@ class _Chirps(DataSource):
         The folder where the data is processed.
         """
         # Create a list with all raw data downloaded
-        filepath_list = self._get_downloaded_path_list()
-        if not filepath_list:
-            raise FileNotFoundError(
-                "Cannot find any netcdf file for the chosen combination "
-                "of frequency, resolution and area. Make sure "
-                "sure that you have downloaded some data."
-            )
+        filepath_list = self._get_to_be_processed_path_list(
+            start_date=self._start_date,
+            end_date=self._end_date,
+        )
+
         for filepath in filepath_list:
             try:
                 ds = xr.open_dataset(filepath, decode_times=False)
@@ -152,38 +160,22 @@ class _Chirps(DataSource):
 
         return last_filepath.parents[0]
 
-    def load(
-        self,
-        start_date: date = first_available_date,
-        end_date: date = None,
-    ) -> xr.Dataset:
+    def load(self) -> xr.Dataset:
         """
         Load the CHIRPS data.
 
         Should only be called after the data
         has been downloaded and processed.
 
-        Parameters
-        ----------
-        start_date: int, default = None
-            Data will be loaded starting from date `start_date`.
-            If None, it is set to 1981-1-1.
-        end_date: int, default = None
-            Data will be loaded up to date `end_date`.
-            If None, it is set to the date for which most recent data
-            is available.
-
         Returns
         -------
         The processed CHIRPS dataset.
         """
         # Get list of filepaths of files to be loaded
-        if end_date is None:
-            end_date = self._get_last_available_date()
 
         filepath_list = self._get_to_be_loaded_path_list(
-            start_date=start_date,
-            end_date=end_date,
+            start_date=self._start_date,
+            end_date=self._end_date,
         )
 
         # Merge all files in one dataset
@@ -224,35 +216,38 @@ class _Chirps(DataSource):
             clobber=clobber,
         )
 
-    def _create_date_list(self, start_date, end_date):
+    def _create_date_list(
+        self, start_date, end_date, logging_level=logging.DEBUG
+    ):
         """Create list of tuples containing the range of dates of interest."""
-        self._check_dates_validity(
-            start_date=start_date,
-            end_date=end_date,
-        )
-
         date_list = pd.date_range(
-            start_date, end_date, freq=frequency_dict[self._frequency]
+            start_date, end_date, freq=self._date_range_freq
         ).tolist()
 
-        # Create a sentence containing information on the downloaded data
-        sentence_to_print = (
+        # Create a message containing information on the downloaded data
+        msg = (
             f"{self._frequency.capitalize()} "
             "data will be downloaded, starting from "
             f"{date_list[0]} to {date_list[-1]}."
         )
 
-        return sorted(set(date_list)), sentence_to_print
+        logging.log(logging_level, msg)
+
+        return date_list
 
     def _check_dates_validity(self, start_date, end_date):
         """Check dates vailidity."""
-        start_avail_date = date(year=1981, month=1, day=1)
         end_avail_date = self._get_last_available_date()
 
-        if not start_avail_date <= start_date <= end_date <= end_avail_date:
+        if (
+            not _FIRST_AVAILABLE_DATE
+            <= start_date
+            <= end_date
+            <= end_avail_date
+        ):
             raise ValueError(
                 "Make sure that the input dates are ordered in the "
-                f"following way: {start_avail_date} <= {start_date} "
+                f"following way: {_FIRST_AVAILABLE_DATE} <= {start_date} "
                 f"<= {end_date} <= {end_avail_date}. The two dates above "
                 "indicate the range for which CHIRPS data are "
                 "currently available."
@@ -262,7 +257,6 @@ class _Chirps(DataSource):
         self,
         year: Optional[str],
         month: Optional[str],
-        day: Optional[str],
     ) -> str:
         # Set wildcard for year, to get general filename pattern
         # used to find all files with pattern in folder
@@ -270,8 +264,8 @@ class _Chirps(DataSource):
             year = "*"
         if month is None:
             month = "*"
-        if day is None:
-            day = "*"
+        elif len(month) == 1:
+            month = f"0{month}"
 
         file_name_base = (
             f"{self._country_config.iso3}_chirps_"
@@ -298,11 +292,7 @@ class _Chirps(DataSource):
     def _get_processed_path(self, raw_path: Path) -> Path:
         return self._processed_base_dir / raw_path.parts[-1]
 
-    def _get_base_url(self):
-
-        base_url = (
-            "https://iridl.ldeo.columbia.edu/SOURCES/.UCSB/.CHIRPS/.v2p0/"
-        )
+    def _get_location_url(self):
 
         location_url = (
             f"X/%28{self._geobb.lon_min}%29%28{self._geobb.lon_max}"
@@ -311,37 +301,70 @@ class _Chirps(DataSource):
             f"%29RANGEEDGES/"
         )
 
-        return base_url, location_url
+        return location_url
 
+    @abstractmethod
     def _get_url(self, year: str, month: str, day: str):
         pass
 
+    @abstractmethod
     def _get_last_available_date(self):
         pass
 
-    def _get_downloaded_path_list(self):
-        """Create a list with all raw data downloaded."""
-        # Get the path where raw data is stored
-        raw_path = self._get_raw_path(year=None, month=None, day=None)
-        return list(raw_path.parents[0].glob(raw_path.name))
-
-    def _get_to_be_loaded_path_list(
+    def _get_to_be_processed_path_list(
         self,
-        start_date: date = None,
-        end_date: date = None,
+        start_date: date,
+        end_date: date,
     ):
-        """Get list of filepaths of files to be loaded."""
-        date_list, _ = self._create_date_list(
+        """Get list of filepaths of files to be processed."""
+        date_list = self._create_date_list(
             start_date=start_date,
             end_date=end_date,
         )
+
         filepath_list = [
-            self._get_raw_path(year=date.year, month=date.month, day=date.day)
-            for date in date_list
+            self._get_raw_path(
+                year=f"{d.year}", month=f"{d.month:02d}", day=f"{d.day:02d}"
+            )
+            for d in date_list
         ]
         filepath_list.sort()
 
         return filepath_list
+
+    def _get_to_be_loaded_path_list(
+        self,
+        start_date: date,
+        end_date: date,
+    ):
+        """Get list of filepaths of files to be loaded."""
+        date_list = self._create_date_list(
+            start_date=start_date,
+            end_date=end_date,
+        )
+
+        filepath_list = [
+            self._get_processed_path(
+                self._get_raw_path(
+                    year=f"{d.year}",
+                    month=f"{d.month:02d}",
+                    day=f"{d.day:02d}",
+                )
+            )
+            for d in date_list
+        ]
+        filepath_list.sort()
+
+        return filepath_list
+
+    @staticmethod
+    def _read_csv_from_url(url):
+
+        context = ssl.create_default_context()
+        context.set_ciphers("DEFAULT")
+        result = urlopen(url, context=context)
+
+        return pd.read_csv(result)
 
     @check_file_existence
     def _download(self, filepath: Path, url: str, clobber: bool) -> Path:
@@ -369,30 +392,53 @@ class ChirpsMonthly(_Chirps):
     geo_bounding_box: GeoBoundingBox
         the bounding coordinates of the area that should be included in the
         data.
+    start_date: datetime.date, default = None
+        Data will be considered starting from date `start_date`.
+        If None, it is set to 1981-1-1.
+    end_date: datetime.date, default = None
+        Data will be considered up to date `end_date`.
+        If None, it is set to the date for which most recent data
+        is available.
 
     Examples
     --------
-    >>> from aatoolbox import create_country_config, CodAB, ChirpsMonthly
+    >>> from aatoolbox import create_country_config, CodAB, GeoBoundingBox
+    >>> from aatoolbox import ChirpsMonthly
     >>> country_config = create_country_config(iso3="bfa")
     >>> codab = CodAB(country_config=country_config)
     >>> codab.download()
     >>> admin0 = codab.load(admin_level=0)
     >>> geo_bounding_box = GeoBoundingBox.from_shape(admin0)
-    >>> chirps_monthly = ChirpsMonthly(country_config=country_config,
-                                    geo_bounding_box=geo_bounding_box)
+    >>>
     >>> start_date = datetime.date(year=2007, month=10, day=23)
     >>> end_date = datetime.date(year=2020, month=3, day=2)
-
-    >>> chirps_monthly.download(start_date=start_date, end_date=end_date)
-    >>> chirps_monthly.process()
-    >>> chirps_monthly_data = chirps_daily.load(
+    >>> chirps_monthly = ChirpsMonthly(
+    ... country_config=country_config,
+    ... geo_bounding_box=geo_bounding_box,
     ... start_date=start_date,
-    ... end_date=end_dat
+    ... end_date=end_date
     ... )
+    >>> chirps_monthly.download()
+    >>> chirps_monthly.process()
+    >>> chirps_monthly_data = chirps_monthly.load()
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, frequency="monthly", resolution=0.05, **kwargs)
+    def __init__(
+        self,
+        country_config: CountryConfig,
+        geo_bounding_box: GeoBoundingBox,
+        start_date: date = _FIRST_AVAILABLE_DATE,
+        end_date: date = None,
+    ):
+        super().__init__(
+            country_config=country_config,
+            geo_bounding_box=geo_bounding_box,
+            frequency="monthly",
+            resolution=0.05,
+            start_date=start_date,
+            end_date=end_date,
+        )
+        self._date_range_freq = "SMS"
 
     def _get_file_name(
         self,
@@ -404,7 +450,6 @@ class ChirpsMonthly(_Chirps):
         file_name_base = self._get_file_name_base(
             year=year,
             month=month,
-            day=day,
         )
 
         file_name = (
@@ -419,14 +464,14 @@ class ChirpsMonthly(_Chirps):
         # The url contains a table where the last date available is
         # specified.
         url = (
-            "https://iridl.ldeo.columbia.edu/SOURCES/.UCSB/.CHIRPS/.v2p0/"
+            f"{_BASE_URL}"
             ".monthly/.global/"
             ".T/last/subgrid/0./add/T/table%3A/1/%3Atable/.csv"
         )
 
-        datetime_object = datetime.strptime(
-            pd.read_csv(url).values[0][0], "%b %Y"
-        )
+        df = self._read_csv_from_url(url)
+
+        datetime_object = datetime.strptime(df.values[0][0], "%b %Y")
         day = calendar.monthrange(datetime_object.year, datetime_object.month)[
             1
         ]
@@ -440,10 +485,10 @@ class ChirpsMonthly(_Chirps):
         # three-letter name
         month_name = calendar.month_abbr[int(month)]
 
-        base_url, location_url = self._get_base_url()
+        location_url = self._get_location_url()
 
         url = (
-            f"{base_url}"
+            f"{_BASE_URL}"
             ".monthly/.global/.precipitation/"
             f"{location_url}"
             f"T/%28{month_name}%20{year}%29%28{month_name}%20{year}"
@@ -457,7 +502,9 @@ class ChirpsMonthly(_Chirps):
         # fix dates
         ds.aat.correct_calendar(inplace=True)
         ds = xr.decode_cf(ds)
-        ds.to_netcdf(filepath)
+        if "prcp" in list(ds.keys()):
+            ds = ds.rename({"prcp": "precipitation"})
+        xr.Dataset.to_netcdf(ds, path=filepath)
         return filepath
 
 
@@ -473,32 +520,54 @@ class ChirpsDaily(_Chirps):
         the bounding coordinates of the area that should be included in the
         data.
     resolution: float, default = 0.05
-        resolution of data to be downloaded. Can be
-        0.05 or 0.25
+        resolution of data to be downloaded. Can be 0.05 or 0.25.
+    start_date: datetime.date, default = None
+        Data will be considered starting from date `start_date`.
+        If None, it is set to 1981-1-1.
+    end_date: datetime.date, default = None
+        Data will be considered up to date `end_date`.
+        If None, it is set to the date for which most recent data
+        is available.
 
     Examples
     --------
-    >>> from aatoolbox import create_country_config, CodAB, ChirpsMonthly
+    >>> from aatoolbox import create_country_config, CodAB, GeoBoundingBox
+    >>> from aatoolbox import Chirpsdaily
     >>> country_config = create_country_config(iso3="bfa")
     >>> codab = CodAB(country_config=country_config)
     >>> codab.download()
     >>> admin0 = codab.load(admin_level=0)
     >>> geo_bounding_box = GeoBoundingBox.from_shape(admin0)
-    >>> chirps_daily = ChirpsDaily(country_config=country_config,
-                                    geo_bounding_box=geo_bounding_box)
     >>> start_date = datetime.date(year=2007, month=10, day=23)
     >>> end_date = datetime.date(year=2020, month=3, day=2)
-
-    >>> chirps_daily.download(start_date=start_date, end_date=end_date)
-    >>> chirps_daily.process()
-    >>> chirps_daily_data = chirps_daily.load(
+    >>> chirps_daily = ChirpsDaily(
+    ... country_config=country_config,
+    ... geo_bounding_box=geo_bounding_box,
     ... start_date=start_date,
     ... end_date=end_date
     ... )
+    >>> chirps_daily.download()
+    >>> chirps_daily.process()
+    >>> chirps_daily_data = chirps_daily.load()
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, frequency="daily", **kwargs)
+    def __init__(
+        self,
+        country_config: CountryConfig,
+        geo_bounding_box: GeoBoundingBox,
+        resolution: float = 0.05,
+        start_date: date = _FIRST_AVAILABLE_DATE,
+        end_date: date = None,
+    ):
+        super().__init__(
+            country_config=country_config,
+            geo_bounding_box=geo_bounding_box,
+            frequency="daily",
+            resolution=resolution,
+            start_date=start_date,
+            end_date=end_date,
+        )
+        self._date_range_freq = "D"
 
     def _get_file_name(
         self,
@@ -510,8 +579,12 @@ class ChirpsDaily(_Chirps):
         file_name_base = self._get_file_name_base(
             year=year,
             month=month,
-            day=day,
         )
+
+        if day is None:
+            day = "*"
+        elif len(day) == 1:
+            day = f"0{day}"
 
         file_name = (
             f"{file_name_base}"
@@ -526,15 +599,15 @@ class ChirpsDaily(_Chirps):
         # The url contains a table where the last date available is
         # specified.
         url = (
-            "https://iridl.ldeo.columbia.edu/SOURCES/.UCSB/.CHIRPS/.v2p0/"
+            f"{_BASE_URL}"
             ".daily-improved/.global/"
             f"{str(self._resolution).replace('.', 'p')}/"
             ".T/last/subgrid/0./add/T/table%3A/1/%3Atable/.csv"
         )
 
-        datetime_object = datetime.strptime(
-            pd.read_csv(url).values[0][0], "%d %b %Y"
-        )
+        df = self._read_csv_from_url(url)
+
+        datetime_object = datetime.strptime(df.values[0][0], "%d %b %Y")
 
         return datetime_object.date()
 
@@ -544,10 +617,10 @@ class ChirpsDaily(_Chirps):
         # three-letter name
         month_name = calendar.month_abbr[int(month)]
 
-        base_url, location_url = self._get_base_url()
+        location_url = self._get_location_url()
 
         url = (
-            f"{base_url}"
+            f"{_BASE_URL}"
             ".daily-improved/.global/."
             f"{str(self._resolution).replace('.', 'p')}/.prcp/"
             f"{location_url}"
@@ -563,10 +636,11 @@ class ChirpsDaily(_Chirps):
         # fix dates
         ds = ds.assign_coords(
             T=cftime.datetime.fromordinal(
-                ds.T.values, calendar="standard", has_year_zero=True
+                ds.T.values, calendar="standard", has_year_zero=False
             )
         )
         ds.aat.correct_calendar(inplace=True)
-        ds = ds.rename({"prcp": "precipitation"})
-        ds.to_netcdf(filepath)
+        if "prcp" in list(ds.keys()):
+            ds = ds.rename({"prcp": "precipitation"})
+        xr.Dataset.to_netcdf(ds, path=filepath)
         return filepath

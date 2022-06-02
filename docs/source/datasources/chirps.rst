@@ -56,29 +56,35 @@ Next, an instance of the class GeoBoundingBox needs to be created:
     from aatoolbox import GeoBoundingBox
     geo_bounding_box = GeoBoundingBox.from_shape(admin0)
 
-Finally you can make use of the Chirps classes: two classes are
+You can then choose start and end date of the dataset to be considered in your
+analysis, by specifying both of them as `datetime.date` objects.
+Both parameters are optional: if not specified, the start and end
+date will be respectively set to 1981-1-1 and the most recent date for which
+the data is available on the server.
+
+You can make use of the Chirps classes: two classes are
 available, one to retrieve daily data and one to retrieve monthly data. Daily
 data are available with two spatial resolutions (0.05 and 0.25 degrees),
 whereas monthly data can be obtained only with a 0.05-degree resolution.
 
-Moreover, when downloading the data, you can choose start and end date
-of the dataset to be downloaded, by specifying both of them as `datetime.date`
-objects. Both parameters are optional: if not specified, the start and end
-date will be respectively set to 1981-1-1 and the most recent date for which
-the data is available on the server. In the following example, monthly
-data ranging from February 2001 to March 2006 is downloaded.
+In the following example, monthly data ranging from February 2001 to March
+2006 is downloaded.
 
 .. code-block:: python
 
     from aatoolbox import ChirpsMonthly
 
-    chirps_monthly = ChirpsMonthly(country_config=country_config,
-                                   geo_bounding_box=geo_bounding_box)
-
     start_date = datetime.date(year=2001, month=2, day=1)
     end_date = datetime.date(year=2006, month=3, day=31)
 
-    chirps_monthly.download(start_date=start_date, end_date=end_date)
+    chirps_monthly = ChirpsMonthly(
+        country_config=country_config,
+        geo_bounding_box=geo_bounding_box,
+        start_date=start_date,
+        end_date=end_date
+        )
+
+    chirps_monthly.download()
 
 Similarly, the code snippet below allows to download daily CHIRPS data with
 0.25 degrees resolution and ranging from October 23, 2007 to the most recent
@@ -88,13 +94,15 @@ available data:
 
     from aatoolbox import ChirpsDaily
 
-    chirps_daily = ChirpsDaily(country_config=country_config,
-                               geo_bounding_box=geo_bounding_box)
-
     start_date = datetime.date(year=2007, month=10, day=23)
-    end_date = datetime.date(year=2020, month=3, day=2)
 
-    chirps_daily.download(start_date=start_date)
+    chirps_daily = ChirpsDaily(
+        country_config=country_config,
+        geo_bounding_box=geo_bounding_box,
+        start_date=start_date
+        )
+
+    chirps_daily.download()
 
 After having downloaded the datasets, a processing step is needed before
 being able to use them.
@@ -106,21 +114,10 @@ being able to use them.
 
 Finally, the data can be loaded as an ``xarray`` dataset, which is the result
 of the merging of all processed datasets, with fixed time resolution and
-location. When calling the ``load()`` method, it is necessary to specify start
-and end date of the data of interest. If no arguments are passed to the method,
-the dates will be assigned according to what already said for the download
-method.
-
-Below are two examples of the use of the ``load`` method,
-respectively for daily and monthly data.
+location. Below are two examples of the use of the ``load`` method,
+respectively for monthly and daily data.
 
 .. code-block:: python
 
-    chirps_monthly_data = chirps_monthly.load(
-        start_date=start_date,
-        end_date=end_date
-        )
-    chirps_daily_data = chirps_daily.load(
-        start_date=start_date,
-        end_date=end_date
-        )
+    chirps_monthly_data = chirps_monthly.load()
+    chirps_daily_data = chirps_daily.load()
