@@ -1,5 +1,6 @@
+# flake8: noqa
+# type: ignore
 import asyncio
-import time
 from dataclasses import dataclass
 from pathlib import Path
 from random import choice
@@ -79,6 +80,7 @@ class GlofasReanalysis(Glofas):
                 self._get_raw_filepath(year), self._get_query(year=year)
             )
             for year in range(year_min, year_max + 1)
+            if not self._get_raw_filepath(year).exists() or clobber is True
         ]
 
         producers = [

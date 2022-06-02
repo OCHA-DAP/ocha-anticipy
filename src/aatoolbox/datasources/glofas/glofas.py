@@ -1,5 +1,7 @@
 """Base class for downloading and processing GloFAS raster data."""
+import asyncio
 import logging
+from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Union
 
@@ -9,13 +11,32 @@ import xarray as xr
 
 from aatoolbox.config.countryconfig import CountryConfig
 from aatoolbox.datasources.datasource import DataSource
-from aatoolbox.utils.check_file_existence import check_file_existence
 from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
 _MODULE_BASENAME = "glofas"
 _HYDROLOGICAL_MODEL = "lisflood"
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class QueryParams:
+    """
+    Class to keep track of query input and output.
+
+    Parameters
+    ----------
+    filepath: Path
+        Full filepath of downloaded CDS file
+    query: dict
+        Output of _get_query() method
+    request_id: str
+        Added after request has been made to CDS
+    """
+
+    filepath: Path
+    query: dict
+    request_id: str = None  # type: ignore # TODO: fix
 
 
 class Glofas(DataSource):
@@ -80,28 +101,66 @@ class Glofas(DataSource):
         )
         return xr.load_dataset(filepath)
 
-    @check_file_existence
-    def _download(
-        self,
-        filepath: Path,
-        year: int,
-        month: int = None,
-        leadtime_max: int = None,
-        clobber=False,
-    ) -> Path:
-        Path(filepath.parent).mkdir(parents=True, exist_ok=True)
-        logger.debug(f"Querying for {filepath}...")
-        cdsapi.Client().retrieve(
-            name=self._cds_name,
-            request=self._get_query(
-                year=year,
-                month=month,
-                leadtime_max=leadtime_max,
-            ),
-            target=filepath,
+    async def _download(
+        self, query_params_list: List[QueryParams], n_consumers: int = 5
+    ):
+        queue: asyncio.Queue = asyncio.Queue()
+        producers = [
+            asyncio.create_task(
+                self._download_producer(queue=queue, query_params=query_params)
+            )
+            for query_params in query_params_list
+        ]
+        consumers = [
+            asyncio.create_task(self._download_consumer(queue=queue))
+            for _ in range(n_consumers)
+        ]
+        await asyncio.gather(*producers)
+        await queue.join()  # Implicitly awaits consumers, too
+        for c in consumers:
+            c.cancel()
+
+    async def _download_producer(
+        self, queue: asyncio.Queue, query_params: QueryParams
+    ):
+        Path(query_params.filepath.parent).mkdir(parents=True, exist_ok=True)
+        query_params.request_id = (
+            cdsapi.Client(wait_until_complete=False, delete=False)
+            .retrieve(name=self._cds_name, request=query_params.query)
+            .reply["request_id"]
         )
-        logger.debug(f"...successfully downloaded {filepath}")
-        return filepath
+        await queue.put(query_params)
+        logger.debug(f"Added {query_params.filepath} to queue")
+
+    @staticmethod
+    async def _download_consumer(
+        queue: asyncio.Queue, time_between_checks_seconds: int = 60
+    ):
+        while True:
+            query_params = await queue.get()
+            while True:
+                result = cdsapi.api.Result(
+                    cdsapi.Client(wait_until_complete=False, delete=False),
+                    {"request_id": query_params.request_id},
+                )
+                result.update()
+                state = result.reply["state"]
+                logger.debug(
+                    f"For request {query_params.request_id} and filename "
+                    f"{query_params.filepath}, state is {state}"
+                )
+                if state == "completed":
+                    break
+                logger.debug(f"Waiting {time_between_checks_seconds} seconds")
+                await asyncio.sleep(time_between_checks_seconds)
+
+            logger.debug(
+                f"Request {query_params.request_id} for filename "
+                f"{query_params.filepath} is complete, downloading"
+            )
+            result.download(query_params.filepath)
+            logger.info(f"Filename {query_params.filepath} downloaded")
+            queue.task_done()
 
     def _get_raw_filepath(
         self,
@@ -115,7 +174,7 @@ class Glofas(DataSource):
             filename += f"-{str(month).zfill(2)}"
         if leadtime_max is not None:
             filename += f"_ltmax{str(leadtime_max).zfill(2)}d"
-        filename += f"_{self._geo_bounding_box.get_filename_repr(p=1)}.grib"
+        filename += f"_{self._geo_bounding_box.get_filename_repr(p=2)}.grib"
         return directory / Path(filename)
 
     def _get_query(

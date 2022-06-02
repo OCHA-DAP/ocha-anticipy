@@ -17,39 +17,39 @@ class _GlofasForecastBase(glofas.Glofas):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def download(  # type: ignore
-        self,
-        is_reforecast: bool,
-        leadtime_max: int,
-        split_by_month: bool = True,
-        year_min: int = None,
-        year_max: int = None,
-        clobber: bool = False,
-    ):
-        forecast_type = "reforecast" if is_reforecast else "forecast"
-        year_min = self._year_min if year_min is None else year_min
-        year_max = self._year_max if year_max is None else year_max
-        month_range: List = [*range(1, 13)] if split_by_month else [None]
-        logger.info(
-            f"Downloading GloFAS {forecast_type} for years"
-            f" {year_min} - {year_max} and with max lead time {leadtime_max}"
-        )
-        for year in range(year_min, year_max + 1):
-            logger.info(f"...{year}")
-            for month in month_range:
-                logger.debug(f"...{month}")
-                filepath = self._get_raw_filepath(
-                    year=year,
-                    month=month,
-                    leadtime_max=leadtime_max,
-                )
-                super()._download(
-                    filepath=filepath,
-                    year=year,
-                    month=month,
-                    leadtime_max=leadtime_max,
-                    clobber=clobber,
-                )
+    #    def download(  # type: ignore
+    #        self,
+    #        is_reforecast: bool,
+    #        leadtime_max: int,
+    #        split_by_month: bool = True,
+    #        year_min: int = None,
+    #        year_max: int = None,
+    #        clobber: bool = False,
+    #    ):
+    #        forecast_type = "reforecast" if is_reforecast else "forecast"
+    #        year_min = self._year_min if year_min is None else year_min
+    #        year_max = self._year_max if year_max is None else year_max
+    #        month_range: List = [*range(1, 13)] if split_by_month else [None]
+    #        logger.info(
+    #            f"Downloading GloFAS {forecast_type} for years"
+    #        f" {year_min} - {year_max} and with max lead time {leadtime_max}"
+    #        )
+    #        for year in range(year_min, year_max + 1):
+    #            logger.info(f"...{year}")
+    #            for month in month_range:
+    #                logger.debug(f"...{month}")
+    #                filepath = self._get_raw_filepath(
+    #                    year=year,
+    #                    month=month,
+    #                    leadtime_max=leadtime_max,
+    #                )
+    #                super()._download(
+    #                    filepath=filepath,
+    #                    year=year,
+    #                    month=month,
+    #                    leadtime_max=leadtime_max,
+    #                    clobber=clobber,
+    #                )
 
     def process(  # type: ignore
         self,

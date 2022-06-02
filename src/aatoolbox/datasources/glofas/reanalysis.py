@@ -1,4 +1,5 @@
 """Glofas reanalysis."""
+import asyncio
 import datetime
 import logging
 from pathlib import Path
@@ -45,12 +46,18 @@ class GlofasReanalysis(glofas.Glofas):
             f"Downloading GloFAS reanalysis for years {year_min} -"
             f" {year_max}"
         )
-        for year in range(year_min, year_max + 1):
-            logger.info(f"...{year}")
-            filepath = self._get_raw_filepath(
-                year=year,
+        # Create list of query params
+        # TODO: Just ignore existing files for now if clobber is False, may
+        #  want to warn explicitly
+        query_params_list = [
+            glofas.QueryParams(
+                self._get_raw_filepath(year), self._get_query(year=year)
             )
-            super()._download(filepath=filepath, year=year, clobber=clobber)
+            for year in range(year_min, year_max + 1)
+            if not self._get_raw_filepath(year).exists() or clobber is True
+        ]
+        asyncio.run(self._download(query_params_list=query_params_list))
+        # TODO: return filepath
 
     def process(  # type: ignore
         self, year_min: int = None, year_max: int = None, clobber: bool = False
