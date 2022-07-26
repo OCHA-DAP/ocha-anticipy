@@ -1,5 +1,7 @@
 """Tests for GloFAS data download and processing."""
+from pathlib import Path
 from typing import List, Union
+from unittest import mock
 
 import numpy as np
 import pandas as pd
@@ -60,6 +62,7 @@ def mock_result(mocker):
         def update(self):
             pass
 
+        @mock.create_autospec
         def download(self, filepath):
             pass
 
@@ -98,7 +101,7 @@ class TestDownload:
             year_min=self.year,
             year_max=self.year,
         )
-        expected_args = {
+        expected_retrieve_args = {
             "name": "cems-glofas-historical",
             "request": {
                 "variable": "river_discharge_in_the_last_24_hours",
@@ -111,15 +114,17 @@ class TestDownload:
                 "hday": self.expected_days,
                 "area": self.expected_geo_bounding_box,
             },
-            # "target": Path(
-            #    f"{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}"
-            #    f"/glofas/cems-glofas-historical/"
-            #    f"{mock_country_config.iso3}_"
-            #    f"cems-glofas-historical_2000_Np1d1Sm2d2Ep3d4Wm4d5.grib"
-            # ),
         }
-        mock_retrieve.assert_called_with(**expected_args)
-        mock_result.download.assert_called_with(**expected_args)
+        expected_result_path = Path(
+            f"{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}"
+            f"/glofas/cems-glofas-historical/"
+            f"{mock_country_config.iso3}_"
+            f"cems-glofas-historical_2000_Np1d05Sm2d25Ep3d35Wm4d45.grib"
+        )
+        mock_retrieve.assert_called_with(**expected_retrieve_args)
+        mock_result.return_value.download.assert_called_with(
+            mock.ANY, expected_result_path
+        )
 
     def test_forecast_download(
         self, mock_country_config, mock_aa_data_dir, mock_retrieve, mock_result
@@ -139,7 +144,7 @@ class TestDownload:
             year_min=self.year,
             year_max=self.year,
         )
-        expected_args = {
+        expected_retrieve_args = {
             "name": "cems-glofas-forecast",
             "request": {
                 "variable": "river_discharge_in_the_last_24_hours",
@@ -157,15 +162,19 @@ class TestDownload:
                 "area": self.expected_geo_bounding_box,
                 "leadtime_hour": self.expected_leadtime,
             },
-            # "target": Path(
-            #    f"{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
-            #    f"glofas/cems-glofas-forecast/"
-            #    f"{mock_country_config.iso3}_"
-            #    f"cems-glofas-forecast_2000-12_ltmax03d_Np1d1Sm2d2Ep3d4Wm4d5"
-            #    f".grib"
-            # ),
         }
-        mock_retrieve.assert_called_with(**expected_args)
+
+        expected_result_path = Path(
+            f"{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
+            f"glofas/cems-glofas-forecast/"
+            f"{mock_country_config.iso3}_"
+            f"cems-glofas-forecast_2000-12_ltmax03d_Np1d05Sm2d25Ep3d35Wm4d45"
+            f".grib"
+        )
+        mock_retrieve.assert_called_with(**expected_retrieve_args)
+        mock_result.return_value.download.assert_called_with(
+            mock.ANY, expected_result_path
+        )
 
     def test_reforecast_download(
         self, mock_country_config, mock_aa_data_dir, mock_retrieve, mock_result
@@ -185,7 +194,7 @@ class TestDownload:
             year_min=self.year,
             year_max=self.year,
         )
-        expected_args = {
+        expected_retrieve_args = {
             "name": "cems-glofas-reforecast",
             "request": {
                 "variable": "river_discharge_in_the_last_24_hours",
@@ -202,15 +211,18 @@ class TestDownload:
                 "area": self.expected_geo_bounding_box,
                 "leadtime_hour": self.expected_leadtime,
             },
-            # "target": Path(
-            #    f"{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
-            #    f"glofas/cems-glofas-reforecast/"
-            #    f"{mock_country_config.iso3}_"
-            #    f"cems-glofas-reforecast_2000-12_ltmax03d_Np1d1Sm2d2Ep3d4Wm4d5"
-            #    f".grib"
-            # ),
         }
-        mock_retrieve.assert_called_with(**expected_args)
+        expected_result_path = Path(
+            f"{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
+            f"glofas/cems-glofas-reforecast/"
+            f"{mock_country_config.iso3}_"
+            f"cems-glofas-reforecast_2000-12_ltmax03d_Np1d05Sm2d25Ep3d35Wm4d45"
+            f".grib"
+        )
+        mock_retrieve.assert_called_with(**expected_retrieve_args)
+        mock_result.return_value.download.assert_called_with(
+            mock.ANY, expected_result_path
+        )
 
 
 class TestProcess:
