@@ -120,9 +120,9 @@ class Glofas(DataSource):
         # are downloaded
         while query_params_list:
             for query_params in query_params_list:
+                c = (cdsapi.Client(wait_until_complete=False, delete=False),)
                 result = cdsapi.api.Result(
-                    cdsapi.Client(wait_until_complete=False, delete=False),
-                    {"request_id": query_params.request_id},
+                    client=c, reply={"request_id": query_params.request_id}
                 )
                 result.update()
                 state = result.reply["state"]

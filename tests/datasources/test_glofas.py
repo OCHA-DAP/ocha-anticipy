@@ -1,12 +1,10 @@
 """Tests for GloFAS data download and processing."""
-from pathlib import Path
 from typing import List, Union
 
 import numpy as np
 import pandas as pd
 import pytest
 import xarray as xr
-from cdsapi import Client
 
 from aatoolbox.config.countryconfig import CountryConfig
 from aatoolbox.datasources.glofas.forecast import (
@@ -37,6 +35,40 @@ def test_expand_dims():
     assert "z" in ds.dims.keys()
 
 
+@pytest.fixture()
+def mock_retrieve(mocker):
+    """Mock only the retrieve method of the Client."""
+    mocker.patch(
+        "aatoolbox.datasources.glofas.glofas.cdsapi.Client.__init__",
+        return_value=None,
+    )
+    return mocker.patch(
+        "aatoolbox.datasources.glofas.glofas.cdsapi.Client.retrieve"
+    )
+
+
+@pytest.fixture
+def mock_result(mocker):
+    """Mock the entire Result class."""
+    # This is needed because the reply is changed dynamically
+    # so very difficult to use a Mock object
+    class MockResult:
+        def __init__(self, *args, **kwargs):
+            self.reply = {"state": "completed"}
+            self.state = None
+
+        def update(self):
+            pass
+
+        def download(self, filepath):
+            pass
+
+    return mocker.patch(
+        "aatoolbox.datasources.glofas.glofas.cdsapi.api.Result",
+        return_value=MockResult(),
+    )
+
+
 class TestDownload:
     """Tests for GloFAS downloading."""
 
@@ -49,18 +81,8 @@ class TestDownload:
     expected_days = [str(x + 1).zfill(2) for x in range(31)]
     expected_leadtime = ["24", "48", "72"]
 
-    @pytest.fixture()
-    def mock_retrieve(self, mocker):
-        """Mock out the CDS API."""
-        mocker.patch.object(Path, "mkdir", return_value=None)
-        mocker.patch.object(Client, "__init__", return_value=None)
-        return mocker.patch.object(Client, "retrieve")
-
     def test_reanalysis_download(
-        self,
-        mock_country_config,
-        mock_aa_data_dir,
-        mock_retrieve,
+        self, mock_country_config, mock_aa_data_dir, mock_retrieve, mock_result
     ):
         """
         Test GloFAS reanalysis download.
@@ -89,17 +111,18 @@ class TestDownload:
                 "hday": self.expected_days,
                 "area": self.expected_geo_bounding_box,
             },
-            "target": Path(
-                f"{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}"
-                f"/glofas/cems-glofas-historical/"
-                f"{mock_country_config.iso3}_"
-                f"cems-glofas-historical_2000_Np1d1Sm2d2Ep3d4Wm4d5.grib"
-            ),
+            # "target": Path(
+            #    f"{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}"
+            #    f"/glofas/cems-glofas-historical/"
+            #    f"{mock_country_config.iso3}_"
+            #    f"cems-glofas-historical_2000_Np1d1Sm2d2Ep3d4Wm4d5.grib"
+            # ),
         }
         mock_retrieve.assert_called_with(**expected_args)
+        mock_result.download.assert_called_with(**expected_args)
 
     def test_forecast_download(
-        self, mock_country_config, mock_aa_data_dir, mock_retrieve
+        self, mock_country_config, mock_aa_data_dir, mock_retrieve, mock_result
     ):
         """
         Test GloFAS forecast download.
@@ -134,18 +157,18 @@ class TestDownload:
                 "area": self.expected_geo_bounding_box,
                 "leadtime_hour": self.expected_leadtime,
             },
-            "target": Path(
-                f"{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
-                f"glofas/cems-glofas-forecast/"
-                f"{mock_country_config.iso3}_"
-                f"cems-glofas-forecast_2000-12_ltmax03d_Np1d1Sm2d2Ep3d4Wm4d5"
-                f".grib"
-            ),
+            # "target": Path(
+            #    f"{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
+            #    f"glofas/cems-glofas-forecast/"
+            #    f"{mock_country_config.iso3}_"
+            #    f"cems-glofas-forecast_2000-12_ltmax03d_Np1d1Sm2d2Ep3d4Wm4d5"
+            #    f".grib"
+            # ),
         }
         mock_retrieve.assert_called_with(**expected_args)
 
     def test_reforecast_download(
-        self, mock_country_config, mock_aa_data_dir, mock_retrieve
+        self, mock_country_config, mock_aa_data_dir, mock_retrieve, mock_result
     ):
         """
         Test GloFAS reforecast download.
@@ -179,13 +202,13 @@ class TestDownload:
                 "area": self.expected_geo_bounding_box,
                 "leadtime_hour": self.expected_leadtime,
             },
-            "target": Path(
-                f"{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
-                f"glofas/cems-glofas-reforecast/"
-                f"{mock_country_config.iso3}_"
-                f"cems-glofas-reforecast_2000-12_ltmax03d_Np1d1Sm2d2Ep3d4Wm4d5"
-                f".grib"
-            ),
+            # "target": Path(
+            #    f"{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
+            #    f"glofas/cems-glofas-reforecast/"
+            #    f"{mock_country_config.iso3}_"
+            #    f"cems-glofas-reforecast_2000-12_ltmax03d_Np1d1Sm2d2Ep3d4Wm4d5"
+            #    f".grib"
+            # ),
         }
         mock_retrieve.assert_called_with(**expected_args)
 
