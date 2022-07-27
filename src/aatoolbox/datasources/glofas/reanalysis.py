@@ -6,10 +6,10 @@ from typing import List
 
 import xarray as xr
 
-from aatoolbox import GeoBoundingBox
 from aatoolbox.config.countryconfig import CountryConfig
 from aatoolbox.datasources.glofas import glofas
 from aatoolbox.utils.check_file_existence import check_file_existence
+from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
 logger = logging.getLogger(__name__)
 

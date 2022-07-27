@@ -1,4 +1,5 @@
 """Tests for GloFAS processing."""
+from datetime import datetime
 from typing import List, Union
 
 import numpy as np
@@ -21,8 +22,6 @@ class TestProcess:
     geo_bounding_box = GeoBoundingBox(
         lat_max=1, lat_min=-2, lon_max=3, lon_min=-4
     )
-    year = 2000
-    leadtime_max = 3
     numbers = [0, 1, 2, 3, 4, 5, 6]
 
     def get_raw_data(
@@ -194,6 +193,8 @@ class TestProcess:
         glofas_reanalysis = GlofasReanalysis(
             country_config=mock_country_config,
             geo_bounding_box=self.geo_bounding_box,
+            date_min=datetime(year=2022, month=1, day=1),
+            date_max=datetime(year=2022, month=12, day=31),
         )
         output_filepath = glofas_reanalysis.process()
         output_ds = xr.load_dataset(output_filepath)
@@ -206,12 +207,11 @@ class TestProcess:
         glofas_reforecast = GlofasReforecast(
             country_config=mock_country_config,
             geo_bounding_box=self.geo_bounding_box,
+            leadtime_max=3,
+            date_min=datetime(year=2022, month=1, day=1),
+            date_max=datetime(year=2022, month=12, day=31),
         )
-        output_filepath = glofas_reforecast.process(
-            leadtime_max=self.leadtime_max,
-            year_min=self.year,
-            year_max=self.year,
-        )
+        output_filepath = glofas_reforecast.process()
         output_ds = xr.load_dataset(output_filepath)
         assert output_ds.equals(mock_processed_data_forecast)
 
@@ -222,12 +222,11 @@ class TestProcess:
         glofas_forecast = GlofasReforecast(
             country_config=mock_country_config,
             geo_bounding_box=self.geo_bounding_box,
+            leadtime_max=3,
+            date_min=datetime(year=2022, month=1, day=1),
+            date_max=datetime(year=2022, month=12, day=31),
         )
-        output_filepath = glofas_forecast.process(
-            leadtime_max=self.leadtime_max,
-            year_min=self.year,
-            year_max=self.year,
-        )
+        output_filepath = glofas_forecast.process()
         output_ds = xr.load_dataset(output_filepath)
         assert output_ds.equals(mock_processed_data_forecast)
 
