@@ -106,7 +106,7 @@ class Glofas(DataSource):
     def download(  # type: ignore
         self,
         clobber: bool = False,
-    ):
+    ) -> List[Path]:
         """Download."""
         msg = (
             f"Downloading GloFAS {self._forecast_type} "
@@ -119,7 +119,7 @@ class Glofas(DataSource):
         # Get list of files to open
         query_params_list = [
             QueryParams(
-                self._get_output_filepath(
+                self._get_filepath(
                     year=date.year,
                     month=date.month,
                     day=date.day,
@@ -133,7 +133,7 @@ class Glofas(DataSource):
                 ),
             )
             for date in self._date_range
-            if not self._get_output_filepath(
+            if not self._get_filepath(
                 year=date.year,
                 month=date.month,
                 day=date.day,
@@ -141,68 +141,34 @@ class Glofas(DataSource):
             ).exists()
             or clobber is True
         ]
-        self._download(query_params_list=query_params_list)
+        return self._download(query_params_list=query_params_list)
 
     def load(
         self,
         leadtime_max: int = None,
-    ):
+    ) -> xr.Dataset:
         """Load GloFAS data."""
-        filepath = self._get_processed_filepath(
-            leadtime_max=leadtime_max,
-        )
-        return xr.load_dataset(filepath)
-
-    def _download(
-        self,
-        query_params_list: List[QueryParams],
-    ):
-        Path(query_params_list[0].filepath.parent).mkdir(
-            parents=True, exist_ok=True
-        )
-        # First make the requests and store the request number
-        for query_params in query_params_list:
-            query_params.request_id = (
-                cdsapi.Client(wait_until_complete=False, delete=False)
-                .retrieve(name=self._cds_name, request=query_params.query)
-                .reply["request_id"]
+        filepath_list = [
+            self._get_filepath(
+                year=date.year,
+                month=date.month,
+                day=date.day,
+                leadtime_max=self._leadtime_max,
+                is_processed=True,
             )
-        # Loop through the request list and check status until all
-        # are downloaded
-        while query_params_list:
-            for query_params in query_params_list:
-                c = (cdsapi.Client(wait_until_complete=False, delete=False),)
-                result = cdsapi.api.Result(
-                    client=c, reply={"request_id": query_params.request_id}
-                )
-                result.update()
-                state = result.reply["state"]
-                logger.debug(
-                    f"For request {query_params.request_id} and filename "
-                    f"{query_params.filepath}, state is {state}"
-                )
-                if state == "completed":
-                    result.download(query_params.filepath)
-                    query_params.downloaded = True
-            # Remove requests that have been downloaded
-            query_params_list = [
-                query_params
-                for query_params in query_params_list
-                if not query_params.downloaded
-            ]
-            # Sleep a bit before the next loop so that we're not
-            # hammering on cds
-            if query_params_list:
-                time.sleep(60)
+            for date in self._date_range
+        ]
+        with xr.open_mfdataset(filepath_list) as ds:
+            return ds
 
-    def _get_output_filepath(
+    def _get_filepath(
         self,
         year: int,
         month: int = None,
         day: int = None,
         leadtime_max: int = None,
         is_processed: bool = False,
-    ):
+    ) -> Path:
         directory = (
             self._processed_base_dir if is_processed else self._raw_base_dir
         )
@@ -219,6 +185,51 @@ class Glofas(DataSource):
         else:
             filename += ".grib"
         return directory / self._cds_name / Path(filename)
+
+    def _download(
+        self,
+        query_params_list: List[QueryParams],
+    ) -> List[Path]:
+        Path(query_params_list[0].filepath.parent).mkdir(
+            parents=True, exist_ok=True
+        )
+        # First make the requests and store the request number
+        for query_params in query_params_list:
+            query_params.request_id = (
+                cdsapi.Client(wait_until_complete=False, delete=False)
+                .retrieve(name=self._cds_name, request=query_params.query)
+                .reply["request_id"]
+            )
+        # Loop through the request list and check status until all
+        # are downloaded
+        downloaded_filepaths = []
+        while query_params_list:
+            for query_params in query_params_list:
+                c = (cdsapi.Client(wait_until_complete=False, delete=False),)
+                result = cdsapi.api.Result(
+                    client=c, reply={"request_id": query_params.request_id}
+                )
+                result.update()
+                state = result.reply["state"]
+                logger.debug(
+                    f"For request {query_params.request_id} and filename "
+                    f"{query_params.filepath}, state is {state}"
+                )
+                if state == "completed":
+                    result.download(query_params.filepath)
+                    query_params.downloaded = True
+                    downloaded_filepaths.append(query_params.filepath)
+            # Remove requests that have been downloaded
+            query_params_list = [
+                query_params
+                for query_params in query_params_list
+                if not query_params.downloaded
+            ]
+            # Sleep a bit before the next loop so that we're not
+            # hammering on cds
+            if query_params_list:
+                time.sleep(60)
+        return downloaded_filepaths
 
     def _get_query(
         self,
@@ -325,10 +336,3 @@ class Glofas(DataSource):
         logger.info(f"Writing to {filepath}")
         ds.to_netcdf(filepath)
         return filepath
-
-    def _get_processed_filepath(self, leadtime_max: int = None) -> Path:
-        filename = f"{self._country_config.iso3}_{self._cds_name}"
-        if leadtime_max is not None:
-            filename += f"_ltmax{str(leadtime_max).zfill(2)}d"
-        filename += f"_{self._geo_bounding_box.get_filename_repr(p=1)}.nc"
-        return self._processed_base_dir / filename

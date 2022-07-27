@@ -167,8 +167,9 @@ class TestProcess:
         self, mocker, mock_country_config
     ) -> xr.Dataset:
         """Create fake processed GloFAS reanalysis data."""
-        mocker.patch.object(
-            xr, "open_mfdataset", return_value=self.get_raw_data()
+        mocker.patch(
+            "aatoolbox.datasources.glofas.reanalysis.xr.load_dataset",
+            return_value=self.get_raw_data(),
         )
         return self.get_processed_data(country_config=mock_country_config)
 
@@ -178,7 +179,10 @@ class TestProcess:
     ):
         """Create fake processed GloFAS forecast or reforecast data."""
         cf_raw, pf_raw, expected_dis24 = mock_ensemble_raw
-        mocker.spy(xr, "open_mfdataset").side_effect = [cf_raw, pf_raw]
+        mocker.patch(
+            "aatoolbox.datasources.glofas.forecast.xr.load_dataset",
+            side_effect=[cf_raw, pf_raw],
+        )
         return self.get_processed_data(
             country_config=mock_country_config,
             number_coord=self.numbers,
@@ -196,9 +200,10 @@ class TestProcess:
             date_min=datetime(year=2022, month=1, day=1),
             date_max=datetime(year=2022, month=12, day=31),
         )
-        output_filepath = glofas_reanalysis.process()
-        output_ds = xr.load_dataset(output_filepath)
-        assert output_ds.equals(mock_processed_data_reanalysis)
+        output_filepath = glofas_reanalysis.process()[0]
+        # use open_dataset since load_dataset is patched
+        with xr.open_dataset(output_filepath) as output_ds:
+            assert output_ds.equals(mock_processed_data_reanalysis)
 
     def test_reforecast_process(
         self, mock_country_config, mock_processed_data_forecast
@@ -209,11 +214,11 @@ class TestProcess:
             geo_bounding_box=self.geo_bounding_box,
             leadtime_max=3,
             date_min=datetime(year=2022, month=1, day=1),
-            date_max=datetime(year=2022, month=12, day=31),
+            date_max=datetime(year=2022, month=1, day=31),
         )
-        output_filepath = glofas_reforecast.process()
-        output_ds = xr.load_dataset(output_filepath)
-        assert output_ds.equals(mock_processed_data_forecast)
+        output_filepath = glofas_reforecast.process()[0]
+        with xr.open_dataset(output_filepath) as output_ds:
+            assert output_ds.equals(mock_processed_data_forecast)
 
     def test_forecast_process(
         self, mock_country_config, mock_processed_data_forecast
@@ -224,11 +229,11 @@ class TestProcess:
             geo_bounding_box=self.geo_bounding_box,
             leadtime_max=3,
             date_min=datetime(year=2022, month=1, day=1),
-            date_max=datetime(year=2022, month=12, day=31),
+            date_max=datetime(year=2022, month=1, day=1),
         )
-        output_filepath = glofas_forecast.process()
-        output_ds = xr.load_dataset(output_filepath)
-        assert output_ds.equals(mock_processed_data_forecast)
+        output_filepath = glofas_forecast.process()[0]
+        with xr.open_dataset(output_filepath) as output_ds:
+            assert output_ds.equals(mock_processed_data_forecast)
 
 
 def test_expand_dims():

@@ -41,7 +41,7 @@ class GlofasReanalysis(glofas.Glofas):
             frequency=rrule.YEARLY,
         )
 
-    def process(self, clobber: bool = False):  # type: ignore
+    def process(self, clobber: bool = False) -> List[Path]:  # type: ignore
         """
         Process GloFAS data.
 
@@ -49,43 +49,35 @@ class GlofasReanalysis(glofas.Glofas):
         ----------
         clobber :
         """
-        filepath = self._get_processed_filepath()
         logger.info(
             f"Processing GloFAS Reanalysis for {self._date_min.year} to "
             f"{self._date_max.year}"
         )
         # Get list of files to open
-        input_filepath_list = [
-            self._get_output_filepath(
-                year=date.year,
+        processed_filepaths = []
+        for date in self._date_range:
+            input_filepath = self._get_filepath(year=date.year)
+            output_filepath = self._get_filepath(
+                year=date.year, is_processed=True
             )
-            for date in self._date_range
-        ]
-
-        return self._process(
-            filepath=filepath,
-            input_filepath_list=input_filepath_list,
-            clobber=clobber,
-        )
+            processed_filepath = self._process_single_file(
+                input_filepath=input_filepath,
+                filepath=output_filepath,
+                clobber=clobber,
+            )
+            processed_filepaths.append(processed_filepath)
+        return processed_filepaths
 
     @check_file_existence
-    def _process(
-        self, filepath: Path, input_filepath_list: List[Path], clobber: bool
+    def _process_single_file(
+        self, input_filepath: Path, filepath: Path, clobber: bool
     ) -> Path:
         # Read in the product_type
-        logger.info(f"Reading in {len(input_filepath_list)} files")
-
-        with xr.open_mfdataset(
-            input_filepath_list,
-            engine="cfgrib",
-            backend_kwargs={"indexpath": ""},
-        ) as ds:
-            # Create a new product_type with just the station pixels
-            logger.info(
-                "Looping through reporting_points, this takes some time"
-            )
-            ds_new = self._get_reporting_point_dataset(
-                ds=ds, coord_names=["time"]
-            )
-            # Write out the new product_type to a file
-            return self._write_to_processed_file(ds=ds_new, filepath=filepath)
+        logger.debug(f"Reading in {input_filepath}")
+        ds = xr.load_dataset(
+            input_filepath, engine="cfgrib", backend_kwargs={"indexpath": ""}
+        )
+        # Create a new product_type with just the station pixels
+        ds_new = self._get_reporting_point_dataset(ds=ds, coord_names=["time"])
+        # Write out the new product_type to a file
+        return self._write_to_processed_file(ds=ds_new, filepath=filepath)

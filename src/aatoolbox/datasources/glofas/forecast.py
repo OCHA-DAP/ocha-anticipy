@@ -46,41 +46,45 @@ class _GlofasForecastBase(glofas.Glofas):
     def process(  # type: ignore
         self,
         clobber: bool = False,
-    ):
+    ) -> List[Path]:
         logger.info(
             f"Processing GloFAS {self._forecast_type} for {self._date_min} - "
             f"{self._date_max} and up to {self._leadtime_max} day lead time"
         )
 
         # Get list of files to open
-        input_filepath_list = [
-            self._get_output_filepath(
+        processed_filepaths = []
+        for date in self._date_range:
+            input_filepath = self._get_filepath(
                 year=date.year,
                 month=date.month,
                 day=date.day,
                 leadtime_max=self._leadtime_max,
             )
-            for date in self._date_range
-        ]
-        filepath = self._get_processed_filepath(
-            leadtime_max=self._leadtime_max
-        )
-
-        return self._process(
-            filepath=filepath,
-            input_filepath_list=input_filepath_list,
-            clobber=clobber,
-        )
+            output_filepath = self._get_filepath(
+                year=date.year,
+                month=date.month,
+                day=date.day,
+                leadtime_max=self._leadtime_max,
+                is_processed=True,
+            )
+            processed_filepath = self._process_single_file(
+                input_filepath=input_filepath,
+                filepath=output_filepath,
+                clobber=clobber,
+            )
+            processed_filepaths.append(processed_filepath)
+        return processed_filepaths
 
     @check_file_existence
-    def _process(
-        self, filepath: Path, input_filepath_list: List[Path], clobber: bool
+    def _process_single_file(
+        self, input_filepath: Path, filepath: Path, clobber: bool
     ) -> Path:
         # Read in both the control and ensemble perturbed forecast
         # and combine
-        logger.info(f"Reading in {len(input_filepath_list)} files")
+        logger.debug(f"Reading in {input_filepath}")
         ds = self._read_in_ensemble_and_perturbed_datasets(
-            filepath_list=input_filepath_list
+            filepath=input_filepath
         )
         # Create a new product_type with just the station pixels
         logger.info("Looping through reporting_points, this takes some time")
@@ -92,38 +96,35 @@ class _GlofasForecastBase(glofas.Glofas):
         # Write out the new product_type to a file
         return self._write_to_processed_file(ds=ds_new, filepath=filepath)
 
-    def _read_in_ensemble_and_perturbed_datasets(
-        self, filepath_list: List[Path]
-    ):
+    def _read_in_ensemble_and_perturbed_datasets(self, filepath: Path):
         ds_list = []
         for data_type in ["cf", "pf"]:
-            with xr.open_mfdataset(
-                filepath_list,
+            ds = xr.load_dataset(
+                filepath,
                 engine="cfgrib",
                 backend_kwargs={
                     "indexpath": "",
                     "filter_by_keys": {"dataType": data_type},
                 },
-            ) as ds:
-                # Delete history attribute in order to merge
-                del ds.attrs["history"]
-                # Extra processing require for control forecast
-                if data_type == "cf":
-                    ds = _expand_dims(
-                        ds=ds,
-                        dataset_name=self._RIVER_DISCHARGE_VAR,
-                        coord_names=[
-                            "number",
-                            "time",
-                            "step",
-                            "latitude",
-                            "longitude",
-                        ],
-                        expansion_dim=0,
-                    )
-                ds_list.append(ds)
-        ds = xr.combine_by_coords(ds_list)
-        return ds
+            )
+            # Delete history attribute in order to merge
+            del ds.attrs["history"]
+            # Extra processing require for control forecast
+            if data_type == "cf":
+                ds = _expand_dims(
+                    ds=ds,
+                    dataset_name=self._RIVER_DISCHARGE_VAR,
+                    coord_names=[
+                        "number",
+                        "time",
+                        "step",
+                        "latitude",
+                        "longitude",
+                    ],
+                    expansion_dim=0,
+                )
+            ds_list.append(ds)
+        return xr.combine_by_coords(ds_list)
 
 
 # TODO: see if this is fixed
