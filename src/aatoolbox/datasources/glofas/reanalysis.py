@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import List
 
 import xarray as xr
+from dateutil import rrule
 
 from aatoolbox.config.countryconfig import CountryConfig
 from aatoolbox.datasources.glofas import glofas
@@ -37,32 +38,8 @@ class GlofasReanalysis(glofas.Glofas):
             system_version="version_3_1",
             product_type="consolidated",
             date_variable_prefix="h",
+            frequency=rrule.YEARLY,
         )
-
-    def download(self, clobber: bool = False):  # type: ignore
-        """
-        Download GloFAS reanalysis.
-
-        Parameters
-        ----------
-        clobber :
-        """
-        logger.info(
-            f"Downloading GloFAS reanalysis for years {self._date_min.year} -"
-            f" {self._date_max.year}"
-        )
-        # Create list of query params
-        # TODO: Just ignore existing files for now if clobber is False, may
-        #  want to warn explicitly
-        query_params_list = [
-            glofas.QueryParams(
-                self._get_raw_filepath(year), self._get_query(year=year)
-            )
-            for year in range(self._date_min.year, self._date_max.year + 1)
-            if not self._get_raw_filepath(year).exists() or clobber is True
-        ]
-        self._download(query_params_list=query_params_list)
-        # TODO: return filepath
 
     def process(self, clobber: bool = False):  # type: ignore
         """

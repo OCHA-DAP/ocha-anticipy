@@ -28,11 +28,8 @@ class _GlofasForecastBase(glofas.Glofas):
         system_version: str,
         product_type: Union[str, List[str]],
         date_variable_prefix: str,
-        split_by_day: bool,
-        forecast_type: str,
+        frequency: int,
     ):
-        self._forecast_type = forecast_type
-        self._leadtime_max = leadtime_max
         super().__init__(
             country_config=country_config,
             geo_bounding_box=geo_bounding_box,
@@ -42,48 +39,9 @@ class _GlofasForecastBase(glofas.Glofas):
             system_version=system_version,
             product_type=product_type,
             date_variable_prefix=date_variable_prefix,
-            split_by_day=split_by_day,
+            frequency=frequency,
+            leadtime_max=leadtime_max,
         )
-
-    def download(  # type: ignore
-        self,
-        clobber: bool = False,
-    ):
-        logger.info(
-            f"Downloading GloFAS {self._forecast_type} for {self._date_min} - "
-            f"{self._date_max} and up to {self._leadtime_max} day lead time"
-        )
-
-        # Get list of files to open
-        frequency = rrule.DAILY if self._split_by_day else rrule.MONTHLY
-        date_range = rrule.rrule(
-            freq=frequency, dtstart=self._date_min, until=self._date_max
-        )
-        query_params_list = [
-            glofas.QueryParams(
-                self._get_raw_filepath(
-                    year=date.year,
-                    month=date.month,
-                    day=date.day,
-                    leadtime_max=self._leadtime_max,
-                ),
-                self._get_query(
-                    year=date.year,
-                    month=date.month,
-                    day=date.day,
-                    leadtime_max=self._leadtime_max,
-                ),
-            )
-            for date in date_range
-            if not self._get_raw_filepath(
-                year=date.year,
-                month=date.month,
-                day=date.day,
-                leadtime_max=self._leadtime_max,
-            ).exists()
-            or clobber is True
-        ]
-        self._download(query_params_list=query_params_list)
 
     def process(  # type: ignore
         self,
@@ -94,9 +52,8 @@ class _GlofasForecastBase(glofas.Glofas):
             f"{self._date_max} and up to {self._leadtime_max} day lead time"
         )
 
-        frequency = rrule.DAILY if self._split_by_day else rrule.MONTHLY
         date_range = rrule.rrule(
-            freq=frequency, dtstart=self._date_min, until=self._date_max
+            freq=self._frequency, dtstart=self._date_min, until=self._date_max
         )
         # Get list of files to open
         input_filepath_list = [
@@ -221,8 +178,7 @@ class GlofasForecast(_GlofasForecastBase):
             system_version="operational",
             product_type=["control_forecast", "ensemble_perturbed_forecasts"],
             date_variable_prefix="",
-            split_by_day=True,
-            forecast_type="forecast",
+            frequency=rrule.DAILY,
         )
 
 
@@ -254,6 +210,5 @@ class GlofasReforecast(_GlofasForecastBase):
                 "ensemble_perturbed_reforecasts",
             ],
             date_variable_prefix="h",
-            split_by_day=False,
-            forecast_type="reforecast",
+            frequency=rrule.MONTHLY,
         )

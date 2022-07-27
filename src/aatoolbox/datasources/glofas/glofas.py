@@ -9,6 +9,7 @@ from typing import List, Union
 import cdsapi
 import numpy as np
 import xarray as xr
+from dateutil import rrule
 
 from aatoolbox.config.countryconfig import CountryConfig
 from aatoolbox.datasources.datasource import DataSource
@@ -62,6 +63,7 @@ class Glofas(DataSource):
         The sub-datasets that you would like to download
     date_variable_prefix : str, default = ""
         Some GloFAS datasets have the prefix "h" in front of some query keys
+    frequency: str
     """
 
     _RIVER_DISCHARGE_VAR = "dis24"
@@ -76,7 +78,8 @@ class Glofas(DataSource):
         system_version: str,
         product_type: Union[str, List[str]],
         date_variable_prefix: str,
-        split_by_day: bool = False,
+        frequency: int,
+        leadtime_max: int = None,
     ):
         super().__init__(
             country_config=country_config,
@@ -93,7 +96,52 @@ class Glofas(DataSource):
         self._system_version = system_version
         self._product_type = product_type
         self._date_variable_prefix = date_variable_prefix
-        self._split_by_day = split_by_day
+        self._frequency = frequency
+        self._leadtime_max = leadtime_max
+        self._forecast_type = type(self).__name__.replace("Glofas", "").lower()
+
+    def download(  # type: ignore
+        self,
+        clobber: bool = False,
+    ):
+        """Download."""
+        msg = (
+            f"Downloading GloFAS {self._forecast_type} "
+            f"for {self._date_min} - {self._date_max}"
+        )
+        if self._leadtime_max is not None:
+            msg += f"and up to {self._leadtime_max} day lead time"
+        logger.info(msg)
+
+        # Get list of files to open
+        date_range = rrule.rrule(
+            freq=self._frequency, dtstart=self._date_min, until=self._date_max
+        )
+        query_params_list = [
+            QueryParams(
+                self._get_raw_filepath(
+                    year=date.year,
+                    month=date.month,
+                    day=date.day,
+                    leadtime_max=self._leadtime_max,
+                ),
+                self._get_query(
+                    year=date.year,
+                    month=date.month,
+                    day=date.day,
+                    leadtime_max=self._leadtime_max,
+                ),
+            )
+            for date in date_range
+            if not self._get_raw_filepath(
+                year=date.year,
+                month=date.month,
+                day=date.day,
+                leadtime_max=self._leadtime_max,
+            ).exists()
+            or clobber is True
+        ]
+        self._download(query_params_list=query_params_list)
 
     def load(
         self,
@@ -156,9 +204,9 @@ class Glofas(DataSource):
     ):
         directory = self._raw_base_dir / self._cds_name
         filename = f"{self._country_config.iso3}_{self._cds_name}_{year}"
-        if month is not None:
+        if self._frequency in [rrule.MONTHLY, rrule.DAILY]:
             filename += f"-{str(month).zfill(2)}"
-        if day is not None and self._split_by_day:
+        if self._frequency == rrule.DAILY:
             filename += f"-{str(day).zfill(2)}"
         if leadtime_max is not None:
             filename += f"_ltmax{str(leadtime_max).zfill(2)}d"
@@ -179,16 +227,12 @@ class Glofas(DataSource):
             "system_version": self._system_version,
             "hydrological_model": _HYDROLOGICAL_MODEL,
             f"{self._date_variable_prefix}year": str(year),
-            f"{self._date_variable_prefix}month": [
-                str(x + 1).zfill(2) for x in range(12)
-            ]
-            if month is None
-            else str(month).zfill(2),
-            f"{self._date_variable_prefix}day": [
-                str(x + 1).zfill(2) for x in range(31)
-            ]
-            if not self._split_by_day
-            else str(day).zfill(2),
+            f"{self._date_variable_prefix}month": str(month).zfill(2)
+            if self._frequency in [rrule.MONTHLY, rrule.DAILY]
+            else [str(x + 1).zfill(2) for x in range(12)],
+            f"{self._date_variable_prefix}day": str(day).zfill(2)
+            if self._frequency == rrule.DAILY
+            else [str(x + 1).zfill(2) for x in range(31)],
             "area": [
                 self._geo_bounding_box.lat_max,
                 self._geo_bounding_box.lon_min,
