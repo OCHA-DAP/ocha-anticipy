@@ -99,6 +99,9 @@ class Glofas(DataSource):
         self._frequency = frequency
         self._leadtime_max = leadtime_max
         self._forecast_type = type(self).__name__.replace("Glofas", "").lower()
+        self._date_range = rrule.rrule(
+            freq=self._frequency, dtstart=self._date_min, until=self._date_max
+        )
 
     def download(  # type: ignore
         self,
@@ -114,12 +117,9 @@ class Glofas(DataSource):
         logger.info(msg)
 
         # Get list of files to open
-        date_range = rrule.rrule(
-            freq=self._frequency, dtstart=self._date_min, until=self._date_max
-        )
         query_params_list = [
             QueryParams(
-                self._get_raw_filepath(
+                self._get_output_filepath(
                     year=date.year,
                     month=date.month,
                     day=date.day,
@@ -132,8 +132,8 @@ class Glofas(DataSource):
                     leadtime_max=self._leadtime_max,
                 ),
             )
-            for date in date_range
-            if not self._get_raw_filepath(
+            for date in self._date_range
+            if not self._get_output_filepath(
                 year=date.year,
                 month=date.month,
                 day=date.day,
@@ -195,14 +195,17 @@ class Glofas(DataSource):
             if query_params_list:
                 time.sleep(60)
 
-    def _get_raw_filepath(
+    def _get_output_filepath(
         self,
         year: int,
         month: int = None,
         day: int = None,
         leadtime_max: int = None,
+        is_processed: bool = False,
     ):
-        directory = self._raw_base_dir / self._cds_name
+        directory = (
+            self._processed_base_dir if is_processed else self._raw_base_dir
+        )
         filename = f"{self._country_config.iso3}_{self._cds_name}_{year}"
         if self._frequency in [rrule.MONTHLY, rrule.DAILY]:
             filename += f"-{str(month).zfill(2)}"
@@ -210,8 +213,12 @@ class Glofas(DataSource):
             filename += f"-{str(day).zfill(2)}"
         if leadtime_max is not None:
             filename += f"_ltmax{str(leadtime_max).zfill(2)}d"
-        filename += f"_{self._geo_bounding_box.get_filename_repr(p=2)}.grib"
-        return directory / Path(filename)
+        filename += f"_{self._geo_bounding_box.get_filename_repr(p=2)}"
+        if is_processed:
+            filename += "_processed.nc"
+        else:
+            filename += ".grib"
+        return directory / self._cds_name / Path(filename)
 
     def _get_query(
         self,

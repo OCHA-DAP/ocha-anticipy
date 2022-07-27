@@ -56,10 +56,10 @@ class GlofasReanalysis(glofas.Glofas):
         )
         # Get list of files to open
         input_filepath_list = [
-            self._get_raw_filepath(
-                year=year,
+            self._get_output_filepath(
+                year=date.year,
             )
-            for year in range(self._date_min.year, self._date_max.year + 1)
+            for date in self._date_range
         ]
 
         return self._process(

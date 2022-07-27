@@ -52,18 +52,15 @@ class _GlofasForecastBase(glofas.Glofas):
             f"{self._date_max} and up to {self._leadtime_max} day lead time"
         )
 
-        date_range = rrule.rrule(
-            freq=self._frequency, dtstart=self._date_min, until=self._date_max
-        )
         # Get list of files to open
         input_filepath_list = [
-            self._get_raw_filepath(
+            self._get_output_filepath(
                 year=date.year,
                 month=date.month,
                 day=date.day,
                 leadtime_max=self._leadtime_max,
             )
-            for date in date_range
+            for date in self._date_range
         ]
         filepath = self._get_processed_filepath(
             leadtime_max=self._leadtime_max
