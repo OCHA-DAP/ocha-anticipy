@@ -1,11 +1,13 @@
 """Glofas reanalysis."""
-import datetime
 import logging
+from datetime import datetime
 from pathlib import Path
 from typing import List
 
 import xarray as xr
 
+from aatoolbox import GeoBoundingBox
+from aatoolbox.config.countryconfig import CountryConfig
 from aatoolbox.datasources.glofas import glofas
 from aatoolbox.utils.check_file_existence import check_file_existence
 
@@ -15,35 +17,39 @@ logger = logging.getLogger(__name__)
 class GlofasReanalysis(glofas.Glofas):
     """Download, process GloFAS reanalysis."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(
+        self,
+        country_config: CountryConfig,
+        geo_bounding_box: GeoBoundingBox,
+        date_min: datetime = None,
+        date_max: datetime = None,
+    ):
+        if date_min is None:
+            date_min = datetime(year=1971, month=1, day=1)
+        if date_max is None:
+            date_max = datetime.utcnow()
         super().__init__(
-            *args,
-            **kwargs,
-            year_min=1979,
-            year_max=datetime.datetime.now().year,
+            country_config=country_config,
+            geo_bounding_box=geo_bounding_box,
+            date_min=date_min,
+            date_max=date_max,
             cds_name="cems-glofas-historical",
             system_version="version_3_1",
             product_type="consolidated",
             date_variable_prefix="h",
         )
 
-    def download(  # type: ignore
-        self, year_min: int = None, year_max: int = None, clobber: bool = False
-    ):
+    def download(self, clobber: bool = False):  # type: ignore
         """
         Download GloFAS reanalysis.
 
         Parameters
         ----------
-        year_min :
-        year_max :
         clobber :
         """
-        year_min = self._year_min if year_min is None else year_min
-        year_max = self._year_max if year_max is None else year_max
         logger.info(
-            f"Downloading GloFAS reanalysis for years {year_min} -"
-            f" {year_max}"
+            f"Downloading GloFAS reanalysis for years {self._date_min.year} -"
+            f" {self._date_max.year}"
         )
         # Create list of query params
         # TODO: Just ignore existing files for now if clobber is False, may
@@ -52,36 +58,31 @@ class GlofasReanalysis(glofas.Glofas):
             glofas.QueryParams(
                 self._get_raw_filepath(year), self._get_query(year=year)
             )
-            for year in range(year_min, year_max + 1)
+            for year in range(self._date_min.year, self._date_max.year + 1)
             if not self._get_raw_filepath(year).exists() or clobber is True
         ]
         self._download(query_params_list=query_params_list)
         # TODO: return filepath
 
-    def process(  # type: ignore
-        self, year_min: int = None, year_max: int = None, clobber: bool = False
-    ):
+    def process(self, clobber: bool = False):  # type: ignore
         """
         Process GloFAS data.
 
         Parameters
         ----------
-        year_min :
-        year_max :
         clobber :
         """
-        year_min = self._year_min if year_min is None else year_min
-        year_max = self._year_max if year_max is None else year_max
         filepath = self._get_processed_filepath()
         logger.info(
-            f"Processing GloFAS Reanalysis for {year_min} to {year_max}"
+            f"Processing GloFAS Reanalysis for {self._date_min.year} to "
+            f"{self._date_max.year}"
         )
         # Get list of files to open
         input_filepath_list = [
             self._get_raw_filepath(
                 year=year,
             )
-            for year in range(year_min, year_max + 1)
+            for year in range(self._date_min.year, self._date_max.year + 1)
         ]
 
         return self._process(

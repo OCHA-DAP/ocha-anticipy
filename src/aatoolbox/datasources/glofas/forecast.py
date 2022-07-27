@@ -1,52 +1,85 @@
 """Glofas focast and reforecast."""
-import datetime
 import logging
+from datetime import datetime
 from pathlib import Path
-from typing import List
+from typing import List, Union
 
 import numpy as np
 import xarray as xr
+from dateutil import rrule
 
+from aatoolbox.config.countryconfig import CountryConfig
 from aatoolbox.datasources.glofas import glofas
 from aatoolbox.utils.check_file_existence import check_file_existence
+from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
 logger = logging.getLogger(__name__)
 
 
 class _GlofasForecastBase(glofas.Glofas):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(
+        self,
+        country_config: CountryConfig,
+        geo_bounding_box: GeoBoundingBox,
+        leadtime_max: int,
+        date_min: datetime,
+        date_max: datetime,
+        cds_name: str,
+        system_version: str,
+        product_type: Union[str, List[str]],
+        date_variable_prefix: str,
+        split_by_day: bool,
+        forecast_type: str,
+    ):
+        self._forecast_type = forecast_type
+        self._leadtime_max = leadtime_max
+        super().__init__(
+            country_config=country_config,
+            geo_bounding_box=geo_bounding_box,
+            date_min=date_min,
+            date_max=date_max,
+            cds_name=cds_name,
+            system_version=system_version,
+            product_type=product_type,
+            date_variable_prefix=date_variable_prefix,
+            split_by_day=split_by_day,
+        )
 
     def download(  # type: ignore
         self,
-        is_reforecast: bool,
-        leadtime_max: int,
-        split_by_month: bool = True,
-        year_min: int = None,
-        year_max: int = None,
         clobber: bool = False,
     ):
-        forecast_type = "reforecast" if is_reforecast else "forecast"
-        year_min = self._year_min if year_min is None else year_min
-        year_max = self._year_max if year_max is None else year_max
-        month_range: List = [*range(1, 13)] if split_by_month else [None]
         logger.info(
-            f"Downloading GloFAS {forecast_type} for years"
-            f" {year_min} - {year_max} and with max lead time {leadtime_max}"
+            f"Downloading GloFAS {self._forecast_type} for {self._date_min} - "
+            f"{self._date_max} and up to {self._leadtime_max} day lead time"
+        )
+
+        # Get list of files to open
+        frequency = rrule.DAILY if self._split_by_day else rrule.MONTHLY
+        date_range = rrule.rrule(
+            freq=frequency, dtstart=self._date_min, until=self._date_max
         )
         query_params_list = [
             glofas.QueryParams(
                 self._get_raw_filepath(
-                    year=year, month=month, leadtime_max=leadtime_max
+                    year=date.year,
+                    month=date.month,
+                    day=date.day,
+                    leadtime_max=self._leadtime_max,
                 ),
                 self._get_query(
-                    year=year, month=month, leadtime_max=leadtime_max
+                    year=date.year,
+                    month=date.month,
+                    day=date.day,
+                    leadtime_max=self._leadtime_max,
                 ),
             )
-            for year in range(year_min, year_max + 1)
-            for month in month_range
+            for date in date_range
             if not self._get_raw_filepath(
-                year=year, month=month, leadtime_max=leadtime_max
+                year=date.year,
+                month=date.month,
+                day=date.day,
+                leadtime_max=self._leadtime_max,
             ).exists()
             or clobber is True
         ]
@@ -54,34 +87,30 @@ class _GlofasForecastBase(glofas.Glofas):
 
     def process(  # type: ignore
         self,
-        is_reforecast: bool,
-        leadtime_max: int,
-        split_by_month: bool = True,
-        year_min: int = None,
-        year_max: int = None,
         clobber: bool = False,
     ):
-        forecast_type = "reforecast" if is_reforecast else "forecast"
-        year_min = self._year_min if year_min is None else year_min
-        year_max = self._year_max if year_max is None else year_max
-
         logger.info(
-            f"Processing GloFAS {forecast_type} for years"
-            f" {year_min} - {year_max} and max lead time {leadtime_max}"
+            f"Processing GloFAS {self._forecast_type} for {self._date_min} - "
+            f"{self._date_max} and up to {self._leadtime_max} day lead time"
         )
 
-        month_range = [*range(1, 13)] if split_by_month else [None]
+        frequency = rrule.DAILY if self._split_by_day else rrule.MONTHLY
+        date_range = rrule.rrule(
+            freq=frequency, dtstart=self._date_min, until=self._date_max
+        )
         # Get list of files to open
         input_filepath_list = [
             self._get_raw_filepath(
-                year=year,
-                month=month,
-                leadtime_max=leadtime_max,
+                year=date.year,
+                month=date.month,
+                day=date.day,
+                leadtime_max=self._leadtime_max,
             )
-            for year in range(year_min, year_max + 1)
-            for month in month_range
+            for date in date_range
         ]
-        filepath = self._get_processed_filepath(leadtime_max=leadtime_max)
+        filepath = self._get_processed_filepath(
+            leadtime_max=self._leadtime_max
+        )
 
         return self._process(
             filepath=filepath,
@@ -170,49 +199,54 @@ def _expand_dims(
 class GlofasForecast(_GlofasForecastBase):
     """GloFAS forecast class."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(
+        self,
+        country_config: CountryConfig,
+        geo_bounding_box: GeoBoundingBox,
+        leadtime_max: int,
+        date_min: datetime = None,
+        date_max: datetime = None,
+    ):
+        if date_min is None:
+            date_min = datetime(year=2021, month=5, day=26)
+        if date_max is None:
+            date_max = datetime.utcnow()
         super().__init__(
-            *args,
-            **kwargs,
-            year_min=2020,
-            year_max=datetime.datetime.now().year,
+            country_config=country_config,
+            geo_bounding_box=geo_bounding_box,
+            leadtime_max=leadtime_max,
+            date_min=date_min,
+            date_max=date_max,
             cds_name="cems-glofas-forecast",
             system_version="operational",
             product_type=["control_forecast", "ensemble_perturbed_forecasts"],
+            date_variable_prefix="",
+            split_by_day=True,
+            forecast_type="forecast",
         )
-
-    def download(self, *args, **kwargs):
-        """
-        Download GloFAS reforecast.
-
-        Parameters
-        ----------
-        args :
-        kwargs :
-        """
-        super().download(is_reforecast=False, *args, **kwargs)
-
-    def process(self, *args, **kwargs):
-        """
-        Process GloFAS reforecast.
-
-        Parameters
-        ----------
-        args :
-        kwargs :
-        """
-        return super().process(is_reforecast=False, *args, **kwargs)
 
 
 class GlofasReforecast(_GlofasForecastBase):
     """GloFAS reforecast class."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(
+        self,
+        country_config: CountryConfig,
+        geo_bounding_box: GeoBoundingBox,
+        leadtime_max: int,
+        date_min: datetime = None,
+        date_max: datetime = None,
+    ):
+        if date_min is None:
+            date_min = datetime(year=1999, month=1, day=1)
+        if date_max is None:
+            date_max = datetime(year=2018, month=12, day=31)
         super().__init__(
-            *args,
-            **kwargs,
-            year_min=1999,
-            year_max=2018,
+            country_config=country_config,
+            geo_bounding_box=geo_bounding_box,
+            leadtime_max=leadtime_max,
+            date_min=date_min,
+            date_max=date_max,
             cds_name="cems-glofas-reforecast",
             system_version="version_3_1",
             product_type=[
@@ -220,26 +254,6 @@ class GlofasReforecast(_GlofasForecastBase):
                 "ensemble_perturbed_reforecasts",
             ],
             date_variable_prefix="h",
+            split_by_day=False,
+            forecast_type="reforecast",
         )
-
-    def download(self, *args, **kwargs):
-        """
-        Download GloFAS forecast.
-
-        Parameters
-        ----------
-        args :
-        kwargs :
-        """
-        super().download(is_reforecast=True, *args, **kwargs)
-
-    def process(self, *args, **kwargs):
-        """
-        Process GloFAS forecast.
-
-        Parameters
-        ----------
-        args :
-        kwargs :
-        """
-        return super().process(is_reforecast=True, *args, **kwargs)

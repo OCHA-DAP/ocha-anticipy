@@ -2,6 +2,7 @@
 import logging
 import time
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 from typing import List, Union
 
@@ -51,9 +52,9 @@ class Glofas(DataSource):
     geo_bounding_box: GeoBoundingBox
         The bounding coordinates of the geo_bounding_box that should
         be included in the data
-    year_min: int
+    date_min: int
         The earliest year that the dataset is available
-    year_max : int
+    date_max : int
         The most recent that the dataset is available
     cds_name : str
         The name of the dataset in CDS
@@ -69,12 +70,13 @@ class Glofas(DataSource):
         self,
         country_config: CountryConfig,
         geo_bounding_box: GeoBoundingBox,
-        year_min: int,
-        year_max: int,
+        date_min: datetime,
+        date_max: datetime,
         cds_name: str,
         system_version: str,
         product_type: Union[str, List[str]],
-        date_variable_prefix: str = "",
+        date_variable_prefix: str,
+        split_by_day: bool = False,
     ):
         super().__init__(
             country_config=country_config,
@@ -85,12 +87,13 @@ class Glofas(DataSource):
         self._geo_bounding_box = geo_bounding_box.round_coords(
             offset_val=0.05, round_val=0.1
         )
-        self._year_min = year_min
-        self._year_max = year_max
+        self._date_min = date_min
+        self._date_max = date_max
         self._cds_name = cds_name
         self._system_version = system_version
         self._product_type = product_type
         self._date_variable_prefix = date_variable_prefix
+        self._split_by_day = split_by_day
 
     def load(
         self,
@@ -148,12 +151,15 @@ class Glofas(DataSource):
         self,
         year: int,
         month: int = None,
+        day: int = None,
         leadtime_max: int = None,
     ):
         directory = self._raw_base_dir / self._cds_name
         filename = f"{self._country_config.iso3}_{self._cds_name}_{year}"
         if month is not None:
             filename += f"-{str(month).zfill(2)}"
+        if day is not None and self._split_by_day:
+            filename += f"-{str(day).zfill(2)}"
         if leadtime_max is not None:
             filename += f"_ltmax{str(leadtime_max).zfill(2)}d"
         filename += f"_{self._geo_bounding_box.get_filename_repr(p=2)}.grib"
@@ -163,6 +169,7 @@ class Glofas(DataSource):
         self,
         year: int,
         month: int = None,
+        day: int = None,
         leadtime_max: int = None,
     ) -> dict:
         query = {
@@ -179,7 +186,9 @@ class Glofas(DataSource):
             else str(month).zfill(2),
             f"{self._date_variable_prefix}day": [
                 str(x + 1).zfill(2) for x in range(31)
-            ],
+            ]
+            if not self._split_by_day
+            else str(day).zfill(2),
             "area": [
                 self._geo_bounding_box.lat_max,
                 self._geo_bounding_box.lon_min,

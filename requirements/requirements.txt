@@ -229,6 +229,7 @@ pyrsistent==0.18.1
     # via jsonschema
 python-dateutil==2.8.2
     # via
+    #   aa-toolbox (setup.cfg)
     #   frictionless
     #   hdx-python-utilities
     #   libhxl
