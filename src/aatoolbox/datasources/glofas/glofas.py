@@ -4,7 +4,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import List, Union
 
 import cdsapi
 import numpy as np
@@ -146,7 +146,7 @@ class Glofas(DataSource):
     def process(  # type: ignore
         self,
         clobber: bool = False,
-    ) -> List[Optional[Path]]:
+    ) -> List[Path]:
         """Process GloFAS data."""
         logger.info(
             f"Processing GloFAS {self._forecast_type} for {self._date_min} - "
