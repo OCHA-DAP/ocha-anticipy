@@ -4,7 +4,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import List, Union
+from typing import List, Optional, Union
 
 import cdsapi
 import numpy as np
@@ -143,6 +143,40 @@ class Glofas(DataSource):
         ]
         return self._download(query_params_list=query_params_list)
 
+    def process(  # type: ignore
+        self,
+        clobber: bool = False,
+    ) -> List[Optional[Path]]:
+        """Process GloFAS data."""
+        logger.info(
+            f"Processing GloFAS {self._forecast_type} for {self._date_min} - "
+            f"{self._date_max} and up to {self._leadtime_max} day lead time"
+        )
+
+        # Get list of files to open
+        processed_filepaths = []
+        for date in self._date_range:
+            input_filepath = self._get_filepath(
+                year=date.year,
+                month=date.month,
+                day=date.day,
+                leadtime_max=self._leadtime_max,
+            )
+            output_filepath = self._get_filepath(
+                year=date.year,
+                month=date.month,
+                day=date.day,
+                leadtime_max=self._leadtime_max,
+                is_processed=True,
+            )
+            processed_filepath = self._process_single_file(
+                input_filepath=input_filepath,
+                filepath=output_filepath,
+                clobber=clobber,
+            )
+            processed_filepaths.append(processed_filepath)
+        return processed_filepaths
+
     def load(
         self,
         leadtime_max: int = None,
@@ -265,6 +299,9 @@ class Glofas(DataSource):
             ]
         logger.debug(f"Query: {query}")
         return query
+
+    def _process_single_file(self, *args, **kwargs):
+        pass
 
     def _get_reporting_point_dataset(
         self, ds: xr.Dataset, coord_names: List[str]

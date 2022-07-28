@@ -2,7 +2,6 @@
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import List
 
 import xarray as xr
 from dateutil import rrule
@@ -40,33 +39,6 @@ class GlofasReanalysis(glofas.Glofas):
             date_variable_prefix="h",
             frequency=rrule.YEARLY,
         )
-
-    def process(self, clobber: bool = False) -> List[Path]:  # type: ignore
-        """
-        Process GloFAS data.
-
-        Parameters
-        ----------
-        clobber :
-        """
-        logger.info(
-            f"Processing GloFAS Reanalysis for {self._date_min.year} to "
-            f"{self._date_max.year}"
-        )
-        # Get list of files to open
-        processed_filepaths = []
-        for date in self._date_range:
-            input_filepath = self._get_filepath(year=date.year)
-            output_filepath = self._get_filepath(
-                year=date.year, is_processed=True
-            )
-            processed_filepath = self._process_single_file(
-                input_filepath=input_filepath,
-                filepath=output_filepath,
-                clobber=clobber,
-            )
-            processed_filepaths.append(processed_filepath)
-        return processed_filepaths
 
     @check_file_existence
     def _process_single_file(

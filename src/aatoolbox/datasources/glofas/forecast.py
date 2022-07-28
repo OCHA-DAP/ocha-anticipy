@@ -43,39 +43,6 @@ class _GlofasForecastBase(glofas.Glofas):
             leadtime_max=leadtime_max,
         )
 
-    def process(  # type: ignore
-        self,
-        clobber: bool = False,
-    ) -> List[Path]:
-        logger.info(
-            f"Processing GloFAS {self._forecast_type} for {self._date_min} - "
-            f"{self._date_max} and up to {self._leadtime_max} day lead time"
-        )
-
-        # Get list of files to open
-        processed_filepaths = []
-        for date in self._date_range:
-            input_filepath = self._get_filepath(
-                year=date.year,
-                month=date.month,
-                day=date.day,
-                leadtime_max=self._leadtime_max,
-            )
-            output_filepath = self._get_filepath(
-                year=date.year,
-                month=date.month,
-                day=date.day,
-                leadtime_max=self._leadtime_max,
-                is_processed=True,
-            )
-            processed_filepath = self._process_single_file(
-                input_filepath=input_filepath,
-                filepath=output_filepath,
-                clobber=clobber,
-            )
-            processed_filepaths.append(processed_filepath)
-        return processed_filepaths
-
     @check_file_existence
     def _process_single_file(
         self, input_filepath: Path, filepath: Path, clobber: bool
