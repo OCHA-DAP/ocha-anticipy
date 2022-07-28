@@ -4,7 +4,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Union
 
-import numpy as np
 import xarray as xr
 from dateutil import rrule
 
@@ -50,11 +49,8 @@ class _GlofasForecastBase(glofas.Glofas):
         # Read in both the control and ensemble perturbed forecast
         # and combine
         logger.debug(f"Reading in {input_filepath}")
-        ds = self._read_in_ensemble_and_perturbed_datasets(
-            filepath=input_filepath
-        )
+        ds = _read_in_ensemble_and_perturbed_datasets(filepath=input_filepath)
         # Create a new product_type with just the station pixels
-        logger.info("Looping through reporting_points, this takes some time")
         coord_names = ["number", "time", "step"]
         ds_new = self._get_reporting_point_dataset(
             ds=ds,
@@ -63,59 +59,25 @@ class _GlofasForecastBase(glofas.Glofas):
         # Write out the new product_type to a file
         return self._write_to_processed_file(ds=ds_new, filepath=filepath)
 
-    def _read_in_ensemble_and_perturbed_datasets(self, filepath: Path):
-        ds_list = []
-        for data_type in ["cf", "pf"]:
-            ds = xr.load_dataset(
-                filepath,
-                engine="cfgrib",
-                backend_kwargs={
-                    "indexpath": "",
-                    "filter_by_keys": {"dataType": data_type},
-                },
-            )
-            # Delete history attribute in order to merge
-            del ds.attrs["history"]
-            # Extra processing require for control forecast
-            if data_type == "cf":
-                ds = _expand_dims(
-                    ds=ds,
-                    dataset_name=self._RIVER_DISCHARGE_VAR,
-                    coord_names=[
-                        "number",
-                        "time",
-                        "step",
-                        "latitude",
-                        "longitude",
-                    ],
-                    expansion_dim=0,
-                )
-            ds_list.append(ds)
-        return xr.combine_by_coords(ds_list)
 
-
-# TODO: see if this is fixed
-def _expand_dims(
-    ds: xr.Dataset, dataset_name: str, coord_names: list, expansion_dim: int
-):
-    """Expand dims to combine two datasets.
-
-    Using expand_dims seems to cause a bug with Dask like the one
-    described here: https://github.com/pydata/xarray/issues/873 (it's
-    supposed to be fixed though)
-    """
-    coords = {coord_name: ds[coord_name] for coord_name in coord_names}
-    coords[coord_names[expansion_dim]] = [coords[coord_names[expansion_dim]]]
-    ds = xr.Dataset(
-        data_vars={
-            dataset_name: (
-                coord_names,
-                np.expand_dims(ds[dataset_name].values, expansion_dim),
-            )
-        },
-        coords=coords,
-    )
-    return ds
+def _read_in_ensemble_and_perturbed_datasets(filepath: Path):
+    ds_list = []
+    for data_type in ["cf", "pf"]:
+        ds = xr.load_dataset(
+            filepath,
+            engine="cfgrib",
+            backend_kwargs={
+                "indexpath": "",
+                "filter_by_keys": {"dataType": data_type},
+            },
+        )
+        # Delete history attribute in order to merge
+        del ds.attrs["history"]
+        # Extra processing require for control forecast
+        if data_type == "cf":
+            ds = ds.expand_dims({"number": 1})
+        ds_list.append(ds)
+    return xr.combine_by_coords(ds_list)
 
 
 class GlofasForecast(_GlofasForecastBase):

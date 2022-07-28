@@ -8,10 +8,7 @@ import pytest
 import xarray as xr
 
 from aatoolbox.config.countryconfig import CountryConfig
-from aatoolbox.datasources.glofas.forecast import (
-    GlofasReforecast,
-    _expand_dims,
-)
+from aatoolbox.datasources.glofas.forecast import GlofasReforecast
 from aatoolbox.datasources.glofas.reanalysis import GlofasReanalysis
 from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
@@ -234,22 +231,3 @@ class TestProcess:
         output_filepath = glofas_forecast.process()[0]
         with xr.open_dataset(output_filepath) as output_ds:
             assert output_ds.equals(mock_processed_data_forecast)
-
-
-def test_expand_dims():
-    """Simple test case for expand dims."""
-    rs = np.random.RandomState(12345)
-    size_x, size_y = (10, 20)
-    ds = xr.Dataset(
-        data_vars={"var_a": (("x", "y"), rs.rand(size_x, size_y))},
-        coords={"x": np.arange(size_x), "y": np.arange(size_y)},
-    )
-    ds.coords["z"] = 1
-    assert "z" not in ds.dims.keys()
-    ds = _expand_dims(
-        ds=ds,
-        dataset_name="var_a",
-        coord_names=["z", "x", "y"],
-        expansion_dim=0,
-    )
-    assert "z" in ds.dims.keys()
