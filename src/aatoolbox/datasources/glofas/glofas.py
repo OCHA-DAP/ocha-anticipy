@@ -329,14 +329,14 @@ class Glofas(DataSource):
                 < ds.longitude.max()
             ):
                 raise IndexError(
-                    f"ReportingPoint {reporting_point.name} has out-of-bounds "
+                    f"ReportingPoint {reporting_point.id} has out-of-bounds "
                     f"lon value of {reporting_point.lon} (GloFAS lon ranges "
                     f"from {ds.longitude.min().values} "
                     f"to {ds.longitude.max().values})"
                 )
             if not ds.latitude.min() < reporting_point.lat < ds.latitude.max():
                 raise IndexError(
-                    f"ReportingPoint {reporting_point.name} has out-of-bounds "
+                    f"ReportingPoint {reporting_point.id} has out-of-bounds "
                     f"lat value of {reporting_point.lat} (GloFAS lat ranges "
                     f"from {ds.latitude.min().values} "
                     f"to {ds.latitude.max().values})"
@@ -344,13 +344,14 @@ class Glofas(DataSource):
         # If they are then return the correct pixel
         return xr.Dataset(
             data_vars={
-                reporting_point.name: (
+                reporting_point.id: (
                     coord_names,
                     ds.sel(
                         longitude=reporting_point.lon,
                         latitude=reporting_point.lat,
                         method="nearest",
                     )[self._RIVER_DISCHARGE_VAR].data,
+                    {"name": reporting_point.name},
                 )
                 # fmt: off
                 for reporting_point in

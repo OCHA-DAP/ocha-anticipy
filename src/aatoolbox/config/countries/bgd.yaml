@@ -5,15 +5,63 @@ codab:
   admin_level_max: 4
 glofas:
   reporting_points:
-  - name: Bhadurabad
-    lat: 25.15
-    lon: 89.65
-  - name: Bhairab Bazar
-    lat: 24.05
-    lon: 90.95
-  - name: Kaunia
-    lat: 25.75
+  - id: G0927
+    name: Kaunia
     lon: 89.45
-  - name: Hardinge Bridge
-    lat: 24.05
+    lat: 25.75
+  - id: G0928
+    name: Bahadurabad
+    lon: 89.65
+    lat: 25.15
+  - id: G0930
+    name: Hardinge Bridge
     lon: 89.05
+    lat: 24.05
+  - id: G1709
+    name: Na
+    lon: 89.75
+    lat: 25.55
+  - id: G4523
+    name: Na
+    lon: 89.75
+    lat: 26.05
+  - id: G4534
+    name: Na
+    lon: 89.75
+    lat: 25.85
+  - id: G4556
+    name: Na
+    lon: 89.55
+    lat: 25.55
+  - id: G4591
+    name: Na
+    lon: 89.55
+    lat: 24.15
+  - id: G4592
+    name: Na
+    lon: 89.65
+    lat: 24.15
+  - id: G4593
+    name: Bhairab Bazar
+    lon: 90.95
+    lat: 24.05
+  - id: G4599
+    name: Na
+    lon: 89.65
+    lat: 23.85
+  - id: G4601
+    name: Na
+    lon: 89.65
+    lat: 23.75
+  - id: G4604
+    name: Na
+    lon: 90.65
+    lat: 23.65
+  - id: G4606
+    name: Na
+    lon: 90.45
+    lat: 23.55
+  - id: G4615
+    name: Na
+    lon: 90.55
+    lat: 23.35

@@ -5,3 +5,17 @@ codab:
   admin_level_max: 3
 fewsnet:
   region_name: west-africa
+glofas:
+  reporting_points:
+  - id: G4887
+    name: Bassieri
+    lon: 0.35
+    lat: 12.75
+  - id: G4900
+    name: Sebba
+    lon: 0.45
+    lat: 13.45
+  - id: G4915
+    name: Liptougou
+    lon: 0.35
+    lat: 13.25

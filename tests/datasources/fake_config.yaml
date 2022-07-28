@@ -7,9 +7,11 @@ fewsnet:
   region_name: east-africa
 glofas:
   reporting_points:
-    - name: Station1
-      lat: 0.5
+    - id: G1000
+      name: Station1
       lon: 2.5
-    - name: Station2
-      lat: -1.5
+      lat: 0.5
+    - id: G2000
+      name: Station2
       lon: -3.5
+      lat: -1.5
