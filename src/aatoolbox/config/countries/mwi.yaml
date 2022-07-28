@@ -5,3 +5,20 @@ codab:
   admin_level_max: 3
 fewsnet:
   region_name: southern-africa
+glofas:
+  reporting points:
+  - name: Chikwawa
+    lat: -16.05
+    lon: 34.85
+  - name: Liwonde
+    lat: -15.05
+    lon: 35.25
+  - name: S53 Roadbridge 65312601
+    lat: -12.85
+    lon: 34.15
+  - name: Sinoya South
+    lat: -16.22
+    lon: 35.51
+  - name: South Rukuru
+    lat: -10.95
+    lon: 39.95

@@ -7,10 +7,34 @@ codab:
     - npl_admbnda_districts_nd_20201117
 glofas:
   reporting_points:
+  - name: After Lothar Confluence
+    lat: 27.55
+    lon: 84.65
+  - name: Angsing
+    lat: 27.85
+    lon: 83.75
   - name: Asaraghat
     lat: 28.95
     lon: 81.45
-  - name: Chatara_v3
+  - name: Arughat
+    lat: 28.05
+    lon: 84.85
+  - name: Betrawati
+    lat: 28.05
+    lon: 85.15
+  - name: Bimalnagar
+    lat: 28.05
+    lon: 84.45
+  - name: Butwal
+    lat: 27.75
+    lon: 83.45
+  - name: Darchula
+    lat: 29.75
+    lon: 80.45
+  - name: Devghat
+    lat: 27.75
+    lon: 84.45
+  - name: Chatara
     lat: 26.85
     lon: 87.15
   - name: Chepang
@@ -25,18 +49,36 @@ glofas:
   - name: Kampughat
     lat: 26.85
     lon: 86.85
+  - name: Khurkot
+    lat: 27.25
+    lon: 86.05
   - name: Kusum
     lat: 27.95
     lon: 82.15
+  - name: Mainachuli
+    lat: 26.65
+    lon: 87.85
   - name: Majhitar
     lat: 26.95
     lon: 87.45
-  - name: Rai_Gaon
+  - name: Parigaun
+    lat: 29.15
+    lon: 80.25
+  - name: Pachuwarghat
+    lat: 27.55
+    lon: 85.75
+  - name: Rai Gaon
     lat: 27.25
     lon: 85.45
   - name: Samajhighat
     lat: 28.55
     lon: 81.65
+  - name: Shisaghat
+    lat: 28.15
+    lon: 84.25
   - name: Simle
     lat: 27.05
     lon: 87.1
+  - name: Turkighat
+    lat: 27.35
+    lon: 87.15

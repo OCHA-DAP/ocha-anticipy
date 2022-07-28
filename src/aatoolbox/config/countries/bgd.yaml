@@ -8,3 +8,12 @@ glofas:
   - name: Bhadurabad
     lat: 25.15
     lon: 89.65
+  - name: Bhairab Bazar
+    lat: 24.05
+    lon: 90.95
+  - name: Kaunia
+    lat: 25.75
+    lon: 89.45
+  - name: Hardinge Bridge
+    lat: 24.05
+    lon: 89.05
