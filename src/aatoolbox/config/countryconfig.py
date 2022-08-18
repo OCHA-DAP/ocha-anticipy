@@ -1,6 +1,6 @@
 """Country configuration setting base class."""
 from pathlib import Path
-from typing import Dict, Optional, Union
+from typing import Dict, List, Optional, Union
 
 from pydantic import BaseModel, root_validator, validator
 
@@ -27,7 +27,7 @@ class CodABConfig(BaseModel):
 
     hdx_dataset_name: str
     layer_base_name: str
-    admin_level_max: int
+    layer_base_admin_levels: List[int]
     custom_layer_names: Optional[list]
 
     @validator("layer_base_name")

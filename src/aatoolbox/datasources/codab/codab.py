@@ -100,12 +100,16 @@ class CodAB(DataSource):
         >>> codab = CodAB(country_config=country_config)
         >>> npl_admin2 = codab.load(admin_level=2)
         """
-        admin_level_max = self._datasource_config.admin_level_max
-        if admin_level > admin_level_max:
+        layer_base_admin_levels = (
+            self._datasource_config.layer_base_admin_levels
+        )
+        if admin_level not in layer_base_admin_levels:
             raise AttributeError(
-                f"Admin level {admin_level} requested, but maximum set to "
-                f"{admin_level_max} in {self._country_config.iso3.upper()} "
-                f"config file"
+                f"Admin level {admin_level} requested, but not indicated as "
+                "admin level that follows the base layer name in "
+                f"{self._country_config.iso3.upper()} config file. Add the "
+                "level to the config file, or use load_custom to load a file "
+                "with a custom name."
             )
         return self._load_admin_layer(
             layer_name=self._datasource_config.layer_base_name.format(

@@ -54,8 +54,8 @@ def test_codab_load_admin_level(
     )
 
 
-def test_codab_too_high_admin_level(mock_country_config):
-    """Test raised error when too high admin level requested."""
+def test_codab_incorrect_admin_level(mock_country_config):
+    """Test raised error when admin level requested not in admin level list."""
     codab = CodAB(country_config=mock_country_config)
     with pytest.raises(AttributeError):
         codab.load(admin_level=10)
