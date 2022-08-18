@@ -38,6 +38,7 @@ class GlofasReanalysis(glofas.Glofas):
             product_type="consolidated",
             date_variable_prefix="h",
             frequency=rrule.YEARLY,
+            coord_names=["time"],
         )
 
     @check_file_existence
@@ -50,6 +51,6 @@ class GlofasReanalysis(glofas.Glofas):
             input_filepath, engine="cfgrib", backend_kwargs={"indexpath": ""}
         )
         # Create a new product_type with just the station pixels
-        ds_new = self._get_reporting_point_dataset(ds=ds, coord_names=["time"])
+        ds_new = self._get_reporting_point_dataset(ds=ds)
         # Write out the new product_type to a file
         return self._write_to_processed_file(ds=ds_new, filepath=filepath)

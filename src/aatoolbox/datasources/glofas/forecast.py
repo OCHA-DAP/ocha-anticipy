@@ -28,6 +28,7 @@ class _GlofasForecastBase(glofas.Glofas):
         product_type: Union[str, List[str]],
         date_variable_prefix: str,
         frequency: int,
+        coord_names: List[str],
     ):
         super().__init__(
             country_config=country_config,
@@ -39,6 +40,7 @@ class _GlofasForecastBase(glofas.Glofas):
             product_type=product_type,
             date_variable_prefix=date_variable_prefix,
             frequency=frequency,
+            coord_names=coord_names,
             leadtime_max=leadtime_max,
         )
 
@@ -51,11 +53,7 @@ class _GlofasForecastBase(glofas.Glofas):
         logger.debug(f"Reading in {input_filepath}")
         ds = _read_in_ensemble_and_perturbed_datasets(filepath=input_filepath)
         # Create a new product_type with just the station pixels
-        coord_names = ["number", "time", "step"]
-        ds_new = self._get_reporting_point_dataset(
-            ds=ds,
-            coord_names=coord_names,
-        )
+        ds_new = self._get_reporting_point_dataset(ds=ds)
         # Write out the new product_type to a file
         return self._write_to_processed_file(ds=ds_new, filepath=filepath)
 
@@ -76,6 +74,8 @@ def _read_in_ensemble_and_perturbed_datasets(filepath: Path):
             ds = ds.expand_dims(dim="number")
         ds_list.append(ds)
     return xr.combine_by_coords(ds_list, combine_attrs="drop_conflicts")
+    # ds = xr.combine_by_coords(ds_list, combine_attrs="drop_conflicts")
+    # return ds.expand_dims(dim="time")
 
 
 class GlofasForecast(_GlofasForecastBase):
@@ -104,6 +104,7 @@ class GlofasForecast(_GlofasForecastBase):
             product_type=["control_forecast", "ensemble_perturbed_forecasts"],
             date_variable_prefix="",
             frequency=rrule.DAILY,
+            coord_names=["number", "step"],
         )
 
 
@@ -136,4 +137,5 @@ class GlofasReforecast(_GlofasForecastBase):
             ],
             date_variable_prefix="h",
             frequency=rrule.MONTHLY,
+            coord_names=["number", "time", "step"],
         )

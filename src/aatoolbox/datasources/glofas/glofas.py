@@ -79,6 +79,7 @@ class Glofas(DataSource):
         product_type: Union[str, List[str]],
         date_variable_prefix: str,
         frequency: int,
+        coord_names: List[str],
         leadtime_max: int = None,
     ):
         super().__init__(
@@ -97,6 +98,7 @@ class Glofas(DataSource):
         self._product_type = product_type
         self._date_variable_prefix = date_variable_prefix
         self._frequency = frequency
+        self._coord_names = coord_names
         self._leadtime_max = leadtime_max
         self._forecast_type = type(self).__name__.replace("Glofas", "").lower()
         self._date_range = rrule.rrule(
@@ -312,9 +314,7 @@ class Glofas(DataSource):
     def _process_single_file(self, *args, **kwargs):
         pass
 
-    def _get_reporting_point_dataset(
-        self, ds: xr.Dataset, coord_names: List[str]
-    ) -> xr.Dataset:
+    def _get_reporting_point_dataset(self, ds: xr.Dataset) -> xr.Dataset:
         """
         Create a product_type from a GloFAS raster based on reporting points.
 
@@ -339,14 +339,14 @@ class Glofas(DataSource):
             ):
                 raise IndexError(
                     f"ReportingPoint {reporting_point.id} has out-of-bounds "
-                    f"lon value of {reporting_point.lon} (GloFAS lon ranges "
+                    f"lon value of {reporting_point.lon} (data lon ranges "
                     f"from {ds.longitude.min().values} "
                     f"to {ds.longitude.max().values})"
                 )
             if not ds.latitude.min() < reporting_point.lat < ds.latitude.max():
                 raise IndexError(
                     f"ReportingPoint {reporting_point.id} has out-of-bounds "
-                    f"lat value of {reporting_point.lat} (GloFAS lat ranges "
+                    f"lat value of {reporting_point.lat} (data lat ranges "
                     f"from {ds.latitude.min().values} "
                     f"to {ds.latitude.max().values})"
                 )
@@ -354,7 +354,7 @@ class Glofas(DataSource):
         return xr.Dataset(
             data_vars={
                 reporting_point.id: (
-                    coord_names,
+                    self._coord_names,
                     ds.sel(
                         longitude=reporting_point.lon,
                         latitude=reporting_point.lat,
@@ -367,7 +367,9 @@ class Glofas(DataSource):
                 self._country_config.glofas.reporting_points
                 # fmt: on
             },
-            coords={coord_name: ds[coord_name] for coord_name in coord_names},
+            coords={
+                coord_name: ds[coord_name] for coord_name in self._coord_names
+            },
         )
 
     @staticmethod
