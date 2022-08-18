@@ -25,7 +25,7 @@ class GlofasReanalysis(glofas.Glofas):
         date_max: datetime = None,
     ):
         if date_min is None:
-            date_min = datetime(year=1971, month=1, day=1)
+            date_min = datetime(year=1979, month=1, day=1)
         if date_max is None:
             date_max = datetime.utcnow()
         super().__init__(

@@ -141,6 +141,10 @@ class Glofas(DataSource):
             ).exists()
             or clobber is True
         ]
+        # TODO: make this return directory
+        # if not query_params_list:
+        #    logger.info("Nothing to query, exiting")
+        #    return
         return self._download(query_params_list=query_params_list)
 
     def process(  # type: ignore
@@ -229,6 +233,7 @@ class Glofas(DataSource):
         )
         # First make the requests and store the request number
         for query_params in query_params_list:
+            logger.debug(f"Making request {query_params.query}")
             query_params.request_id = (
                 cdsapi.Client(wait_until_complete=False, delete=False)
                 .retrieve(name=self._cds_name, request=query_params.query)
@@ -239,9 +244,11 @@ class Glofas(DataSource):
         downloaded_filepaths = []
         while query_params_list:
             for query_params in query_params_list:
-                c = (cdsapi.Client(wait_until_complete=False, delete=False),)
                 result = cdsapi.api.Result(
-                    client=c, reply={"request_id": query_params.request_id}
+                    client=cdsapi.Client(
+                        wait_until_complete=False, delete=False
+                    ),
+                    reply={"request_id": query_params.request_id},
                 )
                 result.update()
                 state = result.reply["state"]
@@ -253,6 +260,8 @@ class Glofas(DataSource):
                     result.download(query_params.filepath)
                     query_params.downloaded = True
                     downloaded_filepaths.append(query_params.filepath)
+                elif state == "failed":
+                    raise RuntimeError("Query has failed, try again")
             # Remove requests that have been downloaded
             query_params_list = [
                 query_params

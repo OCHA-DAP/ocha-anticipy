@@ -71,13 +71,11 @@ def _read_in_ensemble_and_perturbed_datasets(filepath: Path):
                 "filter_by_keys": {"dataType": data_type},
             },
         )
-        # Delete history attribute in order to merge
-        del ds.attrs["history"]
         # Extra processing require for control forecast
         if data_type == "cf":
-            ds = ds.expand_dims({"number": 1})
+            ds = ds.expand_dims(dim="number")
         ds_list.append(ds)
-    return xr.combine_by_coords(ds_list)
+    return xr.combine_by_coords(ds_list, combine_attrs="drop_conflicts")
 
 
 class GlofasForecast(_GlofasForecastBase):
