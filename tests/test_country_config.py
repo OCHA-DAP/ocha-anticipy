@@ -79,7 +79,7 @@ def test_validate_codab_layer_base_name(mock_parse_yaml):
         "codab": {
             "hdx_dataset_name": "fake_dataset_name",
             "layer_base_name": "layer_base_name_",
-            "admin_level_max": 1,
+            "layer_base_admin_levels": [0, 1],
         },
     }
     config_correct = copy.deepcopy(config_base)

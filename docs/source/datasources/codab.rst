@@ -95,8 +95,8 @@ to open up the shpaefile in e.g. `QGIS <https://www.qgis.org/en/site/>`_.
 In the case of Nepal, the layers have the names ``npl_admbnda_adm0_nd_20201117.shp``,
 ``npl_admbnda_adm1_nd_20201117.shp``, and ``npl_admbnda_adm2_nd_20201117.shp``
 
-``admin_level_max``: The maximum admin level available in the layers. In the case of Nepal,
-the layer level numbers range from 0 to 2, so the maximum should be 2.
+``layer_base_admin_levels:``: The admin levels that follower the base name format. In the case of Nepal,
+the layer level numbers range from 0 to 2, so this should be [0,1,2]
 
 ``custom_layer_name``: A place to list any other layers that don't correspond to the
 admin level format specified above. In the case of Nepal, there is a layer for districts
