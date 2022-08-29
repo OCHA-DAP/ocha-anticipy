@@ -5,7 +5,6 @@ import ssl
 from abc import abstractmethod
 from datetime import date, datetime
 from pathlib import Path
-from typing import Optional
 from urllib.request import urlopen
 
 import cftime
@@ -58,6 +57,7 @@ class _Chirps(DataSource):
         country_config: CountryConfig,
         geo_bounding_box: GeoBoundingBox,
         frequency: str,
+        date_range_freq: str,
         resolution: float = 0.05,
         start_date: date = _FIRST_AVAILABLE_DATE,
         end_date: date = None,
@@ -75,6 +75,7 @@ class _Chirps(DataSource):
         self._geobb = geo_bounding_box.round_coords(round_val=resolution)
         self._frequency = frequency
         self._resolution = resolution
+        self._date_range_freq = date_range_freq
 
         if end_date is None:
             end_date = self._get_last_available_date()
@@ -255,16 +256,10 @@ class _Chirps(DataSource):
 
     def _get_file_name_base(
         self,
-        year: Optional[str],
-        month: Optional[str],
+        year: str,
+        month: str,
     ) -> str:
-        # Set wildcard for year, to get general filename pattern
-        # used to find all files with pattern in folder
-        if year is None:
-            year = "*"
-        if month is None:
-            month = "*"
-        elif len(month) == 1:
+        if len(month) == 1:
             month = f"0{month}"
 
         file_name_base = (
@@ -274,17 +269,16 @@ class _Chirps(DataSource):
 
         return file_name_base
 
+    @abstractmethod
     def _get_file_name(
         self,
-        year: Optional[str],
-        month: Optional[str],
-        day: Optional[str],
+        year: str,
+        month: str,
+        day: str,
     ) -> str:
         pass
 
-    def _get_raw_path(
-        self, year: Optional[str], month: Optional[str], day: Optional[str]
-    ) -> Path:
+    def _get_raw_path(self, year: str, month: str, day: str) -> Path:
         return self._raw_base_dir / self._get_file_name(
             year=year, month=month, day=day
         )
@@ -433,18 +427,18 @@ class ChirpsMonthly(_Chirps):
         super().__init__(
             country_config=country_config,
             geo_bounding_box=geo_bounding_box,
+            date_range_freq="SMS",
             frequency="monthly",
             resolution=0.05,
             start_date=start_date,
             end_date=end_date,
         )
-        self._date_range_freq = "SMS"
 
     def _get_file_name(
         self,
-        year: Optional[str],
-        month: Optional[str],
-        day: Optional[str],
+        year: str,
+        month: str,
+        day: str,
     ) -> str:
 
         file_name_base = self._get_file_name_base(
@@ -531,8 +525,8 @@ class ChirpsDaily(_Chirps):
 
     Examples
     --------
-    >>> from aatoolbox import create_country_config, CodAB, GeoBoundingBox
-    >>> from aatoolbox import Chirpsdaily
+    >>> from aatoolbox import create_country_config, CodAB, GeoBoundingBox,
+    ... ChirpsDaily
     >>> country_config = create_country_config(iso3="bfa")
     >>> codab = CodAB(country_config=country_config)
     >>> codab.download()
@@ -562,18 +556,18 @@ class ChirpsDaily(_Chirps):
         super().__init__(
             country_config=country_config,
             geo_bounding_box=geo_bounding_box,
+            date_range_freq="D",
             frequency="daily",
             resolution=resolution,
             start_date=start_date,
             end_date=end_date,
         )
-        self._date_range_freq = "D"
 
     def _get_file_name(
         self,
-        year: Optional[str],
-        month: Optional[str],
-        day: Optional[str],
+        year: str,
+        month: str,
+        day: str,
     ) -> str:
 
         file_name_base = self._get_file_name_base(
@@ -581,9 +575,7 @@ class ChirpsDaily(_Chirps):
             month=month,
         )
 
-        if day is None:
-            day = "*"
-        elif len(day) == 1:
+        if len(day) == 1:
             day = f"0{day}"
 
         file_name = (
