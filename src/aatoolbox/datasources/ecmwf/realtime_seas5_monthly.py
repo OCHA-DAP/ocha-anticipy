@@ -6,7 +6,7 @@ A data sharing agreement with ECMWF has to be
 established to gain access to this data. See more information `here
 <https://www.ecmwf.int/en/forecasts/access-forecasts/data-delivery>`_
 This script assumes that the user has access to
-this data and that this is saved at `_ECMWF_REALTIME_RAW_DIR`.
+this data and that this is saved at `raw/public/ecmwf`.
 
 This script processess the seasonal forecast named SEAS5. More info on
 this model can be found in the `user guide
@@ -64,7 +64,7 @@ class EcmwfRealtime(DataSource):
 
         This data is private and thus is only shared if you have
         a license agreement with ECMWF.
-        The data lives in _ECMWF_REALTIME_RAW_DIR
+        The data lives in `raw/public/ecmwf`
 
         Parameters
         ----------
