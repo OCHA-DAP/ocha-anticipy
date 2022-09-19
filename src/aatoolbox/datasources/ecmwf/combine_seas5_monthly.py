@@ -11,7 +11,7 @@ this model can be found in the `user guide
 
 import logging
 from pathlib import Path
-from typing import Union
+from typing import Optional, Union
 
 import geopandas as gpd
 import xarray as xr
@@ -54,7 +54,6 @@ class Ecmwf(DataSource):
     def __init__(
         self,
         iso3: str,
-        match_realtime: bool,
         geo_bounding_box: Union[GeoBoundingBox, gpd.GeoDataFrame, None] = None,
     ):
         super().__init__(
@@ -78,7 +77,11 @@ class Ecmwf(DataSource):
 
         # question: should we have a download function here as well?
 
-    def process(self, process_sources: bool = True) -> Path:
+    def process(
+        self,
+        process_sources: bool = True,
+        points_mapping: Optional[int] = None,
+    ) -> Path:
         """
         Combine the datasets from the two retrieval methods.
 
@@ -95,8 +98,14 @@ class Ecmwf(DataSource):
         ecmwf_api = EcmwfApi(iso3=self._iso3, geo_bounding_box=self._geobb)
         # question: should we even do this?
         if process_sources:
-            ecmwf_rt.process()
-            ecmwf_api.process()
+            if points_mapping is None:
+                logger.error(
+                    "Need to give a points mapping number to process the "
+                    "realtime data."
+                )
+            else:
+                ecmwf_rt.process(points_mapping=points_mapping)
+                ecmwf_api.process()
         ds_api = xr.load_dataset(ecmwf_api._get_processed_path())
         ds_realtime = xr.load_dataset(ecmwf_rt._get_processed_path())
         # TODO: realtime and api can contain the same forecast dates
