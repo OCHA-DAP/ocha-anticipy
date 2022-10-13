@@ -157,7 +157,8 @@ class _UsgsNdvi(DataSource):
         clobber: bool = False,
         **kwargs,
     ) -> Path:
-        """Process NDVI data for specific area.
+        """
+        Process NDVI data for specific area.
 
         NDVI data is clipped to the provided
         ``geometries``, usually a geopandas
@@ -320,18 +321,26 @@ class _UsgsNdvi(DataSource):
         )
         >>> bfa_ndvi.load(feature_col="ADM2_FR")
         """
-        processed_files = self._find_processed_files(feature_col=feature_col)
-        processed_dfs = [
-            self._load(filepath=fp, drop_modified=True)
-            for fp in processed_files
-        ]
+        try:
+            processed_files = self._find_processed_files(
+                feature_col=feature_col
+            )
+            processed_dfs = [
+                self._load(filepath=fp, drop_modified=True)
+                for fp in processed_files
+            ]
 
-        df = functools.reduce(
-            lambda df1, df2: pd.merge(
-                df1, df2, on=["date", "year", "dekad", feature_col]
-            ),
-            processed_dfs,
-        )
+            df = functools.reduce(
+                lambda df1, df2: pd.merge(
+                    df1, df2, on=["date", "year", "dekad", feature_col]
+                ),
+                processed_dfs,
+            )
+        except TypeError as err:
+            raise FileNotFoundError(
+                "Files not found to load. Ensure the download() and process() "
+                "methods are called prior to load()."
+            ) from err
 
         # filter loaded data frame between our instances dates
         load_dates = expand_dekads(

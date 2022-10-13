@@ -16,8 +16,6 @@ from typing import Tuple, Union
 from aatoolbox.config.countryconfig import CountryConfig
 from aatoolbox.datasources.usgs.usgs_ndvi import _UsgsNdvi
 
-# from aatoolbox.utils.check_file_existence import check_file_existence
-
 logger = logging.getLogger(__name__)
 
 
