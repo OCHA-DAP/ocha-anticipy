@@ -58,9 +58,7 @@ colorama==0.4.4
 cryptography==36.0.2
     # via pyopenssl
 dask[complete]==2022.04.1
-    # via
-    #   distributed
-    #   xarray
+    # via xarray
 decorator==5.1.1
     # via
     #   jsonpath-ng
@@ -132,9 +130,7 @@ num2words==0.5.10
 numpy==1.22.3
     # via
     #   aa-toolbox (setup.cfg)
-    #   bokeh
     #   cftime
-    #   dask
     #   pandas
     #   rasterio
     #   snuggs
@@ -295,8 +291,6 @@ xlrd3==1.1.0
     # via libhxl
 xlwt==1.3.0
     # via frictionless
-zict==2.1.0
-    # via distributed
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
