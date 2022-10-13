@@ -48,7 +48,7 @@ def test_codab_load_admin_level(
     codab.load(admin_level=admin_level)
 
     gpd_read_file.assert_called_with(
-        f"zip:///{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
+        f"zip://{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
         f"{DATASOURCE_BASE_DIR}/{mock_country_config.iso3}_"
         f"{DATASOURCE_BASE_DIR}.shp.zip/{expected_layer_name}"
     )
@@ -69,7 +69,7 @@ def test_codab_custom(mock_aa_data_dir, mock_country_config, gpd_read_file):
     codab = CodAB(country_config=mock_country_config)
     codab.load_custom(custom_layer_number)
     gpd_read_file.assert_called_with(
-        f"zip:///{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
+        f"zip://{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
         f"{DATASOURCE_BASE_DIR}/{mock_country_config.iso3}_"
         f"{DATASOURCE_BASE_DIR}.shp.zip/"
         f"{custom_layer_name_list[custom_layer_number]}"

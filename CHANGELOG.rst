@@ -8,8 +8,25 @@ Changelog <https://keepachangelog.com/en/1.0.0/>`__, and this project
 adheres to `Semantic
 Versioning <https://semver.org/spec/v2.0.0.html>`__.
 
-[Unreleased]
-------------
+Unreleased
+----------
+
+Fixed
+~~~~~
+
+- The check in ``DataSource`` for the required configuration file
+  section now also checks if the section is ``None``
+
+[0.4.1] - 2022-05-10
+--------------------
+
+Fixed
+~~~~~
+
+- Fixed error when loading zipped COD AB shapefiles on Windows
+
+[0.4.0] - 2022-04-21
+--------------------
 
 Added
 ~~~~~

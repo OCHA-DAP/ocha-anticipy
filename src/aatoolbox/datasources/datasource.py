@@ -65,12 +65,18 @@ class DataSource(ABC):
         config_datasource_name: str, country_config: CountryConfig
     ):
         try:
-            return getattr(country_config, config_datasource_name)
-        except AttributeError as err:
+            datasource_config = getattr(country_config, config_datasource_name)
+        except AttributeError:
+            datasource_config = None
+        # If the datasource is one of the defaults, it's set to None and
+        # thus an attribute error won't be raised. So also need to check for
+        # the case when it is None.
+        if datasource_config is None:
             raise AttributeError(
                 f"{config_datasource_name} needs to be added to the "
                 f"config file. See the documentation for more details."
-            ) from err
+            )
+        return datasource_config
 
     def _get_base_dir(
         self,

@@ -37,13 +37,6 @@ def test_no_iso2(mock_country_config):
         FewsNet(country_config=mock_country_config)
 
 
-def test_no_fewsnet_config(mock_country_config):
-    """Test AttributeError when no FEWS NET config."""
-    mock_country_config.fewsnet = None
-    with pytest.raises(AttributeError):
-        FewsNet(country_config=mock_country_config)
-
-
 def test_download_country(
     mock_aa_data_dir, mock_country_config, mock_download_call, mocker
 ):
@@ -235,3 +228,16 @@ def test_invalid_projection_period(mock_country_config):
         fewsnet.load(
             pub_year=_PUB_YEAR, pub_month=_PUB_MONTH, projection_period="CA"
         )
+
+
+def test_download_clobber(mock_country_config, mock_fake_url):
+    """Test that download URL is not called if directory exists."""
+    fewsnet = FewsNet(country_config=mock_country_config)
+    filepath = fewsnet._get_raw_dir_date(
+        area=fewsnet._iso2,
+        pub_year=_PUB_YEAR,
+        pub_month_str=f"{_PUB_MONTH:02d}",
+    )
+    filepath.mkdir(parents=True)
+    fewsnet.download(pub_year=_PUB_YEAR, pub_month=_PUB_MONTH, clobber=False)
+    mock_fake_url.assert_not_called()
