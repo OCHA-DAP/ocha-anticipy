@@ -87,6 +87,7 @@ def test_codab_load_fail(mock_country_config):
     """Test raises file not found error when load fails."""
     codab = CodAB(country_config=mock_country_config)
     # Remove file if it exists
+    # TODO: Use missing_ok=True once 3.7 is dropped
     if codab._raw_filepath.exists():
         Path.unlink(codab._raw_filepath)
     with pytest.raises(FileNotFoundError) as excinfo:
