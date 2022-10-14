@@ -17,7 +17,7 @@ like the data to go.
 Install AA Toolbox
 ^^^^^^^^^^^^^^^^^^
 
-AA Toolbox supports Python 3.6 and newer. It can be installed in your Python
+AA Toolbox supports Python 3.7 and newer. It can be installed in your Python
 environment using the following command:
 
 .. code-block:: sh

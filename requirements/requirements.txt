@@ -233,7 +233,9 @@ pyyaml==6.0
 quantulum3==0.7.10
     # via hdx-python-api
 rasterio==1.2.10
-    # via rioxarray
+    # via
+    #   aa-toolbox (setup.cfg)
+    #   rioxarray
 ratelimit==2.2.1
     # via hdx-python-utilities
 requests==2.27.1
