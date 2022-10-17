@@ -35,10 +35,6 @@ basicauth==0.4.1
     # via
     #   -r requirements/requirements.txt
     #   hdx-python-utilities
-bokeh==2.4.2
-    # via
-    #   -r requirements/requirements.txt
-    #   dask
 cattrs==1.10.0
     # via
     #   -r requirements/requirements.txt
@@ -80,7 +76,6 @@ click==8.1.2
     #   -r requirements/requirements.txt
     #   click-plugins
     #   cligj
-    #   distributed
     #   fiona
     #   pip-tools
     #   rasterio
@@ -99,7 +94,6 @@ cloudpickle==2.0.0
     # via
     #   -r requirements/requirements.txt
     #   dask
-    #   distributed
 colorama==0.4.4
     # via
     #   -r requirements/requirements.txt
@@ -115,7 +109,6 @@ cryptography==36.0.2
 dask[complete]==2022.04.1
     # via
     #   -r requirements/requirements.txt
-    #   distributed
     #   xarray
 decorator==5.1.1
     # via
@@ -130,10 +123,6 @@ distlib==0.3.4
     # via
     #   -r requirements/requirements-tests.txt
     #   virtualenv
-distributed==2022.04.1
-    # via
-    #   -r requirements/requirements.txt
-    #   dask
 dnspython==2.2.1
     # via
     #   -r requirements/requirements.txt
@@ -191,10 +180,6 @@ hdx-python-utilities==3.2.3
     # via
     #   -r requirements/requirements.txt
     #   hdx-python-country
-heapdict==1.0.1
-    # via
-    #   -r requirements/requirements.txt
-    #   zict
 identify==2.4.12
     # via pre-commit
 idna==3.3
@@ -230,10 +215,6 @@ isodate==0.6.1
 jinja2==3.1.1
     # via
     #   -r requirements/requirements-docs.txt
-    #   -r requirements/requirements.txt
-    #   bokeh
-    #   dask
-    #   distributed
     #   sphinx
 jsonlines==3.0.0
     # via
@@ -270,12 +251,7 @@ marko==1.2.0
 markupsafe==2.1.1
     # via
     #   -r requirements/requirements-docs.txt
-    #   -r requirements/requirements.txt
     #   jinja2
-msgpack==1.0.3
-    # via
-    #   -r requirements/requirements.txt
-    #   distributed
 munch==2.5.0
     # via
     #   -r requirements/requirements.txt
@@ -296,9 +272,7 @@ numpy==1.22.3
     # via
     #   -r requirements/requirements-tests.txt
     #   -r requirements/requirements.txt
-    #   bokeh
     #   cftime
-    #   dask
     #   netcdf4
     #   pandas
     #   rasterio
@@ -313,9 +287,7 @@ packaging==21.3
     #   -r requirements/requirements-docs.txt
     #   -r requirements/requirements-tests.txt
     #   -r requirements/requirements.txt
-    #   bokeh
     #   dask
-    #   distributed
     #   pytest
     #   rioxarray
     #   sphinx
@@ -324,7 +296,6 @@ packaging==21.3
 pandas==1.4.2
     # via
     #   -r requirements/requirements.txt
-    #   dask
     #   geopandas
     #   xarray
 partd==1.2.0
@@ -341,10 +312,6 @@ petl==1.7.8
     # via
     #   -r requirements/requirements.txt
     #   frictionless
-pillow==9.1.0
-    # via
-    #   -r requirements/requirements.txt
-    #   bokeh
 pip-tools==6.6.0
     # via -r requirements/dev.in
 platformdirs==2.5.2
@@ -367,10 +334,6 @@ pockets==0.9.1
     #   sphinxcontrib-napoleon
 pre-commit==2.18.1
     # via -r requirements/dev.in
-psutil==5.9.0
-    # via
-    #   -r requirements/requirements.txt
-    #   distributed
 py==1.11.0
     # via
     #   -r requirements/requirements-tests.txt
@@ -450,9 +413,7 @@ pytz==2022.1
 pyyaml==6.0
     # via
     #   -r requirements/requirements.txt
-    #   bokeh
     #   dask
-    #   distributed
     #   frictionless
     #   pre-commit
 quantulum3==0.7.10
@@ -539,10 +500,6 @@ snuggs==1.4.7
     # via
     #   -r requirements/requirements.txt
     #   rasterio
-sortedcontainers==2.4.0
-    # via
-    #   -r requirements/requirements.txt
-    #   distributed
 sphinx==4.5.0
     # via
     #   -r requirements/requirements-docs.txt
@@ -584,10 +541,6 @@ stringcase==1.2.0
     # via
     #   -r requirements/requirements.txt
     #   frictionless
-tblib==1.7.0
-    # via
-    #   -r requirements/requirements.txt
-    #   distributed
 text-unidecode==1.3
     # via
     #   -r requirements/requirements.txt
@@ -607,13 +560,7 @@ toolz==0.11.2
     # via
     #   -r requirements/requirements.txt
     #   dask
-    #   distributed
     #   partd
-tornado==6.1
-    # via
-    #   -r requirements/requirements.txt
-    #   bokeh
-    #   distributed
 tox==3.25.0
     # via -r requirements/requirements-tests.txt
 typer[all]==0.4.1
@@ -623,7 +570,6 @@ typer[all]==0.4.1
 typing-extensions==4.2.0
     # via
     #   -r requirements/requirements.txt
-    #   bokeh
     #   pydantic
 unidecode==1.3.4
     # via
@@ -638,7 +584,6 @@ urllib3==1.26.9
     # via
     #   -r requirements/requirements-docs.txt
     #   -r requirements/requirements.txt
-    #   distributed
     #   requests
     #   requests-cache
 validators==0.18.2
@@ -673,10 +618,6 @@ xlwt==1.3.0
     # via
     #   -r requirements/requirements.txt
     #   frictionless
-zict==2.1.0
-    # via
-    #   -r requirements/requirements.txt
-    #   distributed
 zipp==3.8.0
     # via
     #   -r requirements/requirements-docs.txt
