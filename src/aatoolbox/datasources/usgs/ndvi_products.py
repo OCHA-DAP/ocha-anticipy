@@ -14,7 +14,7 @@ from datetime import date
 from typing import Tuple, Union
 
 from aatoolbox.config.countryconfig import CountryConfig
-from aatoolbox.datasources.usgs.usgs_ndvi import _UsgsNdvi
+from aatoolbox.datasources.usgs.ndvi_base import _UsgsNdvi
 
 logger = logging.getLogger(__name__)
 

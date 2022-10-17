@@ -1,7 +1,7 @@
 """Tests for the USGS NDVI module."""
-
-from datetime import date
-from unittest.mock import patch
+import tempfile
+from datetime import date, datetime, timedelta
+from pathlib import Path
 
 import geopandas as gpd
 import numpy as np
@@ -16,10 +16,8 @@ from aatoolbox import (
     UsgsNdviSmoothed,
     UsgsNdviYearDifference,
 )
-from aatoolbox.utils._dates import dekad_to_date
 
 DATASOURCE_BASE_DIR = "usgs_ndvi"
-patcher = patch("aatoolbox.datasources.usgs.usgs_ndvi.urlopen")
 
 
 @pytest.fixture
@@ -58,7 +56,7 @@ def mock_download(mocker, mock_ndvi):
     download_mock = mocker.patch(
         (
             "aatoolbox.datasources.usgs."
-            "usgs_ndvi._UsgsNdvi._download_ndvi_dekad"
+            "ndvi_base._UsgsNdvi._download_ndvi_dekad"
         )
     )
 
@@ -69,6 +67,41 @@ def mock_download(mocker, mock_ndvi):
         return fp, download_calls
 
     return _mock_download
+
+
+@pytest.fixture
+def mock_determine_process_dates(mocker, mock_ndvi):
+    """
+    Call _determine_process_dates() with mocked _load().
+
+    Return number of calls to the internal
+    download method and the returned filepath.
+    """
+    mocker.patch(
+        ("aatoolbox.datasources.usgs.ndvi_base._UsgsNdvi._load"),
+        return_value=pd.DataFrame(
+            {
+                "year": [2019, 2020, 2020],
+                "dekad": [36, 1, 2],
+                "modified": [datetime.now() + timedelta(days=10)] * 3,
+            }
+        ),
+    )
+
+    mocker.patch(
+        "aatoolbox.datasources.usgs.ndvi_base._UsgsNdvi._get_raw_path",
+        return_value=Path(tempfile.mkstemp()[1]),
+    )
+
+    def _mock_determine_process_dates(clobber: bool, dates_to_process: list):
+        ndvi = mock_ndvi(variable="smoothed")
+        return ndvi._determine_process_dates(
+            clobber=clobber,
+            filepath="fake_filepath",
+            dates_to_process=dates_to_process,
+        )
+
+    return _mock_determine_process_dates
 
 
 @pytest.fixture
@@ -94,22 +127,14 @@ def da():
     """
 
     def _da(year_dekad):
-        date = dekad_to_date(year_dekad)
-        da = (
-            xr.DataArray(
-                [[[1 + year_dekad[1], 2, 3], [4, 5 + year_dekad[1], 6]]],
-                dims=("date", "y", "x"),
-                coords={
-                    "date": [date],
-                    "year": year_dekad[0],
-                    "dekad": year_dekad[1],
-                    "y": [1.5, 0.5],
-                    "x": [0.5, 1.5, 2.5],
-                },
-            )
-            .assign_coords({"modified": 1})
-            .rio.write_crs("EPSG:4326")
-        )
+        da = xr.DataArray(
+            [[[1 + year_dekad[1], 2, 3], [4, 5 + year_dekad[1], 6]]],
+            dims=("band", "y", "x"),
+            coords={
+                "y": [1.5, 0.5],
+                "x": [0.5, 1.5, 2.5],
+            },
+        ).rio.write_crs("EPSG:4326")
         return da
 
     return _da
@@ -159,8 +184,13 @@ def test_process_and_load(
     # TODO: now created `load_raw` to be able to mock but would like
     #  to do it from xr.load_dataset directly
     mocker.patch(
-        "aatoolbox.datasources.usgs.usgs_ndvi._UsgsNdvi.load_raster",
+        "aatoolbox.datasources.usgs.ndvi_base.rioxarray.open_rasterio",
         side_effect=[da((2019, 36)), da((2020, 1)), da((2020, 2))] * 6,
+    )
+
+    mocker.patch(
+        "aatoolbox.datasources.usgs.ndvi_base._UsgsNdvi._get_raw_path",
+        return_value=Path(tempfile.mkstemp()[1]),
     )
 
     processed_dir = ndvi.process(gdf=gdf, feature_col="name")
@@ -212,3 +242,62 @@ def test_load_if_process_not_called(mock_ndvi):
     ndvi = mock_ndvi(variable="smoothed")
     with pytest.raises(FileNotFoundError):
         ndvi.load(feature_col="name")
+
+
+def test_fp_year_dekad():
+    """Test that year and dekad extracted from FP."""
+    fp = Path("ea2022_10pct.tif")
+    assert UsgsNdviPctMedian._fp_year_dekad(fp) == [2022, 10]
+
+
+def test_get_url(mock_ndvi):
+    """Test that URL generated correctly."""
+    fn = "fake_filename"
+    ndvi = mock_ndvi(variable="pct_median")
+    expected_fn = (
+        f"https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/fews/web/"
+        f"{ndvi._datasource_config.area_url}/dekadal/emodis"
+        f"/ndvi_c6/{ndvi._data_variable_url}/"
+        f"downloads/dekadal/{fn}.zip"
+    )
+    assert ndvi._get_url(fn) == expected_fn
+
+
+def test_process_dates_clobber_true(mock_determine_process_dates):
+    """Test process dates clobbers properly."""
+    dps = [(2019, 36), (2020, 1), (2020, 2)]
+    test_dps, df = mock_determine_process_dates(
+        clobber=True, dates_to_process=dps
+    )
+    assert len(test_dps) == 3
+    assert df.size == 0
+
+
+def test_process_dates_clobber_false(mock_determine_process_dates):
+    """Test process dates doesn't clobber unnecessarily."""
+    dps = [(2019, 36), (2020, 1), (2020, 2)]
+    test_dps, df = mock_determine_process_dates(
+        clobber=False, dates_to_process=dps
+    )
+    assert len(test_dps) == 0
+    assert df.shape[0] == 3
+
+
+def test_process_dates_clobber_true_additional(mock_determine_process_dates):
+    """Test process dates clobbers properly."""
+    dps = [(2019, 35), (2019, 36), (2020, 1), (2020, 2), (2020, 3)]
+    test_dps, df = mock_determine_process_dates(
+        clobber=True, dates_to_process=dps
+    )
+    assert len(test_dps) == 5
+    assert df.size == 0
+
+
+def test_process_dates_clobber_false_additional(mock_determine_process_dates):
+    """Test process dates doesn't clobber unnecessarily."""
+    dps = [(2019, 35), (2019, 36), (2020, 1), (2020, 2), (2020, 3)]
+    test_dps, df = mock_determine_process_dates(
+        clobber=False, dates_to_process=dps
+    )
+    assert len(test_dps) == 2
+    assert df.shape[0] == 3

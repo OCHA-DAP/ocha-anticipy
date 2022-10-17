@@ -15,7 +15,7 @@ from aatoolbox.datasources.iri.iri_seasonal_forecast import (
     IriForecastDominant,
     IriForecastProb,
 )
-from aatoolbox.datasources.usgs.usgs_ndvi_children import (
+from aatoolbox.datasources.usgs.ndvi_products import (
     UsgsNdviMedianAnomaly,
     UsgsNdviPctMedian,
     UsgsNdviSmoothed,

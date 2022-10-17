@@ -26,7 +26,7 @@ from rasterio.errors import RasterioIOError
 import aatoolbox.utils.raster  # noqa: F401
 from aatoolbox.config.countryconfig import CountryConfig
 from aatoolbox.datasources.datasource import DataSource
-from aatoolbox.utils._dates import (
+from aatoolbox.utils.dates import (
     compare_dekads_gt,
     compare_dekads_lt,
     dekad_to_date,
@@ -359,13 +359,13 @@ class _UsgsNdvi(DataSource):
         return df
 
     def load_raster(
-        self, date: Union[date, str, Tuple[int, int]]
+        self, load_date: Union[date, str, Tuple[int, int]]
     ) -> xr.DataArray:
         """Load raster for specific year and dekad.
 
         Parameters
         ----------
-        date : Union[date, str, Tuple[int, int]]
+        load_date : Union[date, str, Tuple[int, int]]
             Date. Can be passed as a ``datetime.date``
             object and the relevant dekad will be determined,
             as a date string in ISO8601 format, or as a
@@ -381,7 +381,7 @@ class _UsgsNdvi(DataSource):
         FileNotFoundError
             If the requested file cannot be found.
         """
-        year, dekad = get_dekadal_date(input_date=date)
+        year, dekad = get_dekadal_date(input_date=load_date)
 
         filepath = self._get_raw_path(year=year, dekad=dekad, local=True)
         try:
