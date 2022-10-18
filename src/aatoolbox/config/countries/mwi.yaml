@@ -35,3 +35,5 @@ glofas:
     name: Chikwawa
     lon: 34.85
     lat: -16.05
+usgs_ndvi:
+  area_name: southern-africa

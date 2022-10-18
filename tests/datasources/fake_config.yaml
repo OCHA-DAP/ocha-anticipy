@@ -15,3 +15,5 @@ glofas:
       name: Station2
       lon: -3.5
       lat: -1.5
+usgs_ndvi:
+  area_name: east-africa

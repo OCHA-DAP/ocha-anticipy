@@ -19,3 +19,5 @@ glofas:
     name: Liptougou
     lon: 0.35
     lat: 13.25
+usgs_ndvi:
+  area_name: west-africa

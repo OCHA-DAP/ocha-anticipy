@@ -37,7 +37,7 @@ basicauth==0.4.1
     # via
     #   -r requirements/requirements.txt
     #   hdx-python-utilities
-bokeh==2.4.2
+bokeh==2.4.3
     # via
     #   -r requirements/requirements.txt
     #   dask
@@ -290,7 +290,7 @@ markupsafe==2.1.1
     #   -r requirements/requirements-docs.txt
     #   -r requirements/requirements.txt
     #   jinja2
-msgpack==1.0.3
+msgpack==1.0.4
     # via
     #   -r requirements/requirements.txt
     #   distributed
@@ -363,7 +363,7 @@ petl==1.7.8
     # via
     #   -r requirements/requirements.txt
     #   frictionless
-pillow==9.1.0
+pillow==9.2.0
     # via
     #   -r requirements/requirements.txt
     #   bokeh
@@ -389,7 +389,7 @@ pockets==0.9.1
     #   sphinxcontrib-napoleon
 pre-commit==2.18.1
     # via -r requirements/dev.in
-psutil==5.9.0
+psutil==5.9.2
     # via
     #   -r requirements/requirements.txt
     #   distributed
@@ -713,7 +713,7 @@ xlwt==1.3.0
     # via
     #   -r requirements/requirements.txt
     #   frictionless
-zict==2.1.0
+zict==2.2.0
     # via
     #   -r requirements/requirements.txt
     #   distributed

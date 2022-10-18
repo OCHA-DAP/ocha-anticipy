@@ -147,3 +147,5 @@ glofas:
     name: Sekta
     lon: 36.75
     lat: 7.65
+usgs_ndvi:
+  area_name: east-africa
