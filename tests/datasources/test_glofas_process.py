@@ -195,8 +195,8 @@ class TestProcess:
         glofas_reanalysis = GlofasReanalysis(
             country_config=mock_country_config,
             geo_bounding_box=self.geo_bounding_box,
-            date_min=datetime(year=2022, month=1, day=1),
-            date_max=datetime(year=2022, month=12, day=31),
+            start_date=datetime(year=2022, month=1, day=1),
+            end_date=datetime(year=2022, month=12, day=31),
         )
         output_filepath = glofas_reanalysis.process()[0]
         # use open_dataset since load_dataset is patched
@@ -211,8 +211,8 @@ class TestProcess:
             country_config=mock_country_config,
             geo_bounding_box=self.geo_bounding_box,
             leadtime_max=3,
-            date_min=datetime(year=2022, month=1, day=1),
-            date_max=datetime(year=2022, month=1, day=31),
+            start_date=datetime(year=2022, month=1, day=1),
+            end_date=datetime(year=2022, month=1, day=31),
         )
         output_filepath = glofas_reforecast.process()[0]
         with xr.open_dataset(output_filepath) as output_ds:
@@ -226,8 +226,8 @@ class TestProcess:
             country_config=mock_country_config,
             geo_bounding_box=self.geo_bounding_box,
             leadtime_max=3,
-            date_min=datetime(year=2022, month=1, day=1),
-            date_max=datetime(year=2022, month=1, day=1),
+            start_date=datetime(year=2022, month=1, day=1),
+            end_date=datetime(year=2022, month=1, day=1),
         )
         output_filepath = glofas_forecast.process()[0]
         with xr.open_dataset(output_filepath) as output_ds:

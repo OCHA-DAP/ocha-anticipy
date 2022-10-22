@@ -57,10 +57,10 @@ class Glofas(DataSource):
         Country configuration
     geo_bounding_box: GeoBoundingBox
         The bounding coordinates of the area that should be included
-    date_min : datetime
-        The minimum date for the dataset
-    date_max : datetime
-        The maximum date for the dataset
+    start_date : datetime
+        The starting date for the dataset
+    end_date : datetime
+        The ending date for the dataset
     cds_name : str
         The name of the dataset in CDS
     system_version : str
@@ -82,8 +82,8 @@ class Glofas(DataSource):
         self,
         country_config: CountryConfig,
         geo_bounding_box: GeoBoundingBox,
-        date_min: datetime,
-        date_max: datetime,
+        start_date: datetime,
+        end_date: datetime,
         cds_name: str,
         system_version: str,
         product_type: Union[str, List[str]],
@@ -101,8 +101,8 @@ class Glofas(DataSource):
         self._geo_bounding_box = geo_bounding_box.round_coords(
             offset_val=0.05, round_val=0.1
         )
-        self._date_min = date_min
-        self._date_max = date_max
+        self._start_date = start_date
+        self._end_date = end_date
         self._cds_name = cds_name
         self._system_version = system_version
         self._product_type = product_type
@@ -112,7 +112,9 @@ class Glofas(DataSource):
         self._leadtime_max = leadtime_max
         self._forecast_type = type(self).__name__.replace("Glofas", "").lower()
         self._date_range = rrule.rrule(
-            freq=self._frequency, dtstart=self._date_min, until=self._date_max
+            freq=self._frequency,
+            dtstart=self._start_date,
+            until=self._end_date,
         )
 
     def download(  # type: ignore
@@ -134,7 +136,7 @@ class Glofas(DataSource):
         """
         msg = (
             f"Downloading GloFAS {self._forecast_type} "
-            f"for {self._date_min} - {self._date_max}"
+            f"for {self._start_date} - {self._end_date}"
         )
         if self._leadtime_max is not None:
             msg += f"and up to {self._leadtime_max} day lead time"
@@ -153,18 +155,19 @@ class Glofas(DataSource):
                 day=date.day,
                 leadtime_max=self._leadtime_max,
             )
-            if clobber or not output_filepath.exists():
-                query_params_list.append(
-                    _QueryParams(
-                        filepath=output_filepath,
-                        query=self._get_query(
-                            year=date.year,
-                            month=date.month,
-                            day=date.day,
-                            leadtime_max=self._leadtime_max,
-                        ),
-                    )
+            if not clobber and output_filepath.exists():
+                continue
+            query_params_list.append(
+                _QueryParams(
+                    filepath=output_filepath,
+                    query=self._get_query(
+                        year=date.year,
+                        month=date.month,
+                        day=date.day,
+                        leadtime_max=self._leadtime_max,
+                    ),
                 )
+            )
 
         download_filepaths = self._download(
             query_params_list=query_params_list
@@ -193,8 +196,9 @@ class Glofas(DataSource):
 
         """
         logger.info(
-            f"Processing GloFAS {self._forecast_type} for {self._date_min} - "
-            f"{self._date_max} and up to {self._leadtime_max} day lead time"
+            f"Processing GloFAS {self._forecast_type} for "
+            f"{self._start_date} - {self._end_date} and up to "
+            f"{self._leadtime_max} day lead time"
         )
         # Make the directory
         output_directory = self._get_directory(is_processed=True)
@@ -215,16 +219,21 @@ class Glofas(DataSource):
                 leadtime_max=self._leadtime_max,
                 is_processed=True,
             )
-            ds_new = self._process_single_file(
+            if not clobber and output_filepath.exists():
+                continue
+            logger.debug(f"Processing {input_filepath}")
+            ds_raw = self._load_single_file(
                 input_filepath=input_filepath,
                 filepath=output_filepath,
                 clobber=clobber,
             )
+            ds_processed = self._get_reporting_point_dataset(ds=ds_raw)
             # NetCDF doesn't like to overwrite files
             if output_filepath.exists():
                 output_filepath.unlink()
-            ds_new.to_netcdf(output_filepath)
+            ds_processed.to_netcdf(output_filepath)
             processed_filepaths.append(output_filepath)
+            logger.debug(f"Wrote file to {output_filepath}")
         logger.info(
             f"Processed {len(processed_filepaths)} files to {output_directory}"
         )
@@ -385,7 +394,8 @@ class Glofas(DataSource):
         return query
 
     @abstractmethod
-    def _process_single_file(self, *args, **kwargs) -> xr.Dataset:
+    def _load_single_file(self, *args, **kwargs) -> xr.Dataset:
+        """Process a single raw raster file."""
         pass
 
     def _get_reporting_point_dataset(self, ds: xr.Dataset) -> xr.Dataset:
@@ -440,4 +450,5 @@ class Glofas(DataSource):
 
     @staticmethod
     def _preprocess_load(ds: xr.Dataset) -> xr.Dataset:
+        """Preprocessing to do before loading the processed data."""
         return ds

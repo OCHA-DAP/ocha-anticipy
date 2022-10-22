@@ -72,8 +72,8 @@ def test_reanalysis_download(
     glofas_reanalysis = GlofasReanalysis(
         country_config=mock_country_config,
         geo_bounding_box=geo_bounding_box,
-        date_min=datetime(year=2022, month=1, day=1),
-        date_max=datetime(year=2022, month=12, day=31),
+        start_date=datetime(year=2022, month=1, day=1),
+        end_date=datetime(year=2022, month=12, day=31),
     )
     glofas_reanalysis.download()
     expected_retrieve_args = {
@@ -119,8 +119,8 @@ def test_forecast_download(
         country_config=mock_country_config,
         geo_bounding_box=geo_bounding_box,
         leadtime_max=3,
-        date_min=datetime(year=2022, month=1, day=1),
-        date_max=datetime(year=2022, month=1, day=1),
+        start_date=datetime(year=2022, month=1, day=1),
+        end_date=datetime(year=2022, month=1, day=1),
     )
     glofas_forecast.download()
     expected_retrieve_args = {
@@ -172,8 +172,8 @@ def test_reforecast_download(
         country_config=mock_country_config,
         geo_bounding_box=geo_bounding_box,
         leadtime_max=3,
-        date_min=datetime(year=2022, month=1, day=1),
-        date_max=datetime(year=2022, month=1, day=31),
+        start_date=datetime(year=2022, month=1, day=1),
+        end_date=datetime(year=2022, month=1, day=31),
     )
     glofas_reforecast.download()
     expected_retrieve_args = {
