@@ -74,8 +74,6 @@ def _read_in_ensemble_and_perturbed_datasets(filepath: Path):
             ds = ds.expand_dims(dim="number")
         ds_list.append(ds)
     return xr.combine_by_coords(ds_list, combine_attrs="drop_conflicts")
-    # ds = xr.combine_by_coords(ds_list, combine_attrs="drop_conflicts")
-    # return ds.expand_dims(dim="time")
 
 
 class GlofasForecast(_GlofasForecastBase):
@@ -106,6 +104,10 @@ class GlofasForecast(_GlofasForecastBase):
             frequency=rrule.DAILY,
             coord_names=["number", "step"],
         )
+
+    @staticmethod
+    def _preprocess_load(ds: xr.Dataset) -> xr.Dataset:
+        return ds.expand_dims("time")
 
 
 class GlofasReforecast(_GlofasForecastBase):
