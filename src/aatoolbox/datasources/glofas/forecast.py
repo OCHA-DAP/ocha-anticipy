@@ -1,4 +1,4 @@
-"""Glofas focast and reforecast."""
+"""Download and process GloFAS forecast and reforecast river discharge data."""
 import logging
 from datetime import datetime
 from pathlib import Path
@@ -47,15 +47,13 @@ class _GlofasForecastBase(glofas.Glofas):
     @check_file_existence
     def _process_single_file(
         self, input_filepath: Path, filepath: Path, clobber: bool
-    ) -> Path:
+    ) -> xr.Dataset:
         # Read in both the control and ensemble perturbed forecast
         # and combine
         logger.debug(f"Reading in {input_filepath}")
         ds = _read_in_ensemble_and_perturbed_datasets(filepath=input_filepath)
         # Create a new product_type with just the station pixels
-        ds_new = self._get_reporting_point_dataset(ds=ds)
-        # Write out the new product_type to a file
-        return glofas.write_to_processed_file(ds=ds_new, filepath=filepath)
+        return self._get_reporting_point_dataset(ds=ds)
 
 
 def _read_in_ensemble_and_perturbed_datasets(filepath: Path):

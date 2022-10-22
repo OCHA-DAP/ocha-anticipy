@@ -1,4 +1,4 @@
-"""Glofas reanalysis."""
+"""Download and process GloFAS reanalysis river discharge data."""
 import logging
 from datetime import datetime
 from pathlib import Path
@@ -44,13 +44,11 @@ class GlofasReanalysis(glofas.Glofas):
     @check_file_existence
     def _process_single_file(
         self, input_filepath: Path, filepath: Path, clobber: bool
-    ) -> Path:
+    ) -> xr.Dataset:
         # Read in the product_type
         logger.debug(f"Reading in {input_filepath}")
         ds = xr.load_dataset(
             input_filepath, engine="cfgrib", backend_kwargs={"indexpath": ""}
         )
         # Create a new product_type with just the station pixels
-        ds_new = self._get_reporting_point_dataset(ds=ds)
-        # Write out the new product_type to a file
-        return glofas.write_to_processed_file(ds=ds_new, filepath=filepath)
+        return self._get_reporting_point_dataset(ds=ds)

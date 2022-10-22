@@ -1,6 +1,7 @@
-"""Base class for downloading and processing GloFAS raster data."""
+"""Base class for downloading and processing GloFAS river discharge data."""
 import logging
 import time
+from abc import abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -17,24 +18,27 @@ from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
 _MODULE_BASENAME = "glofas"
 _HYDROLOGICAL_MODEL = "lisflood"
+_RIVER_DISCHARGE_VAR = "dis24"
 _REQUEST_SLEEP_TIME = 60  # seconds
 
 logger = logging.getLogger(__name__)
 
 
 @dataclass
-class QueryParams:
+class _QueryParams:
     """
-    Class to keep track of query input and output.
+    Class to keep track of CDS query input and output.
 
     Parameters
     ----------
     filepath: Path
         Full filepath of downloaded CDS file
     query: dict
-        Output of _get_query() method
-    request_id: str
-        Added after request has been made to CDS
+        Output of _get_query() method, to be submitted to the CDS API
+    request_id: str, default = None
+        Request ID from CDS, only set after request has been made
+    downloaded: bool, default = False
+        Whether or not the file has yet been downloaded
     """
 
     filepath: Path
@@ -45,29 +49,34 @@ class QueryParams:
 
 class Glofas(DataSource):
     """
-    GloFAS base class.
+    Base class for all GloFAS data downloading and processing.
 
     Parameters
     ----------
-    country_config: CountryConfig
+    country_config : CountryConfig
         Country configuration
     geo_bounding_box: GeoBoundingBox
-        The bounding coordinates of the geo_bounding_box that should
-        be included in the data
-    date_min: int
-        The earliest year that the dataset is available
-    date_max : int
-        The most recent that the dataset is available
+        The bounding coordinates of the area that should be included
+    date_min : datetime
+        The minimum date for the dataset
+    date_max : datetime
+        The maximum date for the dataset
     cds_name : str
         The name of the dataset in CDS
-    product_type : str or list of strings
-        The sub-datasets that you would like to download
-    date_variable_prefix : str, default = ""
-        Some GloFAS datasets have the prefix "h" in front of some query keys
-    frequency: str
+    system_version : str
+        An input to the CDS query
+    product_type : str or list
+        Which product types from the dataset are requested
+    date_variable_prefix : str
+        Some dates require a prefix for the CDS API query
+    frequency : str
+        How to split the query (and thus files): in years, months, or days.
+        Depends on the maximum query size of the product
+    coord_names : list
+        Coordinate names in the xarray dataset
+    leadtime_max : int, default = None
+        The maximum lead time in days, for forecast or reforecast data
     """
-
-    _RIVER_DISCHARGE_VAR = "dis24"
 
     def __init__(
         self,
@@ -110,7 +119,19 @@ class Glofas(DataSource):
         self,
         clobber: bool = False,
     ) -> List[Path]:
-        """Download."""
+        """
+        Download the GloFAS data by querying CDS.
+
+        Parameters
+        ----------
+        clobber : bool, default = False
+            Overwrite files that were already downloaded
+
+        Returns
+        -------
+        A list paths of downloaded files
+
+        """
         msg = (
             f"Downloading GloFAS {self._forecast_type} "
             f"for {self._date_min} - {self._date_max}"
@@ -134,7 +155,7 @@ class Glofas(DataSource):
             )
             if clobber or not output_filepath.exists():
                 query_params_list.append(
-                    QueryParams(
+                    _QueryParams(
                         filepath=output_filepath,
                         query=self._get_query(
                             year=date.year,
@@ -158,7 +179,19 @@ class Glofas(DataSource):
         self,
         clobber: bool = False,
     ) -> List[Path]:
-        """Process GloFAS data."""
+        """
+        Process the downloaded GloFAS files.
+
+        Parameters
+        ----------
+        clobber : bool, default = False
+            Overwrite files that were already processed
+
+        Returns
+        -------
+        A list paths of processed files
+
+        """
         logger.info(
             f"Processing GloFAS {self._forecast_type} for {self._date_min} - "
             f"{self._date_max} and up to {self._leadtime_max} day lead time"
@@ -182,12 +215,16 @@ class Glofas(DataSource):
                 leadtime_max=self._leadtime_max,
                 is_processed=True,
             )
-            processed_filepath = self._process_single_file(
+            ds_new = self._process_single_file(
                 input_filepath=input_filepath,
                 filepath=output_filepath,
                 clobber=clobber,
             )
-            processed_filepaths.append(processed_filepath)
+            # NetCDF doesn't like to overwrite files
+            if output_filepath.exists():
+                output_filepath.unlink()
+            ds_new.to_netcdf(output_filepath)
+            processed_filepaths.append(output_filepath)
         logger.info(
             f"Processed {len(processed_filepaths)} files to {output_directory}"
         )
@@ -197,7 +234,15 @@ class Glofas(DataSource):
     def load(
         self,
     ) -> xr.Dataset:
-        """Load GloFAS data."""
+        """
+        Load the processed GloFAS data.
+
+        Returns
+        -------
+        A single xarray dataset containing all GloFAS reporting points
+        and their associated river discharge
+
+        """
         filepath_list = [
             self._get_filepath(
                 year=date.year,
@@ -221,6 +266,7 @@ class Glofas(DataSource):
         leadtime_max: int = None,
         is_processed: bool = False,
     ) -> Path:
+        """Get downloaded / processed filepaths based on GloFAS product."""
         filename = f"{self._country_config.iso3}_{self._cds_name}_{year}"
         if self._frequency in [rrule.MONTHLY, rrule.DAILY]:
             filename += f"-{str(month).zfill(2)}"
@@ -236,6 +282,7 @@ class Glofas(DataSource):
         return self._get_directory(is_processed=is_processed) / Path(filename)
 
     def _get_directory(self, is_processed: bool = False) -> Path:
+        """Get download / processed directory for GloFAS product."""
         return (
             self._processed_base_dir
             if is_processed
@@ -244,9 +291,21 @@ class Glofas(DataSource):
 
     def _download(
         self,
-        query_params_list: List[QueryParams],
+        query_params_list: List[_QueryParams],
     ) -> List[Path]:
-        # First make the requests and store the request number
+        """
+        Download the GloFAS data from CDS.
+
+        Uses query_params_list, which is a list of API request input dicts,
+        to query the CDS API, and for each query,  store the request
+        ID that is returned, and the downloaded state.
+
+        Then loops through the list of request, checking each one to see
+        if it has been completed on the CDS side. If so, it's downloaded,
+        and then removed from the list of requests. The process continues
+        until the request list is empty
+        """
+        # First make the requests to the CDS client and store request number
         for query_params in query_params_list:
             logger.debug(f"Making request {query_params.query}")
             query_params.request_id = (
@@ -254,7 +313,7 @@ class Glofas(DataSource):
                 .retrieve(name=self._cds_name, request=query_params.query)
                 .reply["request_id"]
             )
-        # Loop through the request list and check status until all
+        # Loop through the request list and check status until all requests
         # are downloaded
         downloaded_filepaths = []
         while query_params_list:
@@ -296,6 +355,7 @@ class Glofas(DataSource):
         day: int = None,
         leadtime_max: int = None,
     ) -> dict:
+        """Create dictionary for CDS API query input."""
         query = {
             "variable": "river_discharge_in_the_last_24_hours",
             "format": "grib",
@@ -324,26 +384,19 @@ class Glofas(DataSource):
         logger.debug(f"Query: {query}")
         return query
 
-    def _process_single_file(self, *args, **kwargs):
+    @abstractmethod
+    def _process_single_file(self, *args, **kwargs) -> xr.Dataset:
         pass
 
     def _get_reporting_point_dataset(self, ds: xr.Dataset) -> xr.Dataset:
-        """
-        Create a product_type from a GloFAS raster based on reporting points.
-
-        Parameters
-        ----------
-        ds :
-        coord_names :
-
-        """
+        """Convert raw raster to processed that uses reporting points."""
         if self._country_config.glofas is None:
             raise KeyError(
                 "The country configuration file does not contain"
                 "any reporting point coordinates. Please update the"
                 "configuration file and try again."
             )
-        # Check that lat and lon are in the bounds
+        # Check that lat and lon of reporting points are in the bounds
         for reporting_point in self._country_config.glofas.reporting_points:
             if (
                 not ds.longitude.min()
@@ -363,7 +416,7 @@ class Glofas(DataSource):
                     f"from {ds.latitude.min().values} "
                     f"to {ds.latitude.max().values})"
                 )
-        # If they are then return the correct pixel
+        # If reporting points fit then return processed dataset
         return xr.Dataset(
             data_vars={
                 reporting_point.id: (
@@ -372,7 +425,7 @@ class Glofas(DataSource):
                         longitude=reporting_point.lon,
                         latitude=reporting_point.lat,
                         method="nearest",
-                    )[self._RIVER_DISCHARGE_VAR].data,
+                    )[_RIVER_DISCHARGE_VAR].data,
                     {"name": reporting_point.name},
                 )
                 # fmt: off
@@ -388,17 +441,3 @@ class Glofas(DataSource):
     @staticmethod
     def _preprocess_load(ds: xr.Dataset) -> xr.Dataset:
         return ds
-
-
-def write_to_processed_file(
-    ds: xr.Dataset,
-    filepath: Path,
-) -> Path:
-    """Write a file to netcdf but removing it first if it exists."""
-    # Netcdf seems to have problems overwriting; delete the file if
-    # it exists
-    if filepath.exists():
-        filepath.unlink()
-    logger.info(f"Writing to {filepath}")
-    ds.to_netcdf(filepath)
-    return filepath
