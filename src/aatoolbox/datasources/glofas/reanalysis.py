@@ -53,4 +53,4 @@ class GlofasReanalysis(glofas.Glofas):
         # Create a new product_type with just the station pixels
         ds_new = self._get_reporting_point_dataset(ds=ds)
         # Write out the new product_type to a file
-        return self._write_to_processed_file(ds=ds_new, filepath=filepath)
+        return glofas.write_to_processed_file(ds=ds_new, filepath=filepath)

@@ -17,6 +17,7 @@ from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
 _MODULE_BASENAME = "glofas"
 _HYDROLOGICAL_MODEL = "lisflood"
+_REQUEST_SLEEP_TIME = 60  # seconds
 
 logger = logging.getLogger(__name__)
 
@@ -118,36 +119,40 @@ class Glofas(DataSource):
             msg += f"and up to {self._leadtime_max} day lead time"
         logger.info(msg)
 
+        # Make directory
+        output_directory = self._get_directory()
+        output_directory.mkdir(parents=True, exist_ok=True)
+
         # Get list of files to open
-        query_params_list = [
-            QueryParams(
-                self._get_filepath(
-                    year=date.year,
-                    month=date.month,
-                    day=date.day,
-                    leadtime_max=self._leadtime_max,
-                ),
-                self._get_query(
-                    year=date.year,
-                    month=date.month,
-                    day=date.day,
-                    leadtime_max=self._leadtime_max,
-                ),
-            )
-            for date in self._date_range
-            if not self._get_filepath(
+        query_params_list = []
+        for date in self._date_range:
+            output_filepath = self._get_filepath(
                 year=date.year,
                 month=date.month,
                 day=date.day,
                 leadtime_max=self._leadtime_max,
-            ).exists()
-            or clobber is True
-        ]
-        # TODO: make this return directory
-        # if not query_params_list:
-        #    logger.info("Nothing to query, exiting")
-        #    return
-        return self._download(query_params_list=query_params_list)
+            )
+            if clobber or not output_filepath.exists():
+                query_params_list.append(
+                    QueryParams(
+                        filepath=output_filepath,
+                        query=self._get_query(
+                            year=date.year,
+                            month=date.month,
+                            day=date.day,
+                            leadtime_max=self._leadtime_max,
+                        ),
+                    )
+                )
+
+        download_filepaths = self._download(
+            query_params_list=query_params_list
+        )
+        logger.info(
+            f"Downloaded {len(download_filepaths)} files to {output_directory}"
+        )
+        logger.debug(f"Files downloaded: {download_filepaths}")
+        return download_filepaths
 
     def process(  # type: ignore
         self,
@@ -158,7 +163,9 @@ class Glofas(DataSource):
             f"Processing GloFAS {self._forecast_type} for {self._date_min} - "
             f"{self._date_max} and up to {self._leadtime_max} day lead time"
         )
-
+        # Make the directory
+        output_directory = self._get_directory(is_processed=True)
+        output_directory.mkdir(parents=True, exist_ok=True)
         # Get list of files to open
         processed_filepaths = []
         for date in self._date_range:
@@ -181,6 +188,10 @@ class Glofas(DataSource):
                 clobber=clobber,
             )
             processed_filepaths.append(processed_filepath)
+        logger.info(
+            f"Processed {len(processed_filepaths)} files to {output_directory}"
+        )
+        logger.debug(f"Files downloaded: {processed_filepaths}")
         return processed_filepaths
 
     def load(
@@ -202,10 +213,6 @@ class Glofas(DataSource):
         ) as ds:
             return ds
 
-    @staticmethod
-    def _preprocess_load(ds: xr.Dataset) -> xr.Dataset:
-        return ds
-
     def _get_filepath(
         self,
         year: int,
@@ -214,9 +221,6 @@ class Glofas(DataSource):
         leadtime_max: int = None,
         is_processed: bool = False,
     ) -> Path:
-        directory = (
-            self._processed_base_dir if is_processed else self._raw_base_dir
-        )
         filename = f"{self._country_config.iso3}_{self._cds_name}_{year}"
         if self._frequency in [rrule.MONTHLY, rrule.DAILY]:
             filename += f"-{str(month).zfill(2)}"
@@ -229,15 +233,19 @@ class Glofas(DataSource):
             filename += "_processed.nc"
         else:
             filename += ".grib"
-        return directory / self._cds_name / Path(filename)
+        return self._get_directory(is_processed=is_processed) / Path(filename)
+
+    def _get_directory(self, is_processed: bool = False) -> Path:
+        return (
+            self._processed_base_dir
+            if is_processed
+            else self._raw_base_dir / self._cds_name
+        )
 
     def _download(
         self,
         query_params_list: List[QueryParams],
     ) -> List[Path]:
-        Path(query_params_list[0].filepath.parent).mkdir(
-            parents=True, exist_ok=True
-        )
         # First make the requests and store the request number
         for query_params in query_params_list:
             logger.debug(f"Making request {query_params.query}")
@@ -278,7 +286,7 @@ class Glofas(DataSource):
             # Sleep a bit before the next loop so that we're not
             # hammering on cds
             if query_params_list:
-                time.sleep(60)
+                time.sleep(_REQUEST_SLEEP_TIME)
         return downloaded_filepaths
 
     def _get_query(
@@ -378,15 +386,19 @@ class Glofas(DataSource):
         )
 
     @staticmethod
-    def _write_to_processed_file(
-        ds: xr.Dataset,
-        filepath: Path,
-    ) -> Path:
-        Path(filepath.parent).mkdir(parents=True, exist_ok=True)
-        # Netcdf seems to have problems overwriting; delete the file if
-        # it exists
-        if filepath.exists():
-            filepath.unlink()
-        logger.info(f"Writing to {filepath}")
-        ds.to_netcdf(filepath)
-        return filepath
+    def _preprocess_load(ds: xr.Dataset) -> xr.Dataset:
+        return ds
+
+
+def write_to_processed_file(
+    ds: xr.Dataset,
+    filepath: Path,
+) -> Path:
+    """Write a file to netcdf but removing it first if it exists."""
+    # Netcdf seems to have problems overwriting; delete the file if
+    # it exists
+    if filepath.exists():
+        filepath.unlink()
+    logger.info(f"Writing to {filepath}")
+    ds.to_netcdf(filepath)
+    return filepath
