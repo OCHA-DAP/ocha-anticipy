@@ -9,6 +9,7 @@ AA Toolbox supports the following data sources:
    datasources/chirps
    datasources/codab
    datasources/fewsnet
+   datasources/glofas
    datasources/iri_seasonal_forecast
    datasources/usgs_ndvi
 

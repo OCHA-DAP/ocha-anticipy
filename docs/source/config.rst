@@ -13,13 +13,14 @@ Built-in Country Configuration
 Several countries are already supported out-of-the box,
 and we are continuously adding more.
 
+.. _list of supported countries:
 A list of countries that we currently support:
-- Burkina Faso (BFA)
-- Bangladesh (BGD)
-- Democratic Republic of the Congo (COD)
-- Ethiopia (ETH)
-- Malawi (MWI)
-- Nepal (NPL)
+* Burkina Faso (BFA)
+* Bangladesh (BGD)
+* Democratic Republic of the Congo (COD)
+* Ethiopia (ETH)
+* Malawi (MWI)
+* Nepal (NPL)
 
 Please contact us
 or create an issue if you would like to see more countries

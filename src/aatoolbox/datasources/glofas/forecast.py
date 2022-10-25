@@ -100,6 +100,8 @@ class GlofasForecast(_GlofasForecastBase):
     and processes it from a raster to a datasets of reporting points from the
     `GloFAS interface
     <https://www.globalfloods.eu/glofas-forecasting/>`_.
+    Due to the CDS request size limits, separate files are downloaded per
+    day (that contain all requested lead times).
 
     Parameters
     ----------
@@ -189,6 +191,8 @@ class GlofasReforecast(_GlofasForecastBase):
     and processes it from a raster to a datasets of reporting points from the
     `GloFAS interface
     <https://www.globalfloods.eu/glofas-forecasting/>`_.
+     Due to the CDS request size limits, separate files are downloaded per
+     month (that contain all requested lead times).
 
     Parameters
     ----------

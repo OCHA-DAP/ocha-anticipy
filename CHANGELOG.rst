@@ -11,6 +11,11 @@ Versioning <https://semver.org/spec/v2.0.0.html>`__.
 Unreleased
 ----------
 
+Added
+~~~~~
+
+-  Module for downloading and processing GloFAS data
+
 Fixed
 ~~~~~
 
