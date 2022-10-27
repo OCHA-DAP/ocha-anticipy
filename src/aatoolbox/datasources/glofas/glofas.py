@@ -429,14 +429,13 @@ class Glofas(DataSource):
         # If reporting points fit then return processed dataset
         return xr.Dataset(
             data_vars={
-                reporting_point.id: (
+                reporting_point.name: (
                     self._coord_names,
                     ds.sel(
                         longitude=reporting_point.lon,
                         latitude=reporting_point.lat,
                         method="nearest",
                     )[_RIVER_DISCHARGE_VAR].data,
-                    {"name": reporting_point.name},
                 )
                 # fmt: off
                 for reporting_point in

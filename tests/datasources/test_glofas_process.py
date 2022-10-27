@@ -144,7 +144,7 @@ class TestProcess:
             coords["step"] = raw_data.step
         return xr.Dataset(
             {
-                reporting_point.id: (
+                reporting_point.name: (
                     list(coords.keys()),
                     raw_data["dis24"]
                     .sel(
@@ -153,7 +153,6 @@ class TestProcess:
                         method="nearest",
                     )
                     .data,
-                    {"name": reporting_point.name},
                 )
                 for reporting_point in country_config.glofas.reporting_points
             },

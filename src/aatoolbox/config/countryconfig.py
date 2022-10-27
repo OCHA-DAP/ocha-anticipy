@@ -84,7 +84,6 @@ class FewsNetConfig(BaseModel):
 class ReportingPoints(BaseModel):
     """Coordinates of GloFAS reporting points."""
 
-    id: str
     name: str
     lon: float
     lat: float
