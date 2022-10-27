@@ -7,145 +7,80 @@ fewsnet:
   region_name: east-africa
 glofas:
   reporting_points:
-  - id: G1045
-    name: Tendaho
-    lon: 40.95
-    lat: 11.65
-  - id: G1053
-    name: Adaitu
+  - name: Abetlti
+    lon: 37.55
+    lat: 8.25
+  - name: Adaitu
     lon: 40.65
     lat: 11.15
-  - id: G1067
-    name: Melka Sedi
-    lon: 40.15
-    lat: 9.15
-  - id: G1074
-    name: Metahara
-    lon: 39.95
-    lat: 8.85
-  - id: G1603
-    name: Gambella
-    lon: 34.65
-    lat: 8.15
-  - id: G1901
-    name: Omo River Delta
-    lon: 36.05
-    lat: 4.85
-  - id: G1902
-    name: Na
-    lon: 42.05
-    lat: 4.75
-  - id: G1904
-    name: Na
-    lon: 44.85
-    lat: 5.05
-  - id: G1905
-    name: Na
-    lon: 44.45
-    lat: 5.45
-  - id: G1906
-    name: Na
-    lon: 44.05
-    lat: 5.65
-  - id: G1907
-    name: Na
-    lon: 43.05
-    lat: 6.05
-  - id: G4951
-    name: Na
-    lon: 41.65
-    lat: 11.15
-  - id: G4953
-    name: Bahir Dar
-    lon: 37.35
-    lat: 11.55
-  - id: G4954
-    name: Na
-    lon: 41.65
-    lat: 11.05
-  - id: G4957
-    name: Nr. Bahir Dar
-    lon: 37.65
-    lat: 11.85
-  - id: G4960
-    name: Na
-    lon: 35.15
-    lat: 10.85
-  - id: G4965
-    name: Nr. Addis Zemen
-    lon: 37.75
-    lat: 12.05
-  - id: G4969
-    name: Na
-    lon: 35.25
-    lat: 10.45
-  - id: G4977
-    name: Nr. Marawi
-    lon: 37.05
-    lat: 11.35
-  - id: G4979
-    name: Na
-    lon: 35.75
-    lat: 10.05
-  - id: G4980
-    name: Nr. Kessie
-    lon: 38.15
-    lat: 10.05
-  - id: G4983
-    name: Na
-    lon: 35.75
-    lat: 9.85
-  - id: G5056
-    name: Na
-    lon: 33.15
-    lat: 8.05
-  - id: G5068
-    name: Na
-    lon: 42.05
-    lat: 7.65
-  - id: G5076
-    name: Hombole
-    lon: 38.85
-    lat: 8.35
-  - id: G5081
-    name: Na
-    lon: 42.15
-    lat: 7.35
-  - id: G5082
-    name: Na
-    lon: 42.25
-    lat: 7.35
-  - id: G5115
-    name: Na
-    lon: 40.85
-    lat: 5.75
-  - id: G5141
-    name: Na
-    lon: 41.95
-    lat: 4.35
-  - id: G6107
-    name: Abetlti
-    lon: 37.55
-    lat: 8.25
-  - id: G6108
-    name: Woltkite
-    lon: 37.75
-    lat: 8.25
-  - id: G6109
-    name: Asetndabo
+  - name: Asetndabo
     lon: 37.15
     lat: 7.75
-  - id: G6110
-    name: Woltkite
-    lon: 37.55
+  - name: Awash Wenz At Hombole
+    lon: 38.85
     lat: 8.35
-  - id: G6111
-    name: Shetbe
-    lon: 36.45
-    lat: 7.45
-  - id: G6112
-    name: Sekta
+  - name: Awash Wenz At Melka Kuntire
+    lon: 38.55
+    lat: 8.75
+  - name: Bahir Dar
+    lon: 37.35
+    lat: 11.55
+  - name: Eddiem
+    lon: 34.95
+    lat: 11.25
+  - name: Gambella
+    lon: 34.65
+    lat: 8.15
+  - name: Melka Sedi
+    lon: 40.15
+    lat: 9.15
+  - name: Metahara
+    lon: 39.95
+    lat: 8.85
+  - name: Na 1
+    lon: 42.05
+    lat: 4.75
+  - name: Na 2
+    lon: 44.85
+    lat: 5.05
+  - name: Na 3
+    lon: 44.45
+    lat: 5.45
+  - name: Na 4
+    lon: 44.05
+    lat: 5.65
+  - name: Na 5
+    lon: 43.05
+    lat: 6.05
+  - name: Nr. Addis Zemen
+    lon: 37.75
+    lat: 12.05
+  - name: Nr. Bahir Dar
+    lon: 37.65
+    lat: 11.85
+  - name: Nr. Kessie
+    lon: 38.15
+    lat: 10.05
+  - name: Nr. Marawi
+    lon: 37.05
+    lat: 11.35
+  - name: Omo River Delta
+    lon: 36.05
+    lat: 4.85
+  - name: Sekta
     lon: 36.75
     lat: 7.65
+  - name: Shetbe
+    lon: 36.45
+    lat: 7.45
+  - name: Tendaho
+    lon: 40.95
+    lat: 11.65
+  - name: Woltkite 1
+    lon: 37.75
+    lat: 8.25
+  - name: Woltkite 2
+    lon: 37.55
+    lat: 8.35
 usgs_ndvi:
   area_name: east-africa
