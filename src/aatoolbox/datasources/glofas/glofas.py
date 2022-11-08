@@ -124,6 +124,11 @@ class Glofas(DataSource):
         """
         Download the GloFAS data by querying CDS.
 
+        The raw GloFAS data is available as a global raster in CDS. This method
+        downloads the raster files for the specified region of interest
+        and date range. The files are in GRIB format and are split up either
+        by day, month, or year depending on the GloFAS product.
+
         Parameters
         ----------
         clobber : bool, default = False
@@ -185,6 +190,11 @@ class Glofas(DataSource):
         """
         Process the downloaded GloFAS files.
 
+        For each raw GRIB file, read it in and extract the river discharge
+        from the reporting point coordinates specified in the configuration
+        file. Saves the output as a NetCDF file, where files are split by day,
+        month or year depending on the GloFAS product.
+
         Parameters
         ----------
         clobber : bool, default = False
@@ -244,7 +254,7 @@ class Glofas(DataSource):
         self,
     ) -> xr.Dataset:
         """
-        Load the processed GloFAS data.
+        Load the processed GloFAS data as an xarray.DataSet.
 
         Returns
         -------

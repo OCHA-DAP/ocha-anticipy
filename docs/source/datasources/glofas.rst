@@ -19,17 +19,21 @@ The processed and curated data,
 plus several other products, are available to view through the GloFAS
 `map viewer
 <https://www.globalfloods.eu/glofas-forecasting/>`_.
-While this is sufficient for initial exploratory purposes,
-the raw data is needed for more in-depth analysis.
+While the map viewer makes image graphs of modelled and forecasted river
+discharge available, the actual data are needed to perform more in-depth
+analyses, such as computing specific return periods, knowing when
+a certain river discharge threshold was exceeded in the past, or
+detailed forecast performance at a specific location,
 
-The raw data can be downloaded in raster from from the
+The raw data in raster format can be downloaded from  the
 `Climate Data Store
 <https://cds.climate.copernicus.eu/#!/home>`_.
 However, the API can be tricky to navigate, with query size limits
 and long download times which depend on the query structure.
 Furthermore, the data are in the less commonly used GRIB
-file format, and the reporting points (those found on the
-map viewer) need to be extracted. This GloFAS Python module takes
+file format, and the river discharge data at specific
+reporting points (those found on the map viewer)
+still need to be extracted. This GloFAS Python module takes
 care of all of these steps.
 
 A note about model versions: On 26 May 2021 GloFAS released `version 3
@@ -56,12 +60,10 @@ It is based on ECMWF's latest global atmospheric reanalysis
 combined with the
 `Lisflood
 <https://ec-jrc.github.io/lisflood/>`_
-hydrological and channel routing model.
-The model is calibrated against observed river discharge
-at 1226 river sections
+hydrological and channel routing model,
+and calibrated against observed river discharge
 `(Alfieri et al.)
-<https://www.sciencedirect.com/science/article/pii/S2589915519300331>`_,
-with model performance faring better in more data-rich areas.
+<https://www.sciencedirect.com/science/article/pii/S2589915519300331>`_.
 The data is available to download
 `here on CDS
 <https://cds.climate.copernicus.eu/cdsapp#!/dataset/cems-glofas-historical?tab=overview>`_.
@@ -111,7 +113,21 @@ and is available to download
 Usage
 -----
 
-This module makes use of the
+This module performs three basic steps:
+
+#. Download the raw GloFAS data, in GRIB file format.
+   Each file is a raster based on a
+   user-specified region of interest, and contains data for a full
+   day, month, or year, depending on the GloFAS product.
+#. Process the data. For each raw GRIB file,
+   river discharge for a set of user-provided pixel locations is extracted
+   and stored in NetCDF format.
+#. Load the data. The processed files, which  are split by time in the same
+   way as the raw data,
+   are read in as a single `xarray.DataSet`.
+
+
+The download step makes use of the
 `CDS API
 <https://cds.climate.copernicus.eu/api-how-to>`_.
 You will need to register an account on CDS, then once logged in go to your
@@ -156,12 +172,22 @@ An example country config for Bangladesh is:
          lon: 89.05
          lat: 24.05
 
-The reporting points in the above example have been taken from the
+The reporting points indicate the raster file coordinates used
+to extract the river discharge for a particular location.
+Those in the above example have been taken from the
 `GloFAS map viewer
 <https://www.globalfloods.eu/glofas-forecasting/>`_.
-They are selected by the GloFAS team to be representative of physical
-gauge locations, and located on a river in the model. In principle you
-can choose any point that you like, but caution is advised.
+If you select "Reporting Points" from the "Hydrological"
+menu at the top, they will appear as dots on the map. If you then
+click on one of the points, you are able to see
+information such as the station name, and LISFLOOD X and Y, which are
+the respective longitude and latitude used in the configuration file.
+
+Reporting point coordinates are manually selected by the GloFAS team to
+be representative of physical gauge locations, and to be located on a river
+in the model raster file. In principle, one could
+specify any set of coordinates that exists on the raster, but caution is advised
+when doing so.
 
 You can initialize a built-in country config as follows:
 
@@ -171,7 +197,8 @@ You can initialize a built-in country config as follows:
 
     country_config = create_country_config(iso3="bgd")
 
-Another required input is the geographic area of interest. A simple
+Another required input is the geographic area of interest, which will
+define the bounds of raw raster data to be downloaded. A simple
 way to identify the area around the chosen country is to use the COD
 administrative boundaries. You will need to download the data,
 and extract a geo bounding box:
@@ -184,6 +211,9 @@ and extract a geo bounding box:
     codab.download()
     admin0 = codab.load()
     geo_bounding_box = GeoBoundingBox.from_shape(admin0)
+
+Note that the reporting points in the configuration file need to lie within
+the geographic area of interest.
 
 Next you need to instantiate the GloFAS class with the country config. For this
 example, we will use the GloFAS forecast, however the steps are similar for the
@@ -230,7 +260,7 @@ have been downloaded.
 
 This process can unfortunately take a long time, however, with this module
 we've tried to optimize the queries to be as fast as possible. In our experience,
-downloading a full reforecast (from 1979 to today) is the fastest and takes a
+downloading the full reanalysis (from 1979 to today) is the fastest and takes a
 couple of hours, while the full reforecast (1999 to 2018) is the slowest and takes
 around a day to complete. It also depends how busy the queue is, which
 you can check

@@ -22,7 +22,6 @@ class _GlofasForecastBase(glofas.Glofas):
         self,
         country_config: CountryConfig,
         geo_bounding_box: GeoBoundingBox,
-        leadtime_max: int,
         start_date: datetime,
         end_date: datetime,
         cds_name: str,
@@ -31,6 +30,7 @@ class _GlofasForecastBase(glofas.Glofas):
         date_variable_prefix: str,
         frequency: int,
         coord_names: List[str],
+        leadtime_max: int,
     ):
         super().__init__(
             country_config=country_config,
@@ -90,9 +90,13 @@ class GlofasForecast(_GlofasForecastBase):
     Class for downloading and processing GloFAS forecast data.
 
     The GloFAS forecast dataset is a global raster presenting river
-    discharnge forecast from 26 May, 2021 until present day, see
+    discharge forecast from 26 May 2021 until present day, see
     `this paper <https://hess.copernicus.org/preprints/hess-2020-532/>`_
-    for more details.
+    for more details. While CDS does have version 3 pre-release data
+    from 2020-2021,
+    we understand that there were some small issues that were fixed
+    in the final version, so at this point in time this module
+    does not support downloading the pre-release data.
 
     This class downloads the raw raster data
     `from CDS
@@ -128,7 +132,7 @@ class GlofasForecast(_GlofasForecastBase):
     >>> from aatoolbox import create_country_config, CodAB, GeoBoundingBox,
     ... GlofasForecast
     >>>
-    >>> country_config = create_country_config(iso3="bgd")
+    >>> country_config = create_country_config(iso3="npl")
     >>> codab = CodAB(country_config=country_config)
     >>> codab.download()
     >>> admin_npl = codab.load()
@@ -160,7 +164,6 @@ class GlofasForecast(_GlofasForecastBase):
         super().__init__(
             country_config=country_config,
             geo_bounding_box=geo_bounding_box,
-            leadtime_max=leadtime_max,
             start_date=start_date,
             end_date=end_date,
             cds_name="cems-glofas-forecast",
@@ -169,6 +172,7 @@ class GlofasForecast(_GlofasForecastBase):
             date_variable_prefix="",
             frequency=rrule.DAILY,
             coord_names=["number", "step"],
+            leadtime_max=leadtime_max,
         )
 
     @staticmethod
@@ -219,7 +223,7 @@ class GlofasReforecast(_GlofasForecastBase):
     >>> from aatoolbox import create_country_config, CodAB, GeoBoundingBox,
     ... GlofasReforecast
     >>>
-    >>> country_config = create_country_config(iso3="bgd")
+    >>> country_config = create_country_config(iso3="npl")
     >>> codab = CodAB(country_config=country_config)
     >>> codab.download()
     >>> admin_npl = codab.load()
@@ -251,7 +255,6 @@ class GlofasReforecast(_GlofasForecastBase):
         super().__init__(
             country_config=country_config,
             geo_bounding_box=geo_bounding_box,
-            leadtime_max=leadtime_max,
             start_date=start_date,
             end_date=end_date,
             cds_name="cems-glofas-reforecast",
@@ -263,4 +266,5 @@ class GlofasReforecast(_GlofasForecastBase):
             date_variable_prefix="h",
             frequency=rrule.MONTHLY,
             coord_names=["number", "time", "step"],
+            leadtime_max=leadtime_max,
         )
