@@ -5,6 +5,7 @@ import ssl
 from abc import abstractmethod
 from datetime import date, datetime
 from pathlib import Path
+from typing import Optional, Union
 from urllib.request import urlopen
 
 import cftime
@@ -15,6 +16,7 @@ import xarray as xr
 from aatoolbox.config.countryconfig import CountryConfig
 from aatoolbox.datasources.datasource import DataSource
 from aatoolbox.utils.check_file_existence import check_file_existence
+from aatoolbox.utils.dates import get_date
 from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
 logger = logging.getLogger(__name__)
@@ -42,11 +44,13 @@ class _Chirps(DataSource):
         "monthly".
     resolution: float, default = 0.05
         resolution of data to be downloaded. Can be 0.05 or 0.25.
-    start_date: datetime.date, default = None
+    start_date: Optional[Union[datetime.date, str]], default = None
         Data will be considered starting from date `start_date`.
+        Input can be an ISO8601 string or `datetime.date` object.
         If None, it is set to 1981-1-1.
-    end_date: datetime.date, default = None
+    end_date: Optional[Union[datetime.date, str]], default = None
         Data will be considered up to date `end_date`.
+        Input can be an ISO8601 string or `datetime.date` object.
         If None, it is set to the date for which most recent data
         is available.
     """
@@ -59,8 +63,8 @@ class _Chirps(DataSource):
         frequency: str,
         date_range_freq: str,
         resolution: float = 0.05,
-        start_date: date = _FIRST_AVAILABLE_DATE,
-        end_date: date = None,
+        start_date: Optional[Union[date, str]] = None,
+        end_date: Optional[Union[date, str]] = None,
     ):
         super().__init__(
             country_config=country_config,
@@ -77,16 +81,18 @@ class _Chirps(DataSource):
         self._resolution = resolution
         self._date_range_freq = date_range_freq
 
+        if start_date is None:
+            start_date = _FIRST_AVAILABLE_DATE
         if end_date is None:
             end_date = self._get_last_available_date()
+
+        self._start_date = get_date(start_date)
+        self._end_date = get_date(end_date)
 
         self._check_dates_validity(
             start_date=start_date,
             end_date=end_date,
         )
-
-        self._start_date = start_date
-        self._end_date = end_date
 
         if resolution not in _VALID_RESOLUTIONS:
             raise ValueError(

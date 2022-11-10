@@ -5,6 +5,42 @@ from datetime import date
 from typing import List, Tuple, Union, cast
 
 
+def get_date(input_date: Union[date, str]) -> date:
+    """Return date from string or date input.
+
+    Processes input data in either ``datetime.date``
+    format or as an ISO8601 string. Generates
+    error message if different object provided.
+
+    Parameters
+    ----------
+    input_date : Union[date, str]
+        ``datetime.date`` object or ISO8601 string.
+
+    Returns
+    -------
+    date
+        ``datetime.date``
+    """
+    if isinstance(input_date, str):
+        try:
+            input_date = date.fromisoformat(input_date)
+        except ValueError as err:
+            raise ValueError(
+                "`date` values passed as a string must "
+                "follow ISO8601 date format: "
+                "YYYY-MM-DD."
+            ) from err
+
+    if not isinstance(input_date, date):
+        raise ValueError(
+            "`date` values must be either an ISO8601 "
+            "string or `datetime.date` object."
+        )
+
+    return input_date
+
+
 def get_dekadal_date(
     input_date: Union[date, str, Tuple[int, int], None],
     default_date: Union[date, str, Tuple[int, int], None] = None,
@@ -23,22 +59,10 @@ def get_dekadal_date(
         input_date = default_date
 
     # convert date to various values
-    if isinstance(input_date, str):
-        try:
-            input_as_date = date.fromisoformat(input_date)
-        except ValueError as err:
-            raise ValueError(
-                "`input_date` passed as a string must "
-                "follow ISO8601 date format: "
-                "YYYY-MM-DD."
-            ) from err
-        year, dekad = date_to_dekad(input_as_date)
-    elif isinstance(input_date, date):
-        year, dekad = date_to_dekad(input_date)
-    else:
-        input_date = cast(Tuple[int, int], input_date)
-        if len(input_date) == 2:
-            year, dekad = input_date
+    if not isinstance(input_date, (str, date)):
+        input_tuple = cast(Tuple[int, int], input_date)
+        if len(input_tuple) == 2:
+            year, dekad = input_tuple
             # assert year-dekad values appropriate, not too strict
             if year < 1000 or year > 9999 or dekad < 1 or dekad > 36:
                 raise ValueError(
@@ -58,7 +82,11 @@ def get_dekadal_date(
                 )
             )
 
-    return (year, dekad)
+    else:
+        input_as_date = get_date(input_date)
+        year, dekad = date_to_dekad(input_as_date)
+
+    return year, dekad
 
 
 def dekad_to_date(dekad: Tuple[int, int]) -> date:
