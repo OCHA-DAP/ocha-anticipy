@@ -1,25 +1,4 @@
-"""
-Utilities to manipulate and analyze raster data.
-
-This module extends xarray and rioxarray to provide
-additional functionality for raster processing and
-post-processing. The extension is based on the
-guidance for how to `extend xarray
-<http://xarray.pydata.org/en/stable/internals/extending-xarray.html>`_:
-
-However, since rioxarray already extends xarray, this
-modules extensions inherit from the RasterArray and
-RasterDataset extensions respectively. This ensures
-cleaner code in the module as ``rio`` methods are
-available immediately, but also means a couple of
-design decisions are followed.
-
-The xarray.DataArray and xarray.Dataset
-extensions here inherit from rioxarray base classes.
-Thus, methods that are identical for both objects
-are defined in a mixin class ``AatRasterMixin`` which
-can be inherited by the two respective extensions.
-"""
+"""Utilities to manipulate and analyze raster data."""
 
 import logging
 from typing import Any, Callable, Dict, List, Optional, Union

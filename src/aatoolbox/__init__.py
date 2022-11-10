@@ -4,6 +4,7 @@ The ``aatoolbox`` library contains modules designed to assist with
 downloading and processing the data required for disaster-related
 anticipatory action.
 """
+import aatoolbox.utils.raster  # noqa
 from aatoolbox.config.countryconfig import (
     create_country_config,
     create_custom_country_config,
@@ -28,13 +29,13 @@ from ._version import version as __version__
 __all__ = (
     "create_country_config",
     "create_custom_country_config",
+    "ChirpsDaily",
+    "ChirpsMonthly",
     "CodAB",
     "GeoBoundingBox",
     "IriForecastProb",
     "IriForecastDominant",
     "FewsNet",
-    "ChirpsDaily",
-    "ChirpsMonthly",
     "UsgsNdviSmoothed",
     "UsgsNdviPctMedian",
     "UsgsNdviMedianAnomaly",

@@ -28,6 +28,7 @@ additional functionality.
    quickstart
    config
    datasources
+   utilities
 
 API Reference
 -------------
