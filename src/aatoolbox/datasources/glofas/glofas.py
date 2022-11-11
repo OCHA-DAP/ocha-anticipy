@@ -158,7 +158,6 @@ class Glofas(DataSource):
                 year=date.year,
                 month=date.month,
                 day=date.day,
-                leadtime_max=self._leadtime_max,
             )
             if not clobber and output_filepath.exists():
                 continue
@@ -169,7 +168,6 @@ class Glofas(DataSource):
                         year=date.year,
                         month=date.month,
                         day=date.day,
-                        leadtime_max=self._leadtime_max,
                     ),
                 )
             )
@@ -220,13 +218,11 @@ class Glofas(DataSource):
                 year=date.year,
                 month=date.month,
                 day=date.day,
-                leadtime_max=self._leadtime_max,
             )
             output_filepath = self._get_filepath(
                 year=date.year,
                 month=date.month,
                 day=date.day,
-                leadtime_max=self._leadtime_max,
                 is_processed=True,
             )
             if not clobber and output_filepath.exists():
@@ -267,7 +263,6 @@ class Glofas(DataSource):
                 year=date.year,
                 month=date.month,
                 day=date.day,
-                leadtime_max=self._leadtime_max,
                 is_processed=True,
             )
             for date in self._date_range
@@ -282,7 +277,6 @@ class Glofas(DataSource):
         year: int,
         month: int = None,
         day: int = None,
-        leadtime_max: int = None,
         is_processed: bool = False,
     ) -> Path:
         """Get downloaded / processed filepaths based on GloFAS product."""
@@ -291,8 +285,8 @@ class Glofas(DataSource):
             filename += f"-{str(month).zfill(2)}"
         if self._frequency == rrule.DAILY:
             filename += f"-{str(day).zfill(2)}"
-        if leadtime_max is not None:
-            filename += f"_ltmax{str(leadtime_max).zfill(2)}d"
+        if self._leadtime_max is not None:
+            filename += f"_ltmax{str(self._leadtime_max).zfill(2)}d"
         filename += f"_{self._geo_bounding_box.get_filename_repr(p=2)}"
         if is_processed:
             filename += "_processed.nc"
@@ -372,7 +366,6 @@ class Glofas(DataSource):
         year: int,
         month: int = None,
         day: int = None,
-        leadtime_max: int = None,
     ) -> dict:
         """Create dictionary for CDS API query input."""
         query = {
@@ -395,8 +388,8 @@ class Glofas(DataSource):
                 self._geo_bounding_box.lon_max,
             ],
         }
-        if leadtime_max is not None:
-            leadtime = list(np.arange(leadtime_max) + 1)
+        if self._leadtime_max is not None:
+            leadtime = list(np.arange(self._leadtime_max) + 1)
             query["leadtime_hour"] = [
                 str(single_leadtime * 24) for single_leadtime in leadtime
             ]

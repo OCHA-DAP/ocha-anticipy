@@ -122,7 +122,7 @@ This module performs three basic steps:
 #. Process the data. For each raw GRIB file,
    river discharge for a set of user-provided pixel locations is extracted
    and stored in NetCDF format.
-#. Load the data. The processed files, which  are split by time in the same
+#. Load the data. The processed files, which are split by time in the same
    way as the raw data,
    are read in as a single `xarray.DataSet`.
 
@@ -168,9 +168,9 @@ An example country config for Bangladesh is:
       - name: Bahadurabad
         lon: 89.65
         lat: 25.15
-      -  name: Hardinge Bridge
-         lon: 89.05
-         lat: 24.05
+      - name: Hardinge Bridge
+        lon: 89.05
+        lat: 24.05
 
 The reporting points indicate the raster file coordinates used
 to extract the river discharge for a particular location.
