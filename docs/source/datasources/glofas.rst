@@ -225,7 +225,7 @@ the same results when run on a different day.
 
 .. code-block:: python
 
-    from datetime import datetime
+    from datetime import date
 
     from aatoolbox import GlofasForecast
 
@@ -233,8 +233,8 @@ the same results when run on a different day.
         country_config=country_config,
         geo_bounding_box=geo_bounding_box,
         leadtime_max=15,
-        end_date=datetime(year=2022, month=10, day=22),
-        start_date=datetime(year=2022, month=9, day=22)
+        end_date=date(year=2022, month=10, day=22),
+        start_date=date(year=2022, month=9, day=22)
      )
 
 We then need to download the GloFAS data. The module will download all the data
@@ -292,7 +292,7 @@ The full codde snippet is below:
 
 .. code-block:: python
 
-    from datetime import datetime
+    from datetime import date
 
     from aatoolbox import create_country_config, CodAB, \
         GeoBoundingBox, GlofasForecast
@@ -306,8 +306,8 @@ The full codde snippet is below:
         country_config=country_config,
         geo_bounding_box=geo_bounding_box,
         leadtime_max=15,
-        end_date=datetime(year=2022, month=10, day=22),
-        start_date=datetime(year=2022, month=9, day=22)
+        end_date=date(year=2022, month=10, day=22),
+        start_date=date(year=2022, month=9, day=22)
      )
     glofas_forecast.download()
     glofas_forecast.process()

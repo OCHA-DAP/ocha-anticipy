@@ -1,6 +1,6 @@
 """Download and process GloFAS forecast and reforecast river discharge data."""
 import logging
-from datetime import datetime
+from datetime import date
 from pathlib import Path
 from typing import List, Union
 
@@ -22,8 +22,8 @@ class _GlofasForecastBase(glofas.Glofas):
         self,
         country_config: CountryConfig,
         geo_bounding_box: GeoBoundingBox,
-        start_date: datetime,
-        end_date: datetime,
+        start_date: date,
+        end_date: date,
         cds_name: str,
         system_version: str,
         product_type: Union[str, List[str]],
@@ -116,10 +116,10 @@ class GlofasForecast(_GlofasForecastBase):
     leadtime_max: int
         The maximum desired lead time D in days. All forecast data for lead
         times 1 to D days are downloaded
-    end_date : datetime,
+    end_date : date
         The ending date for the dataset, recomended to be hardcoded
         to the current date
-    start_date : datetime, default: datetime(year=2021, month=5, day=26)
+    start_date : date, default: date(year=2021, month=5, day=26)
         The starting date for the dataset. If left blank, defaults to the
         earliest available date
 
@@ -128,7 +128,7 @@ class GlofasForecast(_GlofasForecastBase):
     Download, process and load GloFAS forecast data for the past month,
     for a lead time of 15 days.
 
-    >>> from datetime import datetime
+    >>> from datetime import date
     >>> from aatoolbox import create_country_config, CodAB, GeoBoundingBox,
     ... GlofasForecast
     >>>
@@ -142,8 +142,8 @@ class GlofasForecast(_GlofasForecastBase):
     ...     country_config=country_config,
     ...     geo_bounding_box=geo_bounding_box,
     ...     leadtime_max=15,
-    ...     end_date=datetime(year=2022, month=10, day=22),
-    ...     start_date=datetime(year=2022, month=9, day=22)
+    ...     end_date=date(year=2022, month=10, day=22),
+    ...     start_date=date(year=2022, month=9, day=22)
     ... )
     >>> glofas_forecast.download()
     >>> glofas_forecast.process()
@@ -156,11 +156,11 @@ class GlofasForecast(_GlofasForecastBase):
         country_config: CountryConfig,
         geo_bounding_box: GeoBoundingBox,
         leadtime_max: int,
-        end_date: datetime,
-        start_date: datetime = None,
+        end_date: date,
+        start_date: date = None,
     ):
         if start_date is None:
-            start_date = datetime(year=2021, month=5, day=26)
+            start_date = date(year=2021, month=5, day=26)
         super().__init__(
             country_config=country_config,
             geo_bounding_box=geo_bounding_box,
@@ -207,10 +207,10 @@ class GlofasReforecast(_GlofasForecastBase):
     leadtime_max: int
         The maximum desired lead time D in days. All forecast data for lead
         times 1 to D days are downloaded
-    start_date : datetime, default: datetime(year=1999, month=1, day=1)
+    start_date : date, default: date(year=1999, month=1, day=1)
         The starting date for the dataset. If left blank, defaults to the
         earliest available date
-    end_date : datetime, default: datetime(year=2018, month=12, day=31)
+    end_date : date, default: date(year=2018, month=12, day=31)
         The ending date for the dataset. If left blank, defaults to the
         last available date
 
@@ -219,7 +219,6 @@ class GlofasReforecast(_GlofasForecastBase):
     Download, process and load all available GloFAS reforecast data
     for a lead time of 15 days.
 
-    >>> from datetime import datetime
     >>> from aatoolbox import create_country_config, CodAB, GeoBoundingBox,
     ... GlofasReforecast
     >>>
@@ -245,13 +244,13 @@ class GlofasReforecast(_GlofasForecastBase):
         country_config: CountryConfig,
         geo_bounding_box: GeoBoundingBox,
         leadtime_max: int,
-        start_date: datetime = None,
-        end_date: datetime = None,
+        start_date: date = None,
+        end_date: date = None,
     ):
         if start_date is None:
-            start_date = datetime(year=1999, month=1, day=1)
+            start_date = date(year=1999, month=1, day=1)
         if end_date is None:
-            end_date = datetime(year=2018, month=12, day=31)
+            end_date = date(year=2018, month=12, day=31)
         super().__init__(
             country_config=country_config,
             geo_bounding_box=geo_bounding_box,

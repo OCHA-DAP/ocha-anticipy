@@ -1,6 +1,6 @@
 """Download and process GloFAS reanalysis river discharge data."""
 import logging
-from datetime import datetime
+from datetime import date
 from pathlib import Path
 
 import xarray as xr
@@ -38,10 +38,10 @@ class GlofasReanalysis(glofas.Glofas):
         Country configuration
     geo_bounding_box: GeoBoundingBox
         The bounding coordinates of the area that should be included
-    end_date : datetime.date
+    end_date : date
         The ending date for the dataset, recomended to be hardcoded
         to the current date
-    start_date : datetime.date, default: datetime.date(1979, 1, 1)
+    start_date : date, default: date(1979, 1, 1)
         The starting date for the dataset. If left blank, defaults to the
         earliest available date
 
@@ -50,7 +50,7 @@ class GlofasReanalysis(glofas.Glofas):
     Download, process and load all historical GloFAS reanalysis data
     until the current date, set to Oct 22, 2022 for this example.
 
-    >>> from datetime import datetime
+    >>> from datetime import date
     >>> from aatoolbox import create_country_config, CodAB, GeoBoundingBox,
     ... GlofasReanalysis
     >>>
@@ -63,7 +63,7 @@ class GlofasReanalysis(glofas.Glofas):
     >>> glofas_reanalysis = GlofasReanalysis(
     ...     country_config=country_config,
     ...     geo_bounding_box=geo_bounding_box,
-    ...     end_date=datetime(year=2022, month=10, day=22)
+    ...     end_date=date(year=2022, month=10, day=22)
     ... )
     >>> glofas_reanalysis.download()
     >>> glofas_reanalysis.process()
@@ -75,11 +75,11 @@ class GlofasReanalysis(glofas.Glofas):
         self,
         country_config: CountryConfig,
         geo_bounding_box: GeoBoundingBox,
-        end_date: datetime,
-        start_date: datetime = None,
+        end_date: date,
+        start_date: date = None,
     ):
         if start_date is None:
-            start_date = datetime(year=1979, month=1, day=1)
+            start_date = date(year=1979, month=1, day=1)
         super().__init__(
             country_config=country_config,
             geo_bounding_box=geo_bounding_box,

@@ -3,7 +3,7 @@ import logging
 import time
 from abc import abstractmethod
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import date
 from pathlib import Path
 from typing import List, Union
 
@@ -57,9 +57,9 @@ class Glofas(DataSource):
         Country configuration
     geo_bounding_box: GeoBoundingBox
         The bounding coordinates of the area that should be included
-    start_date : datetime
+    start_date : date
         The starting date for the dataset
-    end_date : datetime
+    end_date : date
         The ending date for the dataset
     cds_name : str
         The name of the dataset in CDS
@@ -82,8 +82,8 @@ class Glofas(DataSource):
         self,
         country_config: CountryConfig,
         geo_bounding_box: GeoBoundingBox,
-        start_date: datetime,
-        end_date: datetime,
+        start_date: date,
+        end_date: date,
         cds_name: str,
         system_version: str,
         product_type: Union[str, List[str]],
@@ -153,11 +153,11 @@ class Glofas(DataSource):
 
         # Get list of files to open
         query_params_list = []
-        for date in self._date_range:
+        for file_date in self._date_range:
             output_filepath = self._get_filepath(
-                year=date.year,
-                month=date.month,
-                day=date.day,
+                year=file_date.year,
+                month=file_date.month,
+                day=file_date.day,
             )
             if not clobber and output_filepath.exists():
                 continue
@@ -165,9 +165,9 @@ class Glofas(DataSource):
                 _QueryParams(
                     filepath=output_filepath,
                     query=self._get_query(
-                        year=date.year,
-                        month=date.month,
-                        day=date.day,
+                        year=file_date.year,
+                        month=file_date.month,
+                        day=file_date.day,
                     ),
                 )
             )
@@ -213,16 +213,16 @@ class Glofas(DataSource):
         output_directory.mkdir(parents=True, exist_ok=True)
         # Get list of files to open
         processed_filepaths = []
-        for date in self._date_range:
+        for file_date in self._date_range:
             input_filepath = self._get_filepath(
-                year=date.year,
-                month=date.month,
-                day=date.day,
+                year=file_date.year,
+                month=file_date.month,
+                day=file_date.day,
             )
             output_filepath = self._get_filepath(
-                year=date.year,
-                month=date.month,
-                day=date.day,
+                year=file_date.year,
+                month=file_date.month,
+                day=file_date.day,
                 is_processed=True,
             )
             if not clobber and output_filepath.exists():
