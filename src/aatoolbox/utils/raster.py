@@ -1,4 +1,19 @@
-"""Utilities to manipulate and analyze raster data."""
+"""
+Utilities to manipulate and analyze raster data.
+
+Since rioxarray already extends xarray, this
+modules extensions inherit from the RasterArray and
+RasterDataset extensions respectively. This ensures
+cleaner code in the module as ``rio`` methods are
+available immediately, but also means a couple of
+design decisions are followed.
+
+The ``xarray.DataArray`` and ``xarray.Dataset``
+extensions here inherit from rioxarray base classes.
+Thus, methods that are identical for both objects
+are defined in a mixin class ``AatRasterMixin`` which
+can be inherited by the two respective extensions.
+"""
 
 import logging
 from typing import Any, Callable, Dict, List, Optional, Union

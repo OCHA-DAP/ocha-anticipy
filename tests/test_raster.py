@@ -12,10 +12,10 @@ from pandas._testing import assert_frame_equal
 from rioxarray.exceptions import DimensionError, MissingCRS
 from shapely.geometry import Polygon
 
-from aatoolbox.utils import raster
+import aatoolbox
 
 suite = unittest.TestSuite()
-suite.addTest(doctest.DocTestSuite(raster))
+suite.addTest(doctest.DocTestSuite(aatoolbox.utils.raster))
 unittest.TextTestRunner().run(suite)
 
 
