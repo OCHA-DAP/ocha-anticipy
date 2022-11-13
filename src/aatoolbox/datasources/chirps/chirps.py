@@ -89,10 +89,7 @@ class _Chirps(DataSource):
         self._start_date = get_date(start_date)
         self._end_date = get_date(end_date)
 
-        self._check_dates_validity(
-            start_date=start_date,
-            end_date=end_date,
-        )
+        self._check_dates_validity()
 
         if resolution not in _VALID_RESOLUTIONS:
             raise ValueError(
@@ -117,11 +114,7 @@ class _Chirps(DataSource):
         The folder where the data is downloaded.
         """
         # Create a list of date tuples
-        date_list = self._create_date_list(
-            start_date=self._start_date,
-            end_date=self._end_date,
-            logging_level=logging.INFO,
-        )
+        date_list = self._create_date_list(logging_level=logging.INFO)
 
         # Data download
         for d in date_list:
@@ -145,10 +138,7 @@ class _Chirps(DataSource):
         The folder where the data is processed.
         """
         # Create a list with all raw data downloaded
-        filepath_list = self._get_to_be_processed_path_list(
-            start_date=self._start_date,
-            end_date=self._end_date,
-        )
+        filepath_list = self._get_to_be_processed_path_list()
 
         for filepath in filepath_list:
             try:
@@ -180,10 +170,7 @@ class _Chirps(DataSource):
         """
         # Get list of filepaths of files to be loaded
 
-        filepath_list = self._get_to_be_loaded_path_list(
-            start_date=self._start_date,
-            end_date=self._end_date,
-        )
+        filepath_list = self._get_to_be_loaded_path_list()
 
         # Merge all files in one dataset
         if not filepath_list:
@@ -223,12 +210,10 @@ class _Chirps(DataSource):
             clobber=clobber,
         )
 
-    def _create_date_list(
-        self, start_date, end_date, logging_level=logging.DEBUG
-    ):
+    def _create_date_list(self, logging_level=logging.DEBUG):
         """Create list of tuples containing the range of dates of interest."""
         date_list = pd.date_range(
-            start_date, end_date, freq=self._date_range_freq
+            self._start_date, self._end_date, freq=self._date_range_freq
         ).tolist()
 
         # Create a message containing information on the downloaded data
@@ -242,20 +227,20 @@ class _Chirps(DataSource):
 
         return date_list
 
-    def _check_dates_validity(self, start_date, end_date):
+    def _check_dates_validity(self):
         """Check dates vailidity."""
         end_avail_date = self._get_last_available_date()
 
         if (
             not _FIRST_AVAILABLE_DATE
-            <= start_date
-            <= end_date
+            <= self._start_date
+            <= self._end_date
             <= end_avail_date
         ):
             raise ValueError(
-                "Make sure that the input dates are ordered in the "
-                f"following way: {_FIRST_AVAILABLE_DATE} <= {start_date} "
-                f"<= {end_date} <= {end_avail_date}. The two dates above "
+                "Make sure that the input dates are ordered in the following "
+                f"way: {_FIRST_AVAILABLE_DATE} <= {self._start_date} <= "
+                f"{self._end_date} <= {end_avail_date}. The two dates above "
                 "indicate the range for which CHIRPS data are "
                 "currently available."
             )
@@ -311,16 +296,9 @@ class _Chirps(DataSource):
     def _get_last_available_date(self):
         pass
 
-    def _get_to_be_processed_path_list(
-        self,
-        start_date: date,
-        end_date: date,
-    ):
+    def _get_to_be_processed_path_list(self):
         """Get list of filepaths of files to be processed."""
-        date_list = self._create_date_list(
-            start_date=start_date,
-            end_date=end_date,
-        )
+        date_list = self._create_date_list()
 
         filepath_list = [
             self._get_raw_path(
@@ -332,16 +310,9 @@ class _Chirps(DataSource):
 
         return filepath_list
 
-    def _get_to_be_loaded_path_list(
-        self,
-        start_date: date,
-        end_date: date,
-    ):
+    def _get_to_be_loaded_path_list(self):
         """Get list of filepaths of files to be loaded."""
-        date_list = self._create_date_list(
-            start_date=start_date,
-            end_date=end_date,
-        )
+        date_list = self._create_date_list()
 
         filepath_list = [
             self._get_processed_path(
@@ -392,11 +363,13 @@ class ChirpsMonthly(_Chirps):
     geo_bounding_box: GeoBoundingBox
         the bounding coordinates of the area that should be included in the
         data.
-    start_date: datetime.date, default = None
+    start_date: Optional[Union[datetime.date, str]], default = None
         Data will be considered starting from date `start_date`.
+        Input can be an ISO8601 string or `datetime.date` object.
         If None, it is set to 1981-1-1.
-    end_date: datetime.date, default = None
+    end_date: Optional[Union[datetime.date, str]], default = None
         Data will be considered up to date `end_date`.
+        Input can be an ISO8601 string or `datetime.date` object.
         If None, it is set to the date for which most recent data
         is available.
 
@@ -427,8 +400,8 @@ class ChirpsMonthly(_Chirps):
         self,
         country_config: CountryConfig,
         geo_bounding_box: GeoBoundingBox,
-        start_date: date = _FIRST_AVAILABLE_DATE,
-        end_date: date = None,
+        start_date: Optional[Union[date, str]] = None,
+        end_date: Optional[Union[date, str]] = None,
     ):
         super().__init__(
             country_config=country_config,
@@ -521,11 +494,13 @@ class ChirpsDaily(_Chirps):
         data.
     resolution: float, default = 0.05
         resolution of data to be downloaded. Can be 0.05 or 0.25.
-    start_date: datetime.date, default = None
+    start_date: Optional[Union[datetime.date, str]], default = None
         Data will be considered starting from date `start_date`.
+        Input can be an ISO8601 string or `datetime.date` object.
         If None, it is set to 1981-1-1.
-    end_date: datetime.date, default = None
+    end_date: Optional[Union[datetime.date, str]], default = None
         Data will be considered up to date `end_date`.
+        Input can be an ISO8601 string or `datetime.date` object.
         If None, it is set to the date for which most recent data
         is available.
 
@@ -556,8 +531,8 @@ class ChirpsDaily(_Chirps):
         country_config: CountryConfig,
         geo_bounding_box: GeoBoundingBox,
         resolution: float = 0.05,
-        start_date: date = _FIRST_AVAILABLE_DATE,
-        end_date: date = None,
+        start_date: Optional[Union[date, str]] = None,
+        end_date: Optional[Union[date, str]] = None,
     ):
         super().__init__(
             country_config=country_config,
