@@ -47,11 +47,16 @@ the correct ordering.
 One of the more useful functionalities of the module
 is providing an easy ability to calcuate raster statistics
 across a specified set of geometries defined in a geodataframe.
+Paired with the administrative boundaries and raster data sources
+available through this library, we can easily calculate
+raster statistics.
+
 A full snippet of example code is available below.
 
 .. code-block:: python
 
     import aatoolbox
+    import datetime
 
     # load the administrative boundaries
     country_config = aatoolbox.create_country_config(iso3="eth")
@@ -59,21 +64,27 @@ A full snippet of example code is available below.
     codab.download()
     codab_eth = codab.load(admin_level=2)
 
-    # load NDVi data for processing for one dekad
-    ndvi_smooth = UsgsNdviSmoothed(
-        country_config=country_config,
-        start_date="2021-01-01",
-        end_date="2021-01-01"
-    )
+    # get geobounding box for CHIRPS downloading
+    geo_bounding_box = aatoolbox.GeoBoundingBox.from_shape(codab_eth)
 
-    ndvi_smooth.download()
-    ndvi_da = ndvi_smooth.load_raster(date=(2021, 1))
-    ndvi_da.aat.compute_raster_stats(
+    # load CHIRPs data for processing
+    start_date = datetime.date(year=2001, month=2, day=1)
+    end_date = datetime.date(year=2006, month=3, day=31)
+
+    chirps_monthly = ChirpsMonthly(
+        country_config=country_config,
+        geo_bounding_box=geo_bounding_box,
+        start_date=start_date,
+        end_date=end_date
+        )
+
+    chirps_monthly.download()
+    chirps_monthly.process()
+    chirps_monthly_data = chirps_monthly.load()
+
+    # compute raster statistics
+
+    chirps_monthly_data.aat.compute_raster_stats(
       gdf=codab_eth,
       feature_col="ADM2_PCODE"
     )
-
-This functionality is already incorporated into the NDVI module that
-streamlines the raster statistics calculated across time as well.
-However, the example above shows how the raster module can be applied
-to any raster datasets or arrays you may have.
