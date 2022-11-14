@@ -43,6 +43,15 @@ To run the tests and view coverage, execute:
 
    pytest --cov=aatoolbox
 
+This code may run the testing using Python or environment different
+to the testing environment, which may
+[produce errors](https://stackoverflow.com/questions/40718770/pytest-running-with-another-version-of-python).
+To ensure that the testing is run using the correct environment,
+call ``pytest`` directly from the local Python installation.
+
+.. code:: shell
+   python -m pytest --cov=aatoolbox
+
 Documentation
 -------------
 
