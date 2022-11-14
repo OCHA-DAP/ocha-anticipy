@@ -298,7 +298,9 @@ class AatRasterMixin:
         """Convert longitude range between -180 to 180 and 0 to 360.
 
         The standard longitude range is from -180 to 180, while some
-        applications use 0 to 360.
+        applications use 0 to 360. This includes
+        ```rasterstats.zonal_stats`` <https://pypi.org/project/rasterstats/>`_,
+        which assumes ranges from 0 to 360.
 
         ``change_longitude_range()`` will convert between the
         two coordinate ranges based on its current state.
