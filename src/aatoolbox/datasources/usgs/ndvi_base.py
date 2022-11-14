@@ -490,7 +490,7 @@ class _UsgsNdvi(DataSource):
 
         logger.info(
             f"Downloading NDVI data for {year}, dekad {dekad} "
-            "into {filepath}."
+            f"into {filepath}."
         )
 
         # open file within memory
