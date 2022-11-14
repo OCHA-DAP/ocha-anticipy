@@ -461,10 +461,11 @@ class _UsgsNdvi(DataSource):
         local_filename = filepath.stem
 
         url = self._get_url(filename=url_filename)
+        year, dekad = self._fp_year_dekad(filepath)
+
         try:
             resp = urlopen(url)
         except HTTPError:
-            year, dekad = self._fp_year_dekad(filepath)
             logger.error(
                 f"No NDVI data available for "
                 f"dekad {dekad} of {year}, skipping."
@@ -486,6 +487,11 @@ class _UsgsNdvi(DataSource):
                     "Using existing files."
                 )
                 return filepath
+
+        logger.info(
+            f"Downloading NDVI data for {year}, dekad {dekad} "
+            f"into {filepath}."
+        )
 
         # open file within memory
         zf = ZipFile(BytesIO(resp.read()))
@@ -526,6 +532,12 @@ class _UsgsNdvi(DataSource):
         )
 
         if processed_path.is_file():
+            logger.info(
+                f"Processing data from {self._start_date[0]}, "
+                f"dekad {self._start_date[1]} to {self._end_date[0]} "
+                f"dekad {self._end_date[1]} into {processed_path}."
+            )
+
             (
                 dates_to_process,
                 df_already_processed,
