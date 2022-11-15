@@ -8,12 +8,12 @@ import pytest
 import xarray as xr
 
 from aatoolbox import (
+    CountryConfig,
     GeoBoundingBox,
     GlofasForecast,
     GlofasReanalysis,
     GlofasReforecast,
 )
-from aatoolbox.config.countryconfig import CountryConfig
 
 
 class TestProcess:
@@ -30,6 +30,7 @@ class TestProcess:
         include_step: bool = False,
         include_history: bool = False,
         dis24: np.ndarray = None,
+        single_day=False,
     ) -> xr.Dataset:
         """
         Construct a simple fake GloFAS xarray dataset.
@@ -46,6 +47,8 @@ class TestProcess:
             Optional array of discharge values, that should have the combined
             dimensions of the coordinates. If not passed, generated using
             random numbers.
+        single_day: boolean, default = False
+            Only create a single day of data, required for the forecasts
 
         Returns
         -------
@@ -55,7 +58,10 @@ class TestProcess:
         coords = {}
         if number_coord is not None:
             coords["number"] = number_coord
-        coords["time"] = pd.date_range("2014-09-06", periods=2)
+        if single_day:
+            coords["time"] = np.datetime64("2014-09-06")
+        else:
+            coords["time"] = pd.date_range("2014-09-06", periods=2)
         if include_step:
             coords["step"] = [np.datetime64(n + 1, "D") for n in range(5)]
         coords["latitude"] = (
@@ -76,7 +82,9 @@ class TestProcess:
         )
         dims = list(coords.keys())
         if number_coord is not None and isinstance(number_coord, int):
-            dims = dims[1:]
+            dims.remove("number")
+        if single_day:
+            dims.remove("time")
         if dis24 is None:
             dis24 = 5000 + 100 * rng.random([len(coords[dim]) for dim in dims])
         attrs = {}
@@ -85,7 +93,7 @@ class TestProcess:
         return xr.Dataset({"dis24": (dims, dis24)}, coords=coords, attrs=attrs)
 
     @pytest.fixture()
-    def mock_ensemble_raw(self) -> (xr.Dataset, xr.Dataset, np.ndarray):
+    def mock_ensemble_raw(self):
         """
         Create fake raw ensemble data.
 
@@ -94,20 +102,31 @@ class TestProcess:
         values for the processed data. Return both xarray datasets and the
         combined array.
         """
-        cf_raw = self.get_raw_data(
-            number_coord=self.numbers[0],
-            include_step=True,
-            include_history=True,
-        )
-        pf_raw = self.get_raw_data(
-            number_coord=self.numbers[1:],
-            include_step=True,
-            include_history=True,
-        )
-        expected_dis24 = np.concatenate(
-            (cf_raw["dis24"].values[np.newaxis, ...], pf_raw["dis24"].values)
-        )
-        return cf_raw, pf_raw, expected_dis24
+
+        def _mock_ensemble_raw(
+            single_day: bool = False,
+        ) -> (xr.Dataset, xr.Dataset, np.ndarray):
+            cf_raw = self.get_raw_data(
+                number_coord=self.numbers[0],
+                include_step=True,
+                include_history=True,
+                single_day=single_day,
+            )
+            pf_raw = self.get_raw_data(
+                number_coord=self.numbers[1:],
+                include_step=True,
+                include_history=True,
+                single_day=single_day,
+            )
+            expected_dis24 = np.concatenate(
+                (
+                    cf_raw["dis24"].values[np.newaxis, ...],
+                    pf_raw["dis24"].values,
+                )
+            )
+            return cf_raw, pf_raw, expected_dis24
+
+        return _mock_ensemble_raw
 
     def get_processed_data(
         self,
@@ -115,6 +134,7 @@ class TestProcess:
         number_coord: [List[int], int] = None,
         include_step: bool = False,
         dis24: np.ndarray = None,
+        single_day: bool = False,
     ) -> xr.Dataset:
         """
         Create a simplified fake processed GloFAS dataset.
@@ -131,13 +151,18 @@ class TestProcess:
             Optional array of discharge values, that should have the combined
             dimensions of the coordinates. If not passed, generated using
             random numbers.
+        single_day: boolean, default = False
+            Only create a single day of data, required for the forecasts
 
         Returns
         -------
         GloFAS processed xarray dataset
         """
         raw_data = self.get_raw_data(
-            number_coord=number_coord, include_step=include_step, dis24=dis24
+            number_coord=number_coord,
+            include_step=include_step,
+            dis24=dis24,
+            single_day=single_day,
         )
         coords = {}
         if number_coord is not None:
@@ -178,17 +203,24 @@ class TestProcess:
         self, mock_ensemble_raw, mocker, mock_country_config
     ):
         """Create fake processed GloFAS forecast or reforecast data."""
-        cf_raw, pf_raw, expected_dis24 = mock_ensemble_raw
-        mocker.patch(
-            "aatoolbox.datasources.glofas.forecast.xr.load_dataset",
-            side_effect=[cf_raw, pf_raw],
-        )
-        return self.get_processed_data(
-            country_config=mock_country_config,
-            number_coord=self.numbers,
-            include_step=True,
-            dis24=mock_ensemble_raw[2],
-        )
+
+        def _mock_processed_dta_forecast(single_day: bool = False):
+            cf_raw, pf_raw, expected_dis24 = mock_ensemble_raw(
+                single_day=single_day
+            )
+            mocker.patch(
+                "aatoolbox.datasources.glofas.forecast.xr.load_dataset",
+                side_effect=[cf_raw, pf_raw],
+            )
+            return self.get_processed_data(
+                country_config=mock_country_config,
+                number_coord=self.numbers,
+                include_step=True,
+                dis24=mock_ensemble_raw(single_day=single_day)[2],
+                single_day=single_day,
+            )
+
+        return _mock_processed_dta_forecast
 
     def test_reanalysis_process(
         self, mock_country_config, mock_processed_data_reanalysis
@@ -209,6 +241,7 @@ class TestProcess:
         self, mock_country_config, mock_processed_data_forecast
     ):
         """Test GloFAS reforecast process method."""
+        target_dataset = mock_processed_data_forecast()
         glofas_reforecast = GlofasReforecast(
             country_config=mock_country_config,
             geo_bounding_box=self.geo_bounding_box,
@@ -218,12 +251,16 @@ class TestProcess:
         )
         output_filepath = glofas_reforecast.process()[0]
         with xr.open_dataset(output_filepath) as output_ds:
-            assert output_ds.equals(mock_processed_data_forecast)
+            assert output_ds.equals(target_dataset)
 
     def test_forecast_process(
-        self, mock_country_config, mock_processed_data_forecast
+        self,
+        mock_country_config,
+        mock_processed_data_forecast,
+        mock_ensemble_raw,
     ):
         """Test GloFAS forecast process method."""
+        target_dataset = mock_processed_data_forecast(single_day=True)
         glofas_forecast = GlofasForecast(
             country_config=mock_country_config,
             geo_bounding_box=self.geo_bounding_box,
@@ -233,4 +270,4 @@ class TestProcess:
         )
         output_filepath = glofas_forecast.process()[0]
         with xr.open_dataset(output_filepath) as output_ds:
-            assert output_ds.equals(mock_processed_data_forecast)
+            assert output_ds.equals(target_dataset)

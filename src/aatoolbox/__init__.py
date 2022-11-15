@@ -5,6 +5,7 @@ downloading and processing the data required for disaster-related
 anticipatory action.
 """
 from aatoolbox.config.countryconfig import (
+    CountryConfig,
     create_country_config,
     create_custom_country_config,
 )
@@ -33,6 +34,7 @@ from ._version import version as __version__
 __all__ = (
     "create_country_config",
     "create_custom_country_config",
+    "CountryConfig",
     "CodAB",
     "GeoBoundingBox",
     "GlofasForecast",
