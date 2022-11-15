@@ -14,9 +14,26 @@ from shapely.geometry import Polygon
 
 import aatoolbox
 
-suite = unittest.TestSuite()
-suite.addTest(doctest.DocTestSuite(aatoolbox.utils.raster))
-unittest.TextTestRunner().run(suite)
+
+def test_doctest_suite():
+    """
+    Test docstrings in raster module.
+
+    Checks if there are any failures in the doctest
+    suite, meaning that there is some error within
+    the docstrings of the raster module. This is used
+    to avoid running doctest on all docstrings in the
+    library, which would require many exceptions given
+    the extent of downloading and processing other modules
+    rely on.
+
+    Method found in:
+    https://vladyslav-krylasov.medium.com/discover-unit-tests-and-doctests-in-one-run-c5504aea86bd
+    """
+    suite = unittest.TestSuite()
+    suite.addTest(doctest.DocTestSuite(aatoolbox.utils.raster))
+    runner = unittest.TextTestRunner(verbosity=2).run(suite)
+    assert not runner.failures
 
 
 @pytest.fixture
@@ -134,7 +151,7 @@ def test_compute_raster_stats_3d(ds_3d, gdf, expected_3d):
 def test_compute_raster_stats_da_assertions(da_3d, gdf):
     """Ensure error assertions working in compute raster stats."""
     with pytest.raises(MissingCRS):
-        da_3d.aat._crs = False
+        da_3d.rio._crs = False
         da_3d.aat.compute_raster_stats(gdf=gdf, feature_col="name")
 
 

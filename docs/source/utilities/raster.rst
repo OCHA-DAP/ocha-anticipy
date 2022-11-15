@@ -88,3 +88,67 @@ A full snippet of example code is available below.
       gdf=codab_eth,
       feature_col="ADM2_PCODE"
     )
+
+Properties
+----------
+
+The user should be careful when accessing attributes of
+a data array when using the raster module. This module
+builds on `rioxarray <https://corteva.github.io/rioxarray>_`
+extensions, and thus methods and attributes accessible
+via ``da.rio.method()``  or ``da.rio.property`` are
+also accessible using ``da.aat.method()`` or
+``da.aat.property``. However, original rioxarray properties
+should be accessed using ``da.rio.property``.
+
+Let's create a simple data array where we want to specify
+the spatial dimensions explicitly because the coordinate
+names are not automatically detected.
+
+.. code-block:: python
+
+    import xarray
+    import numpy
+    import aatoolbox
+
+    da = xarray.DataArray(
+        numpy.arange(16).reshape(4,4),
+        coords={"a":numpy.array([90, 89, 88, 87]),
+                "b":numpy.array([70, 69, 68, 67])}
+    )
+
+We can set the spatial dimensions using
+``da.rio.set_spatial_dims()`` or call it directly
+from ``da.aat``.
+
+.. code-block:: python
+
+  da_new = da.aat.set_spatial_dims(
+    x_dim="a",
+    y_dim="b"
+  )
+
+However, even though we can set the dimensions
+using either accessor, we have to be careful
+accessing the properties.
+
+.. code-block:: python
+
+  da_new.rio.x_dim
+  #> 'a'
+
+  da_new.aat.x_dim
+  #> MissingSpatialDimensionError: x dimension not found.
+  #> 'rio.set_spatial_dims()' or using 'rename()' to change
+  #> the dimension name to 'x' can address this.
+
+Even though the method was called using ``aat``, the property
+is not accessible through it. Users need to be careful about
+accessing rioxarray properties using the ``aat`` accessor.
+
+For best practice, rioxarray methods and properties should all
+be accessed using ``rio``. These properties are ``rio.x_dim``,
+``rio.y_dim``, ``rio.shape``, ``rio.width``, ``rio.height``, and
+``rio.crs``. This modules properties should be accessed using
+the ``aat`` accessor, which are ``aat.t_dim`` and
+``aat.longitude_range``.

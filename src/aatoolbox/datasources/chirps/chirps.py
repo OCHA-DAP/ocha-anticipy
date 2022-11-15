@@ -398,6 +398,8 @@ class ChirpsMonthly(_Chirps):
     --------
     >>> from aatoolbox import create_country_config, CodAB, GeoBoundingBox
     >>> from aatoolbox import ChirpsMonthly
+    >>> import datetime
+    >>>
     >>> country_config = create_country_config(iso3="bfa")
     >>> codab = CodAB(country_config=country_config)
     >>> codab.download()
@@ -407,10 +409,10 @@ class ChirpsMonthly(_Chirps):
     >>> start_date = datetime.date(year=2007, month=10, day=23)
     >>> end_date = datetime.date(year=2020, month=3, day=2)
     >>> chirps_monthly = ChirpsMonthly(
-    ... country_config=country_config,
-    ... geo_bounding_box=geo_bounding_box,
-    ... start_date=start_date,
-    ... end_date=end_date
+    ...   country_config=country_config,
+    ...   geo_bounding_box=geo_bounding_box,
+    ...   start_date=start_date,
+    ...   end_date=end_date
     ... )
     >>> chirps_monthly.download()
     >>> chirps_monthly.process()
@@ -527,6 +529,8 @@ class ChirpsDaily(_Chirps):
     --------
     >>> from aatoolbox import create_country_config, CodAB, GeoBoundingBox,
     ... ChirpsDaily
+    >>> import datetime
+    >>>
     >>> country_config = create_country_config(iso3="bfa")
     >>> codab = CodAB(country_config=country_config)
     >>> codab.download()
@@ -535,10 +539,10 @@ class ChirpsDaily(_Chirps):
     >>> start_date = datetime.date(year=2007, month=10, day=23)
     >>> end_date = datetime.date(year=2020, month=3, day=2)
     >>> chirps_daily = ChirpsDaily(
-    ... country_config=country_config,
-    ... geo_bounding_box=geo_bounding_box,
-    ... start_date=start_date,
-    ... end_date=end_date
+    ...   country_config=country_config,
+    ...   geo_bounding_box=geo_bounding_box,
+    ...   start_date=start_date,
+    ...   end_date=end_date
     ... )
     >>> chirps_daily.download()
     >>> chirps_daily.process()
