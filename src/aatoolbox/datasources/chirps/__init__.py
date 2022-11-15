@@ -1,1 +1,1 @@
-"""Functionality to process chirps data."""
+"""Functionality to process CHIRPS data."""
