@@ -16,6 +16,9 @@ guidance for how to `extend xarray
 Usage
 -----
 
+Accessor
+^^^^^^^^
+
 To make the extension accessible, you only need to import
 ``aatoolbox`` directly. Then, extension methods and properties
 are simply accessed using ``da.aat.method()`` or
@@ -45,7 +48,7 @@ the correct ordering.
     #> Int64Index([90, 89, 88, 87], dtype='int64', name='lat')
 
 Raster statistics
------------------
+^^^^^^^^^^^^^^^^^
 
 One of the more useful functionalities of the module
 is providing an easy ability to calcuate raster statistics
