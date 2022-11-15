@@ -44,6 +44,9 @@ the correct ordering.
     da_inv.get_index("lat")
     #> Int64Index([90, 89, 88, 87], dtype='int64', name='lat')
 
+Raster statistics
+-----------------
+
 One of the more useful functionalities of the module
 is providing an easy ability to calcuate raster statistics
 across a specified set of geometries defined in a geodataframe.
