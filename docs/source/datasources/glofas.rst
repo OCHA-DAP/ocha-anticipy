@@ -53,7 +53,7 @@ GloFAS-ERA5 reanalysis
 <https://essd.copernicus.org/articles/12/2043/2020/>`_
 is a global gridded dataset of river discharge with
 a daily timestep and resolution of 0.1°,
-available from 1 January 1979 to the present day.
+available from 1 January 1979 to the present day (updated daily).
 It is based on ECMWF's latest global atmospheric reanalysis
 `(ERA5, Herbasch et al.)
 <https://rmets.onlinelibrary.wiley.com/doi/10.1002/qj.3803>`_
@@ -87,7 +87,7 @@ at a coarser resolution (~36 km). GloFAS makes available days
 16 to 30 for this extended forecast.
 
 Version 3 of the forecast data is available to download from 26 May 2021 until
-present day `here
+present day (updated daily) `here
 <https://cds.climate.copernicus.eu/cdsapp#!/dataset/cems-glofas-forecast?tab=overview>`_.
 While CDS does have version 3 pre-release data from 2020-2021,
 we understand that there were some small issues that were fixed
@@ -137,7 +137,7 @@ and note down your UID and API key.
 
 The
 `how-to page
-<https://cds.climate.copernicus.eu/api-how-to>`_.
+<https://cds.climate.copernicus.eu/api-how-to>`_
 has instructions for each operating system, but we summarize the instructions below:
 
 Windows: Create a file called `%USERPROFILE%\.cdsapirc` where, `%USERPROFILE%` is usually located
@@ -233,8 +233,8 @@ the same results when run on a different day.
         country_config=country_config,
         geo_bounding_box=geo_bounding_box,
         leadtime_max=15,
-        end_date=date(year=2022, month=10, day=22),
         start_date=date(year=2022, month=9, day=22)
+        end_date=date(year=2022, month=10, day=22),
      )
 
 We then need to download the GloFAS data. The module will download all the data
@@ -306,8 +306,8 @@ The full codde snippet is below:
         country_config=country_config,
         geo_bounding_box=geo_bounding_box,
         leadtime_max=15,
-        end_date=date(year=2022, month=10, day=22),
         start_date=date(year=2022, month=9, day=22)
+        end_date=date(year=2022, month=10, day=22),
      )
     glofas_forecast.download()
     glofas_forecast.process()

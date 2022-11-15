@@ -90,7 +90,7 @@ class GlofasForecast(_GlofasForecastBase):
     Class for downloading and processing GloFAS forecast data.
 
     The GloFAS forecast dataset is a global raster presenting river
-    discharge forecast from 26 May 2021 until present day, see
+    discharge forecast from 26 May 2021 until present day (updated daily), see
     `this paper <https://hess.copernicus.org/preprints/hess-2020-532/>`_
     for more details. While CDS does have version 3 pre-release data
     from 2020-2021,

@@ -19,7 +19,7 @@ class GlofasReanalysis(glofas.Glofas):
     Class for downloading and processing GloFAS reanalysis data.
 
     The GloFAS reanalysis dataset is a global raster presenting river
-    discharnge from 1979 until present day, see
+    discharnge from 1979 until present day (updated daily), see
     `this paper <https://essd.copernicus.org/articles/12/2043/2020/>`_
     for more details.
 
