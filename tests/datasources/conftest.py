@@ -1,7 +1,7 @@
 """Fixtures for all pipeline-related tests."""
 import pytest
 
-from aatoolbox import create_custom_country_config
+from aatoolbox import GeoBoundingBox, create_custom_country_config
 
 CONFIG_FILE = "tests/datasources/fake_config.yaml"
 ISO3 = "abc"
@@ -25,6 +25,13 @@ def mock_aa_data_dir(tmp_path_factory, mocker):
 def mock_country_config():
     """Fixture for pipeline with test config params."""
     return create_custom_country_config(filepath=CONFIG_FILE)
+
+
+@pytest.fixture
+def geo_bounding_box():
+    """Input GeoBoundingBox to use."""
+    gbb = GeoBoundingBox(lat_max=1.0, lat_min=-2.2, lon_max=3.3, lon_min=-4.4)
+    return gbb
 
 
 def pytest_configure(config):

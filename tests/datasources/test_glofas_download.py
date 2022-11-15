@@ -1,5 +1,5 @@
 """Tests for GloFAS data download and processing."""
-from datetime import datetime
+from datetime import date
 from pathlib import Path
 from unittest import mock
 
@@ -51,7 +51,6 @@ def mock_result(mocker):
 @pytest.fixture
 def geo_bounding_box():
     """Input GeoBoundingBox to use."""
-    # TODO: maybe move this to conftest?
     gbb = GeoBoundingBox(lat_max=1.0, lat_min=-2.2, lon_max=3.3, lon_min=-4.4)
     return gbb
 
@@ -72,8 +71,8 @@ def test_reanalysis_download(
     glofas_reanalysis = GlofasReanalysis(
         country_config=mock_country_config,
         geo_bounding_box=geo_bounding_box,
-        start_date=datetime(year=2022, month=1, day=1),
-        end_date=datetime(year=2022, month=12, day=31),
+        start_date=date(year=2021, month=1, day=1),
+        end_date=date(year=2021, month=12, day=31),
     )
     glofas_reanalysis.download()
     expected_retrieve_args = {
@@ -84,7 +83,7 @@ def test_reanalysis_download(
             "product_type": "consolidated",
             "system_version": "version_3_1",
             "hydrological_model": "lisflood",
-            "hyear": "2022",
+            "hyear": "2021",
             "hmonth": [str(x + 1).zfill(2) for x in range(12)],
             "hday": [str(x + 1).zfill(2) for x in range(31)],
             "area": [1.05, -4.45, -2.25, 3.35],
@@ -94,7 +93,7 @@ def test_reanalysis_download(
         f"{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}"
         f"/glofas/cems-glofas-historical/"
         f"{mock_country_config.iso3}_"
-        f"cems-glofas-historical_2022_Np1d05Sm2d25Ep3d35Wm4d45.grib"
+        f"cems-glofas-historical_2021_Np1d05Sm2d25Ep3d35Wm4d45.grib"
     )
     mock_retrieve.assert_called_with(**expected_retrieve_args)
     mock_result.return_value.download.assert_called_with(
@@ -119,8 +118,8 @@ def test_forecast_download(
         country_config=mock_country_config,
         geo_bounding_box=geo_bounding_box,
         leadtime_max=3,
-        start_date=datetime(year=2022, month=1, day=1),
-        end_date=datetime(year=2022, month=1, day=1),
+        start_date=date(year=2022, month=1, day=1),
+        end_date=date(year=2022, month=1, day=1),
     )
     glofas_forecast.download()
     expected_retrieve_args = {
@@ -172,8 +171,8 @@ def test_reforecast_download(
         country_config=mock_country_config,
         geo_bounding_box=geo_bounding_box,
         leadtime_max=3,
-        start_date=datetime(year=2022, month=1, day=1),
-        end_date=datetime(year=2022, month=1, day=31),
+        start_date=date(year=2018, month=1, day=1),
+        end_date=date(year=2018, month=1, day=31),
     )
     glofas_reforecast.download()
     expected_retrieve_args = {
@@ -187,7 +186,7 @@ def test_reforecast_download(
             ],
             "system_version": "version_3_1",
             "hydrological_model": "lisflood",
-            "hyear": "2022",
+            "hyear": "2018",
             "hmonth": "01",
             "hday": [str(x + 1).zfill(2) for x in range(31)],
             "area": [1.05, -4.45, -2.25, 3.35],
@@ -198,7 +197,7 @@ def test_reforecast_download(
         f"{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
         f"glofas/cems-glofas-reforecast/"
         f"{mock_country_config.iso3}_"
-        f"cems-glofas-reforecast_2022-01_ltmax03d_Np1d05Sm2d25Ep3d35Wm4d45"
+        f"cems-glofas-reforecast_2018-01_ltmax03d_Np1d05Sm2d25Ep3d35Wm4d45"
         f".grib"
     )
     mock_retrieve.assert_called_with(**expected_retrieve_args)

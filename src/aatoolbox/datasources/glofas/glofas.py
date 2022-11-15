@@ -57,10 +57,6 @@ class Glofas(DataSource):
         Country configuration
     geo_bounding_box: GeoBoundingBox
         The bounding coordinates of the area that should be included
-    start_date : date
-        The starting date for the dataset
-    end_date : date
-        The ending date for the dataset
     cds_name : str
         The name of the dataset in CDS
     system_version : str
@@ -74,6 +70,14 @@ class Glofas(DataSource):
         Depends on the maximum query size of the product
     coord_names : list
         Coordinate names in the xarray dataset
+    start_date_min: date
+        The minimum allowed start date
+    end_date_max: date, default = None
+        The maximum allowed end date
+    start_date : date, default = None
+        The starting date for the dataset
+    end_date : date, default = None
+        The ending date for the dataset
     leadtime_max : int, default = None
         The maximum lead time in days, for forecast or reforecast data
     """
@@ -82,14 +86,16 @@ class Glofas(DataSource):
         self,
         country_config: CountryConfig,
         geo_bounding_box: GeoBoundingBox,
-        start_date: date,
-        end_date: date,
         cds_name: str,
         system_version: str,
         product_type: Union[str, List[str]],
         date_variable_prefix: str,
         frequency: int,
         coord_names: List[str],
+        start_date_min: date,
+        end_date_max: date = None,
+        start_date: date = None,
+        end_date: date = None,
         leadtime_max: int = None,
     ):
         super().__init__(
@@ -101,6 +107,19 @@ class Glofas(DataSource):
         self._geo_bounding_box = geo_bounding_box.round_coords(
             offset_val=0.05, round_val=0.1
         )
+        # Set any missing dates
+        if end_date_max is None:
+            end_date_max = date.today()
+        if start_date is None:
+            start_date = start_date_min
+        if end_date is None:
+            end_date = end_date_max
+        if not start_date_min <= start_date <= end_date <= end_date_max:
+            raise ValueError(
+                f"Please ensure that the input start date is >= "
+                f"{start_date_min}, the end date is <= {end_date_max}, "
+                f"and that the start date is <= the end date."
+            )
         self._start_date = start_date
         self._end_date = end_date
         self._cds_name = cds_name

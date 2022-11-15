@@ -22,8 +22,6 @@ class _GlofasForecastBase(glofas.Glofas):
         self,
         country_config: CountryConfig,
         geo_bounding_box: GeoBoundingBox,
-        start_date: date,
-        end_date: date,
         cds_name: str,
         system_version: str,
         product_type: Union[str, List[str]],
@@ -31,18 +29,24 @@ class _GlofasForecastBase(glofas.Glofas):
         frequency: int,
         coord_names: List[str],
         leadtime_max: int,
+        start_date_min: date,
+        end_date_max: date = None,
+        start_date: date = None,
+        end_date: date = None,
     ):
         super().__init__(
             country_config=country_config,
             geo_bounding_box=geo_bounding_box,
-            start_date=start_date,
-            end_date=end_date,
             cds_name=cds_name,
             system_version=system_version,
             product_type=product_type,
             date_variable_prefix=date_variable_prefix,
             frequency=frequency,
             coord_names=coord_names,
+            start_date_min=start_date_min,
+            end_date_max=end_date_max,
+            start_date=start_date,
+            end_date=end_date,
             leadtime_max=leadtime_max,
         )
 
@@ -159,8 +163,6 @@ class GlofasForecast(_GlofasForecastBase):
         end_date: date,
         start_date: date = None,
     ):
-        if start_date is None:
-            start_date = date(year=2021, month=5, day=26)
         super().__init__(
             country_config=country_config,
             geo_bounding_box=geo_bounding_box,
@@ -173,6 +175,7 @@ class GlofasForecast(_GlofasForecastBase):
             frequency=rrule.DAILY,
             coord_names=["number", "step"],
             leadtime_max=leadtime_max,
+            start_date_min=date(year=2021, month=5, day=26),
         )
 
     @staticmethod
@@ -247,10 +250,6 @@ class GlofasReforecast(_GlofasForecastBase):
         start_date: date = None,
         end_date: date = None,
     ):
-        if start_date is None:
-            start_date = date(year=1999, month=1, day=1)
-        if end_date is None:
-            end_date = date(year=2018, month=12, day=31)
         super().__init__(
             country_config=country_config,
             geo_bounding_box=geo_bounding_box,
@@ -266,4 +265,6 @@ class GlofasReforecast(_GlofasForecastBase):
             frequency=rrule.MONTHLY,
             coord_names=["number", "time", "step"],
             leadtime_max=leadtime_max,
+            start_date_min=date(year=1999, month=1, day=1),
+            end_date_max=date(year=2018, month=12, day=31),
         )

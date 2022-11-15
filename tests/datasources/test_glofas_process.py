@@ -1,5 +1,5 @@
 """Tests for GloFAS processing."""
-from datetime import datetime
+from datetime import date
 from typing import List, Union
 
 import numpy as np
@@ -7,10 +7,13 @@ import pandas as pd
 import pytest
 import xarray as xr
 
+from aatoolbox import (
+    GeoBoundingBox,
+    GlofasForecast,
+    GlofasReanalysis,
+    GlofasReforecast,
+)
 from aatoolbox.config.countryconfig import CountryConfig
-from aatoolbox.datasources.glofas.forecast import GlofasReforecast
-from aatoolbox.datasources.glofas.reanalysis import GlofasReanalysis
-from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
 
 class TestProcess:
@@ -194,8 +197,8 @@ class TestProcess:
         glofas_reanalysis = GlofasReanalysis(
             country_config=mock_country_config,
             geo_bounding_box=self.geo_bounding_box,
-            start_date=datetime(year=2022, month=1, day=1),
-            end_date=datetime(year=2022, month=12, day=31),
+            start_date=date(year=2021, month=1, day=1),
+            end_date=date(year=2021, month=12, day=31),
         )
         output_filepath = glofas_reanalysis.process()[0]
         # use open_dataset since load_dataset is patched
@@ -210,8 +213,8 @@ class TestProcess:
             country_config=mock_country_config,
             geo_bounding_box=self.geo_bounding_box,
             leadtime_max=3,
-            start_date=datetime(year=2022, month=1, day=1),
-            end_date=datetime(year=2022, month=1, day=31),
+            start_date=date(year=2018, month=1, day=1),
+            end_date=date(year=2018, month=1, day=31),
         )
         output_filepath = glofas_reforecast.process()[0]
         with xr.open_dataset(output_filepath) as output_ds:
@@ -221,12 +224,12 @@ class TestProcess:
         self, mock_country_config, mock_processed_data_forecast
     ):
         """Test GloFAS forecast process method."""
-        glofas_forecast = GlofasReforecast(
+        glofas_forecast = GlofasForecast(
             country_config=mock_country_config,
             geo_bounding_box=self.geo_bounding_box,
             leadtime_max=3,
-            start_date=datetime(year=2022, month=1, day=1),
-            end_date=datetime(year=2022, month=1, day=1),
+            start_date=date(year=2022, month=1, day=1),
+            end_date=date(year=2022, month=1, day=1),
         )
         output_filepath = glofas_forecast.process()[0]
         with xr.open_dataset(output_filepath) as output_ds:

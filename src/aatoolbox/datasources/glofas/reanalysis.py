@@ -78,19 +78,18 @@ class GlofasReanalysis(glofas.Glofas):
         end_date: date,
         start_date: date = None,
     ):
-        if start_date is None:
-            start_date = date(year=1979, month=1, day=1)
         super().__init__(
             country_config=country_config,
             geo_bounding_box=geo_bounding_box,
-            start_date=start_date,
-            end_date=end_date,
             cds_name="cems-glofas-historical",
             system_version="version_3_1",
             product_type="consolidated",
             date_variable_prefix="h",
             frequency=rrule.YEARLY,
             coord_names=["time"],
+            start_date_min=date(year=1979, month=1, day=1),
+            start_date=start_date,
+            end_date=end_date,
         )
 
     @check_file_existence

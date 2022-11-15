@@ -216,8 +216,9 @@ Note that the reporting points in the configuration file need to lie within
 the geographic area of interest.
 
 Next you need to instantiate the GloFAS class with the country config. For this
-example, we will use the GloFAS forecast, however the steps are similar for the
-the reanalysis and reforecast.
+example, we will use the GloFAS forecast, however the steps are nearly identical for the
+the reanalysis and reforecast -- the only differences are the acceptable date ranges,
+and that `leadtime_max` is **not** an input parameter to the reanlaysis.
 
 In this case, we would like the data for the past month. In general, we suggest
 specifying dates explicitly, as using e.g. `datetime.today()` will not produce
