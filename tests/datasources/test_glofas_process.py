@@ -167,7 +167,8 @@ class TestProcess:
         coords = {}
         if number_coord is not None:
             coords = {"number": number_coord}
-        coords["time"] = raw_data.time
+        if not single_day:
+            coords["time"] = raw_data.time
         if include_step:
             coords["step"] = raw_data.step
         return xr.Dataset(
