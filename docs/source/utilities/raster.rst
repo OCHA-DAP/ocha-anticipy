@@ -152,6 +152,6 @@ accessing rioxarray properties using the ``aat`` accessor.
 For best practice, rioxarray methods and properties should all
 be accessed using ``rio``. These properties are ``rio.x_dim``,
 ``rio.y_dim``, ``rio.shape``, ``rio.width``, ``rio.height``, and
-``rio.crs``. This modules properties should be accessed using
-the ``aat`` accessor, which are ``aat.t_dim`` and
-``aat.longitude_range``.
+``rio.crs``. This module's methods and properties should be
+accessed using the ``aat`` accessor. These properties are
+``aat.t_dim`` and ``aat.longitude_range``.
