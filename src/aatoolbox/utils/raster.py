@@ -1,6 +1,11 @@
 """
 Utilities to manipulate and analyze raster data.
 
+The raster module provides accessor utilities for xarray
+data arrays and datasets accessible using the `aat` accessor.
+These functions are available just by importing directly
+the library using ``import aatoolbox``.
+
 Since rioxarray already extends xarray, this
 modules extensions inherit from the RasterArray and
 RasterDataset extensions respectively. This ensures

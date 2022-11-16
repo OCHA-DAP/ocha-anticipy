@@ -1,6 +1,14 @@
 AA Toolbox API
 ==============
 
+Configuration
+-------------
+
+.. automodule:: aatoolbox.config.countryconfig
+
+.. autofunction:: aatoolbox.create_country_config
+.. autofunction:: aatoolbox.create_custom_country_config
+
 Data sources
 ------------
 
@@ -8,77 +16,104 @@ CHIRPS
 ^^^^^^
 
 .. automodule:: aatoolbox.datasources.chirps.chirps
-   :members:
-   :undoc-members:
-   :show-inheritance:
+
+Daily
+"""""
+
+.. autoclass:: aatoolbox.ChirpsDaily
+   :inherited-members:
+
+Monthly
+"""""""
+
+.. autoclass:: aatoolbox.ChirpsMonthly
+   :inherited-members:
 
 Common Operational Datasets
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: aatoolbox.datasources.codab.codab
+.. autoclass:: aatoolbox.CodAB
    :members:
-   :undoc-members:
-   :show-inheritance:
 
 FEWS NET
 ^^^^^^^^
 
 .. automodule:: aatoolbox.datasources.fewsnet.fewsnet
+.. autoclass:: aatoolbox.FewsNet
    :members:
-   :undoc-members:
-   :show-inheritance:
 
 IRI
 ^^^
 
-Seasonal forecasts
-""""""""""""""""""
-
 .. automodule:: aatoolbox.datasources.iri.iri_seasonal_forecast
-   :members:
-   :undoc-members:
-   :show-inheritance:
+
+Probability forecast
+""""""""""""""""""""
+
+.. autoclass:: aatoolbox.IriForecastProb
+   :inherited-members:
+
+Dominant forecast
+"""""""""""""""""
+
+.. autoclass:: aatoolbox.IriForecastDominant
+   :inherited-members:
 
 NDVI (USGS eMODIS)
 ^^^^^^^^^^^^^^^^^^
 
-Products
+.. automodule:: aatoolbox.datasources.usgs.ndvi_products
+
+Smoothed
 """"""""
 
-.. automodule:: aatoolbox.datasources.usgs.ndvi_products
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. autoclass:: aatoolbox.UsgsNdviSmoothed
+   :inherited-members:
 
-Base class
-""""""""""
+Percent of median
+"""""""""""""""""
 
-.. automodule:: aatoolbox.datasources.usgs.ndvi_base
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. autoclass:: aatoolbox.UsgsNdviPctMedian
+   :inherited-members:
 
+Median anomaly
+""""""""""""""
+
+.. autoclass:: aatoolbox.UsgsNdviMedianAnomaly
+   :inherited-members:
+
+Difference from previous year
+"""""""""""""""""""""""""""""
+
+.. autoclass:: aatoolbox.UsgsNdviYearDifference
+   :inherited-members:
 
 Utilities
 ---------
 
+GeoboundingBox
+^^^^^^^^^^^^^^
+
+.. automodule:: aatoolbox.utils.geoboundingbox
+.. autoclass:: aatoolbox.GeoBoundingBox
+   :members:
+
 Raster module
 ^^^^^^^^^^^^^^^^
 
-The raster module provides accessor utilities for xarray
-data arrays and datasets accessible using the `aat` accessor.
+.. automodule:: aatoolbox.utils.raster
 
 Data arrays
 """""""""""
 
 .. autoclass:: aatoolbox.utils.raster.AatRasterArray
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :inherited-members: RasterArray
 
 Datasets
 """"""""
+
 .. autoclass:: aatoolbox.utils.raster.AatRasterDataset
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :inherited-members: RasterDataset
