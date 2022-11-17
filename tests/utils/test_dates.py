@@ -1,10 +1,28 @@
 """Test dates module."""
 
-from datetime import date
+from datetime import date, datetime
 
 import pytest
 
 from aatoolbox.utils import dates
+
+
+def test_get_date():
+    """Tests getting date from string."""
+    desired_date = date(year=2018, month=3, day=14)
+    desired_str = "2018-03-14"
+    desired_datetime = datetime(year=2018, month=3, day=14)
+    assert dates.get_date(desired_str) == desired_date
+    assert dates.get_date(desired_date) == desired_date
+    assert dates.get_date(desired_datetime) == desired_datetime
+
+
+def test_get_date_value_error():
+    """Tests getting date errors."""
+    with pytest.raises(ValueError):
+        dates.get_date("2013-3-14")
+    with pytest.raises(ValueError):
+        dates.get_date(None)
 
 
 def test_get_dekadal_date():
