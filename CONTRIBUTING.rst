@@ -52,9 +52,54 @@ as above.
 Documentation
 -------------
 
+Docstrings
+^^^^^^^^^^
+
 All public modules, classes and methods should be documented with
 `numpy-style <https://numpydoc.readthedocs.io/en/latest/format.html>`__
-docstrings, which can be rendered into HTML using the following command:
+docstrings.
+
+API documentation structure
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The API documentation structure is defined in ``api.rst``. The structure
+pulls from the docstrings for the modules, classes, and methods using
+Sphinx autodocumentation. ReST documentation is used to create navigable
+structure.
+
+Sphinx autodocumentation
+""""""""""""""""""""""""
+
+For a module and its children, the structure should follow the below guidelines.
+
+1. Document each module in the ``.py`` file itself. This is then documented
+directly using ``aautomodule``.
+
+2. Below this, document classes or functions as necessary. For classes
+that inherit directly from ``DataSource`` or other low-level base classes,
+just document ``:members:`` of the class. This ensures that only methods
+defined specifically for this class are documented.
+
+3. For classes that inherit from a base class that defines specific methods,
+like ``ChirpsDaily`` from ``_Chirps``, specify ``:inherited-members:`` as
+well. This ensures that only methods defined in the base class are documented.
+
+4. For something like the raster module classes, which inherits methods from
+a base class, but also defines unique methods within the subclass, use both
+``:members:`` and ``:inherited-members:``.
+
+Follow the example set out already in ``api.rst`` as you write the documentation.
+
+Module order
+""""""""""""
+
+The ordering of the ``api.rst`` documentation should match the ordering
+specified in the ``__all__`` list ``src/aatoolbox/__init__.py``.
+
+Build and view
+^^^^^^^^^^^^^^
+
+To build the documentation and test your implementation, use the following command:
 
 .. code:: shell
 

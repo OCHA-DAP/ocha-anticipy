@@ -128,4 +128,5 @@ processed file is saved based on the `feature_col` name, we have to pass
 `feature_col` to load in the correct data.
 
 .. code-block:: python
+
     ndvi_smooth.load(feature_col="ADM0_EN")

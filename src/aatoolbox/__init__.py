@@ -27,19 +27,19 @@ from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 from ._version import version as __version__
 
 __all__ = (
-    "raster",
     "create_country_config",
     "create_custom_country_config",
     "ChirpsDaily",
     "ChirpsMonthly",
     "CodAB",
-    "GeoBoundingBox",
+    "FewsNet",
     "IriForecastProb",
     "IriForecastDominant",
-    "FewsNet",
     "UsgsNdviSmoothed",
     "UsgsNdviPctMedian",
     "UsgsNdviMedianAnomaly",
     "UsgsNdviYearDifference",
+    "GeoBoundingBox",
+    "raster",
     "__version__",
 )
