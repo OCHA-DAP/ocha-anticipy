@@ -1,5 +1,15 @@
-USGS
-====
+NDVI (USGS eMODIS)
+==================
+
+Warning
+-------
+
+The MODIS sensor has been reported by USGS to
+have degraded in quality since May 2022 (dekad 13), and
+updates to this data source have stopped. This module
+remains for users to have access to historic data but
+recent data is unavailable and care should be used
+analyzing any data since dekad 13 of 2022.
 
 Background
 ----------
@@ -16,7 +26,7 @@ geographic coverage is typically comprehensive of the African continent, where
 the majority of FEWS NET's work is focused, with additional areas covered on an
 ad hoc basis. This module for now just provides access to the normalized
 difference vegetation index (`NDVI <https://en.wikipedia.org/wiki/Normalized_difference_vegetation_index>`_)
-data provided by the USGS.
+generated from eMODIS AQUA provided by the USGS.
 
 NDVI data is generated from eMODIS AQUA and published data includes temporally smoothed NDVI, median anomaly,
 difference from the previous year, and median anomaly presented as a percentile. Full methodological
