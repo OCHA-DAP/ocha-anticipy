@@ -21,6 +21,7 @@ from aatoolbox.datasources.usgs.ndvi_products import (
     UsgsNdviSmoothed,
     UsgsNdviYearDifference,
 )
+from aatoolbox.utils import raster
 from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
 from ._version import version as __version__
@@ -28,16 +29,17 @@ from ._version import version as __version__
 __all__ = (
     "create_country_config",
     "create_custom_country_config",
-    "CodAB",
-    "GeoBoundingBox",
-    "IriForecastProb",
-    "IriForecastDominant",
-    "FewsNet",
     "ChirpsDaily",
     "ChirpsMonthly",
+    "CodAB",
+    "FewsNet",
+    "IriForecastProb",
+    "IriForecastDominant",
     "UsgsNdviSmoothed",
     "UsgsNdviPctMedian",
     "UsgsNdviMedianAnomaly",
     "UsgsNdviYearDifference",
+    "GeoBoundingBox",
+    "raster",
     "__version__",
 )

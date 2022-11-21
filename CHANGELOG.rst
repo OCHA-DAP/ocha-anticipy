@@ -17,6 +17,11 @@ Fixed
 - The check in ``DataSource`` for the required configuration file
   section now also checks if the section is ``None``
 
+Changed
+~~~~~~~
+
+- Documented and moved the raster processing module to the top level for public access
+
 Added
 ~~~~~
 
