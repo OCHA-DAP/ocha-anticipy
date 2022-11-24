@@ -22,13 +22,13 @@ def test_reanalysis_dates(mock_country_config, geo_bounding_box):
     # These should not throw an error
     glofas_reanalysis(end_date=good_end_date)
     # End date too far in future
-    with pytest.raises(ValueError):
-        glofas_reanalysis(end_date=date(year=3000, month=1, day=1))
+    glofas_future = glofas_reanalysis(end_date=date(year=3000, month=1, day=1))
+    assert glofas_future._end_date == date.today()
     # Start date too early
-    with pytest.raises(ValueError):
-        glofas_reanalysis(
-            start_date=date(year=1800, month=1, day=1), end_date=good_end_date
-        )
+    glofas_past = glofas_reanalysis(
+        start_date=date(year=1800, month=1, day=1), end_date=good_end_date
+    )
+    assert glofas_past._start_date == date(year=1979, month=1, day=1)
     # End date > start date
     with pytest.raises(ValueError):
         glofas_reanalysis(
@@ -54,13 +54,13 @@ def test_forecast_dates(mock_country_config, geo_bounding_box):
     # These should not throw an error
     glofas_forecast(end_date=good_end_date)
     # End date too far in future
-    with pytest.raises(ValueError):
-        glofas_forecast(end_date=date(year=3000, month=1, day=1))
+    glofas_future = glofas_forecast(end_date=date(year=3000, month=1, day=1))
+    assert glofas_future._end_date == date.today()
     # Start date too early
-    with pytest.raises(ValueError):
-        glofas_forecast(
-            start_date=date(year=1800, month=1, day=1), end_date=good_end_date
-        )
+    glofas_past = glofas_forecast(
+        start_date=date(year=1800, month=1, day=1), end_date=good_end_date
+    )
+    assert glofas_past._start_date == date(year=2021, month=5, day=26)
     # End date > start date
     with pytest.raises(ValueError):
         glofas_forecast(
@@ -86,11 +86,11 @@ def test_reforecast_dates(mock_country_config, geo_bounding_box):
     # Try using a string as a date
     glofas_reforecast(end_date="2010-01-01")
     # End date too far in future
-    with pytest.raises(ValueError):
-        glofas_reforecast(end_date=date(year=3000, month=1, day=1))
+    glofas_future = glofas_reforecast(end_date=date(year=3000, month=1, day=1))
+    assert glofas_future._end_date == date(year=2018, month=12, day=31)
     # Start date too early
-    with pytest.raises(ValueError):
-        glofas_reforecast(start_date=date(year=1800, month=1, day=1))
+    glofas_past = glofas_reforecast(start_date=date(year=1800, month=1, day=1))
+    assert glofas_past._start_date == date(year=1999, month=1, day=1)
     # End date > start date
     with pytest.raises(ValueError):
         glofas_reforecast(

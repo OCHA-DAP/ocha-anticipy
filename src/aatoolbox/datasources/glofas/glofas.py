@@ -5,7 +5,7 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
-from typing import List, Union
+from typing import List, Tuple, Union
 
 import cdsapi
 import numpy as np
@@ -75,9 +75,9 @@ class Glofas(DataSource):
         The minimum allowed start date
     end_date_max: date, default = None
         The maximum allowed end date
-    start_date : date, default = None
+    start_date : Union[date, str], default = None
         The starting date for the dataset
-    end_date : date, default = None
+    end_date : Union[date, str], default = None
         The ending date for the dataset
     leadtime_max : int, default = None
         The maximum lead time in days, for forecast or reforecast data
@@ -108,26 +108,12 @@ class Glofas(DataSource):
         self._geo_bounding_box = geo_bounding_box.round_coords(
             offset_val=0.05, round_val=0.1
         )
-        # Set any missing dates
-        if end_date_max is None:
-            end_date_max = date.today()
-        if start_date is None:
-            start_date = start_date_min
-        if end_date is None:
-            end_date = end_date_max
-        self._start_date = get_date_from_user_input(start_date)
-        self._end_date = get_date_from_user_input(end_date)
-        if (
-            not start_date_min
-            <= self._start_date
-            <= self._end_date
-            <= end_date_max
-        ):
-            raise ValueError(
-                f"Please ensure that the input start date is >= "
-                f"{start_date_min}, the end date is <= {end_date_max}, "
-                f"and that the start date is <= the end date."
-            )
+        self._start_date, self._end_date = _set_dates(
+            start_date_min=start_date_min,
+            end_date_max=end_date_max,
+            start_date=start_date,
+            end_date=end_date,
+        )
         self._cds_name = cds_name
         self._system_version = system_version
         self._product_type = product_type
@@ -285,12 +271,12 @@ class Glofas(DataSource):
         """
         filepath_list = [
             self._get_filepath(
-                year=date.year,
-                month=date.month,
-                day=date.day,
+                year=dataset_date.year,
+                month=dataset_date.month,
+                day=dataset_date.day,
                 is_processed=True,
             )
-            for date in self._date_range
+            for dataset_date in self._date_range
         ]
         with xr.open_mfdataset(
             filepath_list, preprocess=self._preprocess_load
@@ -479,3 +465,41 @@ class Glofas(DataSource):
     def _preprocess_load(ds: xr.Dataset) -> xr.Dataset:
         """Preprocessing to do before loading the processed data."""
         return ds
+
+
+def _set_dates(
+    start_date_min: date,
+    end_date_max: date = None,
+    start_date: Union[date, str] = None,
+    end_date: Union[date, str] = None,
+) -> Tuple[date, date]:
+    """Adjust date types and check against limits."""
+    # TODO: perhaps this is general enough to be useful for other data sources?
+    # Set any missing dates
+    if end_date_max is None:
+        end_date_max = date.today()
+    if start_date is None:
+        start_date = start_date_min
+    if end_date is None:
+        end_date = end_date_max
+    # Make sure that dates are all date type
+    start_date = get_date_from_user_input(start_date)
+    end_date = get_date_from_user_input(end_date)
+    # Check against bounds
+    if start_date > end_date:
+        raise ValueError(
+            "Please ensure that the start date is <= the end_date"
+        )
+    if start_date < start_date_min:
+        logger.warning(
+            f"Start date {start_date} is too far in the past,"
+            f"setting to {start_date_min}"
+        )
+        start_date = start_date_min
+    if end_date > end_date_max:
+        logger.warning(
+            f"End date {end_date} is too far in the future,"
+            f"setting to {end_date_max}"
+        )
+        end_date = end_date_max
+    return start_date, end_date
