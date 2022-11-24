@@ -1,0 +1,95 @@
+"""Test the GloFAS instantiation."""
+from datetime import date
+
+import pytest
+
+from aatoolbox import GlofasForecast, GlofasReanalysis, GlofasReforecast
+
+
+def test_reanalysis_dates(mock_country_config, geo_bounding_box):
+    """Test date range behaviour of reanalysis."""
+
+    def glofas_reanalysis(end_date: date, start_date: date = None):
+        return GlofasReanalysis(
+            country_config=mock_country_config,
+            geo_bounding_box=geo_bounding_box,
+            start_date=start_date,
+            end_date=end_date,
+        )
+
+    good_end_date = date(year=2022, month=11, day=15)
+    # These should not throw an error
+    glofas_reanalysis(end_date=good_end_date)
+    # End date too far in future
+    with pytest.raises(ValueError):
+        glofas_reanalysis(end_date=date(year=3000, month=1, day=1))
+    # Start date too early
+    with pytest.raises(ValueError):
+        glofas_reanalysis(
+            start_date=date(year=1800, month=1, day=1), end_date=good_end_date
+        )
+    # End date > start date
+    with pytest.raises(ValueError):
+        glofas_reanalysis(
+            start_date=date(year=2020, month=1, day=2),
+            end_date=date(yearr=2020, month=1, day=1),
+        )
+
+
+def test_forecast_dates(mock_country_config, geo_bounding_box):
+    """Test date range behaviour of forecast."""
+
+    def glofas_forecast(end_date: date, start_date: date = None):
+        return GlofasForecast(
+            country_config=mock_country_config,
+            geo_bounding_box=geo_bounding_box,
+            start_date=start_date,
+            end_date=end_date,
+            leadtime_max=15,
+        )
+
+    good_end_date = date(year=2022, month=11, day=15)
+    # These should not throw an error
+    glofas_forecast(end_date=good_end_date)
+    # End date too far in future
+    with pytest.raises(ValueError):
+        glofas_forecast(end_date=date(year=3000, month=1, day=1))
+    # Start date too early
+    with pytest.raises(ValueError):
+        glofas_forecast(
+            start_date=date(year=1800, month=1, day=1), end_date=good_end_date
+        )
+    # End date > start date
+    with pytest.raises(ValueError):
+        glofas_forecast(
+            start_date=date(year=2020, month=1, day=2),
+            end_date=date(year=2020, month=1, day=1),
+        )
+
+
+def test_reforecast_dates(mock_country_config, geo_bounding_box):
+    """Test date range behaviour of reforecast."""
+
+    def glofas_reforecast(start_date: date = None, end_date: date = None):
+        return GlofasReforecast(
+            country_config=mock_country_config,
+            geo_bounding_box=geo_bounding_box,
+            start_date=start_date,
+            end_date=end_date,
+            leadtime_max=15,
+        )
+
+    # These should not throw an error
+    glofas_reforecast()
+    # End date too far in future
+    with pytest.raises(ValueError):
+        glofas_reforecast(end_date=date(year=3000, month=1, day=1))
+    # Start date too early
+    with pytest.raises(ValueError):
+        glofas_reforecast(start_date=date(year=1800, month=1, day=1))
+    # End date > start date
+    with pytest.raises(ValueError):
+        glofas_reforecast(
+            start_date=date(year=2020, month=1, day=2),
+            end_date=date(year=2020, month=1, day=1),
+        )
