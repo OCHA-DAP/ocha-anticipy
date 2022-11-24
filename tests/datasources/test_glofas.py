@@ -32,7 +32,7 @@ def test_reanalysis_dates(mock_country_config, geo_bounding_box):
     with pytest.raises(ValueError):
         glofas_reanalysis(
             start_date=date(year=2020, month=1, day=2),
-            end_date=date(yearr=2020, month=1, day=1),
+            end_date=date(year=2020, month=1, day=1),
         )
 
 
