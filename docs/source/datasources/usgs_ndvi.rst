@@ -1,5 +1,15 @@
-USGS
-======
+NDVI (USGS eMODIS)
+==================
+
+Warning
+-------
+
+The MODIS sensor has been reported by USGS to
+have degraded in quality since May 2022 (dekad 13), and
+updates to this data source have stopped. This module
+remains for users to have access to historic data but
+recent data is unavailable and care should be used
+analyzing any data since dekad 13 of 2022.
 
 Background
 ----------
@@ -16,21 +26,21 @@ geographic coverage is typically comprehensive of the African continent, where
 the majority of FEWS NET's work is focused, with additional areas covered on an
 ad hoc basis. This module for now just provides access to the normalized
 difference vegetation index (`NDVI <https://en.wikipedia.org/wiki/Normalized_difference_vegetation_index>`_)
-data provided by the USGS.
+generated from eMODIS AQUA provided by the USGS.
 
 NDVI data is generated from eMODIS AQUA and published data includes temporally smoothed NDVI, median anomaly,
 difference from the previous year, and median anomaly presented as a percentile. Full methodological
 details are available on the `Documentation page <https://earlywarning.usgs.gov/fews/product/449#documentation>`_
 for the specific coverage area. The data is made available for the following areas of coverage:
 
-- `north-africa<https://earlywarning.usgs.gov/fews/product/449>`_
-- `east-africa<https://earlywarning.usgs.gov/fews/product/448>`_
-- `southern-africa<https://earlywarning.usgs.gov/fews/product/450>`_
-- `west-africa<https://earlywarning.usgs.gov/fews/product/451>`_
-- `central-asia<https://earlywarning.usgs.gov/fews/product/493>`_
-- `yemen<https://earlywarning.usgs.gov/fews/product/502>`_
-- `central-america<https://earlywarning.usgs.gov/fews/product/445>`_
-- `hispaniola<https://earlywarning.usgs.gov/fews/product/446>`_
+- `north-africa <https://earlywarning.usgs.gov/fews/product/449>`_
+- `east-africa <https://earlywarning.usgs.gov/fews/product/448>`_
+- `southern-africa <https://earlywarning.usgs.gov/fews/product/450>`_
+- `west-africa <https://earlywarning.usgs.gov/fews/product/451>`_
+- `central-asia <https://earlywarning.usgs.gov/fews/product/493>`_
+- `yemen <https://earlywarning.usgs.gov/fews/product/502>`_
+- `central-america <https://earlywarning.usgs.gov/fews/product/445>`_
+- `hispaniola <https://earlywarning.usgs.gov/fews/product/446>`_
 
 Data is published at the dekadal level, and is released soon after the end of the dekad.
 After a period of 3 dekads, data is updated with temporal smoothing and error correction
@@ -128,4 +138,5 @@ processed file is saved based on the `feature_col` name, we have to pass
 `feature_col` to load in the correct data.
 
 .. code-block:: python
+
     ndvi_smooth.load(feature_col="ADM0_EN")

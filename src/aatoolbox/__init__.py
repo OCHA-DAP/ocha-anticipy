@@ -5,7 +5,6 @@ downloading and processing the data required for disaster-related
 anticipatory action.
 """
 from aatoolbox.config.countryconfig import (
-    CountryConfig,
     create_country_config,
     create_custom_country_config,
 )
@@ -27,6 +26,7 @@ from aatoolbox.datasources.usgs.ndvi_products import (
     UsgsNdviSmoothed,
     UsgsNdviYearDifference,
 )
+from aatoolbox.utils import raster
 from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
 from ._version import version as __version__
@@ -34,20 +34,20 @@ from ._version import version as __version__
 __all__ = (
     "create_country_config",
     "create_custom_country_config",
-    "CountryConfig",
+    "ChirpsDaily",
+    "ChirpsMonthly",
     "CodAB",
-    "GeoBoundingBox",
+    "FewsNet",
     "GlofasForecast",
     "GlofasReanalysis",
     "GlofasReforecast",
     "IriForecastProb",
     "IriForecastDominant",
-    "FewsNet",
-    "ChirpsDaily",
-    "ChirpsMonthly",
     "UsgsNdviSmoothed",
     "UsgsNdviPctMedian",
     "UsgsNdviMedianAnomaly",
     "UsgsNdviYearDifference",
+    "GeoBoundingBox",
+    "raster",
     "__version__",
 )

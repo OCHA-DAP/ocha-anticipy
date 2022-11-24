@@ -1,8 +1,15 @@
-"""Class to download and process USGS NDVI data.
+"""Class to download and process USGS eMODIS NDVI data.
 
-Download, process, and load NDVI data published
+Download, process, and load eMODIS NDVI data published
 in the `USGS FEWS NET data portal
 <https://earlywarning.usgs.gov/fews>`_.
+
+Warning: the MODIS sensor has been reported by USGS to
+have degraded in quality since May 2022 (dekad 13), and
+updates to this data source have stopped. This module
+remains for users to have access to historic data but
+recent data is unavailable and care should be used
+analyzing any data since dekad 13 of 2022.
 """
 
 # TODO: add progress bar
@@ -38,6 +45,10 @@ logger = logging.getLogger(__name__)
 
 _DATE_TYPE = Union[date, str, Tuple[int, int], None]
 _EARLIEST_DATE = (2002, 19)
+
+# USGS has reported degradation of USGS NDVI data
+# from the below date and warnings should be used
+_DEGRADATION_DATE = (2022, 13)
 
 
 class _UsgsNdvi(DataSource):
@@ -98,6 +109,16 @@ class _UsgsNdvi(DataSource):
         self._end_date = get_dekadal_date(
             input_date=end_date, default_date=date.today()
         )
+
+        if compare_dekads_gt(self._end_date, _DEGRADATION_DATE):
+            logger.warning(
+                "USGS has reported degradation of eMODIS NDVI data "
+                "due to issues with the MODIS sensor's satellite. "
+                "This affects NDVI data from May 2022 (dekad 13), "
+                "and users should be very careful of using any "
+                "results after this date. This module is maintained "
+                "for users to have access to historic data."
+            )
 
         # warn if dates outside earliest dates
         if compare_dekads_lt(self._start_date, _EARLIEST_DATE):
@@ -461,10 +482,11 @@ class _UsgsNdvi(DataSource):
         local_filename = filepath.stem
 
         url = self._get_url(filename=url_filename)
+        year, dekad = self._fp_year_dekad(filepath)
+
         try:
             resp = urlopen(url)
         except HTTPError:
-            year, dekad = self._fp_year_dekad(filepath)
             logger.error(
                 f"No NDVI data available for "
                 f"dekad {dekad} of {year}, skipping."
@@ -486,6 +508,11 @@ class _UsgsNdvi(DataSource):
                     "Using existing files."
                 )
                 return filepath
+
+        logger.info(
+            f"Downloading NDVI data for {year}, dekad {dekad} "
+            f"into {filepath}."
+        )
 
         # open file within memory
         zf = ZipFile(BytesIO(resp.read()))
@@ -526,6 +553,12 @@ class _UsgsNdvi(DataSource):
         )
 
         if processed_path.is_file():
+            logger.info(
+                f"Processing data from {self._start_date[0]}, "
+                f"dekad {self._start_date[1]} to {self._end_date[0]} "
+                f"dekad {self._end_date[1]} into {processed_path}."
+            )
+
             (
                 dates_to_process,
                 df_already_processed,
