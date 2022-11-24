@@ -14,6 +14,7 @@ from dateutil import rrule
 
 from aatoolbox.config.countryconfig import CountryConfig
 from aatoolbox.datasources.datasource import DataSource
+from aatoolbox.utils.dates import get_date_from_user_input
 from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
 _MODULE_BASENAME = "glofas"
@@ -94,8 +95,8 @@ class Glofas(DataSource):
         coord_names: List[str],
         start_date_min: date,
         end_date_max: date = None,
-        start_date: date = None,
-        end_date: date = None,
+        start_date: Union[date, str] = None,
+        end_date: Union[date, str] = None,
         leadtime_max: int = None,
     ):
         super().__init__(
@@ -114,14 +115,19 @@ class Glofas(DataSource):
             start_date = start_date_min
         if end_date is None:
             end_date = end_date_max
-        if not start_date_min <= start_date <= end_date <= end_date_max:
+        self._start_date = get_date_from_user_input(start_date)
+        self._end_date = get_date_from_user_input(end_date)
+        if (
+            not start_date_min
+            <= self._start_date
+            <= self._end_date
+            <= end_date_max
+        ):
             raise ValueError(
                 f"Please ensure that the input start date is >= "
                 f"{start_date_min}, the end date is <= {end_date_max}, "
                 f"and that the start date is <= the end date."
             )
-        self._start_date = start_date
-        self._end_date = end_date
         self._cds_name = cds_name
         self._system_version = system_version
         self._product_type = product_type

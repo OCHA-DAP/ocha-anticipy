@@ -16,7 +16,7 @@ import xarray as xr
 from aatoolbox.config.countryconfig import CountryConfig
 from aatoolbox.datasources.datasource import DataSource
 from aatoolbox.utils.check_file_existence import check_file_existence
-from aatoolbox.utils.dates import get_date
+from aatoolbox.utils.dates import get_date_from_user_input
 from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
 logger = logging.getLogger(__name__)
@@ -86,8 +86,8 @@ class _Chirps(DataSource):
         if end_date is None:
             end_date = self._get_last_available_date()
 
-        self._start_date = get_date(start_date)
-        self._end_date = get_date(end_date)
+        self._start_date = get_date_from_user_input(start_date)
+        self._end_date = get_date_from_user_input(end_date)
 
         self._check_dates_validity()
 

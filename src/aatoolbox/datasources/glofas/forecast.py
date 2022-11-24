@@ -31,8 +31,8 @@ class _GlofasForecastBase(glofas.Glofas):
         leadtime_max: int,
         start_date_min: date,
         end_date_max: date = None,
-        start_date: date = None,
-        end_date: date = None,
+        start_date: Union[date, str] = None,
+        end_date: Union[date, str] = None,
     ):
         super().__init__(
             country_config=country_config,
@@ -120,13 +120,12 @@ class GlofasForecast(_GlofasForecastBase):
     leadtime_max: int
         The maximum desired lead time D in days. All forecast data for lead
         times 1 to D days are downloaded
-    end_date : date
-        The ending date for the dataset, recomended to be hardcoded
-        to the current date
-    start_date : date, default: date(year=2021, month=5, day=26)
+    start_date : Union[date, str], default: date(year=2021, month=5, day=26)
         The starting date for the dataset. If left blank, defaults to the
         earliest available date
-
+    end_date : Union[date, str], default: date.today()
+        The ending date for the dataset. If left blank, defaults to
+        the current date
     Examples
     --------
     Download, process and load GloFAS forecast data for the past month,
@@ -160,8 +159,8 @@ class GlofasForecast(_GlofasForecastBase):
         country_config: CountryConfig,
         geo_bounding_box: GeoBoundingBox,
         leadtime_max: int,
-        end_date: date,
-        start_date: date = None,
+        start_date: Union[date, str] = None,
+        end_date: Union[date, str] = None,
     ):
         super().__init__(
             country_config=country_config,
@@ -210,10 +209,10 @@ class GlofasReforecast(_GlofasForecastBase):
     leadtime_max: int
         The maximum desired lead time D in days. All forecast data for lead
         times 1 to D days are downloaded
-    start_date : date, default: date(year=1999, month=1, day=1)
+    start_date : Union[date, str], default: date(year=1999, month=1, day=1)
         The starting date for the dataset. If left blank, defaults to the
         earliest available date
-    end_date : date, default: date(year=2018, month=12, day=31)
+    end_date : Union[date, str], default: date(year=2018, month=12, day=31)
         The ending date for the dataset. If left blank, defaults to the
         last available date
 
@@ -247,8 +246,8 @@ class GlofasReforecast(_GlofasForecastBase):
         country_config: CountryConfig,
         geo_bounding_box: GeoBoundingBox,
         leadtime_max: int,
-        start_date: date = None,
-        end_date: date = None,
+        start_date: Union[date, str] = None,
+        end_date: Union[date, str] = None,
     ):
         super().__init__(
             country_config=country_config,

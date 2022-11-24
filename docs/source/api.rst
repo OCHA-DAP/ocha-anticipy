@@ -4,7 +4,7 @@ AA Toolbox API
 Configuration
 -------------
 
-.. automodule:: aatoolbox.config.countryconfig
+.. automodule:: aatoolbox.countryconfig
 
 .. autofunction:: aatoolbox.create_country_config
 .. autofunction:: aatoolbox.create_custom_country_config
@@ -42,6 +42,29 @@ FEWS NET
 .. automodule:: aatoolbox.datasources.fewsnet.fewsnet
 .. autoclass:: aatoolbox.FewsNet
    :members:
+
+GloFAS
+^^^^^^
+
+.. automodule:: aatoolbox.datasources.glofas.glofas
+
+Reanalysis
+""""""""""
+
+.. autoclass:: aatoolbox.GlofasReanalysis
+   :inherited-members:
+
+Forecast
+""""""""
+
+.. autoclass:: aatoolbox.GlofasForecast
+   :inherited-members:
+
+Reforecast
+""""""""
+
+.. autoclass:: aatoolbox.GlofasReforecast
+   :inherited-members:
 
 IRI
 ^^^

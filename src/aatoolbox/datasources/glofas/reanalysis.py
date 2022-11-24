@@ -2,6 +2,7 @@
 import logging
 from datetime import date
 from pathlib import Path
+from typing import Union
 
 import xarray as xr
 from dateutil import rrule
@@ -38,13 +39,12 @@ class GlofasReanalysis(glofas.Glofas):
         Country configuration
     geo_bounding_box: GeoBoundingBox
         The bounding coordinates of the area that should be included
-    end_date : date
-        The ending date for the dataset, recomended to be hardcoded
-        to the current date
-    start_date : date, default: date(1979, 1, 1)
+    start_date : Union[date, str], default: date(1979, 1, 1)
         The starting date for the dataset. If left blank, defaults to the
         earliest available date
-
+    end_date : Union[date, str], default: date.today()
+        The ending date for the dataset. If left blank, defaults to
+        the current date
     Examples
     --------
     Download, process and load all historical GloFAS reanalysis data
@@ -75,8 +75,8 @@ class GlofasReanalysis(glofas.Glofas):
         self,
         country_config: CountryConfig,
         geo_bounding_box: GeoBoundingBox,
-        end_date: date,
-        start_date: date = None,
+        start_date: Union[date, str] = None,
+        end_date: Union[date, str] = None,
     ):
         super().__init__(
             country_config=country_config,

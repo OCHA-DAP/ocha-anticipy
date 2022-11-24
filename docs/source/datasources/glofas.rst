@@ -221,7 +221,7 @@ the reanalysis and reforecast -- the only differences are the acceptable date ra
 and that `leadtime_max` is **not** an input parameter to the reanlaysis.
 
 In this case, we would like the data for the past month. In general, we suggest
-specifying dates explicitly, as using e.g. `datetime.today()` will not produce
+specifying dates explicitly, as using e.g. `date.today()` will not produce
 the same results when run on a different day.
 
 .. code-block:: python

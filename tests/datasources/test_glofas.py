@@ -17,7 +17,8 @@ def test_reanalysis_dates(mock_country_config, geo_bounding_box):
             end_date=end_date,
         )
 
-    good_end_date = date(year=2022, month=11, day=15)
+    # Try using a string as a date
+    good_end_date = "2022-11-15"
     # These should not throw an error
     glofas_reanalysis(end_date=good_end_date)
     # End date too far in future
@@ -48,7 +49,8 @@ def test_forecast_dates(mock_country_config, geo_bounding_box):
             leadtime_max=15,
         )
 
-    good_end_date = date(year=2022, month=11, day=15)
+    # Try using a string as a date
+    good_end_date = "2022-11-15"
     # These should not throw an error
     glofas_forecast(end_date=good_end_date)
     # End date too far in future
@@ -81,6 +83,8 @@ def test_reforecast_dates(mock_country_config, geo_bounding_box):
 
     # These should not throw an error
     glofas_reforecast()
+    # Try using a string as a date
+    glofas_reforecast(end_date="2010-01-01")
     # End date too far in future
     with pytest.raises(ValueError):
         glofas_reforecast(end_date=date(year=3000, month=1, day=1))
