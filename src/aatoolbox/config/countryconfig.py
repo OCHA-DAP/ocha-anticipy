@@ -1,6 +1,6 @@
 """Country configuration setting base class."""
 from pathlib import Path
-from typing import Dict, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 from pydantic import BaseModel, root_validator, validator
 
@@ -81,6 +81,20 @@ class FewsNetConfig(BaseModel):
         return values
 
 
+class ReportingPoints(BaseModel):
+    """Coordinates of GloFAS reporting points."""
+
+    name: str
+    lon: float
+    lat: float
+
+
+class Glofas(BaseModel):
+    """GloFAS configuration."""
+
+    reporting_points: List[ReportingPoints]
+
+
 class UsgsNdviConfig(BaseModel):
     """USGS NDVI configuration.
 
@@ -129,6 +143,7 @@ class CountryConfig(BaseModel):
     iso3: str
     codab: Optional[CodABConfig]
     fewsnet: Optional[FewsNetConfig]
+    glofas: Optional[Glofas]
     usgs_ndvi: Optional[UsgsNdviConfig]
 
     @validator("iso3")

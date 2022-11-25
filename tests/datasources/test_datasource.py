@@ -4,7 +4,7 @@ import pytest
 from aatoolbox.datasources.datasource import DataSource
 
 
-class TestClass(DataSource):
+class DataSourceTesting(DataSource):
     """Class to inherit from DataSource to enable testing of DataSource."""
 
     def __init__(
@@ -41,7 +41,7 @@ class TestClass(DataSource):
 def test_config_attribute_name_validator(mock_country_config):
     """Test that correctly checked that datasource_name in the config."""
     # Test that attributes are passed to _datasource_config
-    testclass_valid_attribute_name = TestClass(
+    testclass_valid_attribute_name = DataSourceTesting(
         country_config=mock_country_config,
         datasource_base_dir="fake_dir_name",
         config_datasource_name="fewsnet",
@@ -52,7 +52,7 @@ def test_config_attribute_name_validator(mock_country_config):
     )
     # Test that non-existant attribute throws error
     with pytest.raises(AttributeError):
-        TestClass(
+        DataSourceTesting(
             country_config=mock_country_config,
             datasource_base_dir="fake_dir_name",
             config_datasource_name="fake_config_attribute",
@@ -60,7 +60,7 @@ def test_config_attribute_name_validator(mock_country_config):
     # Test the None attribute throws error
     mock_country_config.fewsnet = None
     with pytest.raises(AttributeError):
-        TestClass(
+        DataSourceTesting(
             country_config=mock_country_config,
             datasource_base_dir="fake_dir_name",
             config_datasource_name="fewsnet",

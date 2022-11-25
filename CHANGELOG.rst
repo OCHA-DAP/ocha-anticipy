@@ -11,22 +11,24 @@ Versioning <https://semver.org/spec/v2.0.0.html>`__.
 Unreleased
 ----------
 
+Added
+~~~~~
+
+- Module for downloading and processing GloFAS data
+- Module for downloading and processing USGS NDVI data
+- Utilities to streamline use of strings for dates across modules
+
+Changed
+~~~~~~~
+
+- Documented and moved the raster processing module to the top level
+  for public access
+
 Fixed
 ~~~~~
 
 - The check in ``DataSource`` for the required configuration file
   section now also checks if the section is ``None``
-
-Changed
-~~~~~~~
-
-- Documented and moved the raster processing module to the top level for public access
-
-Added
-~~~~~
-
-- Module for downloading and processing USGS NDVI data
-- Utilities to streamline use of strings for dates across modules
 
 [0.4.1] - 2022-05-10
 --------------------

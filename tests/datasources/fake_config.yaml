@@ -5,5 +5,13 @@ codab:
   admin_level_max: 2
 fewsnet:
   region_name: east-africa
+glofas:
+  reporting_points:
+    - name: Station1
+      lon: 2.5
+      lat: 0.5
+    - name: Station2
+      lon: -3.5
+      lat: -1.5
 usgs_ndvi:
   area_name: east-africa

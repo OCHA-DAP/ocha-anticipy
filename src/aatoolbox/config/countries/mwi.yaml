@@ -5,5 +5,43 @@ codab:
   admin_level_max: 3
 fewsnet:
   region_name: southern-africa
+glofas:
+  reporting_points:
+  - name: Chikwawa
+    lon: 34.85
+    lat: -16.05
+  - name: Lichenya River At Milonde -65312108-
+    lon: 35.45
+    lat: -16.05
+  - name: Liwonde
+    lon: 35.25
+    lat: -15.05
+  - name: Luchenza River At Luchenza -65312110-
+    lon: 35.25
+    lat: -15.95
+  - name: Luwewya At Majikapotwe/Zayuka -65312502-
+    lon: 34.15
+    lat: -11.75
+  - name: Mzimba At Muweru Bukuluti -65312404-
+    lon: 33.65
+    lat: -11.95
+  - name: Na 1
+    lon: 35.05
+    lat: -16.45
+  - name: Na 2
+    lon: 34.95
+    lat: -16.25
+  - name: Phewzi 65312414
+    lon: 33.95
+    lat: -10.95
+  - name: Rumphi At Chiweta -65312407-
+    lon: 34.05
+    lat: -10.65
+  - name: Runyina River At Mjuma -65312406-
+    lon: 33.75
+    lat: -10.85
+  - name: S53 Roadbridge 65312601
+    lon: 34.15
+    lat: -12.85
 usgs_ndvi:
   area_name: southern-africa

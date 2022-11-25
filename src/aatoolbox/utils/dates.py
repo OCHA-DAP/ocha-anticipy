@@ -5,7 +5,7 @@ from datetime import date
 from typing import List, Tuple, Union, cast
 
 
-def get_date(input_date: Union[date, str]) -> date:
+def get_date_from_user_input(input_date: Union[date, str]) -> date:
     """Return date from string or date input.
 
     Processes input data in either ``datetime.date``
@@ -22,21 +22,20 @@ def get_date(input_date: Union[date, str]) -> date:
     date
         ``datetime.date``
     """
-    if isinstance(input_date, str):
-        try:
-            input_date = date.fromisoformat(input_date)
-        except ValueError as err:
-            raise ValueError(
-                "`date` values passed as a string must "
-                "follow ISO8601 date format: "
-                "YYYY-MM-DD."
-            ) from err
-
-    if not isinstance(input_date, date):
+    if isinstance(input_date, date):
+        return input_date
+    try:
+        input_date = date.fromisoformat(input_date)
+    except ValueError as err:
         raise ValueError(
-            "`date` values must be either an ISO8601 "
-            "string or `datetime.date` object."
-        )
+            "`date` values passed as a string must follow ISO8601 date "
+            "format: YYYY-MM-DD."
+        ) from err
+    except TypeError as err:
+        raise TypeError(
+            "`date` values must be either an ISO8601 string or "
+            "`datetime.date` object."
+        ) from err
 
     return input_date
 
@@ -83,7 +82,7 @@ def get_dekadal_date(
             )
 
     else:
-        input_as_date = get_date(input_date)
+        input_as_date = get_date_from_user_input(input_date)
         year, dekad = date_to_dekad(input_as_date)
 
     return year, dekad

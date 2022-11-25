@@ -5,5 +5,37 @@ codab:
   admin_level_max: 3
 fewsnet:
   region_name: west-africa
+glofas:
+  reporting_points:
+  - name: BOUGOURI-BA a DIEBOUGOU
+    lon: -3.15
+    lat: 10.95
+  - name: Bassieri
+    lon: 0.35
+    lat: 12.75
+  - name: Faga A Liptougou
+    lon: -0.45
+    lat: 13.25
+  - name: Liptougou
+    lon: 0.35
+    lat: 13.25
+  - name: Manni A Manni
+    lon: -0.35
+    lat: 13.15
+  - name: Sebba
+    lon: 0.45
+    lat: 13.45
+  - name: Sourou A Pont De Leri Nord
+    lon: -3.55
+    lat: 12.65
+  - name: VOLTA ROUGE a DAKAYE
+    lon: -1.65
+    lat: 11.75
+  - name: Volta Blanche A Wayen
+    lon: -1.15
+    lat: 12.35
+  - name: Volta Noire A Samandeni
+    lon: -4.45
+    lat: 11.45
 usgs_ndvi:
   area_name: west-africa

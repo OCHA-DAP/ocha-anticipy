@@ -3,3 +3,35 @@ codab:
   hdx_dataset_name: bgd_adm_bbs_20201113_SHP.zip
   layer_base_name: bgd_adm_bbs_20201113_SHP/bgd_admbnda_adm{admin_level}_bbs_20201113.shp
   admin_level_max: 4
+glofas:
+  reporting_points:
+  - name: Bahadurabad
+    lon: 89.65
+    lat: 25.15
+  - name: Bhairab Bazar
+    lon: 90.95
+    lat: 24.05
+  - name: Hardinge Bridge
+    lon: 89.05
+    lat: 24.05
+  - name: Jariajanjail
+    lon: 90.65
+    lat: 24.95
+  - name: Kanaighat
+    lon: 92.15
+    lat: 25.05
+  - name: Kaunia
+    lon: 89.45
+    lat: 25.75
+  - name: Laurergarh Saktiarkhola
+    lon: 91.25
+    lat: 25.15
+  - name: Na
+    lon: 89.75
+    lat: 25.55
+  - name: Sherpur
+    lon: 91.65
+    lat: 24.65
+  - name: Sunamganj
+    lon: 91.45
+    lat: 25.05
