@@ -58,11 +58,23 @@ def check_file_existence(
                 " decorator to work."
             )
         ) from err
-    if filepath.exists() and not clobber:
-        logger.info(
-            f"File {filepath} exists and clobber set to False, "
-            f"using existing files"
-        )
+
+    # check existence
+    exist_dict = {True: "exists", False: "does not exist"}
+
+    # check filepath exists -> clobber
+    usage_dict = {
+        True: {True: "overwriting existing", False: "using existing"},
+        False: {True: "downloading new", False: "downloading new"},
+    }
+    fp_exists = filepath.exists()
+
+    logger.info(
+        f"File {filepath} {exist_dict[fp_exists]} and clobber "
+        f"set to {clobber}, {usage_dict[fp_exists][clobber]} file."
+    )
+
+    if fp_exists and not clobber:
         return filepath
     else:
         return wrapped(*args, **kwargs)

@@ -5,3 +5,86 @@ codab:
   layer_base_admin_levels: [0,1,2]
   custom_layer_names:
     - npl_admbnda_districts_nd_20201117
+glofas:
+  reporting_points:
+  - name: After Lothar Confluence
+    lon: 84.65
+    lat: 27.55
+  - name: Angsing
+    lon: 83.75
+    lat: 27.85
+  - name: Arughat
+    lon: 84.85
+    lat: 28.05
+  - name: Asaraghat
+    lon: 81.45
+    lat: 28.95
+  - name: Betrawati
+    lon: 85.15
+    lat: 28.05
+  - name: Bimalnagar
+    lon: 84.45
+    lat: 28.05
+  - name: Butwal
+    lon: 83.45
+    lat: 27.75
+  - name: Chatara
+    lon: 87.15
+    lat: 26.85
+  - name: Chepang
+    lon: 81.75
+    lat: 28.35
+  - name: Chisapani
+    lon: 81.25
+    lat: 28.65
+  - name: Devghat
+    lon: 84.45
+    lat: 27.75
+  - name: Dipayal
+    lon: 80.95
+    lat: 29.25
+  - name: Jomsom
+    lon: 83.65
+    lat: 28.75
+  - name: Kampughat
+    lon: 86.85
+    lat: 26.85
+  - name: Khurkot
+    lon: 86.05
+    lat: 27.25
+  - name: Kusum
+    lon: 82.15
+    lat: 27.95
+  - name: Mainachuli
+    lon: 87.85
+    lat: 26.65
+  - name: Majhitar 1
+    lon: 87.65
+    lat: 27.25
+  - name: Majhitar 2
+    lon: 87.45
+    lat: 26.95
+  - name: Pachuwarghat
+    lon: 85.75
+    lat: 27.55
+  - name: Parigaun
+    lon: 80.25
+    lat: 29.15
+  - name: Rabuwabazar
+    lon: 86.65
+    lat: 27.25
+  - name: Rai Goan
+    lon: 85.45
+    lat: 27.25
+  - name: Samajhighat
+    lon: 81.65
+    lat: 28.55
+  - name: Shisaghat
+    lon: 84.25
+    lat: 28.15
+  - name: Simle
+    lon: 87.15
+    lat: 27.05
+  - name: Turkighat
+    lon: 87.15
+    lat: 27.35

@@ -8,3 +8,49 @@ codab:
     - cod_admbnda_adm2_rgc_20190911.shp
 fewsnet:
   region_name: southern-africa
+glofas:
+  reporting_points:
+  - name: Bangassou
+    lon: 22.85
+    lat: 4.75
+  - name: Congo A Kinshasa-Est-H-/Inga-Q-
+    lon: 15.25
+    lat: -4.35
+  - name: Congo River At Kindu
+    lon: 25.95
+    lat: -2.95
+  - name: Kasai River At Ilebo -Ex- Port Francqui-
+    lon: 20.55
+    lat: -4.35
+  - name: Kinshasa
+    lon: 15.25
+    lat: -4.35
+  - name: Lualaba River At Kisangani -Ex- Stanleyville-
+    lon: 25.15
+    lat: 0.55
+  - name: Lufubu At Chipili
+    lon: 29.05
+    lat: -10.75
+  - name: Luongo At Mwendakashiba
+    lon: 29.05
+    lat: -10.45
+  - name: Manovo Manovo
+    lon: 22.95
+    lat: 8.15
+  - name: Mbomou Bangassou
+    lon: 22.85
+    lat: 4.75
+  - name: Na
+    lon: 27.45
+    lat: -10.45
+  - name: Oubangui Mobaye
+    lon: 21.25
+    lat: 4.35
+  - name: Semliki 85205
+    lon: 29.85
+    lat: 0.75
+  - name: Zemio
+    lon: 25.15
+    lat: 5.05
+usgs_ndvi:
+  area_name: southern-africa
