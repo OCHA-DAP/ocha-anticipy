@@ -17,6 +17,8 @@ Added
 - Module for downloading and processing GloFAS data
 - Module for downloading and processing USGS NDVI data
 - Utilities to streamline use of strings for dates across modules
+- COD AB configuration now has an ``admin{level}_name`` custom
+  layer name parameter
 
 Changed
 ~~~~~~~
@@ -29,6 +31,7 @@ Fixed
 
 - The check in ``DataSource`` for the required configuration file
   section now also checks if the section is ``None``
+- All available admin levels for DRC and Ethiopia are now accessible
 
 [0.4.1] - 2022-05-10
 --------------------

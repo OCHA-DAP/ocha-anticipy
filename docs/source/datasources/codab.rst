@@ -78,6 +78,7 @@ should be setup as follows:
       hdx_dataset_name: npl_admbnda_nd_20201117_SHP.zip
       layer_base_name: npl_admbnda_adm{admin_level}_nd_20201117.shp
       admin_level_max: 2
+      admin2_name: npl_admbnda_adm2_nd.shp
       custom_layer_names:
         - npl_admbnda_districts_nd_20201117
 
@@ -96,8 +97,13 @@ In the case of Nepal, the layers have the names ``npl_admbnda_adm0_nd_20201117.s
 ``npl_admbnda_adm1_nd_20201117.shp``, and ``npl_admbnda_adm2_nd_20201117.shp``
 
 ``admin_level_max``: The maximum admin level available in the layers. In the case of Nepal,
-the layer level numbers range from 0 to 2, so the maximum should be 2.
+the layer level numbers range from 0 to 2, so the maximum should be 2. In general the
+maximum admin level should not exceed 4.
 
-``custom_layer_name``: A place to list any other layers that don't correspond to the
+``admin{level}_name``: An optional parameter for any admin level (``level`` can range from 0 to 4)
+whose layer names do not match the ``layer_base_name`` pattern. This example for Nepal
+is contrived, but this issue does exist for COD ABs from countries such as Ethiopia and DRC.
+
+``custom_layer_name``: An optional place to list any other layers that don't correspond to the
 admin level format specified above. In the case of Nepal, there is a layer for districts
 with the name ``npl_admbnda_districts_nd_20201117``.
