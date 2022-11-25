@@ -416,8 +416,8 @@ class Glofas(DataSource):
         """Convert raw raster to processed that uses reporting points."""
         if self._country_config.glofas is None:
             raise KeyError(
-                "The country configuration file does not contain"
-                "any reporting point coordinates. Please update the"
+                "The country configuration file does not contain "
+                "any reporting point coordinates. Please update the "
                 "configuration file and try again."
             )
         # Check that lat and lon of reporting points are in the bounds

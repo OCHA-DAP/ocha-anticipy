@@ -126,6 +126,8 @@ This module performs three basic steps:
    way as the raw data,
    are read in as a single `xarray.DataSet`.
 
+CDS API
+~~~~~~~
 
 The download step makes use of the
 `CDS API
@@ -150,9 +152,41 @@ Then, for all operating systems, add the following to the created file:
 .. code-block:: shell
 
     url: https://cds.climate.copernicus.eu/api/v2
-    key: $UID:$API-key
+    key: ${UID}:${API-key}
 
 where `$UID` is your UID and `$API-key` is your API key.
+
+ecCodes
+~~~~~~~
+
+To read in .GRIB files using `xarray`, you'll need to install
+`ecCodes
+<https://confluence.ecmwf.int/display/ECC/What+is+ecCodes>`_
+on your machine.
+For all operating systems, this can be done through
+the
+`source distribution
+<https://confluence.ecmwf.int/display/ECC/ecCodes+installation>`_,
+or in a `conda` environment with the command:
+
+.. code-block:: shell
+
+    conda install -c conda-forge eccodes
+
+Some OS-specific binaries are also available. For Linux,
+`python3-eccodes` can be found as a `.deb` and `.rpm`
+(check your specific Linux distribution for the latest version).
+For Mac, according to the
+`ecCodes-Python documentation
+<https://github.com/ecmwf/eccodes-python#system-dependencies>_`,
+ecCodes can be installed using `brew`:
+
+.. code-block:: shell
+
+    brew install eccodes
+
+Reporting points
+~~~~~~~~~~~~~~~~
 
 Next, if it :ref:`doesn't already exist<list of supported countries>`,
 you need to create a country configuration
@@ -188,6 +222,10 @@ be representative of physical gauge locations, and to be located on a river
 in the model raster file. In principle, one could
 specify any set of coordinates that exists on the raster, but caution is advised
 when doing so.
+
+
+Running the code
+~~~~~~~~~~~~~~~~
 
 You can initialize a built-in country config as follows:
 
