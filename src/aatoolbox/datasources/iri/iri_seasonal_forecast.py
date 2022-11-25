@@ -179,15 +179,6 @@ class _IriForecast(DataSource):
                 drop_variables="C",
             )
             return ds
-        except ValueError as err:
-            raise ValueError(
-                f"Cannot open the netcdf file {self._get_raw_path()}. "
-                f"This might be due to invalid "
-                f"download with wrong authentication. Check the validity of "
-                f"the authentication key found in your {_IRI_AUTH} environment"
-                f"variable and try to download again. Otherwise make sure the "
-                f"correct backend for opening a netCDF file is installed."
-            ) from err
         except FileNotFoundError as err:
             raise FileNotFoundError(
                 f"Cannot open the netcdf file {self._get_raw_path()}. Make "
@@ -205,6 +196,15 @@ class _IriForecast(DataSource):
             # have to authenticate by using a cookie
             cookies={"__dlauth_id": iri_auth},
         )
+        if response.headers["Content-Type"] != "application/x-netcdf":
+            msg = (
+                f"The request returned headers indicating that there was "
+                f"an issue with the authentication. Please check the "
+                f"validity of the authentication key found in your "
+                f"{_IRI_AUTH} environment variable and try to download "
+                f"again."
+            )
+            raise requests.RequestException(msg)
         with open(filepath, "wb") as out_file:
             out_file.write(response.content)
         return filepath

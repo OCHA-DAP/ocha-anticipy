@@ -2,6 +2,7 @@
 import cftime
 import numpy as np
 import pytest
+import requests
 import xarray as xr
 from xarray.coding.cftimeindex import CFTimeIndex
 
@@ -103,6 +104,24 @@ def test_download_call_dominant(
         f"abc_iri_forecast_seasonal_"
         f"precipitation_tercile_dominant_Np6Sp3Ep2Wm3.nc"
     )
+
+
+@pytest.fixture
+def mock_requests(mocker):
+    """Mock requests in the download function."""
+    requests_mock = mocker.patch(
+        "aatoolbox.datasources.iri.iri_seasonal_forecast.requests.get"
+    )
+    return requests_mock
+
+
+def test_download_wrong_auth(
+    mock_iri, mock_requests, mock_aa_data_dir, mock_country_config
+):
+    """Check that wrong download headers raise an error."""
+    iri = mock_iri(prob_forecast=True)
+    with pytest.raises(requests.RequestException):
+        iri.download()
 
 
 def test_process(mocker, mock_iri, mock_aa_data_dir, mock_country_config):
