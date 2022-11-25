@@ -112,6 +112,11 @@ def mock_requests(mocker):
     requests_mock = mocker.patch(
         "aatoolbox.datasources.iri.iri_seasonal_forecast.requests.get"
     )
+    mocker.patch.dict(
+        "aatoolbox.datasources.iri.iri_seasonal_forecast.os.environ",
+        {"IRI_AUTH": FAKE_IRI_AUTH},
+    )
+
     return requests_mock
 
 
