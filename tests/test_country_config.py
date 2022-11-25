@@ -150,23 +150,6 @@ def test_codab_admin_level_max(mock_parse_yaml):
         create_country_config(iso3="abc")
 
 
-def test_codab_admin_level_names(mock_parse_yaml):
-    """Test that admin level names are set correctly."""
-    config_base = {
-        "iso3": "abc",
-        "codab": {
-            "hdx_dataset_name": "fake_dataset_name",
-            "layer_base_name": "layer_base_name_{admin_level}",
-            "admin_level_max": 1,
-            "admin0_name": "custom_admin0_name",
-        },
-    }
-    mock_parse_yaml(output_list=[config_base])
-    country_config = create_country_config(iso3="abc")
-    assert country_config.codab.admin0_name == "custom_admin0_name"
-    assert country_config.codab.admin1_name == "layer_base_name_1"
-
-
 def test_fewsnet_validate_region_name(mock_parse_yaml):
     """Test that fewsnet requires correct region name."""
     config_base = {

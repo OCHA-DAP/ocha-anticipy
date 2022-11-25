@@ -39,11 +39,20 @@ def test_codab_load_admin_level(
 ):
     """Test that load_codab retrieves expected file and layer name."""
     codab = CodAB(country_config=mock_country_config)
-    admin_level = 2
-    expected_layer_name = mock_country_config.codab.layer_base_name.format(
-        admin_level=admin_level
+
+    # First checking layer_base_name
+    expected_layer_name = "fake_layer_base_name_level1"
+    codab.load(admin_level=1)
+
+    gpd_read_file.assert_called_with(
+        f"zip://{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
+        f"{DATASOURCE_BASE_DIR}/{mock_country_config.iso3}_"
+        f"{DATASOURCE_BASE_DIR}.shp.zip/{expected_layer_name}"
     )
-    codab.load(admin_level=admin_level)
+
+    # Then checking custom name
+    expected_layer_name = "admin2_custom_name"
+    codab.load(admin_level=2)
 
     gpd_read_file.assert_called_with(
         f"zip://{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
