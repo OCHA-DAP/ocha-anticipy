@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aatoolbox.datasources.glofas package &mdash; aatoolbox  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+</head>
+
+<body class="wy-body-for-nav">
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> aatoolbox
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config.html">Country Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasources.html">Data Sources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html">Utilities</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">AA Toolbox API</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">aatoolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">aatoolbox.datasources.glofas package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/aatoolbox.datasources.glofas.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+
+  <section id="aatoolbox-datasources-glofas-package">
+<h1>aatoolbox.datasources.glofas package<a class="headerlink" href="#aatoolbox-datasources-glofas-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-aatoolbox.datasources.glofas.forecast">
+<span id="aatoolbox-datasources-glofas-forecast-module"></span><h2>aatoolbox.datasources.glofas.forecast module<a class="headerlink" href="#module-aatoolbox.datasources.glofas.forecast" title="Permalink to this heading"></a></h2>
+<p>Download and process GloFAS forecast and reforecast river discharge data.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="aatoolbox.datasources.glofas.forecast.GlofasForecast">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aatoolbox.datasources.glofas.forecast.</span></span><span class="sig-name descname"><span class="pre">GlofasForecast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">country_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aatoolbox.config.html#aatoolbox.config.countryconfig.CountryConfig" title="aatoolbox.config.countryconfig.CountryConfig"><span class="pre">CountryConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">geo_bounding_box</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aatoolbox.utils.html#aatoolbox.utils.geoboundingbox.GeoBoundingBox" title="aatoolbox.utils.geoboundingbox.GeoBoundingBox"><span class="pre">GeoBoundingBox</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">leadtime_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">date</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">date</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aatoolbox/datasources/glofas/forecast.html#GlofasForecast"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.datasources.glofas.forecast.GlofasForecast" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_GlofasForecastBase</span></code></p>
+<p>Class for downloading and processing GloFAS forecast data.</p>
+<p>The GloFAS forecast dataset is a global raster presenting river
+discharge forecast from 26 May 2021 until present day (updated daily), see
+<a class="reference external" href="https://hess.copernicus.org/preprints/hess-2020-532/">this paper</a>
+for more details. While CDS does have version 3 pre-release data
+from 2020-2021,
+we understand that there were some small issues that were fixed
+in the final version, so at this point in time this module
+does not support downloading the pre-release data.</p>
+<p>This class downloads the raw raster data
+<a class="reference external" href="https://cds.climate.copernicus.eu/cdsapp#!/dataset/cems-glofas-forecast?tab=overview">from CDS</a>,
+and processes it from a raster to a datasets of reporting points from the
+<a class="reference external" href="https://www.globalfloods.eu/glofas-forecasting/">GloFAS interface</a>.
+Due to the CDS request size limits, separate files are downloaded per
+day (that contain all requested lead times).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>country_config</strong> (<a class="reference internal" href="aatoolbox.html#aatoolbox.CountryConfig" title="aatoolbox.CountryConfig"><em>CountryConfig</em></a>) – Country configuration</p></li>
+<li><p><strong>geo_bounding_box</strong> (<a class="reference internal" href="api.html#aatoolbox.GeoBoundingBox" title="aatoolbox.GeoBoundingBox"><em>GeoBoundingBox</em></a>) – The bounding coordinates of the area that should be included</p></li>
+<li><p><strong>leadtime_max</strong> (<em>int</em>) – The maximum desired lead time D in days. All forecast data for lead
+times 1 to D days are downloaded</p></li>
+<li><p><strong>start_date</strong> (<em>Union</em><em>[</em><em>date</em><em>, </em><em>str</em><em>]</em><em>, </em><em>default: date</em><em>(</em><em>year=2021</em><em>, </em><em>month=5</em><em>, </em><em>day=26</em><em>)</em>) – The starting date for the dataset. If left blank, defaults to the
+earliest available date</p></li>
+<li><p><strong>end_date</strong> (<em>Union</em><em>[</em><em>date</em><em>, </em><em>str</em><em>]</em><em>, </em><em>default: date.today</em><em>(</em><em>)</em>) – The ending date for the dataset. If left blank, defaults to
+the current date</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Download, process and load GloFAS forecast data for the past month,
+for a lead time of 15 days.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">aatoolbox</span> <span class="kn">import</span> <span class="n">create_country_config</span><span class="p">,</span> <span class="n">CodAB</span><span class="p">,</span> <span class="n">GeoBoundingBox</span><span class="p">,</span>
+<span class="gp">... </span><span class="n">GlofasForecast</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">country_config</span> <span class="o">=</span> <span class="n">create_country_config</span><span class="p">(</span><span class="n">iso3</span><span class="o">=</span><span class="s2">&quot;npl&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">codab</span> <span class="o">=</span> <span class="n">CodAB</span><span class="p">(</span><span class="n">country_config</span><span class="o">=</span><span class="n">country_config</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">codab</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">admin_npl</span> <span class="o">=</span> <span class="n">codab</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">geo_bounding_box</span> <span class="o">=</span> <span class="n">GeoBoundingBox</span><span class="o">.</span><span class="n">from_shape</span><span class="p">(</span><span class="n">admin_npl</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">glofas_forecast</span> <span class="o">=</span> <span class="n">GlofasForecast</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">country_config</span><span class="o">=</span><span class="n">country_config</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">geo_bounding_box</span><span class="o">=</span><span class="n">geo_bounding_box</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">leadtime_max</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">end_date</span><span class="o">=</span><span class="n">date</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="mi">2022</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="mi">22</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">start_date</span><span class="o">=</span><span class="n">date</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="mi">2022</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="mi">22</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">glofas_forecast</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">glofas_forecast</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">npl_glofas_forecast_reporting_points</span> <span class="o">=</span> <span class="n">glofas_forecast</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aatoolbox.datasources.glofas.forecast.GlofasReforecast">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aatoolbox.datasources.glofas.forecast.</span></span><span class="sig-name descname"><span class="pre">GlofasReforecast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">country_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aatoolbox.config.html#aatoolbox.config.countryconfig.CountryConfig" title="aatoolbox.config.countryconfig.CountryConfig"><span class="pre">CountryConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">geo_bounding_box</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aatoolbox.utils.html#aatoolbox.utils.geoboundingbox.GeoBoundingBox" title="aatoolbox.utils.geoboundingbox.GeoBoundingBox"><span class="pre">GeoBoundingBox</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">leadtime_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">date</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">date</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aatoolbox/datasources/glofas/forecast.html#GlofasReforecast"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.datasources.glofas.forecast.GlofasReforecast" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_GlofasForecastBase</span></code></p>
+<p>Class for downloading and processing GloFAS reforecast data.</p>
+<p>The GloFAS reforecast dataset is a global raster presenting river
+discharnge forecasted from 1999 until 2018, see
+<a class="reference external" href="https://hess.copernicus.org/preprints/hess-2020-532/">this paper</a>
+for more details.</p>
+<p>This class downloads the raw raster data
+<a class="reference external" href="https://cds.climate.copernicus.eu/cdsapp#!/dataset/cems-glofas-reforecast?tab=overview">from CDS</a>,
+and processes it from a raster to a datasets of reporting points from the
+<a class="reference external" href="https://www.globalfloods.eu/glofas-forecasting/">GloFAS interface</a>.</p>
+<blockquote>
+<div><p>Due to the CDS request size limits, separate files are downloaded per
+month (that contain all requested lead times).</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>country_config</strong> (<a class="reference internal" href="aatoolbox.html#aatoolbox.CountryConfig" title="aatoolbox.CountryConfig"><em>CountryConfig</em></a>) – Country configuration</p></li>
+<li><p><strong>geo_bounding_box</strong> (<a class="reference internal" href="api.html#aatoolbox.GeoBoundingBox" title="aatoolbox.GeoBoundingBox"><em>GeoBoundingBox</em></a>) – The bounding coordinates of the area that should be included</p></li>
+<li><p><strong>leadtime_max</strong> (<em>int</em>) – The maximum desired lead time D in days. All forecast data for lead
+times 1 to D days are downloaded</p></li>
+<li><p><strong>start_date</strong> (<em>Union</em><em>[</em><em>date</em><em>, </em><em>str</em><em>]</em><em>, </em><em>default: date</em><em>(</em><em>year=1999</em><em>, </em><em>month=1</em><em>, </em><em>day=1</em><em>)</em>) – The starting date for the dataset. If left blank, defaults to the
+earliest available date</p></li>
+<li><p><strong>end_date</strong> (<em>Union</em><em>[</em><em>date</em><em>, </em><em>str</em><em>]</em><em>, </em><em>default: date</em><em>(</em><em>year=2018</em><em>, </em><em>month=12</em><em>, </em><em>day=31</em><em>)</em>) – The ending date for the dataset. If left blank, defaults to the
+last available date</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Download, process and load all available GloFAS reforecast data
+for a lead time of 15 days.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">aatoolbox</span> <span class="kn">import</span> <span class="n">create_country_config</span><span class="p">,</span> <span class="n">CodAB</span><span class="p">,</span> <span class="n">GeoBoundingBox</span><span class="p">,</span>
+<span class="gp">... </span><span class="n">GlofasReforecast</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">country_config</span> <span class="o">=</span> <span class="n">create_country_config</span><span class="p">(</span><span class="n">iso3</span><span class="o">=</span><span class="s2">&quot;npl&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">codab</span> <span class="o">=</span> <span class="n">CodAB</span><span class="p">(</span><span class="n">country_config</span><span class="o">=</span><span class="n">country_config</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">codab</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">admin_npl</span> <span class="o">=</span> <span class="n">codab</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">geo_bounding_box</span> <span class="o">=</span> <span class="n">GeoBoundingBox</span><span class="o">.</span><span class="n">from_shape</span><span class="p">(</span><span class="n">admin_npl</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">glofas_reforecast</span> <span class="o">=</span> <span class="n">GlofasReforecast</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">country_config</span><span class="o">=</span><span class="n">country_config</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">geo_bounding_box</span><span class="o">=</span><span class="n">geo_bounding_box</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">leadtime_max</span><span class="o">=</span><span class="mi">15</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">glofas_reforecast</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">glofas_reforecast</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">npl_glofas_reforecast_reporting_points</span> <span class="o">=</span> <span class="n">glofas_reforecast</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+<section id="module-aatoolbox.datasources.glofas.glofas">
+<span id="aatoolbox-datasources-glofas-glofas-module"></span><h2>aatoolbox.datasources.glofas.glofas module<a class="headerlink" href="#module-aatoolbox.datasources.glofas.glofas" title="Permalink to this heading"></a></h2>
+<p>Base class for downloading and processing GloFAS river discharge data.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="aatoolbox.datasources.glofas.glofas.Glofas">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aatoolbox.datasources.glofas.glofas.</span></span><span class="sig-name descname"><span class="pre">Glofas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">country_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aatoolbox.config.html#aatoolbox.config.countryconfig.CountryConfig" title="aatoolbox.config.countryconfig.CountryConfig"><span class="pre">CountryConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">geo_bounding_box</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aatoolbox.utils.html#aatoolbox.utils.geoboundingbox.GeoBoundingBox" title="aatoolbox.utils.geoboundingbox.GeoBoundingBox"><span class="pre">GeoBoundingBox</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cds_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">system_version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date_variable_prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coord_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">date</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">date</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">date</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">leadtime_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aatoolbox/datasources/glofas/glofas.html#Glofas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.datasources.glofas.glofas.Glofas" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="aatoolbox.datasources.html#aatoolbox.datasources.datasource.DataSource" title="aatoolbox.datasources.datasource.DataSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataSource</span></code></a></p>
+<p>Base class for all GloFAS data downloading and processing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>country_config</strong> (<a class="reference internal" href="aatoolbox.html#aatoolbox.CountryConfig" title="aatoolbox.CountryConfig"><em>CountryConfig</em></a>) – Country configuration</p></li>
+<li><p><strong>geo_bounding_box</strong> (<a class="reference internal" href="api.html#aatoolbox.GeoBoundingBox" title="aatoolbox.GeoBoundingBox"><em>GeoBoundingBox</em></a>) – The bounding coordinates of the area that should be included</p></li>
+<li><p><strong>cds_name</strong> (<em>str</em>) – The name of the dataset in CDS</p></li>
+<li><p><strong>system_version</strong> (<em>str</em>) – An input to the CDS query</p></li>
+<li><p><strong>product_type</strong> (<em>str</em><em> or </em><em>list</em>) – Which product types from the dataset are requested</p></li>
+<li><p><strong>date_variable_prefix</strong> (<em>str</em>) – Some dates require a prefix for the CDS API query</p></li>
+<li><p><strong>frequency</strong> (<em>str</em>) – How to split the query (and thus files): in years, months, or days.
+Depends on the maximum query size of the product</p></li>
+<li><p><strong>coord_names</strong> (<em>list</em>) – Coordinate names in the xarray dataset</p></li>
+<li><p><strong>start_date_min</strong> (<em>date</em>) – The minimum allowed start date</p></li>
+<li><p><strong>end_date_max</strong> (<em>date</em><em>, </em><em>default = None</em>) – The maximum allowed end date</p></li>
+<li><p><strong>start_date</strong> (<em>Union</em><em>[</em><em>date</em><em>, </em><em>str</em><em>]</em><em>, </em><em>default = None</em>) – The starting date for the dataset</p></li>
+<li><p><strong>end_date</strong> (<em>Union</em><em>[</em><em>date</em><em>, </em><em>str</em><em>]</em><em>, </em><em>default = None</em>) – The ending date for the dataset</p></li>
+<li><p><strong>leadtime_max</strong> (<em>int</em><em>, </em><em>default = None</em>) – The maximum lead time in days, for forecast or reforecast data</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aatoolbox.datasources.glofas.glofas.Glofas.download">
+<span class="sig-name descname"><span class="pre">download</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clobber</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/aatoolbox/datasources/glofas/glofas.html#Glofas.download"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.datasources.glofas.glofas.Glofas.download" title="Permalink to this definition"></a></dt>
+<dd><p>Download the GloFAS data by querying CDS.</p>
+<p>The raw GloFAS data is available as a global raster in CDS. This method
+downloads the raster files for the specified region of interest
+and date range. The files are in GRIB format and are split up either
+by day, month, or year depending on the GloFAS product.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>clobber</strong> (<em>bool</em><em>, </em><em>default = False</em>) – Overwrite files that were already downloaded</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>A list paths of downloaded files</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aatoolbox.datasources.glofas.glofas.Glofas.load">
+<span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dataset</span></span></span><a class="reference internal" href="_modules/aatoolbox/datasources/glofas/glofas.html#Glofas.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.datasources.glofas.glofas.Glofas.load" title="Permalink to this definition"></a></dt>
+<dd><p>Load the processed GloFAS data as an xarray.DataSet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>A single xarray dataset containing all GloFAS reporting points</em></p></li>
+<li><p><em>and their associated river discharge</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aatoolbox.datasources.glofas.glofas.Glofas.process">
+<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clobber</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/aatoolbox/datasources/glofas/glofas.html#Glofas.process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.datasources.glofas.glofas.Glofas.process" title="Permalink to this definition"></a></dt>
+<dd><p>Process the downloaded GloFAS files.</p>
+<p>For each raw GRIB file, read it in and extract the river discharge
+from the reporting point coordinates specified in the configuration
+file. Saves the output as a NetCDF file, where files are split by day,
+month or year depending on the GloFAS product.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>clobber</strong> (<em>bool</em><em>, </em><em>default = False</em>) – Overwrite files that were already processed</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>A list paths of processed files</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-aatoolbox.datasources.glofas.reanalysis">
+<span id="aatoolbox-datasources-glofas-reanalysis-module"></span><h2>aatoolbox.datasources.glofas.reanalysis module<a class="headerlink" href="#module-aatoolbox.datasources.glofas.reanalysis" title="Permalink to this heading"></a></h2>
+<p>Download and process GloFAS reanalysis river discharge data.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="aatoolbox.datasources.glofas.reanalysis.GlofasReanalysis">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aatoolbox.datasources.glofas.reanalysis.</span></span><span class="sig-name descname"><span class="pre">GlofasReanalysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">country_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aatoolbox.config.html#aatoolbox.config.countryconfig.CountryConfig" title="aatoolbox.config.countryconfig.CountryConfig"><span class="pre">CountryConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">geo_bounding_box</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aatoolbox.utils.html#aatoolbox.utils.geoboundingbox.GeoBoundingBox" title="aatoolbox.utils.geoboundingbox.GeoBoundingBox"><span class="pre">GeoBoundingBox</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">date</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">date</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aatoolbox/datasources/glofas/reanalysis.html#GlofasReanalysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.datasources.glofas.reanalysis.GlofasReanalysis" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aatoolbox.datasources.glofas.glofas.Glofas" title="aatoolbox.datasources.glofas.glofas.Glofas"><code class="xref py py-class docutils literal notranslate"><span class="pre">Glofas</span></code></a></p>
+<p>Class for downloading and processing GloFAS reanalysis data.</p>
+<p>The GloFAS reanalysis dataset is a global raster presenting river
+discharnge from 1979 until present day (updated daily), see
+<a class="reference external" href="https://essd.copernicus.org/articles/12/2043/2020/">this paper</a>
+for more details.</p>
+<p>This class downloads the raw raster data
+<a class="reference external" href="https://cds.climate.copernicus.eu/cdsapp#!/dataset/cems-glofas-historical?tab=overview">from CDS</a>,
+and processes it from a raster to a datasets of reporting points from the
+<a class="reference external" href="https://www.globalfloods.eu/glofas-forecasting/">GloFAS interface</a>.
+Due to the CDS request size limits, separate files are downloaded per
+year.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>country_config</strong> (<a class="reference internal" href="aatoolbox.html#aatoolbox.CountryConfig" title="aatoolbox.CountryConfig"><em>CountryConfig</em></a>) – Country configuration</p></li>
+<li><p><strong>geo_bounding_box</strong> (<a class="reference internal" href="api.html#aatoolbox.GeoBoundingBox" title="aatoolbox.GeoBoundingBox"><em>GeoBoundingBox</em></a>) – The bounding coordinates of the area that should be included</p></li>
+<li><p><strong>start_date</strong> (<em>Union</em><em>[</em><em>date</em><em>, </em><em>str</em><em>]</em><em>, </em><em>default: date</em><em>(</em><em>1979</em><em>, </em><em>1</em><em>, </em><em>1</em><em>)</em>) – The starting date for the dataset. If left blank, defaults to the
+earliest available date</p></li>
+<li><p><strong>end_date</strong> (<em>Union</em><em>[</em><em>date</em><em>, </em><em>str</em><em>]</em><em>, </em><em>default: date.today</em><em>(</em><em>)</em>) – The ending date for the dataset. If left blank, defaults to
+the current date</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Download, process and load all historical GloFAS reanalysis data
+until the current date, set to Oct 22, 2022 for this example.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">aatoolbox</span> <span class="kn">import</span> <span class="n">create_country_config</span><span class="p">,</span> <span class="n">CodAB</span><span class="p">,</span> <span class="n">GeoBoundingBox</span><span class="p">,</span>
+<span class="gp">... </span><span class="n">GlofasReanalysis</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">country_config</span> <span class="o">=</span> <span class="n">create_country_config</span><span class="p">(</span><span class="n">iso3</span><span class="o">=</span><span class="s2">&quot;bgd&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">codab</span> <span class="o">=</span> <span class="n">CodAB</span><span class="p">(</span><span class="n">country_config</span><span class="o">=</span><span class="n">country_config</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">codab</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">admin_npl</span> <span class="o">=</span> <span class="n">codab</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">geo_bounding_box</span> <span class="o">=</span> <span class="n">GeoBoundingBox</span><span class="o">.</span><span class="n">from_shape</span><span class="p">(</span><span class="n">admin_npl</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">glofas_reanalysis</span> <span class="o">=</span> <span class="n">GlofasReanalysis</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">country_config</span><span class="o">=</span><span class="n">country_config</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">geo_bounding_box</span><span class="o">=</span><span class="n">geo_bounding_box</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">end_date</span><span class="o">=</span><span class="n">date</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="mi">2022</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="mi">22</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">glofas_reanalysis</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">glofas_reanalysis</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">npl_glofas_reanalysis_reporting_points</span> <span class="o">=</span> <span class="n">glofas_reanalysis</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+<section id="module-aatoolbox.datasources.glofas">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-aatoolbox.datasources.glofas" title="Permalink to this heading"></a></h2>
+<p>Methods pertaining to GloFAS data.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Centre for Humanitarian Data Predictive Analytics Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+</body>
+</html>

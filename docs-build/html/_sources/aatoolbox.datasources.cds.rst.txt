@@ -1,0 +1,21 @@
+aatoolbox.datasources.cds package
+=================================
+
+Submodules
+----------
+
+aatoolbox.datasources.cds.area module
+-------------------------------------
+
+.. automodule:: aatoolbox.datasources.cds.area
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: aatoolbox.datasources.cds
+   :members:
+   :undoc-members:
+   :show-inheritance:

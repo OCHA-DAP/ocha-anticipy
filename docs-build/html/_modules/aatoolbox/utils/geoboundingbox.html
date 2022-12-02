@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aatoolbox.utils.geoboundingbox &mdash; AA Toolbox  documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+</head>
+
+<body class="wy-body-for-nav">
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> AA Toolbox
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../config.html">Country Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../datasources.html">Data Sources</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">AA Toolbox API</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AA Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>aatoolbox.utils.geoboundingbox</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+
+  <h1>Source code for aatoolbox.utils.geoboundingbox</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Functionality to retrieve and modify boundary coordinates.</span>
+
+<span class="sd">It is possible to create an ``GeoBoundingBox`` object either from</span>
+<span class="sd">lat_max, lat_min, lon_max, lon_min coordinates,</span>
+<span class="sd">or from a shapefile that has been read in with geopandas.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">decimal</span> <span class="kn">import</span> <span class="n">Decimal</span><span class="p">,</span> <span class="n">getcontext</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">getcontext</span><span class="p">()</span><span class="o">.</span><span class="n">prec</span> <span class="o">=</span> <span class="mi">5</span>  <span class="c1"># Assuming we won&#39;t need higher than this!</span>
+
+
+<div class="viewcode-block" id="GeoBoundingBox"><a class="viewcode-back" href="../../../api.html#aatoolbox.GeoBoundingBox">[docs]</a><span class="k">class</span> <span class="nc">GeoBoundingBox</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Create an object containing the bounds of an area.</span>
+
+<span class="sd">    Standard geographic coordinate system is used where latitude runs</span>
+<span class="sd">    from -90 to 90 degrees, and latitude from -180 to 180.</span>
+<span class="sd">    North must always be greater than south, and east greater</span>
+<span class="sd">    than west.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    lat_max : float</span>
+<span class="sd">        The northern latitude boundary of the area (degrees).</span>
+<span class="sd">        The value must be between -90 and 90, and greater than or equal to the</span>
+<span class="sd">        southern boundary.</span>
+<span class="sd">    lat_min : float</span>
+<span class="sd">        The southern latitude boundary of the area (degrees).</span>
+<span class="sd">        The value must be between -90 and 90, and less than or equal to the</span>
+<span class="sd">        northern boundary.</span>
+<span class="sd">    lon_max : float</span>
+<span class="sd">        The easternmost longitude boundary of the area (degrees).</span>
+<span class="sd">        The value must be between -180 and 180, and greater than or equal to</span>
+<span class="sd">        the western boundary.</span>
+<span class="sd">    lon_min : float</span>
+<span class="sd">        The westernmost longitude boundary of the area (degrees).</span>
+<span class="sd">        The value must be between -180 and 180, and less than or equal to the</span>
+<span class="sd">        eastern boundary.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">lat_max</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lat_min</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lon_max</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lon_min</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lat_max</span> <span class="o">=</span> <span class="n">lat_max</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lat_min</span> <span class="o">=</span> <span class="n">lat_min</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lon_max</span> <span class="o">=</span> <span class="n">lon_max</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lon_min</span> <span class="o">=</span> <span class="n">lon_min</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lat_max</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get the northern latitude boundary of the area (degrees).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lat_max</span><span class="p">)</span>
+
+    <span class="nd">@lat_max</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">lat_max</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lat_max</span><span class="p">):</span>
+        <span class="n">_check_latitude</span><span class="p">(</span><span class="n">lat_max</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lat_max</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="n">lat_max</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lat_min</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get the southern latitude boundary of the area (degrees).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lat_min</span><span class="p">)</span>
+
+    <span class="nd">@lat_min</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">lat_min</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lat_min</span><span class="p">):</span>
+        <span class="n">_check_latitude</span><span class="p">(</span><span class="n">lat_min</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">lat_min</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lat_max</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                <span class="s2">&quot;The maximum latitude must be greater than or equal to&quot;</span>
+                <span class="s2">&quot;the minimum latitude&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lat_min</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="n">lat_min</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lon_max</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get the eastern longitude boundary of the area (degrees).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lon_max</span><span class="p">)</span>
+
+    <span class="nd">@lon_max</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">lon_max</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lon_max</span><span class="p">):</span>
+        <span class="n">_check_longitude</span><span class="p">(</span><span class="n">lon_max</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lon_max</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="n">lon_max</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lon_min</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get the western longitude boundary of the area (degrees).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lon_min</span><span class="p">)</span>
+
+    <span class="nd">@lon_min</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">lon_min</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lon_min</span><span class="p">):</span>
+        <span class="n">_check_longitude</span><span class="p">(</span><span class="n">lon_min</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">lon_min</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lon_max</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                <span class="s2">&quot;The maximum longitude must be greater than or equal to &quot;</span>
+                <span class="s2">&quot;the minimum longitude&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lon_min</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="n">lon_min</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Print bounding box string.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;N: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">lat_max</span><span class="si">}</span><span class="se">\n</span><span class="s2">S: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">lat_min</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;E: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">lon_max</span><span class="si">}</span><span class="se">\n</span><span class="s2">W: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">lon_min</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="GeoBoundingBox.from_shape"><a class="viewcode-back" href="../../../api.html#aatoolbox.GeoBoundingBox.from_shape">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_shape</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">shape</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">gpd</span><span class="o">.</span><span class="n">GeoSeries</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;GeoBoundingBox&quot;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create ``GeoBoundingBox`` from a geopandas object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        shape : geopandas.GeoSeries, geopandas.GeoDataFrame</span>
+<span class="sd">            A shape whose bounds will be retrieved</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ``GeoBoundingBox`` from the total bounds of the ``GeoDataFrame``</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; import geopandas as gpd</span>
+<span class="sd">        &gt;&gt;&gt; df_admin_boundaries = gpd.read_file(&quot;admin0_boundaries.gpkg&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; geobb = GeoBoundingBox.from_shape(df_admin_boundaries)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">lat_max</span><span class="o">=</span><span class="n">shape</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span>
+            <span class="n">lat_min</span><span class="o">=</span><span class="n">shape</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="n">lon_max</span><span class="o">=</span><span class="n">shape</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+            <span class="n">lon_min</span><span class="o">=</span><span class="n">shape</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="GeoBoundingBox.round_coords"><a class="viewcode-back" href="../../../api.html#aatoolbox.GeoBoundingBox.round_coords">[docs]</a>    <span class="k">def</span> <span class="nf">round_coords</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">offset_val</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">round_val</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;GeoBoundingBox&quot;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Round the bounding box coordinates.</span>
+
+<span class="sd">        Rounding is always done outside the original bounding box,</span>
+<span class="sd">        i.e. the resulting bounding box is always equal or larger</span>
+<span class="sd">        than the original bounding box. Rounding can only be done once</span>
+<span class="sd">        per instance.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        offset_val : float, default = 0.0</span>
+<span class="sd">            Offset the coordinates by this factor.</span>
+<span class="sd">        round_val : int or float, default = 1</span>
+<span class="sd">            Rounds to the nearest round_val. Can be an int for integer</span>
+<span class="sd">            rounding or float for decimal rounding. If 1, round to integers.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ``GeoBoundingBox`` instance with rounded and offset coordinates</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: add examples above</span>
+        <span class="n">new_coords</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">direction</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;lat_max&quot;</span><span class="p">,</span> <span class="s2">&quot;lon_min&quot;</span><span class="p">,</span> <span class="s2">&quot;lat_min&quot;</span><span class="p">,</span> <span class="s2">&quot;lon_max&quot;</span><span class="p">]:</span>
+            <span class="n">coord</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">direction</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">direction</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;lat_max&quot;</span><span class="p">,</span> <span class="s2">&quot;lon_max&quot;</span><span class="p">):</span>
+                <span class="n">function</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="o">.</span><span class="fm">__call__</span>  <span class="c1"># needed for mypy</span>
+                <span class="n">offset_factor</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">direction</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;lat_min&quot;</span><span class="p">,</span> <span class="s2">&quot;lon_min&quot;</span><span class="p">):</span>
+                <span class="n">function</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="o">.</span><span class="fm">__call__</span>  <span class="c1"># needed for mypy</span>
+                <span class="n">offset_factor</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">rounded_coord</span> <span class="o">=</span> <span class="n">function</span><span class="p">(</span><span class="n">coord</span> <span class="o">/</span> <span class="n">Decimal</span><span class="p">(</span><span class="n">round_val</span><span class="p">))</span> <span class="o">*</span> <span class="n">Decimal</span><span class="p">(</span>
+                <span class="n">round_val</span>
+            <span class="p">)</span> <span class="o">+</span> <span class="n">offset_factor</span> <span class="o">*</span> <span class="n">Decimal</span><span class="p">(</span><span class="n">offset_val</span><span class="p">)</span>
+            <span class="n">new_coords</span><span class="p">[</span><span class="n">direction</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">rounded_coord</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">GeoBoundingBox</span><span class="p">(</span><span class="o">**</span><span class="n">new_coords</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GeoBoundingBox.get_filename_repr"><a class="viewcode-back" href="../../../api.html#aatoolbox.GeoBoundingBox.get_filename_repr">[docs]</a>    <span class="k">def</span> <span class="nf">get_filename_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get succinct boundary representation for usage in filenames.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        p : int, default = 0</span>
+<span class="sd">            Precision, i.e. number of decimal places to round to. Default is</span>
+<span class="sd">            0 for ints.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        String containing N, S, E and W coordinates.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">_str_format</span><span class="p">(</span><span class="n">coord</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Add m indicating minus value and p indicating positive value.&quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="n">coord</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;m</span><span class="si">{</span><span class="nb">abs</span><span class="p">(</span><span class="n">coord</span><span class="p">)</span><span class="si">:</span><span class="s2">.</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">f</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;p</span><span class="si">{</span><span class="n">coord</span><span class="si">:</span><span class="s2">.</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">f</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;N</span><span class="si">{</span><span class="n">_str_format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lat_max</span><span class="p">)</span><span class="si">}</span><span class="s2">S</span><span class="si">{</span><span class="n">_str_format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lat_min</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;E</span><span class="si">{</span><span class="n">_str_format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lon_max</span><span class="p">)</span><span class="si">}</span><span class="s2">W</span><span class="si">{</span><span class="n">_str_format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lon_min</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="c1"># replace the decimal dot with a d for a better filename</span>
+            <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;d&quot;</span><span class="p">)</span>
+        <span class="p">)</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_check_latitude</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="o">-</span><span class="mi">90</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">90</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Latitude must range from -90 to 90 degrees&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_check_longitude</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="o">-</span><span class="mi">180</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">180</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Longitude must range from -180 to 180 degrees&quot;</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Centre for Humanitarian Data Predictive Analytics Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+</body>
+</html>

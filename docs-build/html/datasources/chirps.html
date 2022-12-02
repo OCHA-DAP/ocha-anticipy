@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CHIRPS &mdash; aatoolbox  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="COD AB" href="codab.html" />
+    <link rel="prev" title="Data Sources" href="../datasources.html" />
+</head>
+
+<body class="wy-body-for-nav">
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> aatoolbox
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../config.html">Country Configuration</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../datasources.html">Data Sources</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">CHIRPS</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#background">Background</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#usage">Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="codab.html">COD AB</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fewsnet.html">FEWS NET</a></li>
+<li class="toctree-l2"><a class="reference internal" href="glofas.html">GloFAS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iri_seasonal_forecast.html">IRI Seasonal Forecast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usgs_ndvi.html">NDVI (USGS eMODIS)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../utilities.html">Utilities</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">AA Toolbox API</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">aatoolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../datasources.html">Data Sources</a></li>
+      <li class="breadcrumb-item active">CHIRPS</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/datasources/chirps.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+
+  <section id="chirps">
+<h1>CHIRPS<a class="headerlink" href="#chirps" title="Permalink to this heading"></a></h1>
+<section id="background">
+<h2>Background<a class="headerlink" href="#background" title="Permalink to this heading"></a></h2>
+<p>The Climate Hazards Center at UC Santa Barbara (<a class="reference external" href="https://www.chc.ucsb.edu/">CHC</a>),
+in collaboration with scientists at the USGS Earth Resources Observation and Science
+(<a class="reference external" href="https://www.usgs.gov/centers/eros">EROS</a>) Center, created the Climate Hazards group
+Infrared Precipitation with Stations (<a class="reference external" href="https://www.chc.ucsb.edu/data/chirps">CHIRPS</a>)
+environmental record.</p>
+<p>CHIRPS is a quasi-global (50°S-50°N), high resolution (0.05°), daily, pentadal,
+and monthly precipitation dataset, ranging from 1981 to near-present. It incorporates
+CHPclim (CHC in-house climatology), 0.05° resolution satellite imagery, and in-situ station
+data to create gridded rainfall time series for trend analysis and seasonal drought
+monitoring. More information are available <a class="reference external" href="https://www.nature.com/articles/sdata201566">here</a>.</p>
+<p>Through the AA toolbox, it is possible to have access to daily and monthly data.</p>
+<p>The data is downloaded from <a class="reference external" href="http://iridl.ldeo.columbia.edu/SOURCES/.UCSB/.CHIRPS/.v2p0">IRI’s maproom</a> as the platform allows
+for the selection of geographical areas, and the delay in the upload
+of the data between CHC servers and IRI servers is less than one day.
+The data for a certain month is usually available two-three weeks after the end
+of the month.</p>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading"></a></h2>
+<p>In order to access CHIRPS data, you first need to create a country
+configuration for the country you would like to get data for. In this example
+we will use Burkina Faso, which corresponds to the ISO3 code “bfa”:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">aatoolbox</span> <span class="kn">import</span> <span class="n">create_country_config</span>
+<span class="n">country_config</span> <span class="o">=</span> <span class="n">create_country_config</span><span class="p">(</span><span class="n">iso3</span><span class="o">=</span><span class="s2">&quot;bfa&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Another required input is the geographic area of interest. A simple
+way to identify the area around the chosen country is to use the COD
+administrative boundaries. As a first step, you need to download them:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">aatoolbox</span> <span class="kn">import</span> <span class="n">CodAB</span>
+<span class="n">codab</span> <span class="o">=</span> <span class="n">CodAB</span><span class="p">(</span><span class="n">country_config</span><span class="o">=</span><span class="n">country_config</span><span class="p">)</span>
+<span class="n">codab</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+<span class="n">admin0</span> <span class="o">=</span> <span class="n">codab</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">admin_level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Next, an instance of the class GeoBoundingBox needs to be created:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">aatoolbox</span> <span class="kn">import</span> <span class="n">GeoBoundingBox</span>
+<span class="n">geo_bounding_box</span> <span class="o">=</span> <span class="n">GeoBoundingBox</span><span class="o">.</span><span class="n">from_shape</span><span class="p">(</span><span class="n">admin0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can then choose start and end date of the dataset to be considered in your
+analysis, by specifying both of them as <cite>datetime.date</cite> objects.
+Both parameters are optional: if not specified, the start and end
+date will be respectively set to 1981-1-1 and the most recent date for which
+the data is available on the server.</p>
+<p>You can make use of the Chirps classes: two classes are
+available, one to retrieve daily data and one to retrieve monthly data. Daily
+data are available with two spatial resolutions (0.05 and 0.25 degrees),
+whereas monthly data can be obtained only with a 0.05-degree resolution.</p>
+<p>In the following example, monthly data ranging from February 2001 to March
+2006 is downloaded.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">aatoolbox</span> <span class="kn">import</span> <span class="n">ChirpsMonthly</span>
+
+<span class="n">start_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="mi">2001</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">end_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="mi">2006</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="mi">31</span><span class="p">)</span>
+
+<span class="n">chirps_monthly</span> <span class="o">=</span> <span class="n">ChirpsMonthly</span><span class="p">(</span>
+    <span class="n">country_config</span><span class="o">=</span><span class="n">country_config</span><span class="p">,</span>
+    <span class="n">geo_bounding_box</span><span class="o">=</span><span class="n">geo_bounding_box</span><span class="p">,</span>
+    <span class="n">start_date</span><span class="o">=</span><span class="n">start_date</span><span class="p">,</span>
+    <span class="n">end_date</span><span class="o">=</span><span class="n">end_date</span>
+    <span class="p">)</span>
+
+<span class="n">chirps_monthly</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Similarly, the code snippet below allows to download daily CHIRPS data with
+0.25 degrees resolution and ranging from October 23, 2007 to the most recent
+available data:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">aatoolbox</span> <span class="kn">import</span> <span class="n">ChirpsDaily</span>
+
+<span class="n">start_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="mi">2007</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="mi">23</span><span class="p">)</span>
+
+<span class="n">chirps_daily</span> <span class="o">=</span> <span class="n">ChirpsDaily</span><span class="p">(</span>
+    <span class="n">country_config</span><span class="o">=</span><span class="n">country_config</span><span class="p">,</span>
+    <span class="n">geo_bounding_box</span><span class="o">=</span><span class="n">geo_bounding_box</span><span class="p">,</span>
+    <span class="n">start_date</span><span class="o">=</span><span class="n">start_date</span>
+    <span class="p">)</span>
+
+<span class="n">chirps_daily</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>After having downloaded the datasets, a processing step is needed before
+being able to use them.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">chirps_monthly</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+<span class="n">chirps_daily</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Finally, the data can be loaded as an <code class="docutils literal notranslate"><span class="pre">xarray</span></code> dataset, which is the result
+of the merging of all processed datasets, with fixed time resolution and
+location. Below are two examples of the use of the <code class="docutils literal notranslate"><span class="pre">load</span></code> method,
+respectively for monthly and daily data.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">chirps_monthly_data</span> <span class="o">=</span> <span class="n">chirps_monthly</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+<span class="n">chirps_daily_data</span> <span class="o">=</span> <span class="n">chirps_daily</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../datasources.html" class="btn btn-neutral float-left" title="Data Sources" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="codab.html" class="btn btn-neutral float-right" title="COD AB" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Centre for Humanitarian Data Predictive Analytics Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aatoolbox.datasources.usgs.ndvi_products &mdash; AA Toolbox  documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+</head>
+
+<body class="wy-body-for-nav">
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> AA Toolbox
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../config.html">Country Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../datasources.html">Data Sources</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api.html">AA Toolbox API</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">AA Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+      <li>aatoolbox.datasources.usgs.ndvi_products</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+
+  <h1>Source code for aatoolbox.datasources.usgs.ndvi_products</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Classes to download and process USGS FEWS NET NDVI data.</span>
+
+<span class="sd">Download, process, and load NDVI data published</span>
+<span class="sd">in the `USGS FEWS NET data portal</span>
+<span class="sd">&lt;https://earlywarning.usgs.gov/fews&gt;`_. Classes available</span>
+<span class="sd">to process temporally smoothed NDVI values, percent of</span>
+<span class="sd">median values, difference to median values, and difference</span>
+<span class="sd">from current value to the previous year&#39;s value.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># TODO: add progress bar</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span> <span class="nn">aatoolbox.config.countryconfig</span> <span class="kn">import</span> <span class="n">CountryConfig</span>
+<span class="kn">from</span> <span class="nn">aatoolbox.datasources.usgs.ndvi_base</span> <span class="kn">import</span> <span class="n">_UsgsNdvi</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="UsgsNdviSmoothed"><a class="viewcode-back" href="../../../../api.html#aatoolbox.UsgsNdviSmoothed">[docs]</a><span class="k">class</span> <span class="nc">UsgsNdviSmoothed</span><span class="p">(</span><span class="n">_UsgsNdvi</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class to retrieve smoothed NDVI data.</span>
+
+<span class="sd">    The retrieved data is the smoothed NDVI values</span>
+<span class="sd">    processed by the USGS. Temporal smoothing is done</span>
+<span class="sd">    to adjust for cloud cover and other errors.</span>
+<span class="sd">    Data for the 3 most recent dekads is not fully</span>
+<span class="sd">    smoothed, and are re-smoothed at the end of the</span>
+<span class="sd">    3 dekad period.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    country_config : CountryConfig</span>
+<span class="sd">        Country configuration</span>
+<span class="sd">    start_date : _DATE_TYPE, default = None</span>
+<span class="sd">        Start date. Can be passed as a ``datetime.date``</span>
+<span class="sd">        object or a data string in ISO8601 format, and</span>
+<span class="sd">        the relevant dekad will be determined. Or pass</span>
+<span class="sd">        directly as year-dekad tuple, e.g. (2020, 1).</span>
+<span class="sd">        If ``None``, ``start_date`` is set to earliest</span>
+<span class="sd">        date with data: 2002, dekad 19.</span>
+<span class="sd">    end_date : _DATE_TYPE, default = None</span>
+<span class="sd">        End date. Can be passed as a ``datetime.date``</span>
+<span class="sd">        object and the relevant dekad will be determined,</span>
+<span class="sd">        as a date string in ISO8601 format, or as a</span>
+<span class="sd">        year-dekad tuple, i.e. (2020, 1). If ``None``,</span>
+<span class="sd">        ``end_date`` is set to ``date.today()``.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from aatoolbox import create_country_config, \</span>
+<span class="sd">    ...  CodAB, UsgsNdviSmoothed</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # Retrieve admin 2 boundaries for Burkina Faso</span>
+<span class="sd">    &gt;&gt;&gt; country_config = create_country_config(iso3=&quot;bfa&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; codab = CodAB(country_config=country_config)</span>
+<span class="sd">    &gt;&gt;&gt; bfa_admin2 = codab.load(admin_level=2)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # setup NDVI</span>
+<span class="sd">    &gt;&gt;&gt; bfa_ndvi = UsgsNdviSmoothed(</span>
+<span class="sd">    ...     country_config=country_config,</span>
+<span class="sd">    ...     start_date=[2020, 1],</span>
+<span class="sd">    ...     end_date=[2020, 3]</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; bfa_ndvi.download()</span>
+<span class="sd">    &gt;&gt;&gt; bfa_ndvi.process(</span>
+<span class="sd">    ...     gdf=bfa_admin2,</span>
+<span class="sd">    ...     feature_col=&quot;ADM2_FR&quot;</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # load in processed data</span>
+<span class="sd">    &gt;&gt;&gt; df = bfa_ndvi.load(feature_col=&quot;ADM2_FR&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">country_config</span><span class="p">:</span> <span class="n">CountryConfig</span><span class="p">,</span>
+        <span class="n">start_date</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">date</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">end_date</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">date</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">country_config</span><span class="o">=</span><span class="n">country_config</span><span class="p">,</span>
+            <span class="n">data_variable</span><span class="o">=</span><span class="s2">&quot;smoothed&quot;</span><span class="p">,</span>
+            <span class="n">data_variable_suffix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="n">data_variable_url</span><span class="o">=</span><span class="s2">&quot;temporallysmoothedndvi&quot;</span><span class="p">,</span>
+            <span class="n">start_date</span><span class="o">=</span><span class="n">start_date</span><span class="p">,</span>
+            <span class="n">end_date</span><span class="o">=</span><span class="n">end_date</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="UsgsNdviPctMedian"><a class="viewcode-back" href="../../../../api.html#aatoolbox.UsgsNdviPctMedian">[docs]</a><span class="k">class</span> <span class="nc">UsgsNdviPctMedian</span><span class="p">(</span><span class="n">_UsgsNdvi</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class to retrieve % of median NDVI.</span>
+
+<span class="sd">    The retrieved data is the percent of median NDVI</span>
+<span class="sd">    values calculated from 2003 - 2017, as</span>
+<span class="sd">    processed by the USGS.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    country_config : CountryConfig</span>
+<span class="sd">        Country configuration</span>
+<span class="sd">    start_date : _DATE_TYPE, default = None</span>
+<span class="sd">        Start date. Can be passed as a ``datetime.date``</span>
+<span class="sd">        object or a data string in ISO8601 format, and</span>
+<span class="sd">        the relevant dekad will be determined. Or pass</span>
+<span class="sd">        directly as year-dekad tuple, e.g. (2020, 1).</span>
+<span class="sd">        If ``None``, ``start_date`` is set to earliest</span>
+<span class="sd">        date with data: 2002, dekad 19.</span>
+<span class="sd">    end_date : _DATE_TYPE, default = None</span>
+<span class="sd">        End date. Can be passed as a ``datetime.date``</span>
+<span class="sd">        object and the relevant dekad will be determined,</span>
+<span class="sd">        as a date string in ISO8601 format, or as a</span>
+<span class="sd">        year-dekad tuple, i.e. (2020, 1). If ``None``,</span>
+<span class="sd">        ``end_date`` is set to ``date.today()``.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from aatoolbox import create_country_config, \</span>
+<span class="sd">    ...  CodAB, UsgsNdviPctMedian</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # Retrieve admin 2 boundaries for Burkina Faso</span>
+<span class="sd">    &gt;&gt;&gt; country_config = create_country_config(iso3=&quot;bfa&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; codab = CodAB(country_config=country_config)</span>
+<span class="sd">    &gt;&gt;&gt; bfa_admin2 = codab.load(admin_level=2)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # setup NDVI</span>
+<span class="sd">    &gt;&gt;&gt; bfa_ndvi = UsgsNdviPctMedian(</span>
+<span class="sd">    ...     country_config=country_config,</span>
+<span class="sd">    ...     start_date=[2020, 1],</span>
+<span class="sd">    ...     end_date=[2020, 3]</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; bfa_ndvi.download()</span>
+<span class="sd">    &gt;&gt;&gt; bfa_ndvi.process(</span>
+<span class="sd">    ...     gdf=bfa_admin2,</span>
+<span class="sd">    ...     feature_col=&quot;ADM2_FR&quot;</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # load in processed data</span>
+<span class="sd">    &gt;&gt;&gt; df = bfa_ndvi.load(feature_col=&quot;ADM2_FR&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">country_config</span><span class="p">:</span> <span class="n">CountryConfig</span><span class="p">,</span>
+        <span class="n">start_date</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">date</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">end_date</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">date</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">country_config</span><span class="o">=</span><span class="n">country_config</span><span class="p">,</span>
+            <span class="n">data_variable</span><span class="o">=</span><span class="s2">&quot;percent_median&quot;</span><span class="p">,</span>
+            <span class="n">data_variable_suffix</span><span class="o">=</span><span class="s2">&quot;pct&quot;</span><span class="p">,</span>
+            <span class="n">data_variable_url</span><span class="o">=</span><span class="s2">&quot;percentofmedian&quot;</span><span class="p">,</span>
+            <span class="n">start_date</span><span class="o">=</span><span class="n">start_date</span><span class="p">,</span>
+            <span class="n">end_date</span><span class="o">=</span><span class="n">end_date</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="UsgsNdviMedianAnomaly"><a class="viewcode-back" href="../../../../api.html#aatoolbox.UsgsNdviMedianAnomaly">[docs]</a><span class="k">class</span> <span class="nc">UsgsNdviMedianAnomaly</span><span class="p">(</span><span class="n">_UsgsNdvi</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class to retrieve NDVI anomaly data.</span>
+
+<span class="sd">    The retrieved data is NDVI anomaly data calculated</span>
+<span class="sd">    as a subtraction of the median value, based on data</span>
+<span class="sd">    from 2003 - 2017, from the</span>
+<span class="sd">    current value. Negative values indicate less</span>
+<span class="sd">    vegetation than the median, positive values indicate</span>
+<span class="sd">    more vegetation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    country_config : CountryConfig</span>
+<span class="sd">        Country configuration</span>
+<span class="sd">    start_date : _DATE_TYPE, default = None</span>
+<span class="sd">        Start date. Can be passed as a ``datetime.date``</span>
+<span class="sd">        object or a data string in ISO8601 format, and</span>
+<span class="sd">        the relevant dekad will be determined. Or pass</span>
+<span class="sd">        directly as year-dekad tuple, e.g. (2020, 1).</span>
+<span class="sd">        If ``None``, ``start_date`` is set to earliest</span>
+<span class="sd">        date with data: 2002, dekad 19.</span>
+<span class="sd">    end_date : _DATE_TYPE, default = None</span>
+<span class="sd">        End date. Can be passed as a ``datetime.date``</span>
+<span class="sd">        object and the relevant dekad will be determined,</span>
+<span class="sd">        as a date string in ISO8601 format, or as a</span>
+<span class="sd">        year-dekad tuple, i.e. (2020, 1). If ``None``,</span>
+<span class="sd">        ``end_date`` is set to ``date.today()``.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from aatoolbox import create_country_config, \</span>
+<span class="sd">    ...  CodAB, UsgsNdviMedianAnomaly</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # Retrieve admin 2 boundaries for Burkina Faso</span>
+<span class="sd">    &gt;&gt;&gt; country_config = create_country_config(iso3=&quot;bfa&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; codab = CodAB(country_config=country_config)</span>
+<span class="sd">    &gt;&gt;&gt; bfa_admin2 = codab.load(admin_level=2)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # setup NDVI</span>
+<span class="sd">    &gt;&gt;&gt; bfa_ndvi = UsgsNdviMedianAnomaly(</span>
+<span class="sd">    ...     country_config=country_config,</span>
+<span class="sd">    ...     start_date=[2020, 1],</span>
+<span class="sd">    ...     end_date=[2020, 3]</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; bfa_ndvi.download()</span>
+<span class="sd">    &gt;&gt;&gt; bfa_ndvi.process(</span>
+<span class="sd">    ...     gdf=bfa_admin2,</span>
+<span class="sd">    ...     feature_col=&quot;ADM2_FR&quot;</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # load in processed data</span>
+<span class="sd">    &gt;&gt;&gt; df = bfa_ndvi.load(feature_col=&quot;ADM2_FR&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">country_config</span><span class="p">:</span> <span class="n">CountryConfig</span><span class="p">,</span>
+        <span class="n">start_date</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">date</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">end_date</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">date</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">country_config</span><span class="o">=</span><span class="n">country_config</span><span class="p">,</span>
+            <span class="n">data_variable</span><span class="o">=</span><span class="s2">&quot;median_anomaly&quot;</span><span class="p">,</span>
+            <span class="n">data_variable_suffix</span><span class="o">=</span><span class="s2">&quot;stmdn&quot;</span><span class="p">,</span>
+            <span class="n">data_variable_url</span><span class="o">=</span><span class="s2">&quot;mediananomaly&quot;</span><span class="p">,</span>
+            <span class="n">start_date</span><span class="o">=</span><span class="n">start_date</span><span class="p">,</span>
+            <span class="n">end_date</span><span class="o">=</span><span class="n">end_date</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="UsgsNdviYearDifference"><a class="viewcode-back" href="../../../../api.html#aatoolbox.UsgsNdviYearDifference">[docs]</a><span class="k">class</span> <span class="nc">UsgsNdviYearDifference</span><span class="p">(</span><span class="n">_UsgsNdvi</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class to retrieve NDVI year difference data.</span>
+
+<span class="sd">    The retrieved data is NDVI yearly difference data,</span>
+<span class="sd">    calculated as the subtraction of the previous year&#39;s</span>
+<span class="sd">    NDVI value from the current year&#39;s. Negative</span>
+<span class="sd">    values indicate the current vegetation is less</span>
+<span class="sd">    than the previous year&#39;s, positive that there</span>
+<span class="sd">    is more vegetation in the current year.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    country_config : CountryConfig</span>
+<span class="sd">        Country configuration</span>
+<span class="sd">    start_date : _DATE_TYPE, default = None</span>
+<span class="sd">        Start date. Can be passed as a ``datetime.date``</span>
+<span class="sd">        object or a data string in ISO8601 format, and</span>
+<span class="sd">        the relevant dekad will be determined. Or pass</span>
+<span class="sd">        directly as year-dekad tuple, e.g. (2020, 1).</span>
+<span class="sd">        If ``None``, ``start_date`` is set to earliest</span>
+<span class="sd">        date with data: 2002, dekad 19.</span>
+<span class="sd">    end_date : _DATE_TYPE, default = None</span>
+<span class="sd">        End date. Can be passed as a ``datetime.date``</span>
+<span class="sd">        object and the relevant dekad will be determined,</span>
+<span class="sd">        as a date string in ISO8601 format, or as a</span>
+<span class="sd">        year-dekad tuple, i.e. (2020, 1). If ``None``,</span>
+<span class="sd">        ``end_date`` is set to ``date.today()``.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from aatoolbox import create_country_config, \</span>
+<span class="sd">    ...  CodAB, UsgsNdviDifference</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # Retrieve admin 2 boundaries for Burkina Faso</span>
+<span class="sd">    &gt;&gt;&gt; country_config = create_country_config(iso3=&quot;bfa&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; codab = CodAB(country_config=country_config)</span>
+<span class="sd">    &gt;&gt;&gt; bfa_admin2 = codab.load(admin_level=2)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # setup NDVI</span>
+<span class="sd">    &gt;&gt;&gt; bfa_ndvi = UsgsNdviDifference(</span>
+<span class="sd">    ...     country_config=country_config,</span>
+<span class="sd">    ...     start_date=[2020, 1],</span>
+<span class="sd">    ...     end_date=[2020, 3]</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; bfa_ndvi.download()</span>
+<span class="sd">    &gt;&gt;&gt; bfa_ndvi.process(</span>
+<span class="sd">    ...     gdf=bfa_admin2,</span>
+<span class="sd">    ...     feature_col=&quot;ADM2_FR&quot;</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # load in processed data</span>
+<span class="sd">    &gt;&gt;&gt; df = bfa_ndvi.load(feature_col=&quot;ADM2_FR&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">country_config</span><span class="p">:</span> <span class="n">CountryConfig</span><span class="p">,</span>
+        <span class="n">start_date</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">date</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">end_date</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">date</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">country_config</span><span class="o">=</span><span class="n">country_config</span><span class="p">,</span>
+            <span class="n">data_variable</span><span class="o">=</span><span class="s2">&quot;difference&quot;</span><span class="p">,</span>
+            <span class="n">data_variable_suffix</span><span class="o">=</span><span class="s2">&quot;dif&quot;</span><span class="p">,</span>
+            <span class="n">data_variable_url</span><span class="o">=</span><span class="s2">&quot;differencepreviousyear&quot;</span><span class="p">,</span>
+            <span class="n">start_date</span><span class="o">=</span><span class="n">start_date</span><span class="p">,</span>
+            <span class="n">end_date</span><span class="o">=</span><span class="n">end_date</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Centre for Humanitarian Data Predictive Analytics Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aatoolbox.config package &mdash; aatoolbox  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+</head>
+
+<body class="wy-body-for-nav">
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> aatoolbox
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config.html">Country Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasources.html">Data Sources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html">Utilities</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">AA Toolbox API</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">aatoolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">aatoolbox.config package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/aatoolbox.config.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+
+  <section id="aatoolbox-config-package">
+<h1>aatoolbox.config package<a class="headerlink" href="#aatoolbox-config-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-aatoolbox.config.countryconfig">
+<span id="aatoolbox-config-countryconfig-module"></span><h2>aatoolbox.config.countryconfig module<a class="headerlink" href="#module-aatoolbox.config.countryconfig" title="Permalink to this heading"></a></h2>
+<p>Country configuration setting base class.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="aatoolbox.config.countryconfig.CodABConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aatoolbox.config.countryconfig.</span></span><span class="sig-name descname"><span class="pre">CodABConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hdx_dataset_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_base_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">admin_level_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_layer_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aatoolbox/config/countryconfig.html#CodABConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.config.countryconfig.CodABConfig" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>COD AB configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hdx_dataset_name</strong> (<em>str</em>) – COD AB dataset name on HDX. Can be found by taking the filename as it
+appears on the dataset page.</p></li>
+<li><p><strong>layer_base_name</strong> (<em>str</em>) – The base name of the different admin layers, that presumably only
+change by a single custom_layer_number depending on the level. Should
+contain {admin_level} in place of the custom_layer_number.</p></li>
+<li><p><strong>admin_level_max</strong> (<em>int</em>) – The maximum admin level available in the shapefile.</p></li>
+<li><p><strong>custom_layer_names</strong> (<em>list</em><em>, </em><em>optional</em>) – Any additional layer names that don’t fit into the admin level paradigm</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aatoolbox.config.countryconfig.CodABConfig.admin_level_max">
+<span class="sig-name descname"><span class="pre">admin_level_max</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#aatoolbox.config.countryconfig.CodABConfig.admin_level_max" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aatoolbox.config.countryconfig.CodABConfig.custom_layer_names">
+<span class="sig-name descname"><span class="pre">custom_layer_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aatoolbox.config.countryconfig.CodABConfig.custom_layer_names" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aatoolbox.config.countryconfig.CodABConfig.hdx_dataset_name">
+<span class="sig-name descname"><span class="pre">hdx_dataset_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#aatoolbox.config.countryconfig.CodABConfig.hdx_dataset_name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aatoolbox.config.countryconfig.CodABConfig.layer_base_name">
+<span class="sig-name descname"><span class="pre">layer_base_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#aatoolbox.config.countryconfig.CodABConfig.layer_base_name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aatoolbox.config.countryconfig.CountryConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aatoolbox.config.countryconfig.</span></span><span class="sig-name descname"><span class="pre">CountryConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iso3</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">codab</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#aatoolbox.config.countryconfig.CodABConfig" title="aatoolbox.config.countryconfig.CodABConfig"><span class="pre">CodABConfig</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fewsnet</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#aatoolbox.config.countryconfig.FewsNetConfig" title="aatoolbox.config.countryconfig.FewsNetConfig"><span class="pre">FewsNetConfig</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">glofas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#aatoolbox.config.countryconfig.Glofas" title="aatoolbox.config.countryconfig.Glofas"><span class="pre">Glofas</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">usgs_ndvi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#aatoolbox.config.countryconfig.UsgsNdviConfig" title="aatoolbox.config.countryconfig.UsgsNdviConfig"><span class="pre">UsgsNdviConfig</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aatoolbox/config/countryconfig.html#CountryConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.config.countryconfig.CountryConfig" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>Country configuration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aatoolbox.config.countryconfig.CountryConfig.codab">
+<span class="sig-name descname"><span class="pre">codab</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#aatoolbox.config.countryconfig.CodABConfig" title="aatoolbox.config.countryconfig.CodABConfig"><span class="pre">CodABConfig</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aatoolbox.config.countryconfig.CountryConfig.codab" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aatoolbox.config.countryconfig.CountryConfig.fewsnet">
+<span class="sig-name descname"><span class="pre">fewsnet</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#aatoolbox.config.countryconfig.FewsNetConfig" title="aatoolbox.config.countryconfig.FewsNetConfig"><span class="pre">FewsNetConfig</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aatoolbox.config.countryconfig.CountryConfig.fewsnet" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aatoolbox.config.countryconfig.CountryConfig.glofas">
+<span class="sig-name descname"><span class="pre">glofas</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#aatoolbox.config.countryconfig.Glofas" title="aatoolbox.config.countryconfig.Glofas"><span class="pre">Glofas</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aatoolbox.config.countryconfig.CountryConfig.glofas" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aatoolbox.config.countryconfig.CountryConfig.iso3">
+<span class="sig-name descname"><span class="pre">iso3</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#aatoolbox.config.countryconfig.CountryConfig.iso3" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aatoolbox.config.countryconfig.CountryConfig.usgs_ndvi">
+<span class="sig-name descname"><span class="pre">usgs_ndvi</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#aatoolbox.config.countryconfig.UsgsNdviConfig" title="aatoolbox.config.countryconfig.UsgsNdviConfig"><span class="pre">UsgsNdviConfig</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aatoolbox.config.countryconfig.CountryConfig.usgs_ndvi" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aatoolbox.config.countryconfig.FewsNetConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aatoolbox.config.countryconfig.</span></span><span class="sig-name descname"><span class="pre">FewsNetConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">region_name_code_mapping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{'caribbean-central-america':</span> <span class="pre">'LAC',</span> <span class="pre">'central-asia':</span> <span class="pre">'CA',</span> <span class="pre">'east-africa':</span> <span class="pre">'EA',</span> <span class="pre">'southern-africa':</span> <span class="pre">'SA',</span> <span class="pre">'west-africa':</span> <span class="pre">'WA'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">region_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aatoolbox/config/countryconfig.html#FewsNetConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.config.countryconfig.FewsNetConfig" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>FEWS NET configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>region_name</strong> (<em>str</em>) – Name of the region the country belongs to. Needed to download the
+regional FEWS NET data</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aatoolbox.config.countryconfig.FewsNetConfig.region_name">
+<span class="sig-name descname"><span class="pre">region_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#aatoolbox.config.countryconfig.FewsNetConfig.region_name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aatoolbox.config.countryconfig.FewsNetConfig.region_name_code_mapping">
+<span class="sig-name descname"><span class="pre">region_name_code_mapping</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aatoolbox.config.countryconfig.FewsNetConfig.region_name_code_mapping" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aatoolbox.config.countryconfig.FewsNetConfig.regionname_valid">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">regionname_valid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aatoolbox/config/countryconfig.html#FewsNetConfig.regionname_valid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.config.countryconfig.FewsNetConfig.regionname_valid" title="Permalink to this definition"></a></dt>
+<dd><p>Check that regionname is one of the valid ones.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aatoolbox.config.countryconfig.Glofas">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aatoolbox.config.countryconfig.</span></span><span class="sig-name descname"><span class="pre">Glofas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reporting_points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#aatoolbox.config.countryconfig.ReportingPoints" title="aatoolbox.config.countryconfig.ReportingPoints"><span class="pre">ReportingPoints</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aatoolbox/config/countryconfig.html#Glofas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.config.countryconfig.Glofas" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>GloFAS configuration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aatoolbox.config.countryconfig.Glofas.reporting_points">
+<span class="sig-name descname"><span class="pre">reporting_points</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#aatoolbox.config.countryconfig.ReportingPoints" title="aatoolbox.config.countryconfig.ReportingPoints"><span class="pre">ReportingPoints</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aatoolbox.config.countryconfig.Glofas.reporting_points" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aatoolbox.config.countryconfig.ReportingPoints">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aatoolbox.config.countryconfig.</span></span><span class="sig-name descname"><span class="pre">ReportingPoints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aatoolbox/config/countryconfig.html#ReportingPoints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.config.countryconfig.ReportingPoints" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>Coordinates of GloFAS reporting points.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aatoolbox.config.countryconfig.ReportingPoints.lat">
+<span class="sig-name descname"><span class="pre">lat</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#aatoolbox.config.countryconfig.ReportingPoints.lat" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aatoolbox.config.countryconfig.ReportingPoints.lon">
+<span class="sig-name descname"><span class="pre">lon</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#aatoolbox.config.countryconfig.ReportingPoints.lon" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aatoolbox.config.countryconfig.ReportingPoints.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#aatoolbox.config.countryconfig.ReportingPoints.name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aatoolbox.config.countryconfig.UsgsNdviConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aatoolbox.config.countryconfig.</span></span><span class="sig-name descname"><span class="pre">UsgsNdviConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area_name_mapping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{'central-america':</span> <span class="pre">('lac/camcar/centralamerica',</span> <span class="pre">'ca'),</span> <span class="pre">'central-asia':</span> <span class="pre">('asia/centralasia',</span> <span class="pre">'cta'),</span> <span class="pre">'east-africa':</span> <span class="pre">('africa/east',</span> <span class="pre">'ea'),</span> <span class="pre">'hispaniola':</span> <span class="pre">('lac/camcar/caribbean/hispaniola',</span> <span class="pre">'hi'),</span> <span class="pre">'north-africa':</span> <span class="pre">('africa/north',</span> <span class="pre">'na'),</span> <span class="pre">'southern-africa':</span> <span class="pre">('africa/southern',</span> <span class="pre">'sa'),</span> <span class="pre">'west-africa':</span> <span class="pre">('africa/west',</span> <span class="pre">'wa'),</span> <span class="pre">'yemen':</span> <span class="pre">('asia/middleeast/yemen',</span> <span class="pre">'yem')}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aatoolbox/config/countryconfig.html#UsgsNdviConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.config.countryconfig.UsgsNdviConfig" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>USGS NDVI configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>area_name</strong> (<em>str</em>) – Name of the USGS NDVI coverage area the country belongs to.
+Needed to download the regional NDVI data.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aatoolbox.config.countryconfig.UsgsNdviConfig.area_name">
+<span class="sig-name descname"><span class="pre">area_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#aatoolbox.config.countryconfig.UsgsNdviConfig.area_name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aatoolbox.config.countryconfig.UsgsNdviConfig.area_name_mapping">
+<span class="sig-name descname"><span class="pre">area_name_mapping</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aatoolbox.config.countryconfig.UsgsNdviConfig.area_name_mapping" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aatoolbox.config.countryconfig.UsgsNdviConfig.area_name_valid">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">area_name_valid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/aatoolbox/config/countryconfig.html#UsgsNdviConfig.area_name_valid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.config.countryconfig.UsgsNdviConfig.area_name_valid" title="Permalink to this definition"></a></dt>
+<dd><p>Check that area_name is valid.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aatoolbox.config.countryconfig.create_country_config">
+<span class="sig-prename descclassname"><span class="pre">aatoolbox.config.countryconfig.</span></span><span class="sig-name descname"><span class="pre">create_country_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iso3</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#aatoolbox.config.countryconfig.CountryConfig" title="aatoolbox.config.countryconfig.CountryConfig"><span class="pre">CountryConfig</span></a></span></span><a class="reference internal" href="_modules/aatoolbox/config/countryconfig.html#create_country_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.config.countryconfig.create_country_config" title="Permalink to this definition"></a></dt>
+<dd><p>Return a country configuration object from AA Toolbox.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>iso3</strong> (<em>str</em>) – Country ISO3, must be exactly 3 letters long</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>CountryConfig instance</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aatoolbox.config.countryconfig.create_custom_country_config">
+<span class="sig-prename descclassname"><span class="pre">aatoolbox.config.countryconfig.</span></span><span class="sig-name descname"><span class="pre">create_custom_country_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#aatoolbox.config.countryconfig.CountryConfig" title="aatoolbox.config.countryconfig.CountryConfig"><span class="pre">CountryConfig</span></a></span></span><a class="reference internal" href="_modules/aatoolbox/config/countryconfig.html#create_custom_country_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.config.countryconfig.create_custom_country_config" title="Permalink to this definition"></a></dt>
+<dd><p>Return a custom country configuration object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filepath</strong> (<em>str</em><em>, </em><em>pathlib.Path</em>) – Path to the configuration file</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>CountryConfig instance</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-aatoolbox.config.pathconfig">
+<span id="aatoolbox-config-pathconfig-module"></span><h2>aatoolbox.config.pathconfig module<a class="headerlink" href="#module-aatoolbox.config.pathconfig" title="Permalink to this heading"></a></h2>
+<p>Path configuration.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="aatoolbox.config.pathconfig.PathConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aatoolbox.config.pathconfig.</span></span><span class="sig-name descname"><span class="pre">PathConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_dir_env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'AA_DATA_DIR'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">public</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'public'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">private</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'private'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'raw'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">processed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'processed'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aatoolbox/config/pathconfig.html#PathConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.config.pathconfig.PathConfig" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Global directory parameters.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aatoolbox.config.pathconfig.PathConfig.base_dir_env">
+<span class="sig-name descname"><span class="pre">base_dir_env</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'AA_DATA_DIR'</span></em><a class="headerlink" href="#aatoolbox.config.pathconfig.PathConfig.base_dir_env" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aatoolbox.config.pathconfig.PathConfig.private">
+<span class="sig-name descname"><span class="pre">private</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'private'</span></em><a class="headerlink" href="#aatoolbox.config.pathconfig.PathConfig.private" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aatoolbox.config.pathconfig.PathConfig.processed">
+<span class="sig-name descname"><span class="pre">processed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'processed'</span></em><a class="headerlink" href="#aatoolbox.config.pathconfig.PathConfig.processed" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aatoolbox.config.pathconfig.PathConfig.public">
+<span class="sig-name descname"><span class="pre">public</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'public'</span></em><a class="headerlink" href="#aatoolbox.config.pathconfig.PathConfig.public" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aatoolbox.config.pathconfig.PathConfig.raw">
+<span class="sig-name descname"><span class="pre">raw</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'raw'</span></em><a class="headerlink" href="#aatoolbox.config.pathconfig.PathConfig.raw" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-aatoolbox.config">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-aatoolbox.config" title="Permalink to this heading"></a></h2>
+<p>Run-time configuration parameters.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Centre for Humanitarian Data Predictive Analytics Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+</body>
+</html>

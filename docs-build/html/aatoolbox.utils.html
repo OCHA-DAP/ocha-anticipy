@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aatoolbox.utils package &mdash; aatoolbox  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+</head>
+
+<body class="wy-body-for-nav">
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> aatoolbox
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config.html">Country Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasources.html">Data Sources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utilities.html">Utilities</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">AA Toolbox API</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">aatoolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">aatoolbox.utils package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/aatoolbox.utils.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+
+  <section id="aatoolbox-utils-package">
+<h1>aatoolbox.utils package<a class="headerlink" href="#aatoolbox-utils-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-aatoolbox.utils.check_extra_import">
+<span id="aatoolbox-utils-check-extra-import-module"></span><h2>aatoolbox.utils.check_extra_import module<a class="headerlink" href="#module-aatoolbox.utils.check_extra_import" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="aatoolbox.utils.check_extra_import.check_extra_import">
+<span class="sig-prename descclassname"><span class="pre">aatoolbox.utils.check_extra_import.</span></span><span class="sig-name descname"><span class="pre">check_extra_import</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">library</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subpackage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aatoolbox/utils/check_extra_import.html#check_extra_import"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.utils.check_extra_import.check_extra_import" title="Permalink to this definition"></a></dt>
+<dd><p>Import library or error if not installed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>library</strong> (<em>str</em>) – String of library to import.</p></li>
+<li><p><strong>subpackage</strong> (<em>str</em>) – String of subpackage defined for extra_requires
+that import should warn to install from.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-aatoolbox.utils.check_file_existence">
+<span id="aatoolbox-utils-check-file-existence-module"></span><h2>aatoolbox.utils.check_file_existence module<a class="headerlink" href="#module-aatoolbox.utils.check_file_existence" title="Permalink to this heading"></a></h2>
+<p>Function for checking file existence.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="aatoolbox.utils.check_file_existence.check_file_existence">
+<span class="sig-prename descclassname"><span class="pre">aatoolbox.utils.check_file_existence.</span></span><span class="sig-name descname"><span class="pre">check_file_existence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wrapper=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enabled=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adapter=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proxy=&lt;class</span> <span class="pre">'FunctionWrapper'&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">F</span></span></span><a class="reference internal" href="_modules/aatoolbox/utils/check_file_existence.html#check_file_existence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.utils.check_file_existence.check_file_existence" title="Permalink to this definition"></a></dt>
+<dd><p>Don’t overwrite existing data.</p>
+<p>Avoid recreating data if it already exists and if clobber not
+toggled by user. Used to wrap functions that accept filepath
+as a keyword argument.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wrapped</strong> (<em>function</em>) – The function to wrap. The function must have “filepath” as
+a keyword parameter, and it can also have an optional
+“clobber” boolean keyword parameter.</p></li>
+<li><p><strong>instance</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="aatoolbox.datasources.html#aatoolbox.datasources.datasource.DataSource" title="aatoolbox.datasources.datasource.DataSource"><em>DataSource</em></a><em>]</em>) – Object the wrapped function is bound to. Not used within, but
+ensures that instance methods do not pass <cite>self</cite> to args.</p></li>
+<li><p><strong>args</strong> (<em>list</em>) – List of positional arguments.</p></li>
+<li><p><strong>kwargs</strong> (<em>dict</em>) – Dictionary of keyword arguments</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>If filepath exists and clobber is False, returns filepath.</em></p></li>
+<li><p><em>Otherwise, returns the result of the decorated function.</em></p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>KeyError</strong> – If <cite>filepath</cite> or <cite>clobber</cite> are not passed as kwargs.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-aatoolbox.utils.dates">
+<span id="aatoolbox-utils-dates-module"></span><h2>aatoolbox.utils.dates module<a class="headerlink" href="#module-aatoolbox.utils.dates" title="Permalink to this heading"></a></h2>
+<p>Functions for dealing with dates.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="aatoolbox.utils.dates.compare_dekads_gt">
+<span class="sig-prename descclassname"><span class="pre">aatoolbox.utils.dates.</span></span><span class="sig-name descname"><span class="pre">compare_dekads_gt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dekad1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dekad2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/aatoolbox/utils/dates.html#compare_dekads_gt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.utils.dates.compare_dekads_gt" title="Permalink to this definition"></a></dt>
+<dd><p>Is year1/dekad1 greater than year2/dekad2.</p>
+<p>Compare two pairs of years and dekads,
+that the first pair are greater than the
+second pair.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aatoolbox.utils.dates.compare_dekads_gte">
+<span class="sig-prename descclassname"><span class="pre">aatoolbox.utils.dates.</span></span><span class="sig-name descname"><span class="pre">compare_dekads_gte</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dekad1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dekad2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/aatoolbox/utils/dates.html#compare_dekads_gte"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.utils.dates.compare_dekads_gte" title="Permalink to this definition"></a></dt>
+<dd><p>Is year1/dekad1 greater than or equal to year2/dekad2.</p>
+<p>Compare two pairs of years and dekads,
+that the first pair are greater than or
+equal to the second pair.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aatoolbox.utils.dates.compare_dekads_lt">
+<span class="sig-prename descclassname"><span class="pre">aatoolbox.utils.dates.</span></span><span class="sig-name descname"><span class="pre">compare_dekads_lt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dekad1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dekad2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/aatoolbox/utils/dates.html#compare_dekads_lt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.utils.dates.compare_dekads_lt" title="Permalink to this definition"></a></dt>
+<dd><p>Is year1/dekad1 less than year2/dekad2.</p>
+<p>Compare two pairs of years and dekads,
+that the first pair are less than the
+second pair.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aatoolbox.utils.dates.compare_dekads_lte">
+<span class="sig-prename descclassname"><span class="pre">aatoolbox.utils.dates.</span></span><span class="sig-name descname"><span class="pre">compare_dekads_lte</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dekad1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dekad2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/aatoolbox/utils/dates.html#compare_dekads_lte"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.utils.dates.compare_dekads_lte" title="Permalink to this definition"></a></dt>
+<dd><p>Is year1/dekad1 less than or equal to year2/dekad2.</p>
+<p>Compare two pairs of years and dekads,
+that the first pair are less than or
+equal to the second pair.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aatoolbox.utils.dates.date_to_dekad">
+<span class="sig-prename descclassname"><span class="pre">aatoolbox.utils.dates.</span></span><span class="sig-name descname"><span class="pre">date_to_dekad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">date</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/aatoolbox/utils/dates.html#date_to_dekad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.utils.dates.date_to_dekad" title="Permalink to this definition"></a></dt>
+<dd><p>Compute dekad and year from date.</p>
+<p>Dekad computed from date. This
+is based on the
+<a class="reference external" href="http://iridl.ldeo.columbia.edu/maproom/Food_Security/Locusts/Regional/Dekadal_Rainfall/index.html">common dekadal definition</a>
+of the 1st and 2nd dekad of a month
+being the first 10 day periods, and
+the 3rd dekad being the remaining
+days within that month.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aatoolbox.utils.dates.dekad_to_date">
+<span class="sig-prename descclassname"><span class="pre">aatoolbox.utils.dates.</span></span><span class="sig-name descname"><span class="pre">dekad_to_date</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dekad</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">date</span></span></span><a class="reference internal" href="_modules/aatoolbox/utils/dates.html#dekad_to_date"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.utils.dates.dekad_to_date" title="Permalink to this definition"></a></dt>
+<dd><p>Compute date from dekad and year.</p>
+<p>Date computed from dekad and year in
+datetime object, corresponding to
+first day of the dekad. This
+is based on the
+<a class="reference external" href="http://iridl.ldeo.columbia.edu/maproom/Food_Security/Locusts/Regional/Dekadal_Rainfall/index.html">common dekadal definition</a>
+of the 1st and 2nd dekad of a month
+being the first 10 day periods, and
+the 3rd dekad being the remaining
+days within that month.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aatoolbox.utils.dates.expand_dekads">
+<span class="sig-prename descclassname"><span class="pre">aatoolbox.utils.dates.</span></span><span class="sig-name descname"><span class="pre">expand_dekads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dekad1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dekad2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/aatoolbox/utils/dates.html#expand_dekads"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.utils.dates.expand_dekads" title="Permalink to this definition"></a></dt>
+<dd><p>Expand for all years/dekads between two dates.</p>
+<p>Takes input year and dekads and returns a list
+of year/dekad lists.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aatoolbox.utils.dates.get_date_from_user_input">
+<span class="sig-prename descclassname"><span class="pre">aatoolbox.utils.dates.</span></span><span class="sig-name descname"><span class="pre">get_date_from_user_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">date</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">date</span></span></span><a class="reference internal" href="_modules/aatoolbox/utils/dates.html#get_date_from_user_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.utils.dates.get_date_from_user_input" title="Permalink to this definition"></a></dt>
+<dd><p>Return date from string or date input.</p>
+<p>Processes input data in either <code class="docutils literal notranslate"><span class="pre">datetime.date</span></code>
+format or as an ISO8601 string. Generates
+error message if different object provided.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input_date</strong> (<em>Union</em><em>[</em><em>date</em><em>, </em><em>str</em><em>]</em>) – <code class="docutils literal notranslate"><span class="pre">datetime.date</span></code> object or ISO8601 string.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">datetime.date</span></code></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>date</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aatoolbox.utils.dates.get_dekadal_date">
+<span class="sig-prename descclassname"><span class="pre">aatoolbox.utils.dates.</span></span><span class="sig-name descname"><span class="pre">get_dekadal_date</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">date</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">date</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/aatoolbox/utils/dates.html#get_dekadal_date"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.utils.dates.get_dekadal_date" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate dekadal date from general input.</p>
+<p>Processes input <code class="docutils literal notranslate"><span class="pre">input_date</span></code> and returns two
+values, the year and dekad. Input can be of
+format <code class="docutils literal notranslate"><span class="pre">datetime.date</span></code>, an ISO8601 date
+string, an already calculated <code class="docutils literal notranslate"><span class="pre">(year,</span> <span class="pre">dekad)</span></code>
+format date, or <code class="docutils literal notranslate"><span class="pre">None</span></code>. If <code class="docutils literal notranslate"><span class="pre">None</span></code>,
+<code class="docutils literal notranslate"><span class="pre">default_date</span></code> is returned. <code class="docutils literal notranslate"><span class="pre">default_date</span></code>
+can also be passed in the above formats.</p>
+</dd></dl>
+
+</section>
+<section id="module-aatoolbox.utils.geoboundingbox">
+<span id="aatoolbox-utils-geoboundingbox-module"></span><h2>aatoolbox.utils.geoboundingbox module<a class="headerlink" href="#module-aatoolbox.utils.geoboundingbox" title="Permalink to this heading"></a></h2>
+<p>Functionality to retrieve and modify boundary coordinates.</p>
+<p>It is possible to create an <code class="docutils literal notranslate"><span class="pre">GeoBoundingBox</span></code> object either from
+lat_max, lat_min, lon_max, lon_min coordinates,
+or from a shapefile that has been read in with geopandas.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="aatoolbox.utils.geoboundingbox.GeoBoundingBox">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aatoolbox.utils.geoboundingbox.</span></span><span class="sig-name descname"><span class="pre">GeoBoundingBox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lat_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aatoolbox/utils/geoboundingbox.html#GeoBoundingBox"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.utils.geoboundingbox.GeoBoundingBox" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Create an object containing the bounds of an area.</p>
+<p>Standard geographic coordinate system is used where latitude runs
+from -90 to 90 degrees, and latitude from -180 to 180.
+North must always be greater than south, and east greater
+than west.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lat_max</strong> (<em>float</em>) – The northern latitude boundary of the area (degrees).
+The value must be between -90 and 90, and greater than or equal to the
+southern boundary.</p></li>
+<li><p><strong>lat_min</strong> (<em>float</em>) – The southern latitude boundary of the area (degrees).
+The value must be between -90 and 90, and less than or equal to the
+northern boundary.</p></li>
+<li><p><strong>lon_max</strong> (<em>float</em>) – The easternmost longitude boundary of the area (degrees).
+The value must be between -180 and 180, and greater than or equal to
+the western boundary.</p></li>
+<li><p><strong>lon_min</strong> (<em>float</em>) – The westernmost longitude boundary of the area (degrees).
+The value must be between -180 and 180, and less than or equal to the
+eastern boundary.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aatoolbox.utils.geoboundingbox.GeoBoundingBox.from_shape">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">GeoSeries</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">GeoDataFrame</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#aatoolbox.utils.geoboundingbox.GeoBoundingBox" title="aatoolbox.utils.geoboundingbox.GeoBoundingBox"><span class="pre">GeoBoundingBox</span></a></span></span><a class="reference internal" href="_modules/aatoolbox/utils/geoboundingbox.html#GeoBoundingBox.from_shape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.utils.geoboundingbox.GeoBoundingBox.from_shape" title="Permalink to this definition"></a></dt>
+<dd><p>Create <code class="docutils literal notranslate"><span class="pre">GeoBoundingBox</span></code> from a geopandas object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>shape</strong> (<em>geopandas.GeoSeries</em><em>, </em><em>geopandas.GeoDataFrame</em>) – A shape whose bounds will be retrieved</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">GeoBoundingBox</span></code> from the total bounds of the <code class="docutils literal notranslate"><span class="pre">GeoDataFrame</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df_admin_boundaries</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="s2">&quot;admin0_boundaries.gpkg&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">geobb</span> <span class="o">=</span> <span class="n">GeoBoundingBox</span><span class="o">.</span><span class="n">from_shape</span><span class="p">(</span><span class="n">df_admin_boundaries</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aatoolbox.utils.geoboundingbox.GeoBoundingBox.get_filename_repr">
+<span class="sig-name descname"><span class="pre">get_filename_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/aatoolbox/utils/geoboundingbox.html#GeoBoundingBox.get_filename_repr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.utils.geoboundingbox.GeoBoundingBox.get_filename_repr" title="Permalink to this definition"></a></dt>
+<dd><p>Get succinct boundary representation for usage in filenames.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>p</strong> (<em>int</em><em>, </em><em>default = 0</em>) – Precision, i.e. number of decimal places to round to. Default is
+0 for ints.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>String containing N, S, E and W coordinates.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="aatoolbox.utils.geoboundingbox.GeoBoundingBox.lat_max">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lat_max</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#aatoolbox.utils.geoboundingbox.GeoBoundingBox.lat_max" title="Permalink to this definition"></a></dt>
+<dd><p>Get the northern latitude boundary of the area (degrees).</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="aatoolbox.utils.geoboundingbox.GeoBoundingBox.lat_min">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lat_min</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#aatoolbox.utils.geoboundingbox.GeoBoundingBox.lat_min" title="Permalink to this definition"></a></dt>
+<dd><p>Get the southern latitude boundary of the area (degrees).</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="aatoolbox.utils.geoboundingbox.GeoBoundingBox.lon_max">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lon_max</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#aatoolbox.utils.geoboundingbox.GeoBoundingBox.lon_max" title="Permalink to this definition"></a></dt>
+<dd><p>Get the eastern longitude boundary of the area (degrees).</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="aatoolbox.utils.geoboundingbox.GeoBoundingBox.lon_min">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lon_min</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#aatoolbox.utils.geoboundingbox.GeoBoundingBox.lon_min" title="Permalink to this definition"></a></dt>
+<dd><p>Get the western longitude boundary of the area (degrees).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aatoolbox.utils.geoboundingbox.GeoBoundingBox.round_coords">
+<span class="sig-name descname"><span class="pre">round_coords</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offset_val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">round_val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#aatoolbox.utils.geoboundingbox.GeoBoundingBox" title="aatoolbox.utils.geoboundingbox.GeoBoundingBox"><span class="pre">GeoBoundingBox</span></a></span></span><a class="reference internal" href="_modules/aatoolbox/utils/geoboundingbox.html#GeoBoundingBox.round_coords"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.utils.geoboundingbox.GeoBoundingBox.round_coords" title="Permalink to this definition"></a></dt>
+<dd><p>Round the bounding box coordinates.</p>
+<p>Rounding is always done outside the original bounding box,
+i.e. the resulting bounding box is always equal or larger
+than the original bounding box. Rounding can only be done once
+per instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>offset_val</strong> (<em>float</em><em>, </em><em>default = 0.0</em>) – Offset the coordinates by this factor.</p></li>
+<li><p><strong>round_val</strong> (<em>int</em><em> or </em><em>float</em><em>, </em><em>default = 1</em>) – Rounds to the nearest round_val. Can be an int for integer
+rounding or float for decimal rounding. If 1, round to integers.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">GeoBoundingBox</span></code> instance with rounded and offset coordinates</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-aatoolbox.utils.hdx_api">
+<span id="aatoolbox-utils-hdx-api-module"></span><h2>aatoolbox.utils.hdx_api module<a class="headerlink" href="#module-aatoolbox.utils.hdx_api" title="Permalink to this heading"></a></h2>
+<p>Use HDX python API to download data.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="aatoolbox.utils.hdx_api.load_dataset_from_hdx">
+<span class="sig-prename descclassname"><span class="pre">aatoolbox.utils.hdx_api.</span></span><span class="sig-name descname"><span class="pre">load_dataset_from_hdx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hdx_address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hdx_dataset_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="_modules/aatoolbox/utils/hdx_api.html#load_dataset_from_hdx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.utils.hdx_api.load_dataset_from_hdx" title="Permalink to this definition"></a></dt>
+<dd><p>Use the HDX API to download a dataset based on the address and dataset ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hdx_address</strong> (<em>str</em>) – The page where the dataset resides on on HDX. Can be found
+by taking the portion of the url after <code class="docutils literal notranslate"><span class="pre">data.humdata.org/dataset/</span></code></p></li>
+<li><p><strong>hdx_dataset_name</strong> (<em>str</em>) – Dataset name on HDX. Can be found by taking the filename as it
+appears on the dataset page.</p></li>
+<li><p><strong>output_filepath</strong> (<em>Path</em>) – Target filepath for the dataset</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>The full path of the downloaded dataset</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-aatoolbox.utils.io">
+<span id="aatoolbox-utils-io-module"></span><h2>aatoolbox.utils.io module<a class="headerlink" href="#module-aatoolbox.utils.io" title="Permalink to this heading"></a></h2>
+<p>Function for I/O.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="aatoolbox.utils.io.download_url">
+<span class="sig-prename descclassname"><span class="pre">aatoolbox.utils.io.</span></span><span class="sig-name descname"><span class="pre">download_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2048</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aatoolbox/utils/io.html#download_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.utils.io.download_url" title="Permalink to this definition"></a></dt>
+<dd><p>Download the file located at <cite>url</cite> to <cite>save_path</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>url</strong> (<em>str</em>) – url that contains the file to be downloaded</p></li>
+<li><p><strong>save_path</strong> (<em>Path</em>) – path to the location the file should be saved</p></li>
+<li><p><strong>chunk_size</strong> (<em>int</em>) – number of bytes to save at once</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aatoolbox.utils.io.parse_yaml">
+<span class="sig-prename descclassname"><span class="pre">aatoolbox.utils.io.</span></span><span class="sig-name descname"><span class="pre">parse_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/aatoolbox/utils/io.html#parse_yaml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.utils.io.parse_yaml" title="Permalink to this definition"></a></dt>
+<dd><p>Read in a yaml file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em><em>, </em><em>Path</em>) – </p></li>
+<li><p><strong>file</strong> (<em>The full filepath</em><em> of </em><em>the YAML</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>A dictionary with the YAML file contents</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aatoolbox.utils.io.unzip">
+<span class="sig-prename descclassname"><span class="pre">aatoolbox.utils.io.</span></span><span class="sig-name descname"><span class="pre">unzip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zip_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aatoolbox/utils/io.html#unzip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.utils.io.unzip" title="Permalink to this definition"></a></dt>
+<dd><p>Unzip a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>zip_file_path</strong> (<em>Path</em>) – path to the location the zip file is saved</p></li>
+<li><p><strong>save_dir</strong> (<em>Path</em>) – dir path to which the content of the zip
+file should be saved</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-aatoolbox.utils.raster">
+<span id="aatoolbox-utils-raster-module"></span><h2>aatoolbox.utils.raster module<a class="headerlink" href="#module-aatoolbox.utils.raster" title="Permalink to this heading"></a></h2>
+<p>Utilities to manipulate and analyze raster data.</p>
+<p>The raster module provides accessor utilities for xarray
+data arrays and datasets accessible using the <cite>aat</cite> accessor.
+These functions are available just by importing directly
+the library using <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">aatoolbox</span></code>.</p>
+<p>Since rioxarray already extends xarray, this
+modules extensions inherit from the RasterArray and
+RasterDataset extensions respectively. This ensures
+cleaner code in the module as <code class="docutils literal notranslate"><span class="pre">rio</span></code> methods are
+available immediately, but also means a couple of
+design decisions are followed.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">xarray.DataArray</span></code> and <code class="docutils literal notranslate"><span class="pre">xarray.Dataset</span></code>
+extensions here inherit from rioxarray base classes.
+Thus, methods that are identical for both objects
+are defined in a mixin class <code class="docutils literal notranslate"><span class="pre">AatRasterMixin</span></code> which
+can be inherited by the two respective extensions.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="aatoolbox.utils.raster.AatRasterArray">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aatoolbox.utils.raster.</span></span><span class="sig-name descname"><span class="pre">AatRasterArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xarray_object</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aatoolbox/utils/raster.html#AatRasterArray"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.utils.raster.AatRasterArray" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aatoolbox.utils.raster.AatRasterMixin" title="aatoolbox.utils.raster.AatRasterMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">AatRasterMixin</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RasterArray</span></code></p>
+<p>AA toolbox extension for xarray.DataArray.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aatoolbox.utils.raster.AatRasterArray.compute_raster_stats">
+<span class="sig-name descname"><span class="pre">compute_raster_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gdf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">GeoDataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percentile_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_touched</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/aatoolbox/utils/raster.html#AatRasterArray.compute_raster_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.utils.raster.AatRasterArray.compute_raster_stats" title="Permalink to this definition"></a></dt>
+<dd><p>Compute raster statistics for polygon geometry.</p>
+<p><code class="docutils literal notranslate"><span class="pre">compute_raster_stats()</span></code> is designed to
+quickly compute raster statistics across a polygon
+and its features.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gdf</strong> (<em>geopandas.GeoDataFrame</em>) – GeoDataFrame with row per area for stats computation.
+If <code class="docutils literal notranslate"><span class="pre">pd.DataFrame</span></code> is passed, geometry column must
+have the name <code class="docutils literal notranslate"><span class="pre">geometry</span></code>.</p></li>
+<li><p><strong>feature_col</strong> (<em>str</em>) – Column in <code class="docutils literal notranslate"><span class="pre">gdf</span></code> to use as row/feature identifier.</p></li>
+<li><p><strong>stats_list</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – List of statistics to calculate, by default None.
+Passed to <code class="docutils literal notranslate"><span class="pre">get_attr()</span></code>.</p></li>
+<li><p><strong>percentile_list</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>int</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – List of percentiles to compute, by default None.</p></li>
+<li><p><strong>all_touched</strong> (<em>bool</em><em>, </em><em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code> all cells touching the region will be
+included, by default False. If <code class="docutils literal notranslate"><span class="pre">False</span></code>, only
+cells with their centre in the region will be
+included.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dataframe with computed statistics.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">rioxarray</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">shapely.geometry</span> <span class="kn">import</span> <span class="n">Polygon</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># compute raster stats on simple data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;area_a&quot;</span><span class="p">,</span> <span class="s2">&quot;area_b&quot;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">[</span>
+<span class="gp">... </span>        <span class="n">Polygon</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]),</span>
+<span class="gp">... </span>        <span class="n">Polygon</span><span class="p">([(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]),</span>
+<span class="gp">... </span>    <span class="p">],</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">da</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]],</span>
+<span class="gp">... </span>    <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">coords</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span> <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">]},</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">write_crs</span><span class="p">(</span><span class="s2">&quot;EPSG:4326&quot;</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">da</span><span class="o">.</span><span class="n">aat</span><span class="o">.</span><span class="n">compute_raster_stats</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">gdf</span><span class="o">=</span><span class="n">gdf</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">feature_col</span><span class="o">=</span><span class="s2">&quot;name&quot;</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="go">   mean_name            std_name min_name max_name sum_name count_name    name # noqa: E501</span>
+<span class="go">0       3.0  1.5811388300841898        1        5     12.0          4  area_a  # noqa: E501</span>
+<span class="go">1       4.5                 1.5        3        6      9.0          2  area_b  # noqa: E501</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aatoolbox.utils.raster.AatRasterDataset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aatoolbox.utils.raster.</span></span><span class="sig-name descname"><span class="pre">AatRasterDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xarray_object</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aatoolbox/utils/raster.html#AatRasterDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.utils.raster.AatRasterDataset" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aatoolbox.utils.raster.AatRasterMixin" title="aatoolbox.utils.raster.AatRasterMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">AatRasterMixin</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RasterDataset</span></code></p>
+<p>AA toolbox extension for xarray.Dataset.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aatoolbox.utils.raster.AatRasterDataset.compute_raster_stats">
+<span class="sig-name descname"><span class="pre">compute_raster_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aatoolbox/utils/raster.html#AatRasterDataset.compute_raster_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.utils.raster.AatRasterDataset.compute_raster_stats" title="Permalink to this definition"></a></dt>
+<dd><p>Compute raster statistics across dataset arrays.</p>
+<p><code class="docutils literal notranslate"><span class="pre">compute_raster_stats()</span></code> calculates raster statistics on
+component data arrays of a dataset. By default, calculates on all
+non-coordinate variables, unless a list of variable names is
+passed in, which then have statistics calculated for them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>var_names</strong> (<em>Union</em><em>[</em><em>List</em><em>[</em><em>str</em><em>]</em><em>, </em><em>str</em><em>, </em><em>None</em><em>]</em><em>, </em><em>optional</em>) – Dataset data array variables to calculate raster statistics on.</p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – Keyword arguments passed to the array method
+<a class="reference internal" href="api.html#aatoolbox.utils.raster.AatRasterArray.compute_raster_stats" title="aatoolbox.utils.raster.AatRasterArray.compute_raster_stats"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compute_raster_stats()</span></code></a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of raster statistics data frames.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List[pandas.DataFrame]</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">rioxarray</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">shapely.geometry</span> <span class="kn">import</span> <span class="n">Polygon</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># compute raster stats on simple data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;area_a&quot;</span><span class="p">,</span> <span class="s2">&quot;area_b&quot;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">[</span>
+<span class="gp">... </span>        <span class="n">Polygon</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]),</span>
+<span class="gp">... </span>        <span class="n">Polygon</span><span class="p">([(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]),</span>
+<span class="gp">... </span>    <span class="p">],</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]],</span>
+<span class="gp">... </span>    <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">coords</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span> <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">]},</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">write_crs</span><span class="p">(</span><span class="s2">&quot;EPSG:4326&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_dataset</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span><span class="o">.</span><span class="n">aat</span><span class="o">.</span><span class="n">compute_raster_stats</span><span class="p">(</span>
+<span class="gp">... </span>   <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span>
+<span class="gp">... </span>   <span class="n">gdf</span><span class="o">=</span><span class="n">gdf</span><span class="p">,</span>
+<span class="gp">... </span>   <span class="n">feature_col</span><span class="o">=</span><span class="s2">&quot;name&quot;</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="go">[       mean                 std      min      max      sum      count    name # noqa: E501</span>
+<span class="go">0       3.0  1.5811388300841898        1        5     12.0          4  area_a  # noqa: E501</span>
+<span class="go">1       4.5                 1.5        3        6      9.0          2  area_b] # noqa: E501</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aatoolbox.utils.raster.AatRasterDataset.get_raster_array">
+<span class="sig-name descname"><span class="pre">get_raster_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataArray</span></span></span><a class="reference internal" href="_modules/aatoolbox/utils/raster.html#AatRasterDataset.get_raster_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.utils.raster.AatRasterDataset.get_raster_array" title="Permalink to this definition"></a></dt>
+<dd><p>Get xarray.DataArray from variable and keep dimensions.</p>
+<p>Accessing a component xarray.DataArray using the
+non-coordinate variable name loses and dimensions set
+through <code class="docutils literal notranslate"><span class="pre">rio</span></code> or <code class="docutils literal notranslate"><span class="pre">aat</span></code>. This includes <code class="docutils literal notranslate"><span class="pre">x_dim</span></code>,
+<code class="docutils literal notranslate"><span class="pre">y_dim</span></code>, and <code class="docutils literal notranslate"><span class="pre">t_dim</span></code> that have to be specifically
+set using <code class="docutils literal notranslate"><span class="pre">rio.set_spatial_dims()</span></code> or
+<code class="docutils literal notranslate"><span class="pre">aat.set_time_dim()</span></code> respectively. For any dataset
+<code class="docutils literal notranslate"><span class="pre">ds</span></code>, <code class="docutils literal notranslate"><span class="pre">ds.get_raster_array(&quot;var&quot;)</span></code> will retrieve
+the data array without losing the dimensions. Using
+<code class="docutils literal notranslate"><span class="pre">ds[&quot;var&quot;]</span></code> will lose the dimensions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>var_name</strong> (<em>str</em>) – Name of variable.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A data array.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>xarray.DataArray</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">xarray</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">temp</span> <span class="o">=</span> <span class="mi">15</span> <span class="o">+</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">precip</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">xarray</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
+<span class="gp">... </span>  <span class="p">{</span>
+<span class="gp">... </span>    <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="p">([</span><span class="s2">&quot;lat&quot;</span><span class="p">,</span> <span class="s2">&quot;lon&quot;</span><span class="p">,</span> <span class="s2">&quot;F&quot;</span><span class="p">],</span> <span class="n">temp</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="s2">&quot;precipitation&quot;</span><span class="p">:</span> <span class="p">([</span><span class="s2">&quot;lat&quot;</span><span class="p">,</span> <span class="s2">&quot;lon&quot;</span><span class="p">,</span> <span class="s2">&quot;F&quot;</span><span class="p">],</span> <span class="n">precip</span><span class="p">)</span>
+<span class="gp">... </span>  <span class="p">},</span>
+<span class="gp">... </span>  <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
+<span class="gp">... </span>    <span class="s2">&quot;lat&quot;</span><span class="p">:</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">87</span><span class="p">,</span> <span class="mi">88</span><span class="p">,</span> <span class="mi">89</span><span class="p">,</span> <span class="mi">90</span><span class="p">]),</span>
+<span class="gp">... </span>    <span class="s2">&quot;lon&quot;</span><span class="p">:</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">199</span><span class="p">,</span> <span class="mi">360</span><span class="p">]),</span>
+<span class="gp">... </span>    <span class="s2">&quot;F&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="s2">&quot;2014-09-06&quot;</span><span class="p">,</span> <span class="n">periods</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">... </span>  <span class="p">}</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span><span class="o">.</span><span class="n">aat</span><span class="o">.</span><span class="n">set_time_dim</span><span class="p">(</span><span class="s2">&quot;F&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">da</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">aat</span><span class="o">.</span><span class="n">get_raster_array</span><span class="p">(</span><span class="s2">&quot;temperature&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">da</span><span class="o">.</span><span class="n">aat</span><span class="o">.</span><span class="n">t_dim</span>
+<span class="go">&#39;F&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># directly accessing array loses set dimensions</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">aat</span><span class="o">.</span><span class="n">t_dim</span>
+<span class="gt">Traceback (most recent call last):</span>
+    <span class="o">...</span>
+<span class="gr">rioxarray.exceptions.DimensionError</span>: <span class="n">Time dimension not found.</span>
+<span class="go">    &#39;aat.set_time_dim()&#39; or using &#39;rename()&#39; to change the</span>
+<span class="go">    dimension name to &#39;t&#39; can address this.</span>
+<span class="go">Data variable: temperature</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aatoolbox.utils.raster.AatRasterMixin">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aatoolbox.utils.raster.</span></span><span class="sig-name descname"><span class="pre">AatRasterMixin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xarray_obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aatoolbox/utils/raster.html#AatRasterMixin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.utils.raster.AatRasterMixin" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>AA toolbox mixin base class.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aatoolbox.utils.raster.AatRasterMixin.change_longitude_range">
+<span class="sig-name descname"><span class="pre">change_longitude_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">to_180_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">DataArray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dataset</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/aatoolbox/utils/raster.html#AatRasterMixin.change_longitude_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.utils.raster.AatRasterMixin.change_longitude_range" title="Permalink to this definition"></a></dt>
+<dd><p>Convert longitude range between -180 to 180 and 0 to 360.</p>
+<p>The standard longitude range is from -180 to 180, while some
+applications use 0 to 360. This includes
+<code class="docutils literal notranslate"><span class="pre">`rasterstats.zonal_stats</span></code> &lt;<a class="reference external" href="https://pypi.org/project/rasterstats/">https://pypi.org/project/rasterstats/</a>&gt;`_,
+which assumes ranges from 0 to 360.</p>
+<p><code class="docutils literal notranslate"><span class="pre">change_longitude_range()</span></code> will convert between the
+two coordinate ranges based on its current state.
+By default it will use the -180 to 180 range unless
+<cite>to_180_range</cite> is False, then it will use 0-360
+If coordinates lie solely between 0 and 180 then there is
+no need for conversion and the input  will be returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>to_180_range</strong> (<em>bool</em><em>, </em><em>default = True</em>) – If True, the returned range is -180 to 180
+Else, the returned range is 0 to 360</p></li>
+<li><p><strong>inplace</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, will overwrite existing data array. Default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dataset with transformed longitude coordinates.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Union[xarray.DataArray, xarray.Dataset]</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">xarray</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">temp</span> <span class="o">=</span> <span class="mi">15</span> <span class="o">+</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">precip</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">xarray</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
+<span class="gp">... </span>  <span class="p">{</span>
+<span class="gp">... </span>    <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="p">([</span><span class="s2">&quot;lat&quot;</span><span class="p">,</span> <span class="s2">&quot;lon&quot;</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">],</span> <span class="n">temp</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="s2">&quot;precipitation&quot;</span><span class="p">:</span> <span class="p">([</span><span class="s2">&quot;lat&quot;</span><span class="p">,</span> <span class="s2">&quot;lon&quot;</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">],</span> <span class="n">precip</span><span class="p">)</span>
+<span class="gp">... </span>  <span class="p">},</span>
+<span class="gp">... </span>  <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
+<span class="gp">... </span>    <span class="s2">&quot;lat&quot;</span><span class="p">:</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">87</span><span class="p">,</span> <span class="mi">88</span><span class="p">,</span> <span class="mi">89</span><span class="p">,</span> <span class="mi">90</span><span class="p">]),</span>
+<span class="gp">... </span>    <span class="s2">&quot;lon&quot;</span><span class="p">:</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">199</span><span class="p">,</span> <span class="mi">360</span><span class="p">]),</span>
+<span class="gp">... </span>    <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">pandas</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="s2">&quot;2014-09-06&quot;</span><span class="p">,</span> <span class="n">periods</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">... </span>  <span class="p">}</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ds_inv</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">aat</span><span class="o">.</span><span class="n">change_longitude_range</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ds_inv</span><span class="o">.</span><span class="n">get_index</span><span class="p">(</span><span class="s2">&quot;lon&quot;</span><span class="p">)</span>
+<span class="go">Int64Index([-161, 0, 5, 120], dtype=&#39;int64&#39;, name=&#39;lon&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># invert coordinates back to original, in place</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ds_inv</span><span class="o">.</span><span class="n">aat</span><span class="o">.</span><span class="n">change_longitude_range</span><span class="p">(</span><span class="n">to_180_range</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ds_inv</span><span class="o">.</span><span class="n">get_index</span><span class="p">(</span><span class="s2">&quot;lon&quot;</span><span class="p">)</span>
+<span class="go">Int64Index([0, 5, 120, 199], dtype=&#39;int64&#39;, name=&#39;lon&#39;)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aatoolbox.utils.raster.AatRasterMixin.correct_calendar">
+<span class="sig-name descname"><span class="pre">correct_calendar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">DataArray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dataset</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/aatoolbox/utils/raster.html#AatRasterMixin.correct_calendar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.utils.raster.AatRasterMixin.correct_calendar" title="Permalink to this definition"></a></dt>
+<dd><p>Correct calendar attribute for recognition by xarray.</p>
+<p>Some datasets come with a wrong calendar attribute that isn’t
+recognized by xarray. This function corrects the coordinate
+attribute to ensure that a <code class="docutils literal notranslate"><span class="pre">calendar</span></code> attribute exists
+and specifies a calendar alias that is supportable by
+<code class="docutils literal notranslate"><span class="pre">xarray.cftime_range</span></code> and NetCDF in general.</p>
+<p>Currently ensures that calendar attributes that are either
+specified with <code class="docutils literal notranslate"><span class="pre">units=&quot;months</span> <span class="pre">since&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">calendar=&quot;360&quot;</span></code>
+explicitly have <code class="docutils literal notranslate"><span class="pre">calendar=&quot;360_day&quot;</span></code>. This is based on
+discussions in <a class="reference external" href="https://github.com/Unidata/netcdf4-python/issues/434">this GitHub issue</a>.
+If and when further issues are found with calendar
+attributes, support for conversion will be added here.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>inplace</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, it will modify the dataarray in place.
+Otherwise it will return a modified copy.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Data array or dataset with transformed calendar
+coordinate.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Union[xarray.DataArray, xarray.Dataset]</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">xarray</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">da</span> <span class="o">=</span> <span class="n">xarray</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+<span class="gp">... </span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">),</span>
+<span class="gp">... </span> <span class="n">coords</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;lat&quot;</span><span class="p">:</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">87</span><span class="p">,</span> <span class="mi">88</span><span class="p">,</span> <span class="mi">89</span><span class="p">,</span> <span class="mi">90</span><span class="p">]),</span>
+<span class="gp">... </span>         <span class="s2">&quot;lon&quot;</span><span class="p">:</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">199</span><span class="p">,</span> <span class="mi">360</span><span class="p">]),</span>
+<span class="gp">... </span>         <span class="s2">&quot;t&quot;</span><span class="p">:</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">13</span><span class="p">])}</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">da</span><span class="p">[</span><span class="s2">&quot;t&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;months since 1960-01-01&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">da_crct</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">aat</span><span class="o">.</span><span class="n">correct_calendar</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">da_crct</span><span class="p">[</span><span class="s2">&quot;t&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;calendar&quot;</span><span class="p">]</span>
+<span class="go">&#39;360_day&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aatoolbox.utils.raster.AatRasterMixin.invert_coordinates">
+<span class="sig-name descname"><span class="pre">invert_coordinates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">DataArray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dataset</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/aatoolbox/utils/raster.html#AatRasterMixin.invert_coordinates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.utils.raster.AatRasterMixin.invert_coordinates" title="Permalink to this definition"></a></dt>
+<dd><p>Invert latitude and longitude in data array.</p>
+<p>This function checks for inversion of latitude and longitude
+and inverts them if needed. Datasets with inverted coordinates
+can produce incorrect results in certain functions like
+<code class="docutils literal notranslate"><span class="pre">rasterstats.zonal_stats()</span></code>. Correctly ordered coordinates
+should be:</p>
+<ul class="simple">
+<li><p>latitude: Largest to smallest.</p></li>
+<li><p>longitude: Smallest to largest.</p></li>
+</ul>
+<p>If data array already has correct coordinate ordering, it is
+directly returned. Function largely copied from
+<a class="reference external" href="https://github.com/perrygeo/python-rasterstats/issues/218">https://github.com/perrygeo/python-rasterstats/issues/218</a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>inplace</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, will overwrite existing data array. Default is False.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Data array or dataset with correct coordinate ordering.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Union[xarray.DataArray, xarray.Dataset]</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">xarray</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">da</span> <span class="o">=</span> <span class="n">xarray</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+<span class="gp">... </span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">),</span>
+<span class="gp">... </span> <span class="n">coords</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;lat&quot;</span><span class="p">:</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">87</span><span class="p">,</span> <span class="mi">88</span><span class="p">,</span> <span class="mi">89</span><span class="p">,</span> <span class="mi">90</span><span class="p">]),</span>
+<span class="gp">... </span>         <span class="s2">&quot;lon&quot;</span><span class="p">:</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">70</span><span class="p">,</span> <span class="mi">69</span><span class="p">,</span> <span class="mi">68</span><span class="p">,</span> <span class="mi">67</span><span class="p">])}</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">da</span><span class="o">.</span><span class="n">aat</span><span class="o">.</span><span class="n">invert_coordinates</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">da</span><span class="o">.</span><span class="n">get_index</span><span class="p">(</span><span class="s2">&quot;lon&quot;</span><span class="p">)</span>
+<span class="go">Int64Index([67, 68, 69, 70], dtype=&#39;int64&#39;, name=&#39;lon&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">da</span><span class="o">.</span><span class="n">get_index</span><span class="p">(</span><span class="s2">&quot;lat&quot;</span><span class="p">)</span>
+<span class="go">Int64Index([90, 89, 88, 87], dtype=&#39;int64&#39;, name=&#39;lat&#39;)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="aatoolbox.utils.raster.AatRasterMixin.longitude_range">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">longitude_range</span></span><a class="headerlink" href="#aatoolbox.utils.raster.AatRasterMixin.longitude_range" title="Permalink to this definition"></a></dt>
+<dd><p>The longitude range.</p>
+<p>The longitude range indicates if coordinates are
+between -180 and 180 (indicated by ‘180’)
+or 0 and 360 (indicated by ‘360’).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aatoolbox.utils.raster.AatRasterMixin.set_time_dim">
+<span class="sig-name descname"><span class="pre">set_time_dim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">DataArray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dataset</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/aatoolbox/utils/raster.html#AatRasterMixin.set_time_dim"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aatoolbox.utils.raster.AatRasterMixin.set_time_dim" title="Permalink to this definition"></a></dt>
+<dd><p>Set the time dimension of the dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t_dim</strong> (<em>str</em>) – The name of the time dimension.</p></li>
+<li><p><strong>inplace</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, it will modify the dataarray in place.
+Otherwise it will return a modified copy.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Data array or dataset with time dimension.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Union[xarray.DataArray, xarray.Dataset]</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">xarray</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">da</span> <span class="o">=</span> <span class="n">xarray</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+<span class="gp">... </span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">),</span>
+<span class="gp">... </span> <span class="n">coords</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;lat&quot;</span><span class="p">:</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">87</span><span class="p">,</span> <span class="mi">88</span><span class="p">,</span> <span class="mi">89</span><span class="p">,</span> <span class="mi">90</span><span class="p">]),</span>
+<span class="gp">... </span>         <span class="s2">&quot;lon&quot;</span><span class="p">:</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">199</span><span class="p">,</span> <span class="mi">360</span><span class="p">]),</span>
+<span class="gp">... </span>         <span class="s2">&quot;F&quot;</span><span class="p">:</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">13</span><span class="p">])}</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">da</span><span class="o">.</span><span class="n">aat</span><span class="o">.</span><span class="n">set_time_dim</span><span class="p">(</span><span class="n">t_dim</span><span class="o">=</span><span class="s2">&quot;F&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">da</span><span class="o">.</span><span class="n">aat</span><span class="o">.</span><span class="n">t_dim</span>
+<span class="go">&#39;F&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="aatoolbox.utils.raster.AatRasterMixin.t_dim">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">t_dim</span></span><a class="headerlink" href="#aatoolbox.utils.raster.AatRasterMixin.t_dim" title="Permalink to this definition"></a></dt>
+<dd><p>The dimension for time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aatoolbox.utils.raster.AatRasterMixin.x_dim">
+<span class="sig-name descname"><span class="pre">x_dim</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#aatoolbox.utils.raster.AatRasterMixin.x_dim" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aatoolbox.utils.raster.AatRasterMixin.y_dim">
+<span class="sig-name descname"><span class="pre">y_dim</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#aatoolbox.utils.raster.AatRasterMixin.y_dim" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-aatoolbox.utils">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-aatoolbox.utils" title="Permalink to this heading"></a></h2>
+<p>General utilities.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Centre for Humanitarian Data Predictive Analytics Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+</body>
+</html>

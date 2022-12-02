@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aatoolbox.datasources.usgs.ndvi_base &mdash; AA Toolbox  documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+</head>
+
+<body class="wy-body-for-nav">
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> AA Toolbox
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../config.html">Country Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../datasources.html">Data Sources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../utilities.html">Utilities</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api.html">AA Toolbox API</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">AA Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">aatoolbox.datasources.usgs.ndvi_base</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+
+  <h1>Source code for aatoolbox.datasources.usgs.ndvi_base</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Class to download and process USGS eMODIS NDVI data.</span>
+
+<span class="sd">Download, process, and load eMODIS NDVI data published</span>
+<span class="sd">in the `USGS FEWS NET data portal</span>
+<span class="sd">&lt;https://earlywarning.usgs.gov/fews&gt;`_.</span>
+
+<span class="sd">Warning: the MODIS sensor has been reported by USGS to</span>
+<span class="sd">have degraded in quality since May 2022 (dekad 13), and</span>
+<span class="sd">updates to this data source have stopped. This module</span>
+<span class="sd">remains for users to have access to historic data but</span>
+<span class="sd">recent data is unavailable and care should be used</span>
+<span class="sd">analyzing any data since dekad 13 of 2022.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># TODO: add progress bar</span>
+<span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span><span class="p">,</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">BytesIO</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">urllib.error</span> <span class="kn">import</span> <span class="n">HTTPError</span>
+<span class="kn">from</span> <span class="nn">urllib.request</span> <span class="kn">import</span> <span class="n">urlopen</span>
+<span class="kn">from</span> <span class="nn">zipfile</span> <span class="kn">import</span> <span class="n">ZipFile</span>
+
+<span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">rioxarray</span>  <span class="c1"># noqa: F401</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+<span class="kn">from</span> <span class="nn">rasterio.errors</span> <span class="kn">import</span> <span class="n">RasterioIOError</span>
+
+<span class="kn">import</span> <span class="nn">aatoolbox.utils.raster</span>  <span class="c1"># noqa: F401</span>
+<span class="kn">from</span> <span class="nn">aatoolbox.config.countryconfig</span> <span class="kn">import</span> <span class="n">CountryConfig</span>
+<span class="kn">from</span> <span class="nn">aatoolbox.datasources.datasource</span> <span class="kn">import</span> <span class="n">DataSource</span>
+<span class="kn">from</span> <span class="nn">aatoolbox.utils.dates</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">compare_dekads_gt</span><span class="p">,</span>
+    <span class="n">compare_dekads_lt</span><span class="p">,</span>
+    <span class="n">dekad_to_date</span><span class="p">,</span>
+    <span class="n">expand_dekads</span><span class="p">,</span>
+    <span class="n">get_dekadal_date</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">_DATE_TYPE</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">date</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span>
+<span class="n">_EARLIEST_DATE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2002</span><span class="p">,</span> <span class="mi">19</span><span class="p">)</span>
+
+<span class="c1"># USGS has reported degradation of USGS NDVI data</span>
+<span class="c1"># from the below date and warnings should be used</span>
+<span class="n">_DEGRADATION_DATE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2022</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">_UsgsNdvi</span><span class="p">(</span><span class="n">DataSource</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class to retrieve USGS NDVI data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    country_config : CountryConfig</span>
+<span class="sd">        Country configuration</span>
+<span class="sd">    data_variable : str</span>
+<span class="sd">        Data variable date</span>
+<span class="sd">    data_variable_suffix : str</span>
+<span class="sd">        Data variable file string</span>
+<span class="sd">    data_variable_url : str</span>
+<span class="sd">        URL string for data variable</span>
+<span class="sd">    start_date : _DATE_TYPE, default = None</span>
+<span class="sd">        Start date. Can be passed as a ``datetime.date``</span>
+<span class="sd">        object or a data string in ISO8601 format, and</span>
+<span class="sd">        the relevant dekad will be determined. Or pass</span>
+<span class="sd">        directly as year-dekad tuple, e.g. (2020, 1).</span>
+<span class="sd">        If ``None``, ``start_date`` is set to earliest</span>
+<span class="sd">        date with data: 2002, dekad 19.</span>
+<span class="sd">    end_date : _DATE_TYPE, default = None</span>
+<span class="sd">        End date. Can be passed as a ``datetime.date``</span>
+<span class="sd">        object and the relevant dekad will be determined,</span>
+<span class="sd">        as a date string in ISO8601 format, or as a</span>
+<span class="sd">        year-dekad tuple, i.e. (2020, 1). If ``None``,</span>
+<span class="sd">        ``end_date`` is set to ``date.today()``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">country_config</span><span class="p">:</span> <span class="n">CountryConfig</span><span class="p">,</span>
+        <span class="n">data_variable</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">data_variable_suffix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">data_variable_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">start_date</span><span class="p">:</span> <span class="n">_DATE_TYPE</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">end_date</span><span class="p">:</span> <span class="n">_DATE_TYPE</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">country_config</span><span class="o">=</span><span class="n">country_config</span><span class="p">,</span>
+            <span class="n">datasource_base_dir</span><span class="o">=</span><span class="s2">&quot;usgs_ndvi&quot;</span><span class="p">,</span>
+            <span class="n">is_public</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">is_global_raw</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">config_datasource_name</span><span class="o">=</span><span class="s2">&quot;usgs_ndvi&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># set data variable</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data_variable</span> <span class="o">=</span> <span class="n">data_variable</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data_variable_url</span> <span class="o">=</span> <span class="n">data_variable_url</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data_variable_suffix</span> <span class="o">=</span> <span class="n">data_variable_suffix</span>
+
+        <span class="c1"># set dates for data download and processing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_start_date</span> <span class="o">=</span> <span class="n">get_dekadal_date</span><span class="p">(</span>
+            <span class="n">input_date</span><span class="o">=</span><span class="n">start_date</span><span class="p">,</span> <span class="n">default_date</span><span class="o">=</span><span class="n">_EARLIEST_DATE</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_end_date</span> <span class="o">=</span> <span class="n">get_dekadal_date</span><span class="p">(</span>
+            <span class="n">input_date</span><span class="o">=</span><span class="n">end_date</span><span class="p">,</span> <span class="n">default_date</span><span class="o">=</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">compare_dekads_gt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_end_date</span><span class="p">,</span> <span class="n">_DEGRADATION_DATE</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;USGS has reported degradation of eMODIS NDVI data &quot;</span>
+                <span class="s2">&quot;due to issues with the MODIS sensor&#39;s satellite. &quot;</span>
+                <span class="s2">&quot;This affects NDVI data from May 2022 (dekad 13), &quot;</span>
+                <span class="s2">&quot;and users should be very careful of using any &quot;</span>
+                <span class="s2">&quot;results after this date. This module is maintained &quot;</span>
+                <span class="s2">&quot;for users to have access to historic data.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># warn if dates outside earliest dates</span>
+        <span class="k">if</span> <span class="n">compare_dekads_lt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_start_date</span><span class="p">,</span> <span class="n">_EARLIEST_DATE</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Start date is before earliest date data is available. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Data will be downloaded from </span><span class="si">{</span><span class="n">_EARLIEST_DATE</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">, dekad &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_EARLIEST_DATE</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clobber</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Download raw NDVI data as .tif files.</span>
+
+<span class="sd">        NDVI data is downloaded from the USGS API,</span>
+<span class="sd">        with data for individual regions, years, and</span>
+<span class="sd">        dekads stored as separate .tif files. No</span>
+<span class="sd">        authentication is required. Data is downloaded</span>
+<span class="sd">        for all available dekads from ``self._start_date``</span>
+<span class="sd">        to ``self._end_date``.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        clobber : bool, default = False</span>
+<span class="sd">            If True, overwrites existing files</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Path</span>
+<span class="sd">            The downloaded filepath</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from aatoolbox import create_country_config, \</span>
+<span class="sd">        ...  CodAB, UsgsNdviSmoothed</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; # Retrieve admin 2 boundaries for Burkina Faso</span>
+<span class="sd">        &gt;&gt;&gt; country_config = create_country_config(iso3=&quot;bfa&quot;)</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; # setup NDVI</span>
+<span class="sd">        &gt;&gt;&gt; bfa_ndvi = UsgsNdviSmoothed(</span>
+<span class="sd">        ...     country_config=country_config,</span>
+<span class="sd">        ...     start_date=[2020, 1],</span>
+<span class="sd">        ...     end_date=[2020, 3]</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt; bfa_ndvi.download()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">download_dekads</span> <span class="o">=</span> <span class="n">expand_dekads</span><span class="p">(</span>
+            <span class="n">dekad1</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_start_date</span><span class="p">,</span> <span class="n">dekad2</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_end_date</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">year</span><span class="p">,</span> <span class="n">dekad</span> <span class="ow">in</span> <span class="n">download_dekads</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_download_ndvi_dekad</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span> <span class="n">dekad</span><span class="o">=</span><span class="n">dekad</span><span class="p">,</span> <span class="n">clobber</span><span class="o">=</span><span class="n">clobber</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_raw_base_dir</span>
+
+    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+        <span class="n">feature_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">clobber</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Process NDVI data for specific area.</span>
+
+<span class="sd">        NDVI data is clipped to the provided</span>
+<span class="sd">        ``geometries``, usually a geopandas</span>
+<span class="sd">        dataframes ``geometry`` feature. ``kwargs``</span>
+<span class="sd">        are passed on to ``aat.computer_raster_stats()``.</span>
+<span class="sd">        The ``feature_col`` is used to define</span>
+<span class="sd">        the unique processed file.</span>
+
+<span class="sd">        The processing keeps track of the latest timestamp of</span>
+<span class="sd">        when the raw raster files were modified. If the latest</span>
+<span class="sd">        timestamp of the raw data is greater than when it was</span>
+<span class="sd">        last processed, the file will automatically be</span>
+<span class="sd">        re-processed.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        gdf : geopandas.GeoDataFrame</span>
+<span class="sd">            GeoDataFrame with row per area for stats computation.</span>
+<span class="sd">            If ``pd.DataFrame`` is passed, geometry column must</span>
+<span class="sd">            have the name ``geometry``. Passed to</span>
+<span class="sd">            ``aat.compute_raster_stats()``.</span>
+<span class="sd">        feature_col : str</span>
+<span class="sd">            Column in ``gdf`` to use as row/feature identifier.</span>
+<span class="sd">            and dates. Passed to ``aat.compute_raster_stats()``.</span>
+<span class="sd">            The string is also used as a suffix to the</span>
+<span class="sd">            processed file path for unique identication of</span>
+<span class="sd">            analyses done on different files and columns.</span>
+<span class="sd">        clobber : bool, default = False</span>
+<span class="sd">            If True, overwrites existing processed dates. If</span>
+<span class="sd">            the new file matches the old file, dates will be</span>
+<span class="sd">            reprocessed and appended to the data frame. If</span>
+<span class="sd">            files do not match, the old file will be replaced.</span>
+<span class="sd">            If False, stats are only calculated for year-dekads</span>
+<span class="sd">            that have not already been calculated within the</span>
+<span class="sd">            file. However, if False and files do not match,</span>
+<span class="sd">            value error will be raised.</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            Additional keyword arguments passed to</span>
+<span class="sd">            ``aat.computer_raster_stats()``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Path</span>
+<span class="sd">            The processed path</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from aatoolbox import create_country_config, \</span>
+<span class="sd">        ...  CodAB, UsgsNdviSmoothed</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; # Retrieve admin 2 boundaries for Burkina Faso</span>
+<span class="sd">        &gt;&gt;&gt; country_config = create_country_config(iso3=&quot;bfa&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; codab = CodAB(country_config=country_config)</span>
+<span class="sd">        &gt;&gt;&gt; bfa_admin2 = codab.load(admin_level=2)</span>
+<span class="sd">        &gt;&gt;&gt; bfa_admin1 = codab.load(admin_level=1)</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; # setup NDVI</span>
+<span class="sd">        &gt;&gt;&gt; bfa_ndvi = UsgsNdviSmoothed(</span>
+<span class="sd">        ...     country_config=country_config,</span>
+<span class="sd">        ...     start_date=[2020, 1],</span>
+<span class="sd">        ...     end_date=[2020, 3]</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt; bfa_ndvi.download()</span>
+<span class="sd">        &gt;&gt;&gt; bfa_ndvi.process(</span>
+<span class="sd">        ...     gdf=bfa_admin2,</span>
+<span class="sd">        ...     feature_col=&quot;ADM2_FR&quot;</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; # process for admin1</span>
+<span class="sd">        &gt;&gt;&gt; bfa_ndvi.process(</span>
+<span class="sd">        ...     gdf=bfa_admin1,</span>
+<span class="sd">        ...     feature_col=&quot;ADM1_FR&quot;</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># get statistics for processing</span>
+        <span class="n">stats_list</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span>
+            <span class="s2">&quot;stats_list&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="s2">&quot;std&quot;</span><span class="p">,</span> <span class="s2">&quot;min&quot;</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">,</span> <span class="s2">&quot;sum&quot;</span><span class="p">,</span> <span class="s2">&quot;count&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">percentile_list</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;percentile_list&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">stats_list</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">percentile_list</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;At least one of `stats_list` or &quot;</span>
+                <span class="s2">&quot;`percentile_list` must not be `None` &quot;</span>
+                <span class="s2">&quot;when passed to `process()`.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># getting stats and percentiles for processing</span>
+        <span class="n">stats_list</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">stats_list</span> <span class="k">else</span> <span class="n">stats_list</span>
+        <span class="n">percentile_list</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">[]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">percentile_list</span>
+            <span class="k">else</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">percent</span><span class="p">)</span> <span class="k">for</span> <span class="n">percent</span> <span class="ow">in</span> <span class="n">percentile_list</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">process_stats</span> <span class="o">=</span> <span class="n">stats_list</span> <span class="o">+</span> <span class="n">percentile_list</span>
+        <span class="n">percentile_identifier</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">stats_list</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="kc">True</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span>
+            <span class="n">percentile_list</span>
+        <span class="p">)</span>
+
+        <span class="c1"># get dates for processing</span>
+        <span class="n">all_dates_to_process</span> <span class="o">=</span> <span class="n">expand_dekads</span><span class="p">(</span>
+            <span class="n">dekad1</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_start_date</span><span class="p">,</span> <span class="n">dekad2</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_end_date</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">stat</span><span class="p">,</span> <span class="n">is_percentile</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">process_stats</span><span class="p">,</span> <span class="n">percentile_identifier</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span>
+                <span class="n">clobber</span><span class="o">=</span><span class="n">clobber</span><span class="p">,</span>
+                <span class="n">gdf</span><span class="o">=</span><span class="n">gdf</span><span class="p">,</span>
+                <span class="n">feature_col</span><span class="o">=</span><span class="n">feature_col</span><span class="p">,</span>
+                <span class="n">dates_to_process</span><span class="o">=</span><span class="n">all_dates_to_process</span><span class="p">,</span>
+                <span class="n">stat</span><span class="o">=</span><span class="n">stat</span><span class="p">,</span>
+                <span class="n">is_percentile</span><span class="o">=</span><span class="n">is_percentile</span><span class="p">,</span>
+                <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_processed_base_dir</span>
+
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feature_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load the processed USGS NDVI data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        feature_col : str</span>
+<span class="sd">            String is  used as a suffix to the</span>
+<span class="sd">            processed file path for unique identication of</span>
+<span class="sd">            analyses done on different files and columns.</span>
+<span class="sd">            The same value must be passed to ``process()``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.DataFrame</span>
+<span class="sd">            The processed NDVI dataset.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        FileNotFoundError</span>
+<span class="sd">            If the requested file cannot be found.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from aatoolbox import create_country_config, \</span>
+<span class="sd">        ...  CodAB, UsgsNdviSmoothed</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; # Retrieve admin 2 boundaries for Burkina Faso</span>
+<span class="sd">        &gt;&gt;&gt; country_config = create_country_config(iso3=&quot;bfa&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; codab = CodAB(country_config=country_config)</span>
+<span class="sd">        &gt;&gt;&gt; bfa_admin2 = codab.load(admin_level=2)</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; # setup NDVI</span>
+<span class="sd">        &gt;&gt;&gt; bfa_ndvi = UsgsNdviSmoothed(</span>
+<span class="sd">        ...     country_config=country_config,</span>
+<span class="sd">        ...     start_date=[2020, 1],</span>
+<span class="sd">        ...     end_date=[2020, 3]</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt; bfa_ndvi.download()</span>
+<span class="sd">        &gt;&gt;&gt; bfa_ndvi.process(</span>
+<span class="sd">        ...    gdf=bfa_admin2,</span>
+<span class="sd">        ...    feature_col=&quot;ADM2_FR&quot;</span>
+<span class="sd">        )</span>
+<span class="sd">        &gt;&gt;&gt; bfa_ndvi.load(feature_col=&quot;ADM2_FR&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">processed_files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_processed_files</span><span class="p">(</span>
+                <span class="n">feature_col</span><span class="o">=</span><span class="n">feature_col</span>
+            <span class="p">)</span>
+            <span class="n">processed_dfs</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_load</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">fp</span><span class="p">,</span> <span class="n">drop_modified</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">fp</span> <span class="ow">in</span> <span class="n">processed_files</span>
+            <span class="p">]</span>
+
+            <span class="n">df</span> <span class="o">=</span> <span class="n">functools</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">df1</span><span class="p">,</span> <span class="n">df2</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+                    <span class="n">df1</span><span class="p">,</span> <span class="n">df2</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="s2">&quot;dekad&quot;</span><span class="p">,</span> <span class="n">feature_col</span><span class="p">]</span>
+                <span class="p">),</span>
+                <span class="n">processed_dfs</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+                <span class="s2">&quot;Files not found to load. Ensure the download() and process() &quot;</span>
+                <span class="s2">&quot;methods are called prior to load().&quot;</span>
+            <span class="p">)</span> <span class="kn">from</span> <span class="nn">err</span>
+
+        <span class="c1"># filter loaded data frame between our instances dates</span>
+        <span class="n">load_dates</span> <span class="o">=</span> <span class="n">expand_dekads</span><span class="p">(</span>
+            <span class="n">dekad1</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_start_date</span><span class="p">,</span> <span class="n">dekad2</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_end_date</span>
+        <span class="p">)</span>
+
+        <span class="n">loaded_dates</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="s2">&quot;dekad&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">keep_rows</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="ow">in</span> <span class="n">load_dates</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">loaded_dates</span><span class="p">]</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">keep_rows</span><span class="p">]</span>
+
+        <span class="c1"># put feature column as 1st column</span>
+        <span class="n">df_feature_col</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">feature_col</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="n">feature_col</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">df_feature_col</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">df</span>
+
+    <span class="k">def</span> <span class="nf">load_raster</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">load_date</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">date</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Load raster for specific year and dekad.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        load_date : Union[date, str, Tuple[int, int]]</span>
+<span class="sd">            Date. Can be passed as a ``datetime.date``</span>
+<span class="sd">            object and the relevant dekad will be determined,</span>
+<span class="sd">            as a date string in ISO8601 format, or as a</span>
+<span class="sd">            year-dekad tuple, i.e. (2020, 1).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        xr.DataArray</span>
+<span class="sd">            Data array of NDVI data.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        FileNotFoundError</span>
+<span class="sd">            If the requested file cannot be found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">year</span><span class="p">,</span> <span class="n">dekad</span> <span class="o">=</span> <span class="n">get_dekadal_date</span><span class="p">(</span><span class="n">input_date</span><span class="o">=</span><span class="n">load_date</span><span class="p">)</span>
+
+        <span class="n">filepath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_raw_path</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span> <span class="n">dekad</span><span class="o">=</span><span class="n">dekad</span><span class="p">,</span> <span class="n">local</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">da</span> <span class="o">=</span> <span class="n">rioxarray</span><span class="o">.</span><span class="n">open_rasterio</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+            <span class="c1"># get time file was updated</span>
+            <span class="n">file_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">filepath</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_mtime</span><span class="p">)</span>
+            <span class="c1"># assign coordinates for year/dekad</span>
+            <span class="c1"># time dimension</span>
+            <span class="n">da</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">da</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">year</span><span class="p">,</span>
+                        <span class="s2">&quot;dekad&quot;</span><span class="p">:</span> <span class="n">dekad</span><span class="p">,</span>
+                        <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">dekad_to_date</span><span class="p">(</span><span class="n">dekad</span><span class="o">=</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">dekad</span><span class="p">)),</span>
+                        <span class="s2">&quot;modified&quot;</span><span class="p">:</span> <span class="n">file_time</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="s2">&quot;band&quot;</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">da</span>
+
+        <span class="k">except</span> <span class="n">RasterioIOError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="c1"># check if the requested date is outside the instance bounds</span>
+            <span class="c1"># don&#39;t prevent loading, but use for meaningful error</span>
+            <span class="n">gt_end</span> <span class="o">=</span> <span class="n">compare_dekads_gt</span><span class="p">(</span>
+                <span class="n">dekad1</span><span class="o">=</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">dekad</span><span class="p">),</span> <span class="n">dekad2</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_end_date</span>
+            <span class="p">)</span>
+            <span class="n">lt_start</span> <span class="o">=</span> <span class="n">compare_dekads_lt</span><span class="p">(</span>
+                <span class="n">dekad1</span><span class="o">=</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">dekad</span><span class="p">),</span> <span class="n">dekad2</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_start_date</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">gt_end</span> <span class="ow">or</span> <span class="n">lt_start</span><span class="p">:</span>
+                <span class="n">file_warning</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;The requested year and dekad, </span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">dekad</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;are </span><span class="si">{</span><span class="s1">&#39;greater&#39;</span> <span class="k">if</span> <span class="n">gt_end</span> <span class="k">else</span> <span class="s1">&#39;less&#39;</span><span class="si">}</span><span class="s2"> than the &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;instance </span><span class="si">{</span><span class="s1">&#39;end&#39;</span> <span class="k">if</span> <span class="n">gt_end</span> <span class="k">else</span> <span class="s1">&#39;start&#39;</span><span class="si">}</span><span class="s2"> year and dekad, &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_end_date</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">gt_end</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start_date</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">-&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_end_date</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">gt_end</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start_date</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">. &quot;</span>
+                    <span class="s2">&quot;Calling the `download()` method will not download this &quot;</span>
+                    <span class="s2">&quot;file, and you need to re-instantiate the class to &quot;</span>
+                    <span class="s2">&quot;include these dates.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">file_warning</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">&quot;Make sure that you have called the `download()` &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;method and that the file </span><span class="si">{</span><span class="n">filepath</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> exists &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;in </span><span class="si">{</span><span class="n">filepath</span><span class="o">.</span><span class="n">parent</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Cannot open the .tif file </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s2">. </span><span class="si">{</span><span class="n">file_warning</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span> <span class="kn">from</span> <span class="nn">err</span>
+
+    <span class="k">def</span> <span class="nf">_download_ndvi_dekad</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">dekad</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">clobber</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Download NDVI for specific dekad.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        year : int</span>
+<span class="sd">            Year</span>
+<span class="sd">        dekad : int</span>
+<span class="sd">            Dekad</span>
+<span class="sd">        clobber : bool</span>
+<span class="sd">            If True, overwrites existing file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">filepath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_raw_path</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span> <span class="n">dekad</span><span class="o">=</span><span class="n">dekad</span><span class="p">,</span> <span class="n">local</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">url_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_raw_filename</span><span class="p">(</span>
+            <span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span> <span class="n">dekad</span><span class="o">=</span><span class="n">dekad</span><span class="p">,</span> <span class="n">local</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_download</span><span class="p">(</span>
+            <span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">,</span> <span class="n">url_filename</span><span class="o">=</span><span class="n">url_filename</span><span class="p">,</span> <span class="n">clobber</span><span class="o">=</span><span class="n">clobber</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_download</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">url_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">clobber</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="n">local_filename</span> <span class="o">=</span> <span class="n">filepath</span><span class="o">.</span><span class="n">stem</span>
+
+        <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_url</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">url_filename</span><span class="p">)</span>
+        <span class="n">year</span><span class="p">,</span> <span class="n">dekad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fp_year_dekad</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">resp</span> <span class="o">=</span> <span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">HTTPError</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;No NDVI data available for &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;dekad </span><span class="si">{</span><span class="n">dekad</span><span class="si">}</span><span class="s2"> of </span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">, skipping.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">filepath</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">file_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">filepath</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_mtime</span><span class="p">)</span>
+            <span class="n">url_time_str</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;last-modified&quot;</span><span class="p">]</span>
+            <span class="n">url_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span>
+                <span class="n">url_time_str</span><span class="p">,</span>
+                <span class="c1"># Fri, 27 Mar 2015 08:05:42 GMT</span>
+                <span class="s2">&quot;</span><span class="si">%a</span><span class="s2">, </span><span class="si">%d</span><span class="s2"> %b %Y </span><span class="si">%X</span><span class="s2"> %Z&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">clobber</span> <span class="ow">and</span> <span class="n">url_time</span> <span class="o">&lt;=</span> <span class="n">file_time</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;File </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s2"> exists, clobber set to False, and &quot;</span>
+                    <span class="s2">&quot;file not been modified since last download. &quot;</span>
+                    <span class="s2">&quot;Using existing files.&quot;</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="n">filepath</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Downloading NDVI data for </span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">, dekad </span><span class="si">{</span><span class="n">dekad</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;into </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+
+        <span class="c1"># open file within memory</span>
+        <span class="n">zf</span> <span class="o">=</span> <span class="n">ZipFile</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span>
+
+        <span class="c1"># extract single .tif file from .zip</span>
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">zf</span><span class="o">.</span><span class="n">infolist</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.tif&quot;</span><span class="p">):</span>
+                <span class="c1"># rename the file to standardize to name of zip</span>
+                <span class="n">file</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">local_filename</span><span class="si">}</span><span class="s2">.tif&quot;</span>
+                <span class="n">zf</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_raw_base_dir</span><span class="p">)</span>
+
+        <span class="n">resp</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">filepath</span>
+
+    <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">clobber</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+        <span class="n">feature_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">dates_to_process</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+        <span class="n">stat</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">is_percentile</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Process data for particular statistic.&quot;&quot;&quot;</span>
+        <span class="c1"># get processed path for particular statistic</span>
+        <span class="n">percentile_list</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="n">is_percentile</span><span class="p">:</span>
+            <span class="n">stats_list</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">percentile_list</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">stat</span><span class="p">)]</span>
+            <span class="n">stat</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">stat</span><span class="si">}</span><span class="s2">quant&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">stats_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">stat</span><span class="p">]</span>
+            <span class="n">percentile_list</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">processed_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_processed_path</span><span class="p">(</span>
+            <span class="n">feature_col</span><span class="o">=</span><span class="n">feature_col</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="n">stat</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">processed_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Processing data from </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_start_date</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;dekad </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_start_date</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_end_date</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;dekad </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_end_date</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> into </span><span class="si">{</span><span class="n">processed_path</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+
+            <span class="p">(</span>
+                <span class="n">dates_to_process</span><span class="p">,</span>
+                <span class="n">df_already_processed</span><span class="p">,</span>
+            <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_determine_process_dates</span><span class="p">(</span>
+                <span class="n">clobber</span><span class="o">=</span><span class="n">clobber</span><span class="p">,</span>
+                <span class="n">filepath</span><span class="o">=</span><span class="n">processed_path</span><span class="p">,</span>
+                <span class="n">dates_to_process</span><span class="o">=</span><span class="n">dates_to_process</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">dates_to_process</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="p">(</span>
+                        <span class="s2">&quot;No new </span><span class="si">{stat}</span><span class="s2"> data to process between &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_start_date</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">, &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;dekad </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_start_date</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;and </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_end_date</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">, &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;dekad </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_end_date</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">, &quot;</span>
+                        <span class="s2">&quot;set `clobber = True` to re-process this data.&quot;</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="n">processed_path</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># no dates already processed</span>
+            <span class="n">df_already_processed</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+        <span class="c1"># process data for necessary dates</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">df_already_processed</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">process_date</span> <span class="ow">in</span> <span class="n">dates_to_process</span><span class="p">:</span>
+            <span class="n">da</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_raster</span><span class="p">(</span><span class="n">process_date</span><span class="p">)</span>
+            <span class="n">stats</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">aat</span><span class="o">.</span><span class="n">compute_raster_stats</span><span class="p">(</span>
+                <span class="n">gdf</span><span class="o">=</span><span class="n">gdf</span><span class="p">,</span>
+                <span class="n">feature_col</span><span class="o">=</span><span class="n">feature_col</span><span class="p">,</span>
+                <span class="n">stats_list</span><span class="o">=</span><span class="n">stats_list</span><span class="p">,</span>
+                <span class="n">percentile_list</span><span class="o">=</span><span class="n">percentile_list</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stats</span><span class="p">)</span>
+
+        <span class="c1"># join data together and sort</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># saving file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_processed_base_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">processed_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">processed_path</span>
+
+    <span class="k">def</span> <span class="nf">_determine_process_dates</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">clobber</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">dates_to_process</span><span class="p">:</span> <span class="nb">list</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Determine dates to process.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        clobber : bool</span>
+<span class="sd">            If True, overwrites existing file</span>
+<span class="sd">        filepath : Path</span>
+<span class="sd">            Filepath to the existing processed file.</span>
+<span class="sd">        dates_to_process : list</span>
+<span class="sd">            List of dates to process</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Tuple[list, pd.DataFrame]</span>
+<span class="sd">            Returns a list of dates to process, filtered</span>
+<span class="sd">            based on clobber, and a data frame of existing</span>
+<span class="sd">            data to build upon in processing</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            Raised if not `clobber` but the statistics</span>
+<span class="sd">            and `feature_col` for processing do not</span>
+<span class="sd">            match the existing file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
+
+        <span class="c1"># get dates that have already been processed</span>
+        <span class="n">dates_already_processed</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
+            <span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="s2">&quot;dekad&quot;</span><span class="p">,</span> <span class="s2">&quot;modified&quot;</span><span class="p">]</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">dates_already_processed</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="nb">tuple</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]):</span> <span class="n">d</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dates_already_processed</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">clobber</span><span class="p">:</span>
+            <span class="c1"># remove processed dates from file</span>
+            <span class="c1"># so they can be reprocessed</span>
+            <span class="n">keep_rows</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">d</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dates_to_process</span>
+                <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">dates_already_processed</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="p">]</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">keep_rows</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># remove processed dates from dates to process</span>
+            <span class="n">dates_to_process</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">d</span>
+                <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dates_to_process</span>
+                <span class="k">if</span> <span class="n">d</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">dates_already_processed</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+                <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_modified_time</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dekad</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="o">&gt;</span> <span class="n">dates_already_processed</span><span class="p">[</span><span class="n">d</span><span class="p">]</span>
+            <span class="p">]</span>
+
+            <span class="c1"># incase dates still processed based on</span>
+            <span class="c1"># modified time remove from the df</span>
+            <span class="n">keep_rows</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">d</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dates_to_process</span>
+                <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">dates_already_processed</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="p">]</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">keep_rows</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">dates_to_process</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_raw_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">dekad</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">local</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get raw filename (excluding file type suffix).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        year : int</span>
+<span class="sd">            4-digit year</span>
+<span class="sd">        dekad : int</span>
+<span class="sd">            Dekad</span>
+<span class="sd">        local : bool</span>
+<span class="sd">            If True, returns filepath for local storage,</span>
+<span class="sd">            which includes full 4-digit year and _</span>
+<span class="sd">            separating with dekad. If False, filepath</span>
+<span class="sd">            corresponds to the zip file stored in the</span>
+<span class="sd">            USGS server.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            File path prefix for .zip file at URL and</span>
+<span class="sd">            for .tif files stored within the .zip</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">local</span><span class="p">:</span>
+            <span class="n">file_year</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">year</span><span class="si">:</span><span class="s2">04</span><span class="si">}</span><span class="s2">_&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">file_year</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">year</span><span class="o">-</span><span class="mi">2000</span><span class="si">:</span><span class="s2">02</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">file_name</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_datasource_config</span><span class="o">.</span><span class="n">area_prefix</span><span class="si">}{</span><span class="n">file_year</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dekad</span><span class="si">:</span><span class="s2">02</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">_data_variable_suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">file_name</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_load</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">drop_modified</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load processed data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filepath : Path</span>
+<span class="sd">            Filepath to processed data</span>
+<span class="sd">        drop_modified : bool, default = False</span>
+<span class="sd">            Drop modified column, used for merging data frames</span>
+<span class="sd">            together.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.DataFrame</span>
+<span class="sd">            Processed data frame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">parse_dates</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="s2">&quot;modified&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">drop_modified</span><span class="p">:</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s2">&quot;modified&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+    <span class="k">def</span> <span class="nf">_get_raw_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">dekad</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">local</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get raw filepath.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        year : int</span>
+<span class="sd">            4-digit year</span>
+<span class="sd">        dekad : int</span>
+<span class="sd">            Dekad</span>
+<span class="sd">        local : bool</span>
+<span class="sd">            If True, returns filepath for local storage,</span>
+<span class="sd">            which includes full 4-digit year and _</span>
+<span class="sd">            separating with dekad. If False, filepath</span>
+<span class="sd">            corresponds to the zip file stored in the</span>
+<span class="sd">            USGS server.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Path</span>
+<span class="sd">            Path to raw file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_raw_filename</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span> <span class="n">dekad</span><span class="o">=</span><span class="n">dekad</span><span class="p">,</span> <span class="n">local</span><span class="o">=</span><span class="n">local</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_raw_base_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">.tif&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_get_modified_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">dekad</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get modified time of raw file.</span>
+
+<span class="sd">        Used to determine when to re-process</span>
+<span class="sd">        or re-download raw raster files.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        year : int</span>
+<span class="sd">            4-digit year</span>
+<span class="sd">        dekad : int</span>
+<span class="sd">            Dekad</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        datetime</span>
+<span class="sd">            Timestamp of when file was modified.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">filepath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_raw_path</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span> <span class="n">dekad</span><span class="o">=</span><span class="n">dekad</span><span class="p">,</span> <span class="n">local</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">filepath</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_mtime</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_processed_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feature_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">stat</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Return processed filename.</span>
+
+<span class="sd">        Returns the processed filename. The suffix</span>
+<span class="sd">        of the filename is always the ``feature_col``</span>
+<span class="sd">        the statistics are aggregated to.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            Processed filename</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">base_file_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_processed_base_filename</span><span class="p">(</span>
+            <span class="n">feature_col</span><span class="o">=</span><span class="n">feature_col</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_file_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">stat</span><span class="si">}</span><span class="s2">.csv&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_get_processed_base_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feature_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">base_file_name</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_country_config</span><span class="o">.</span><span class="n">iso3</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;_usgs_ndvi_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_data_variable</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">feature_col</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">base_file_name</span>
+
+    <span class="k">def</span> <span class="nf">_get_processed_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feature_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">stat</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_processed_base_dir</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_processed_filename</span><span class="p">(</span>
+            <span class="n">feature_col</span><span class="o">=</span><span class="n">feature_col</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="n">stat</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_find_processed_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feature_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">:</span>
+        <span class="n">base_file_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_processed_base_filename</span><span class="p">(</span>
+            <span class="n">feature_col</span><span class="o">=</span><span class="n">feature_col</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_processed_base_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_file_name</span><span class="si">}</span><span class="s2">_*.csv&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get USGS NDVI URL.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            File name string generated for specific year, dekad, and data type</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            Download URL string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/fews/web/&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_datasource_config</span><span class="o">.</span><span class="n">area_url</span><span class="si">}</span><span class="s2">/dekadal/emodis&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;/ndvi_c6/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_data_variable_url</span><span class="si">}</span><span class="s2">/&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;downloads/dekadal/</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">.zip&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># TODO: potentially move from static method to</span>
+    <span class="c1"># wider USGS function repository</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_fp_year_dekad</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Extract year and dekad from filepath.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        path : Path</span>
+<span class="sd">            Filepath</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            List of year and dekad</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">stem</span>
+        <span class="c1"># find two groups, first for year second for dekad</span>
+        <span class="n">regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(\d</span><span class="si">{4}</span><span class="s2">)_(\d</span><span class="si">{2}</span><span class="s2">)&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">regex</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">filename</span><span class="p">)[</span><span class="mi">0</span><span class="p">]]</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Centre for Humanitarian Data Predictive Analytics Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+</body>
+</html>

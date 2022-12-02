@@ -45,25 +45,3 @@ repos:
     rev: v0.29.0
     hooks:
       - id: markdownlint
-  - repo: https://github.com/jazzband/pip-tools
-    rev: 6.9.0
-    hooks:
-      - id: pip-compile
-        name: pip-compile requirements.txt
-        files: setup.cfg
-        args: [setup.cfg, -q, -o, requirements/requirements.txt]
-      - id: pip-compile
-        name: pip-compile requirements-docs.txt
-        files: requirements/docs.in
-        args: [ requirements/docs.in, -q, -o,
-                requirements/requirements-docs.txt ]
-      - id: pip-compile
-        name: pip-compile requirements-tests.txt
-        files: requirements/tests.in
-        args: [requirements/tests.in, -q, -o,
-               requirements/requirements-tests.txt]
-      - id: pip-compile
-        name: pip-compile requirements-dev.txt
-        files: requirements/(dev.in|docs.in|tests.in|requirements.txt)
-        args: [requirements/dev.in, -q, -o,
-               requirements/requirements-dev.txt]

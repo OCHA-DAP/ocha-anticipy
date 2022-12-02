@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aatoolbox.config.countryconfig &mdash; AA Toolbox  documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+</head>
+
+<body class="wy-body-for-nav">
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> AA Toolbox
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../config.html">Country Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../datasources.html">Data Sources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utilities.html">Utilities</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">AA Toolbox API</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AA Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">aatoolbox.config.countryconfig</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+
+  <h1>Source code for aatoolbox.config.countryconfig</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Country configuration setting base class.&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">root_validator</span><span class="p">,</span> <span class="n">validator</span>
+
+<span class="kn">from</span> <span class="nn">aatoolbox.utils.io</span> <span class="kn">import</span> <span class="n">parse_yaml</span>
+
+
+<div class="viewcode-block" id="CodABConfig"><a class="viewcode-back" href="../../../aatoolbox.config.html#aatoolbox.CodABConfig">[docs]</a><span class="k">class</span> <span class="nc">CodABConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;COD AB configuration.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    hdx_dataset_name: str</span>
+<span class="sd">        COD AB dataset name on HDX. Can be found by taking the filename as it</span>
+<span class="sd">        appears on the dataset page.</span>
+<span class="sd">    layer_base_name: str</span>
+<span class="sd">        The base name of the different admin layers, that presumably only</span>
+<span class="sd">        change by a single custom_layer_number depending on the level. Should</span>
+<span class="sd">        contain {admin_level} in place of the custom_layer_number.</span>
+<span class="sd">    admin_level_max: int</span>
+<span class="sd">        The maximum admin level available in the shapefile.</span>
+<span class="sd">    custom_layer_names: list, optional</span>
+<span class="sd">        Any additional layer names that don&#39;t fit into the admin level paradigm</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">hdx_dataset_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">layer_base_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">admin_level_max</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">custom_layer_names</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span>
+
+    <span class="nd">@validator</span><span class="p">(</span><span class="s2">&quot;layer_base_name&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_validate_layer_base_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">layer_base_name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">&quot;</span><span class="si">{admin_level}</span><span class="s2">&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">layer_base_name</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;The layer base name must contain &quot;</span>
+                <span class="s2">&quot;an </span><span class="si">{admin_level}</span><span class="s2"> placeholder.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">layer_base_name</span></div>
+
+
+<div class="viewcode-block" id="FewsNetConfig"><a class="viewcode-back" href="../../../aatoolbox.config.html#aatoolbox.FewsNetConfig">[docs]</a><span class="k">class</span> <span class="nc">FewsNetConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;FEWS NET configuration.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    region_name: str</span>
+<span class="sd">        Name of the region the country belongs to. Needed to download the</span>
+<span class="sd">        regional FEWS NET data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># values dictionary gets build in order attributes are listed</span>
+    <span class="c1"># so first define the dict before the region_name</span>
+    <span class="n">region_name_code_mapping</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;caribbean-central-america&quot;</span><span class="p">:</span> <span class="s2">&quot;LAC&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;central-asia&quot;</span><span class="p">:</span> <span class="s2">&quot;CA&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;east-africa&quot;</span><span class="p">:</span> <span class="s2">&quot;EA&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;southern-africa&quot;</span><span class="p">:</span> <span class="s2">&quot;SA&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;west-africa&quot;</span><span class="p">:</span> <span class="s2">&quot;WA&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">region_name</span><span class="p">:</span> <span class="nb">str</span>
+
+<div class="viewcode-block" id="FewsNetConfig.regionname_valid"><a class="viewcode-back" href="../../../aatoolbox.config.html#aatoolbox.FewsNetConfig.regionname_valid">[docs]</a>    <span class="nd">@validator</span><span class="p">(</span><span class="s2">&quot;region_name&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">regionname_valid</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check that regionname is one of the valid ones.&quot;&quot;&quot;</span>
+        <span class="n">valid_regionnames</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="s2">&quot;region_name_code_mapping&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_regionnames</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Invalid region name: </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Should be one of </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">valid_regionnames</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">v</span></div>
+
+    <span class="nd">@root_validator</span><span class="p">(</span><span class="n">pre</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">skip_on_failure</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_set_region_code</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set region code based on region name.&quot;&quot;&quot;</span>
+        <span class="n">values</span><span class="p">[</span><span class="s2">&quot;region_code&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="s2">&quot;region_name_code_mapping&quot;</span><span class="p">][</span>
+            <span class="n">values</span><span class="p">[</span><span class="s2">&quot;region_name&quot;</span><span class="p">]</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">values</span></div>
+
+
+<div class="viewcode-block" id="ReportingPoints"><a class="viewcode-back" href="../../../aatoolbox.config.html#aatoolbox.ReportingPoints">[docs]</a><span class="k">class</span> <span class="nc">ReportingPoints</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Coordinates of GloFAS reporting points.&quot;&quot;&quot;</span>
+
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">lon</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">lat</span><span class="p">:</span> <span class="nb">float</span></div>
+
+
+<div class="viewcode-block" id="Glofas"><a class="viewcode-back" href="../../../aatoolbox.config.html#aatoolbox.Glofas">[docs]</a><span class="k">class</span> <span class="nc">Glofas</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;GloFAS configuration.&quot;&quot;&quot;</span>
+
+    <span class="n">reporting_points</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ReportingPoints</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="UsgsNdviConfig"><a class="viewcode-back" href="../../../aatoolbox.config.html#aatoolbox.UsgsNdviConfig">[docs]</a><span class="k">class</span> <span class="nc">UsgsNdviConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;USGS NDVI configuration.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    area_name : str</span>
+<span class="sd">        Name of the USGS NDVI coverage area the country belongs to.</span>
+<span class="sd">        Needed to download the regional NDVI data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">area_name_mapping</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;north-africa&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;africa/north&quot;</span><span class="p">,</span> <span class="s2">&quot;na&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;east-africa&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;africa/east&quot;</span><span class="p">,</span> <span class="s2">&quot;ea&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;southern-africa&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;africa/southern&quot;</span><span class="p">,</span> <span class="s2">&quot;sa&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;west-africa&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;africa/west&quot;</span><span class="p">,</span> <span class="s2">&quot;wa&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;central-asia&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;asia/centralasia&quot;</span><span class="p">,</span> <span class="s2">&quot;cta&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;yemen&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;asia/middleeast/yemen&quot;</span><span class="p">,</span> <span class="s2">&quot;yem&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;central-america&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;lac/camcar/centralamerica&quot;</span><span class="p">,</span> <span class="s2">&quot;ca&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;hispaniola&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;lac/camcar/caribbean/hispaniola&quot;</span><span class="p">,</span> <span class="s2">&quot;hi&quot;</span><span class="p">),</span>
+    <span class="p">}</span>
+    <span class="n">area_name</span><span class="p">:</span> <span class="nb">str</span>
+
+<div class="viewcode-block" id="UsgsNdviConfig.area_name_valid"><a class="viewcode-back" href="../../../aatoolbox.config.html#aatoolbox.UsgsNdviConfig.area_name_valid">[docs]</a>    <span class="nd">@validator</span><span class="p">(</span><span class="s2">&quot;area_name&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">area_name_valid</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Check that area_name is valid.&quot;&quot;&quot;</span>
+        <span class="n">valid_area_names</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="s2">&quot;area_name_mapping&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_area_names</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Invalid area name: </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Should be one of </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">valid_area_names</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">v</span></div>
+
+    <span class="nd">@root_validator</span><span class="p">(</span><span class="n">pre</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">skip_on_failure</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_set_area_codes</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set NDVI url and prefix from area.&quot;&quot;&quot;</span>
+        <span class="n">values</span><span class="p">[</span><span class="s2">&quot;area_url&quot;</span><span class="p">],</span> <span class="n">values</span><span class="p">[</span><span class="s2">&quot;area_prefix&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span>
+            <span class="s2">&quot;area_name_mapping&quot;</span>
+        <span class="p">][</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;area_name&quot;</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="n">values</span></div>
+
+
+<div class="viewcode-block" id="CountryConfig"><a class="viewcode-back" href="../../../aatoolbox.config.html#aatoolbox.CountryConfig">[docs]</a><span class="k">class</span> <span class="nc">CountryConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Country configuration.&quot;&quot;&quot;</span>
+
+    <span class="n">iso3</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">codab</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CodABConfig</span><span class="p">]</span>
+    <span class="n">fewsnet</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">FewsNetConfig</span><span class="p">]</span>
+    <span class="n">glofas</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Glofas</span><span class="p">]</span>
+    <span class="n">usgs_ndvi</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">UsgsNdviConfig</span><span class="p">]</span>
+
+    <span class="nd">@validator</span><span class="p">(</span><span class="s2">&quot;iso3&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_validate_iso3</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">iso3</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_validate_iso3</span><span class="p">(</span><span class="n">iso3</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="create_country_config"><a class="viewcode-back" href="../../../api.html#aatoolbox.create_country_config">[docs]</a><span class="k">def</span> <span class="nf">create_country_config</span><span class="p">(</span><span class="n">iso3</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CountryConfig</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return a country configuration object from AA Toolbox.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    iso3 : str</span>
+<span class="sd">        Country ISO3, must be exactly 3 letters long</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    CountryConfig instance</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">iso3</span> <span class="o">=</span> <span class="n">_validate_iso3</span><span class="p">(</span><span class="n">iso3</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="n">parse_yaml</span><span class="p">(</span>
+            <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;countries/</span><span class="si">{</span><span class="n">iso3</span><span class="si">}</span><span class="s2">.yaml&quot;</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">FileNotFoundError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;A configuration file for </span><span class="si">{</span><span class="n">iso3</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> is not yet available &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;in AA Toolbox. Try using a custom configuration file with &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;create_custom_country_config instead, or contact us to &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;request that we add this country.&quot;</span>
+        <span class="p">)</span> <span class="kn">from</span> <span class="nn">err</span>
+    <span class="k">return</span> <span class="n">CountryConfig</span><span class="p">(</span><span class="o">**</span><span class="n">parameters</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="create_custom_country_config"><a class="viewcode-back" href="../../../api.html#aatoolbox.create_custom_country_config">[docs]</a><span class="k">def</span> <span class="nf">create_custom_country_config</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">CountryConfig</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return a custom country configuration object.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filepath: str, pathlib.Path</span>
+<span class="sd">        Path to the configuration file</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    CountryConfig instance</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">CountryConfig</span><span class="p">(</span><span class="o">**</span><span class="n">parse_yaml</span><span class="p">(</span><span class="n">filepath</span><span class="p">))</span></div>
+
+
+<span class="k">def</span> <span class="nf">_validate_iso3</span><span class="p">(</span><span class="n">iso3</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">iso3</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">str</span><span class="o">.</span><span class="n">isalpha</span><span class="p">(</span><span class="n">iso3</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ISO3 must be a three letter string.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">iso3</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Centre for Humanitarian Data Predictive Analytics Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+</body>
+</html>

@@ -12,13 +12,14 @@ environment such as ``venv``:
     python3.11 -m venv venv
     source venv/bin/activate
 
-In your virtual environment, please install all packages from
-``requirements/requirements-dev.txt``:
+In your virtual environment, please install all packages for
+development by running:
 
 .. code:: shell
 
-   pip install -r requirements/requirements-dev.txt
+   pip install .[dev]
 
+If using ZSH, you need to wrap the last term in quotes, `'.[dev]'`.
 ``aa-toolbox`` makes use of
 `geopandas <https://geopandas.org/en/stable/>`__, which depends on
 `Fiona <https://github.com/Toblerity/Fiona>`__, so you will need to
@@ -32,7 +33,7 @@ To install in editable mode for development, execute:
 
 .. code:: shell
 
-   pip install -e .
+   pip install -e .[dev]
 
 Testing
 -------
@@ -103,9 +104,9 @@ To build the documentation and test your implementation, use the following comma
 
 .. code:: shell
 
-   sphinx-build -b html -d docs/build/doctrees docs/source docs/build/html
+   sphinx-build -b html -d docs-build/doctrees docs-source docs-build/html
 
-To view the docs, open up ``docs/build/html/index.html`` in your
+To view the docs, open up ``docs-build/html/index.html`` in your
 browser.
 
 pre-commit

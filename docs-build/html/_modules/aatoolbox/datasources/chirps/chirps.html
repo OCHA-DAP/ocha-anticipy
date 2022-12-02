@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aatoolbox.datasources.chirps.chirps &mdash; AA Toolbox  documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+</head>
+
+<body class="wy-body-for-nav">
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> AA Toolbox
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../config.html">Country Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../datasources.html">Data Sources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../utilities.html">Utilities</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api.html">AA Toolbox API</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">AA Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">aatoolbox.datasources.chirps.chirps</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+
+  <h1>Source code for aatoolbox.datasources.chirps.chirps</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Class to download and load CHIRPS observational precipitation data.&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">calendar</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">ssl</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span><span class="p">,</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">urllib.request</span> <span class="kn">import</span> <span class="n">urlopen</span>
+
+<span class="kn">import</span> <span class="nn">cftime</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+
+<span class="kn">from</span> <span class="nn">aatoolbox.config.countryconfig</span> <span class="kn">import</span> <span class="n">CountryConfig</span>
+<span class="kn">from</span> <span class="nn">aatoolbox.datasources.datasource</span> <span class="kn">import</span> <span class="n">DataSource</span>
+<span class="kn">from</span> <span class="nn">aatoolbox.utils.check_file_existence</span> <span class="kn">import</span> <span class="n">check_file_existence</span>
+<span class="kn">from</span> <span class="nn">aatoolbox.utils.dates</span> <span class="kn">import</span> <span class="n">get_date_from_user_input</span>
+<span class="kn">from</span> <span class="nn">aatoolbox.utils.geoboundingbox</span> <span class="kn">import</span> <span class="n">GeoBoundingBox</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">_FIRST_AVAILABLE_DATE</span> <span class="o">=</span> <span class="n">date</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="mi">1981</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">_VALID_RESOLUTIONS</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">)</span>
+
+<span class="n">_BASE_URL</span> <span class="o">=</span> <span class="s2">&quot;https://iridl.ldeo.columbia.edu/SOURCES/.UCSB/.CHIRPS/.v2p0/&quot;</span>
+
+
+<span class="k">class</span> <span class="nc">_Chirps</span><span class="p">(</span><span class="n">DataSource</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class object to retrieve CHIRPS observational precipitation data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    country_config : CountryConfig</span>
+<span class="sd">        Country configuration</span>
+<span class="sd">    geo_bounding_box: GeoBoundingBox</span>
+<span class="sd">        the bounding coordinates of the area that should be included in the</span>
+<span class="sd">        data.</span>
+<span class="sd">    frequency: str</span>
+<span class="sd">        time resolution of the data to be downloaded. It can be &quot;daily&quot; or</span>
+<span class="sd">        &quot;monthly&quot;.</span>
+<span class="sd">    resolution: float, default = 0.05</span>
+<span class="sd">        resolution of data to be downloaded. Can be 0.05 or 0.25.</span>
+<span class="sd">    start_date: Optional[Union[datetime.date, str]], default = None</span>
+<span class="sd">        Data will be considered starting from date `start_date`.</span>
+<span class="sd">        Input can be an ISO8601 string or `datetime.date` object.</span>
+<span class="sd">        If None, it is set to 1981-1-1.</span>
+<span class="sd">    end_date: Optional[Union[datetime.date, str]], default = None</span>
+<span class="sd">        Data will be considered up to date `end_date`.</span>
+<span class="sd">        Input can be an ISO8601 string or `datetime.date` object.</span>
+<span class="sd">        If None, it is set to the date for which most recent data</span>
+<span class="sd">        is available.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">country_config</span><span class="p">:</span> <span class="n">CountryConfig</span><span class="p">,</span>
+        <span class="n">geo_bounding_box</span><span class="p">:</span> <span class="n">GeoBoundingBox</span><span class="p">,</span>
+        <span class="n">frequency</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">date_range_freq</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">resolution</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
+        <span class="n">start_date</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">date</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">end_date</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">date</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">country_config</span><span class="o">=</span><span class="n">country_config</span><span class="p">,</span>
+            <span class="n">datasource_base_dir</span><span class="o">=</span><span class="s2">&quot;chirps&quot;</span><span class="p">,</span>
+            <span class="n">is_public</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># round coordinates to correspond with the grid the CHIRPS data is on</span>
+        <span class="c1"># non-rounded coordinates can be given to the URL which then</span>
+        <span class="c1"># automatically rounds them, but for file saving we prefer to do</span>
+        <span class="c1"># this ourselves</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_geobb</span> <span class="o">=</span> <span class="n">geo_bounding_box</span><span class="o">.</span><span class="n">round_coords</span><span class="p">(</span><span class="n">round_val</span><span class="o">=</span><span class="n">resolution</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_frequency</span> <span class="o">=</span> <span class="n">frequency</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resolution</span> <span class="o">=</span> <span class="n">resolution</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_date_range_freq</span> <span class="o">=</span> <span class="n">date_range_freq</span>
+
+        <span class="k">if</span> <span class="n">start_date</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">start_date</span> <span class="o">=</span> <span class="n">_FIRST_AVAILABLE_DATE</span>
+        <span class="k">if</span> <span class="n">end_date</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">end_date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_last_available_date</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_start_date</span> <span class="o">=</span> <span class="n">get_date_from_user_input</span><span class="p">(</span><span class="n">start_date</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_end_date</span> <span class="o">=</span> <span class="n">get_date_from_user_input</span><span class="p">(</span><span class="n">end_date</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_dates_validity</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">resolution</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_VALID_RESOLUTIONS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The given resolution is </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_resolution</span><span class="si">}</span><span class="s2">, which is &quot;</span>
+                <span class="s2">&quot;not available. Has to be 0.05 or 0.25.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">download</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">clobber</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download the CHIRPS observed precipitation as NetCDF file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        clobber : bool, default = False</span>
+<span class="sd">            If True, overwrites existing raw files</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        The folder where the data is downloaded.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Create a list of date tuples</span>
+        <span class="n">date_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_date_list</span><span class="p">(</span><span class="n">logging_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+
+        <span class="c1"># Data download</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">date_list</span><span class="p">:</span>
+            <span class="n">last_filepath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_download_prep</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">d</span><span class="p">,</span> <span class="n">clobber</span><span class="o">=</span><span class="n">clobber</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">last_filepath</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clobber</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Process the CHIRPS data.</span>
+
+<span class="sd">        Should only be called after data has been download.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        clobber : bool, default = False</span>
+<span class="sd">            If True, overwrites existing processed files.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        The folder where the data is processed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Create a list with all raw data downloaded</span>
+        <span class="n">filepath_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_to_be_processed_path_list</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">filepath</span> <span class="ow">in</span> <span class="n">filepath_list</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;The dataset </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s2"> is not a valid netcdf file: &quot;</span>
+                    <span class="s2">&quot;something probbly went wrong during the download. &quot;</span>
+                    <span class="s2">&quot;Try downloading the file again.&quot;</span>
+                <span class="p">)</span> <span class="kn">from</span> <span class="nn">err</span>
+            <span class="n">processed_file_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_processed_path</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+            <span class="n">processed_file_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">last_filepath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">(</span>
+                <span class="n">filepath</span><span class="o">=</span><span class="n">processed_file_path</span><span class="p">,</span> <span class="n">ds</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span> <span class="n">clobber</span><span class="o">=</span><span class="n">clobber</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">last_filepath</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load the CHIRPS data.</span>
+
+<span class="sd">        Should only be called after the data</span>
+<span class="sd">        has been downloaded and processed.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        The processed CHIRPS dataset.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get list of filepaths of files to be loaded</span>
+
+        <span class="n">filepath_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_to_be_loaded_path_list</span><span class="p">()</span>
+
+        <span class="c1"># Merge all files in one dataset</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">filepath_list</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+                <span class="s2">&quot;Cannot find any netcdf file for the chosen combination &quot;</span>
+                <span class="s2">&quot;of frequency, resolution and area. Make sure &quot;</span>
+                <span class="s2">&quot;sure that you have already called the &#39;process&#39; method.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_mfdataset</span><span class="p">(</span>
+                <span class="n">filepath_list</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="c1"># include the names of all files that are included in the ds</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;included_files&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">stem</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">filepath_list</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+                <span class="s2">&quot;Cannot find one or more netcdf files corresponding &quot;</span>
+                <span class="s2">&quot;to the selected range. Make sure that you already &quot;</span>
+                <span class="s2">&quot;downloaded and processed those data.&quot;</span>
+            <span class="p">)</span> <span class="kn">from</span> <span class="nn">err</span>
+
+        <span class="k">return</span> <span class="n">ds</span><span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">write_crs</span><span class="p">(</span><span class="s2">&quot;EPSG:4326&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_download_prep</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">clobber</span><span class="p">):</span>
+        <span class="c1"># Preparatory steps for the actual download</span>
+        <span class="n">year</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
+        <span class="n">month</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">d</span><span class="o">.</span><span class="n">month</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">day</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">d</span><span class="o">.</span><span class="n">day</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">output_filepath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_raw_path</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="n">month</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="n">day</span><span class="p">)</span>
+        <span class="n">output_filepath</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_url</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="n">month</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="n">day</span><span class="p">)</span>
+        <span class="c1"># Actual download</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_download</span><span class="p">(</span>
+            <span class="n">filepath</span><span class="o">=</span><span class="n">output_filepath</span><span class="p">,</span>
+            <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
+            <span class="n">clobber</span><span class="o">=</span><span class="n">clobber</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_create_date_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logging_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create list of tuples containing the range of dates of interest.&quot;&quot;&quot;</span>
+        <span class="n">date_list</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_start_date</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end_date</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_date_range_freq</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="c1"># Create a message containing information on the downloaded data</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_frequency</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="s2">&quot;data will be downloaded, starting from &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">date_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">date_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">logging_level</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">date_list</span>
+
+    <span class="k">def</span> <span class="nf">_check_dates_validity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check dates vailidity.&quot;&quot;&quot;</span>
+        <span class="n">end_avail_date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_last_available_date</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="ow">not</span> <span class="n">_FIRST_AVAILABLE_DATE</span>
+            <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start_date</span>
+            <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end_date</span>
+            <span class="o">&lt;=</span> <span class="n">end_avail_date</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Make sure that the input dates are ordered in the following &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;way: </span><span class="si">{</span><span class="n">_FIRST_AVAILABLE_DATE</span><span class="si">}</span><span class="s2"> &lt;= </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_start_date</span><span class="si">}</span><span class="s2"> &lt;= &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_end_date</span><span class="si">}</span><span class="s2"> &lt;= </span><span class="si">{</span><span class="n">end_avail_date</span><span class="si">}</span><span class="s2">. The two dates above &quot;</span>
+                <span class="s2">&quot;indicate the range for which CHIRPS data are &quot;</span>
+                <span class="s2">&quot;currently available.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_file_name_base</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">year</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">month</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">month</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">month</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;0</span><span class="si">{</span><span class="n">month</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="n">file_name_base</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_country_config</span><span class="o">.</span><span class="n">iso3</span><span class="si">}</span><span class="s2">_chirps_&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_frequency</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">month</span><span class="si">}</span><span class="s2">_&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">file_name_base</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_get_file_name</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">year</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">month</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">day</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">_get_raw_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">year</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">month</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">day</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_raw_base_dir</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_file_name</span><span class="p">(</span>
+            <span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="n">month</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="n">day</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_processed_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_processed_base_dir</span> <span class="o">/</span> <span class="n">raw_path</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_get_location_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">location_url</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;X/%28</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_geobb</span><span class="o">.</span><span class="n">lon_min</span><span class="si">}</span><span class="s2">%29%28</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_geobb</span><span class="o">.</span><span class="n">lon_max</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;%29RANGEEDGES/&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Y/%28</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_geobb</span><span class="o">.</span><span class="n">lat_max</span><span class="si">}</span><span class="s2">%29%28</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_geobb</span><span class="o">.</span><span class="n">lat_min</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;%29RANGEEDGES/&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">location_url</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_get_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">year</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">month</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">day</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_get_last_available_date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">_get_to_be_processed_path_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get list of filepaths of files to be processed.&quot;&quot;&quot;</span>
+        <span class="n">date_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_date_list</span><span class="p">()</span>
+
+        <span class="n">filepath_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_raw_path</span><span class="p">(</span>
+                <span class="n">year</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">d</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">d</span><span class="o">.</span><span class="n">month</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">d</span><span class="o">.</span><span class="n">day</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">date_list</span>
+        <span class="p">]</span>
+        <span class="n">filepath_list</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">filepath_list</span>
+
+    <span class="k">def</span> <span class="nf">_get_to_be_loaded_path_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get list of filepaths of files to be loaded.&quot;&quot;&quot;</span>
+        <span class="n">date_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_date_list</span><span class="p">()</span>
+
+        <span class="n">filepath_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_processed_path</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_get_raw_path</span><span class="p">(</span>
+                    <span class="n">year</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">d</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">month</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">d</span><span class="o">.</span><span class="n">month</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">day</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">d</span><span class="o">.</span><span class="n">day</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">date_list</span>
+        <span class="p">]</span>
+        <span class="n">filepath_list</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">filepath_list</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_read_csv_from_url</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+
+        <span class="n">context</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">create_default_context</span><span class="p">()</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">set_ciphers</span><span class="p">(</span><span class="s2">&quot;DEFAULT&quot;</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+    <span class="nd">@check_file_existence</span>
+    <span class="k">def</span> <span class="nf">_download</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">clobber</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Downloading CHIRPS NetCDF file.&quot;</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">url</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out_file</span><span class="p">:</span>
+            <span class="n">out_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">filepath</span>
+
+    <span class="nd">@check_file_existence</span>
+    <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">clobber</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+
+<div class="viewcode-block" id="ChirpsMonthly"><a class="viewcode-back" href="../../../../api.html#aatoolbox.ChirpsMonthly">[docs]</a><span class="k">class</span> <span class="nc">ChirpsMonthly</span><span class="p">(</span><span class="n">_Chirps</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class object to retrieve CHIRPS observational monthly precipitation data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    country_config : CountryConfig</span>
+<span class="sd">        Country configuration</span>
+<span class="sd">    geo_bounding_box: GeoBoundingBox</span>
+<span class="sd">        the bounding coordinates of the area that should be included in the</span>
+<span class="sd">        data.</span>
+<span class="sd">    start_date: Optional[Union[datetime.date, str]], default = None</span>
+<span class="sd">        Data will be considered starting from date `start_date`.</span>
+<span class="sd">        Input can be an ISO8601 string or `datetime.date` object.</span>
+<span class="sd">        If None, it is set to 1981-1-1.</span>
+<span class="sd">    end_date: Optional[Union[datetime.date, str]], default = None</span>
+<span class="sd">        Data will be considered up to date `end_date`.</span>
+<span class="sd">        Input can be an ISO8601 string or `datetime.date` object.</span>
+<span class="sd">        If None, it is set to the date for which most recent data</span>
+<span class="sd">        is available.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from aatoolbox import create_country_config, CodAB, GeoBoundingBox</span>
+<span class="sd">    &gt;&gt;&gt; from aatoolbox import ChirpsMonthly</span>
+<span class="sd">    &gt;&gt;&gt; import datetime</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; country_config = create_country_config(iso3=&quot;bfa&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; codab = CodAB(country_config=country_config)</span>
+<span class="sd">    &gt;&gt;&gt; codab.download()</span>
+<span class="sd">    &gt;&gt;&gt; admin0 = codab.load(admin_level=0)</span>
+<span class="sd">    &gt;&gt;&gt; geo_bounding_box = GeoBoundingBox.from_shape(admin0)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; start_date = datetime.date(year=2007, month=10, day=23)</span>
+<span class="sd">    &gt;&gt;&gt; end_date = datetime.date(year=2020, month=3, day=2)</span>
+<span class="sd">    &gt;&gt;&gt; chirps_monthly = ChirpsMonthly(</span>
+<span class="sd">    ...   country_config=country_config,</span>
+<span class="sd">    ...   geo_bounding_box=geo_bounding_box,</span>
+<span class="sd">    ...   start_date=start_date,</span>
+<span class="sd">    ...   end_date=end_date</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; chirps_monthly.download()</span>
+<span class="sd">    &gt;&gt;&gt; chirps_monthly.process()</span>
+<span class="sd">    &gt;&gt;&gt; chirps_monthly_data = chirps_monthly.load()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">country_config</span><span class="p">:</span> <span class="n">CountryConfig</span><span class="p">,</span>
+        <span class="n">geo_bounding_box</span><span class="p">:</span> <span class="n">GeoBoundingBox</span><span class="p">,</span>
+        <span class="n">start_date</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">date</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">end_date</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">date</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">country_config</span><span class="o">=</span><span class="n">country_config</span><span class="p">,</span>
+            <span class="n">geo_bounding_box</span><span class="o">=</span><span class="n">geo_bounding_box</span><span class="p">,</span>
+            <span class="n">date_range_freq</span><span class="o">=</span><span class="s2">&quot;SMS&quot;</span><span class="p">,</span>
+            <span class="n">frequency</span><span class="o">=</span><span class="s2">&quot;monthly&quot;</span><span class="p">,</span>
+            <span class="n">resolution</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+            <span class="n">start_date</span><span class="o">=</span><span class="n">start_date</span><span class="p">,</span>
+            <span class="n">end_date</span><span class="o">=</span><span class="n">end_date</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_file_name</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">year</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">month</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">day</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+        <span class="n">file_name_base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_file_name_base</span><span class="p">(</span>
+            <span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span>
+            <span class="n">month</span><span class="o">=</span><span class="n">month</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">file_name</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_name_base</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;r</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_resolution</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_geobb</span><span class="o">.</span><span class="n">get_filename_repr</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="si">}</span><span class="s2">.nc&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">file_name</span>
+
+    <span class="k">def</span> <span class="nf">_get_last_available_date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the most recent date for which data is available.&quot;&quot;&quot;</span>
+        <span class="c1"># The url contains a table where the last date available is</span>
+        <span class="c1"># specified.</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_BASE_URL</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;.monthly/.global/&quot;</span>
+            <span class="s2">&quot;.T/last/subgrid/0./add/T/table%3A/1/%3Atable/.csv&quot;</span>
+        <span class="p">)</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_csv_from_url</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
+        <span class="n">datetime_object</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;%b %Y&quot;</span><span class="p">)</span>
+        <span class="n">day</span> <span class="o">=</span> <span class="n">calendar</span><span class="o">.</span><span class="n">monthrange</span><span class="p">(</span><span class="n">datetime_object</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">datetime_object</span><span class="o">.</span><span class="n">month</span><span class="p">)[</span>
+            <span class="mi">1</span>
+        <span class="p">]</span>
+        <span class="n">datetime_object</span> <span class="o">=</span> <span class="n">datetime_object</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">day</span><span class="o">=</span><span class="n">day</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">datetime_object</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_get_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">year</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">month</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">day</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+        <span class="c1"># Convert month from month number (in string format) to</span>
+        <span class="c1"># three-letter name</span>
+        <span class="n">month_name</span> <span class="o">=</span> <span class="n">calendar</span><span class="o">.</span><span class="n">month_abbr</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">month</span><span class="p">)]</span>
+
+        <span class="n">location_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_location_url</span><span class="p">()</span>
+
+        <span class="n">url</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_BASE_URL</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;.monthly/.global/.precipitation/&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">location_url</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;T/%28</span><span class="si">{</span><span class="n">month_name</span><span class="si">}</span><span class="s2">%20</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">%29%28</span><span class="si">{</span><span class="n">month_name</span><span class="si">}</span><span class="s2">%20</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;%29RANGEEDGES/data.nc&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">url</span>
+
+    <span class="nd">@check_file_existence</span>
+    <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">clobber</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+        <span class="c1"># fix dates</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">aat</span><span class="o">.</span><span class="n">correct_calendar</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">decode_cf</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;prcp&quot;</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s2">&quot;prcp&quot;</span><span class="p">:</span> <span class="s2">&quot;precipitation&quot;</span><span class="p">})</span>
+        <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">filepath</span></div>
+
+
+<div class="viewcode-block" id="ChirpsDaily"><a class="viewcode-back" href="../../../../api.html#aatoolbox.ChirpsDaily">[docs]</a><span class="k">class</span> <span class="nc">ChirpsDaily</span><span class="p">(</span><span class="n">_Chirps</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class object to retrieve CHIRPS observational monthly precipitation data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    country_config : CountryConfig</span>
+<span class="sd">        Country configuration</span>
+<span class="sd">    geo_bounding_box: GeoBoundingBox</span>
+<span class="sd">        the bounding coordinates of the area that should be included in the</span>
+<span class="sd">        data.</span>
+<span class="sd">    resolution: float, default = 0.05</span>
+<span class="sd">        resolution of data to be downloaded. Can be 0.05 or 0.25.</span>
+<span class="sd">    start_date: Optional[Union[datetime.date, str]], default = None</span>
+<span class="sd">        Data will be considered starting from date `start_date`.</span>
+<span class="sd">        Input can be an ISO8601 string or `datetime.date` object.</span>
+<span class="sd">        If None, it is set to 1981-1-1.</span>
+<span class="sd">    end_date: Optional[Union[datetime.date, str]], default = None</span>
+<span class="sd">        Data will be considered up to date `end_date`.</span>
+<span class="sd">        Input can be an ISO8601 string or `datetime.date` object.</span>
+<span class="sd">        If None, it is set to the date for which most recent data</span>
+<span class="sd">        is available.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from aatoolbox import create_country_config, CodAB, GeoBoundingBox,</span>
+<span class="sd">    ... ChirpsDaily</span>
+<span class="sd">    &gt;&gt;&gt; import datetime</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; country_config = create_country_config(iso3=&quot;bfa&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; codab = CodAB(country_config=country_config)</span>
+<span class="sd">    &gt;&gt;&gt; codab.download()</span>
+<span class="sd">    &gt;&gt;&gt; admin0 = codab.load(admin_level=0)</span>
+<span class="sd">    &gt;&gt;&gt; geo_bounding_box = GeoBoundingBox.from_shape(admin0)</span>
+<span class="sd">    &gt;&gt;&gt; start_date = datetime.date(year=2007, month=10, day=23)</span>
+<span class="sd">    &gt;&gt;&gt; end_date = datetime.date(year=2020, month=3, day=2)</span>
+<span class="sd">    &gt;&gt;&gt; chirps_daily = ChirpsDaily(</span>
+<span class="sd">    ...   country_config=country_config,</span>
+<span class="sd">    ...   geo_bounding_box=geo_bounding_box,</span>
+<span class="sd">    ...   start_date=start_date,</span>
+<span class="sd">    ...   end_date=end_date</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; chirps_daily.download()</span>
+<span class="sd">    &gt;&gt;&gt; chirps_daily.process()</span>
+<span class="sd">    &gt;&gt;&gt; chirps_daily_data = chirps_daily.load()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">country_config</span><span class="p">:</span> <span class="n">CountryConfig</span><span class="p">,</span>
+        <span class="n">geo_bounding_box</span><span class="p">:</span> <span class="n">GeoBoundingBox</span><span class="p">,</span>
+        <span class="n">resolution</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
+        <span class="n">start_date</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">date</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">end_date</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">date</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">country_config</span><span class="o">=</span><span class="n">country_config</span><span class="p">,</span>
+            <span class="n">geo_bounding_box</span><span class="o">=</span><span class="n">geo_bounding_box</span><span class="p">,</span>
+            <span class="n">date_range_freq</span><span class="o">=</span><span class="s2">&quot;D&quot;</span><span class="p">,</span>
+            <span class="n">frequency</span><span class="o">=</span><span class="s2">&quot;daily&quot;</span><span class="p">,</span>
+            <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span>
+            <span class="n">start_date</span><span class="o">=</span><span class="n">start_date</span><span class="p">,</span>
+            <span class="n">end_date</span><span class="o">=</span><span class="n">end_date</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_file_name</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">year</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">month</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">day</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+        <span class="n">file_name_base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_file_name_base</span><span class="p">(</span>
+            <span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span>
+            <span class="n">month</span><span class="o">=</span><span class="n">month</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">day</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">day</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;0</span><span class="si">{</span><span class="n">day</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="n">file_name</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_name_base</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">day</span><span class="si">}</span><span class="s2">_&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;r</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_resolution</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_geobb</span><span class="o">.</span><span class="n">get_filename_repr</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="si">}</span><span class="s2">.nc&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">file_name</span>
+
+    <span class="k">def</span> <span class="nf">_get_last_available_date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the most recent date for which data is available.&quot;&quot;&quot;</span>
+        <span class="c1"># The url contains a table where the last date available is</span>
+        <span class="c1"># specified.</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_BASE_URL</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;.daily-improved/.global/&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_resolution</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">/&quot;</span>
+            <span class="s2">&quot;.T/last/subgrid/0./add/T/table%3A/1/%3Atable/.csv&quot;</span>
+        <span class="p">)</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_csv_from_url</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
+        <span class="n">datetime_object</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> %b %Y&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">datetime_object</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_get_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">year</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">month</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">day</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+        <span class="c1"># Convert month from month number (in string format) to</span>
+        <span class="c1"># three-letter name</span>
+        <span class="n">month_name</span> <span class="o">=</span> <span class="n">calendar</span><span class="o">.</span><span class="n">month_abbr</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">month</span><span class="p">)]</span>
+
+        <span class="n">location_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_location_url</span><span class="p">()</span>
+
+        <span class="n">url</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_BASE_URL</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;.daily-improved/.global/.&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_resolution</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">/.prcp/&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">location_url</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;T/%28</span><span class="si">{</span><span class="n">day</span><span class="si">}</span><span class="s2">%20</span><span class="si">{</span><span class="n">month_name</span><span class="si">}</span><span class="s2">%20</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">%29%28</span><span class="si">{</span><span class="n">day</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;%20</span><span class="si">{</span><span class="n">month_name</span><span class="si">}</span><span class="s2">%20</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;%29RANGEEDGES/data.nc&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">url</span>
+
+    <span class="nd">@check_file_existence</span>
+    <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">clobber</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+        <span class="c1"># fix dates</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span>
+            <span class="n">T</span><span class="o">=</span><span class="n">cftime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromordinal</span><span class="p">(</span>
+                <span class="n">ds</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">calendar</span><span class="o">=</span><span class="s2">&quot;standard&quot;</span><span class="p">,</span> <span class="n">has_year_zero</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">aat</span><span class="o">.</span><span class="n">correct_calendar</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;prcp&quot;</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s2">&quot;prcp&quot;</span><span class="p">:</span> <span class="s2">&quot;precipitation&quot;</span><span class="p">})</span>
+        <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">filepath</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Centre for Humanitarian Data Predictive Analytics Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+</body>
+</html>
