@@ -17,6 +17,8 @@ Added
 - Modules for downloading and processing CHIRPS rainfall,
   GloFAS river discharge, and USGS NDVI data
 - Utilities to streamline use of strings for dates across modules
+- COD AB configuration now has an ``admin{level}_name`` custom
+  layer name parameter
 - Logging for files being overwritten or not due to clobber
 
 Changed
@@ -35,6 +37,7 @@ Fixed
 
 - The check in ``DataSource`` for the required configuration file
   section now also checks if the section is ``None``
+- All available admin levels for DRC and Ethiopia are now accessible
 - IRI download method now checks request headers to verify authentication
 
 [0.4.1] - 2022-05-10
