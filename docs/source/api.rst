@@ -4,7 +4,7 @@ AA Toolbox API
 Configuration
 -------------
 
-.. automodule:: aatoolbox.countryconfig
+.. autoclass:: aatoolbox.CountryConfig
 
 .. autofunction:: aatoolbox.create_country_config
 .. autofunction:: aatoolbox.create_custom_country_config
@@ -61,7 +61,7 @@ Forecast
    :inherited-members:
 
 Reforecast
-""""""""
+""""""""""
 
 .. autoclass:: aatoolbox.GlofasReforecast
    :inherited-members:
@@ -123,7 +123,7 @@ GeoboundingBox
    :members:
 
 Raster module
-^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^
 
 .. automodule:: aatoolbox.utils.raster
 
