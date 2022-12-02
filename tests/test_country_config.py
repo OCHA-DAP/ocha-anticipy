@@ -95,34 +95,6 @@ def test_codab_validate_layer_base_name(mock_parse_yaml):
 
 
 def test_codab_validate_admin_level_max(mock_parse_yaml):
-    """Test that layer basename requires correct placeholder."""
-    config_base = {
-        "iso3": "abc",
-        "codab": {
-            "hdx_dataset_name": "fake_dataset_name",
-            "layer_base_name": "layer_base_name_{admin_level}",
-            "admin_level_max": 1,
-        },
-    }
-    config_correct = copy.deepcopy(config_base)
-    config_incorrect_a = copy.deepcopy(config_base)
-    config_incorrect_a["codab"]["admin_level_max"] = -1
-    config_incorrect_b = copy.deepcopy(config_base)
-    config_incorrect_b["codab"]["admin_level_max"] = 5
-    mock_parse_yaml(
-        output_list=[config_correct, config_incorrect_a, config_incorrect_b]
-    )
-    # Check that correct config runs without issue
-    create_country_config(iso3="abc")
-    # Check that incorrect config raises error for config incorrect a
-    with pytest.raises(ValueError):
-        create_country_config(iso3="abc")
-    # Check that incorrect config raises error for config incorrect b
-    with pytest.raises(ValueError):
-        create_country_config(iso3="abc")
-
-
-def test_codab_admin_level_max(mock_parse_yaml):
     """Test that admin level can only be between 0 and 4."""
     config_base = {
         "iso3": "abc",
