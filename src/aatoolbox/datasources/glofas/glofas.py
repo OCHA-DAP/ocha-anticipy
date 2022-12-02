@@ -7,19 +7,22 @@ from datetime import date
 from pathlib import Path
 from typing import List, Tuple, Union
 
+import cdsapi
 import numpy as np
 import xarray as xr
 from dateutil import rrule
 
 from aatoolbox.config.countryconfig import CountryConfig
 from aatoolbox.datasources.datasource import DataSource
-from aatoolbox.utils.check_extra_import import _check_extra_import
+
+# from aatoolbox.utils.check_extra_import import _check_extra_import
 from aatoolbox.utils.dates import get_date_from_user_input
 from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
 # check that extra libraries are installed
-cdsapi = _check_extra_import(library="cdsapi", subpackage="glofas")
-_check_extra_import(library="cfgrib", subpackage="glofas")
+# cdsapi = _check_extra_import(library="cdsapi", subpackage="glofas")
+# _check_extra_import(library="cfgrib", subpackage="glofas")
+
 
 _MODULE_BASENAME = "glofas"
 _HYDROLOGICAL_MODEL = "lisflood"
