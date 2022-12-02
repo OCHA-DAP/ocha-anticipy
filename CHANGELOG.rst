@@ -23,6 +23,8 @@ Changed
 
 - Documented and moved the raster processing module to the top level
   for public access
+- Optional dependencies and documentation, testing, and development
+reqirements moved to ``extras_require``
 
 Fixed
 ~~~~~
