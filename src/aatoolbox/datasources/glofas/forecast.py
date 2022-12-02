@@ -69,7 +69,7 @@ def _read_in_ensemble_and_perturbed_datasets(filepath: Path):
 
     This function reads in both datasets and creates an N+1 (perturbed
     + control) ensemble.
-    See `this paper <https://hess.copernicus.org/preprints/hess-2020-532/>`_
+    See `this paper <https://hess.copernicus.org/preprints/hess-2020-532/>`__
     for more details.
     """
     ds_list = []
@@ -95,7 +95,7 @@ class GlofasForecast(_GlofasForecastBase):
 
     The GloFAS forecast dataset is a global raster presenting river
     discharge forecast from 26 May 2021 until present day (updated daily), see
-    `this paper <https://hess.copernicus.org/preprints/hess-2020-532/>`_
+    `this paper <https://hess.copernicus.org/preprints/hess-2020-532/>`__
     for more details. While CDS does have version 3 pre-release data
     from 2020-2021,
     we understand that there were some small issues that were fixed
@@ -104,7 +104,7 @@ class GlofasForecast(_GlofasForecastBase):
 
     This class downloads the raw raster data
     `from CDS
-    <https://cds.climate.copernicus.eu/cdsapp#!/dataset/cems-glofas-forecast?tab=overview>`_,
+    <https://cds.climate.copernicus.eu/cdsapp#!/dataset/cems-glofas-forecast?tab=overview>`__,
     and processes it from a raster to a datasets of reporting points from the
     `GloFAS interface
     <https://www.globalfloods.eu/glofas-forecasting/>`_.
@@ -193,7 +193,7 @@ class GlofasReforecast(_GlofasForecastBase):
 
     This class downloads the raw raster data
     `from CDS
-    <https://cds.climate.copernicus.eu/cdsapp#!/dataset/cems-glofas-reforecast?tab=overview>`_,
+    <https://cds.climate.copernicus.eu/cdsapp#!/dataset/cems-glofas-reforecast?tab=overview>`__,
     and processes it from a raster to a datasets of reporting points from the
     `GloFAS interface
     <https://www.globalfloods.eu/glofas-forecasting/>`_.

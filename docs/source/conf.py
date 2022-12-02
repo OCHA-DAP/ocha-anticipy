@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.abspath("../.."))
 
 project = "AA Toolbox"
 author = "Centre for Humanitarian Data Predictive Analytics Team"
-copyright = "2021, Centre for Humanitarian Data Predictive Analytics Team"
+copyright = "2022, Centre for Humanitarian Data Predictive Analytics Team"
 
 # -- General configuration ---------------------------------------------------
 

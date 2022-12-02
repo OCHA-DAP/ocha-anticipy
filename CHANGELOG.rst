@@ -14,17 +14,23 @@ Unreleased
 Added
 ~~~~~
 
-- Module for downloading and processing GloFAS data
-- Module for downloading and processing USGS NDVI data
+- Modules for downloading and processing CHIRPS rainfall,
+  GloFAS river discharge, and USGS NDVI data
 - Utilities to streamline use of strings for dates across modules
 - COD AB configuration now has an ``admin{level}_name`` custom
   layer name parameter
+- Logging for files being overwritten or not due to clobber
 
 Changed
 ~~~~~~~
 
 - Documented and moved the raster processing module to the top level
   for public access
+
+Removed
+~~~~~~~
+
+- Python 3.6 support
 
 Fixed
 ~~~~~
