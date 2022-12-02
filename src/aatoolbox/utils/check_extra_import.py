@@ -1,22 +1,25 @@
 """Check imports that are in extras_require."""
-import importlib
+import importlib.util
 
 
-def _check_extra_import(library: str, subpackage: str):
+def _check_extra_imports(libraries: list, subpackage: str):
     """Import library or error if not installed.
 
     Parameters
     ----------
-    library : str
-        String of library to import.
+    libraries : str
+        List of libraries to check.
     subpackage : str
         String of subpackage defined for extra_requires
         that import should warn to install from.
     """
-    try:
-        return importlib.import_module(library)
-    except ModuleNotFoundError as err:
+    missing_pkgs = []
+    for library in libraries:
+        if importlib.util.find_spec(library) is None:
+            missing_pkgs += [library]
+
+    if missing_pkgs:
         raise ModuleNotFoundError(
-            f"{library} library is not found. Install it "
-            f"using `pip install aa-toolbox[{subpackage}]`."
-        ) from err
+            f"{', '.join(missing_pkgs)} were not found. Install the "
+            f"missing packages with `pip install aa-toolbox[{subpackage}]`."
+        )
