@@ -3,7 +3,7 @@ import importlib.util
 
 
 def _check_extra_imports(libraries: list, subpackage: str):
-    """Import library or error if not installed.
+    """Check that libraries are installed and available.
 
     Parameters
     ----------

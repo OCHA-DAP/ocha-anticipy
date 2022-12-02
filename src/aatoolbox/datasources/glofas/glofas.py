@@ -13,7 +13,7 @@ from dateutil import rrule
 
 from aatoolbox.config.countryconfig import CountryConfig
 from aatoolbox.datasources.datasource import DataSource
-from aatoolbox.utils.check_extra_import import _check_extra_imports
+from aatoolbox.utils.check_extra_imports import _check_extra_imports
 from aatoolbox.utils.dates import get_date_from_user_input
 from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
