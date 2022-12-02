@@ -198,11 +198,11 @@ class _IriForecast(DataSource):
         )
         if response.headers["Content-Type"] != "application/x-netcdf":
             msg = (
-                f"The request returned headers indicating that there was "
-                f"an issue with the authentication. Please check the "
+                f"The request returned headers indicating that the expected "
+                f"file type was not returned. In some cases th  is may be due "
+                f"to an issue with the authentication. Please check the "
                 f"validity of the authentication key found in your "
-                f"{_IRI_AUTH} environment variable and try to download "
-                f"again."
+                f"{_IRI_AUTH} environment variable and try again."
             )
             raise requests.RequestException(msg)
         with open(filepath, "wb") as out_file:
