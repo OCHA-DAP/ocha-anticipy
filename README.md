@@ -23,6 +23,14 @@ Install and update using [pip](https://pip.pypa.io/en/stable/getting-started/):
 pip install -U aa-toolbox
 ```
 
+Some modules of the toolbox have specific dependencies not installed by default.
+These are documented within each module, but all dependencies can be installed
+using.
+
+```shell
+pip install -U aa-toolbox[full]
+```
+
 ## A Simple Example
 
 Download the admin boundary CODs for Nepal, and retrieve provinces

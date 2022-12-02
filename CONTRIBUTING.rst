@@ -134,20 +134,32 @@ package management.
 
 If you’ve introduced a new package to the source code (i.e. anywhere in
 ``src/``), please add it to the ``install_requires`` section of
-``setup.cfg`` with any known version constraints. For adding packages
-for development, documentation, or tests, add them to the relevant
-``.in`` file in the ``requirements`` directory. When you modify any of
-these lists, please try to keep them alphabetical! Any changes to the
-``requirements*.txt`` files will be generated with ``pre-commit``.
+``setup.cfg`` with any known version constraints. However, in the
+case where a library is only required for a single data source,
+these should be added in the ``options.extras_require`` section
+of ``setup.cfg``, with a relevant name for the requirements list.
+For example, the GLOFAS module relies on the ``cdsapi`` and
+``cfgrib`` packages, and would look like.
 
-To run this without commiting, execute:
+.. code::
 
-.. code:: shell
+   [options.extras_require]
+   glofas =
+      cdsapi
+      cfgrib
 
-   pre-commit run pip-compile --all-files
+Also add reference to the subpackage under ``full`` using the
+``%(subpackage)s`` format.
 
-For other functionality such as updating specific package versions,
-refer to the ``pip-tools`` documentation.
+.. code::
+
+   full =
+      %(glofas)s
+
+For adding packages for testing, documentation, or development, add them to
+the relevant subpackage under ``[options.extras_require]``, ``test``,
+``doc``, and ``dev`` respectively. When you modify any of
+these lists, please try to keep them alphabetical!
 
 Package Release
 ---------------
