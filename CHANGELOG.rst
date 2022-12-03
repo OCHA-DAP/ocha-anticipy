@@ -14,9 +14,12 @@ Unreleased
 Added
 ~~~~~
 
-- Module for downloading and processing GloFAS data
-- Module for downloading and processing USGS NDVI data
+- Modules for downloading and processing CHIRPS rainfall,
+  GloFAS river discharge, and USGS NDVI data
 - Utilities to streamline use of strings for dates across modules
+- COD AB configuration now has an ``admin{level}_name`` custom
+  layer name parameter
+- Logging for files being overwritten or not due to clobber
 
 Changed
 ~~~~~~~
@@ -26,11 +29,25 @@ Changed
 - Optional dependencies and documentation, testing, and development
 reqirements moved to ``extras_require``
 
+Removed
+~~~~~~~
+- Python 3.6 support
+
+Fixed
+~~~~~
+- The check in ``DataSource`` for the required configuration file
+  section now also checks if the section is ``None``
+- All available admin levels for DRC and Ethiopia are now accessible
+- IRI download method now checks request headers to verify authentication
+
+[0.4.2] - 2022-05-13
+--------------------
+
 Fixed
 ~~~~~
 
-- The check in ``DataSource`` for the required configuration file
-  section now also checks if the section is ``None``
+- Upgrade version of hdx-python-api to prevent bug when downloading
+
 
 [0.4.1] - 2022-05-10
 --------------------

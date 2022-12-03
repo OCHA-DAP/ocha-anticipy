@@ -108,8 +108,8 @@ class CodAB(DataSource):
                 f"config file"
             )
         return self._load_admin_layer(
-            layer_name=self._datasource_config.layer_base_name.format(
-                admin_level=admin_level
+            layer_name=getattr(
+                self._datasource_config, f"admin{admin_level}_name"
             )
         )
 
