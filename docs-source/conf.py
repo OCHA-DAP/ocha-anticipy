@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.abspath(".."))
 
 # -- Project information -----------------------------------------------------
 
-project = "aatoolbox"
+project = "aa-toolbox"
 author = "Centre for Humanitarian Data Predictive Analytics Team"
 copyright = "2021, Centre for Humanitarian Data Predictive Analytics Team"
 

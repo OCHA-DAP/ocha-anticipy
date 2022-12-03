@@ -17,10 +17,6 @@ from aatoolbox.utils.check_extra_imports import _check_extra_imports
 from aatoolbox.utils.dates import get_date_from_user_input
 from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
-# check that extra libraries are installed
-_check_extra_imports(libraries=["cdsapi", "cfgrib"], subpackage="glofas")
-import cdsapi  # noqa: E402
-
 _MODULE_BASENAME = "glofas"
 _HYDROLOGICAL_MODEL = "lisflood"
 _RIVER_DISCHARGE_VAR = "dis24"
@@ -107,6 +103,10 @@ class Glofas(DataSource):
             country_config=country_config,
             datasource_base_dir=_MODULE_BASENAME,
             is_public=True,
+        )
+        # check that extra dependencies are installed
+        _check_extra_imports(
+            libraries=["cdsapi", "cfgrib"], subpackage="glofas"
         )
 
         # The GloFAS API on CDS requires coordinates have the format x.x5
@@ -334,6 +334,9 @@ class Glofas(DataSource):
         and then removed from the list of requests. The process continues
         until the request list is empty
         """
+        # optional dependency
+        cdsapi = __import__("cdsapi")
+
         # First make the requests to the CDS client and store request number
         for query_params in query_params_list:
             logger.debug(f"Making request {query_params.query}")

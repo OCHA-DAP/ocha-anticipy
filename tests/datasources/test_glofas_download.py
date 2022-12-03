@@ -17,12 +17,10 @@ from aatoolbox import (
 def mock_retrieve(mocker):
     """Mock only the retrieve method of the Client."""
     mocker.patch(
-        "aatoolbox.datasources.glofas.glofas.cdsapi.Client.__init__",
+        "cdsapi.Client.__init__",
         return_value=None,
     )
-    return mocker.patch(
-        "aatoolbox.datasources.glofas.glofas.cdsapi.Client.retrieve"
-    )
+    return mocker.patch("cdsapi.Client.retrieve")
 
 
 @pytest.fixture
@@ -43,7 +41,7 @@ def mock_result(mocker):
             pass
 
     return mocker.patch(
-        "aatoolbox.datasources.glofas.glofas.cdsapi.api.Result",
+        "cdsapi.api.Result",
         return_value=MockResult(),
     )
 
