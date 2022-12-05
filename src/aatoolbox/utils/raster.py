@@ -1,20 +1,19 @@
 """
 Utilities to manipulate and analyze raster data.
 
-This module extends xarray and rioxarray to provide
-additional functionality for raster processing and
-post-processing. The extension is based on the
-guidance for how to `extend xarray
-<http://xarray.pydata.org/en/stable/internals/extending-xarray.html>`_:
+The raster module provides accessor utilities for xarray
+data arrays and datasets accessible using the `aat` accessor.
+These functions are available just by importing directly
+the library using ``import aatoolbox``.
 
-However, since rioxarray already extends xarray, this
+Since rioxarray already extends xarray, this
 modules extensions inherit from the RasterArray and
 RasterDataset extensions respectively. This ensures
 cleaner code in the module as ``rio`` methods are
 available immediately, but also means a couple of
 design decisions are followed.
 
-The xarray.DataArray and xarray.Dataset
+The ``xarray.DataArray`` and ``xarray.Dataset``
 extensions here inherit from rioxarray base classes.
 Thus, methods that are identical for both objects
 are defined in a mixin class ``AatRasterMixin`` which
@@ -22,7 +21,7 @@ can be inherited by the two respective extensions.
 """
 
 import logging
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import geopandas as gpd
 import numpy as np
@@ -32,7 +31,7 @@ import xarray as xr
 from rioxarray.exceptions import DimensionError, MissingCRS, NoDataInBounds
 from rioxarray.raster_array import RasterArray
 from rioxarray.raster_dataset import RasterDataset
-from rioxarray.rioxarray import _get_data_var_message
+from rioxarray.rioxarray import CRS, _get_data_var_message
 
 logger = logging.getLogger(__name__)
 
@@ -43,9 +42,12 @@ class AatRasterMixin:
     # setting attributes to avoid mypy error, from SO
     # https://stackoverflow.com/questions/53120262/mypy-how-to-
     # ignore-missing-attribute-errors-in-mixins/53228204#53228204
-    _get_obj: Callable
     x_dim: str
     y_dim: str
+    _obj: Union[xr.DataArray, xr.Dataset]
+    _height: int
+    _width: int
+    _crs: CRS
 
     def __init__(self, xarray_obj):
         super().__init__(xarray_obj)
@@ -92,7 +94,7 @@ class AatRasterMixin:
         """
         if self._longitude_range is None:
             if self._x_dim is not None:
-                data_obj = self._get_obj(inplace=False)
+                data_obj = self._get_obj_aat(inplace=False)
                 lon_max = data_obj.indexes[self.x_dim].max()
                 if lon_max > 180:
                     self._longitude_range = "360"
@@ -138,7 +140,7 @@ class AatRasterMixin:
         >>> da.aat.t_dim
         'F'
         """
-        data_obj = self._get_obj(inplace=inplace)
+        data_obj = self._get_obj_aat(inplace=inplace)
         if t_dim not in data_obj.dims:
             raise DimensionError(
                 "Time dimension ({t_dim}) not found."
@@ -193,7 +195,7 @@ class AatRasterMixin:
         >>> da_crct["t"].attrs["calendar"]
         '360_day'
         """
-        data_obj = self._get_obj(inplace=inplace)
+        data_obj = self._get_obj_aat(inplace=inplace)
         if (
             "calendar" in data_obj[self.t_dim].attrs.keys()
             and data_obj[self.t_dim].attrs["calendar"] == "360"
@@ -216,7 +218,9 @@ class AatRasterMixin:
 
         return data_obj if not inplace else None
 
-    def invert_coordinates(self, inplace: bool = False) -> xr.DataArray:
+    def invert_coordinates(
+        self, inplace: bool = False
+    ) -> Optional[Union[xr.DataArray, xr.Dataset]]:
         """
         Invert latitude and longitude in data array.
 
@@ -252,28 +256,22 @@ class AatRasterMixin:
         ...  coords={"lat":numpy.array([87, 88, 89, 90]),
         ...          "lon":numpy.array([70, 69, 68, 67])}
         ... )
-        >>> da_inv = da.aat.invert_coordinates()
-        >>> da_inv.get_index("lon")
+        >>> da.aat.invert_coordinates(inplace=True)
+        >>> da.get_index("lon")
         Int64Index([67, 68, 69, 70], dtype='int64', name='lon')
-        >>> da_inv.get_index("lat")
+        >>> da.get_index("lat")
         Int64Index([90, 89, 88, 87], dtype='int64', name='lat')
         """
-        data_obj = self._get_obj(inplace=inplace)
+        data_obj = self._get_obj_aat(inplace=inplace)
         lon_inv, lat_inv = self._check_coords_inverted()
-
-        # Flip the raster as necessary (based on the flags)
-        inv_dict = {}
 
         if lon_inv:
             logger.info("Longitude was inverted, reversing coordinates.")
-            inv_dict[self.x_dim] = data_obj[self.x_dim][::-1]
+            data_obj[self.x_dim] = data_obj[self.x_dim][::-1]
 
         if lat_inv:
             logger.info("Latitude was inverted, reversing coordinates.")
-            inv_dict[self.y_dim] = data_obj[self.y_dim][::-1]
-
-        if inv_dict:
-            data_obj = data_obj.reindex(inv_dict)
+            data_obj[self.y_dim] = data_obj[self.y_dim][::-1]
 
         return data_obj if not inplace else None
 
@@ -293,7 +291,7 @@ class AatRasterMixin:
         >>> da.aat._check_coords_inverted()
         (True, False)
         """
-        data_obj = self._get_obj(inplace=False)
+        data_obj = self._get_obj_aat(inplace=False)
         lat = data_obj.get_index(self.y_dim)
         lon = data_obj.get_index(self.x_dim)
         return lon[0] > lon[-1], lat[0] < lat[-1]
@@ -304,7 +302,9 @@ class AatRasterMixin:
         """Convert longitude range between -180 to 180 and 0 to 360.
 
         The standard longitude range is from -180 to 180, while some
-        applications use 0 to 360.
+        applications use 0 to 360. This includes
+        ```rasterstats.zonal_stats`` <https://pypi.org/project/rasterstats/>`_,
+        which assumes ranges from 0 to 360.
 
         ``change_longitude_range()`` will convert between the
         two coordinate ranges based on its current state.
@@ -330,8 +330,9 @@ class AatRasterMixin:
         --------
         >>> import xarray
         >>> import numpy
+        >>> import pandas
         >>> temp = 15 + 8 * numpy.random.randn(4, 4, 3)
-        >>> precip = 10 * np.random.rand(4, 4, 3)
+        >>> precip = 10 * numpy.random.rand(4, 4, 3)
         >>> ds = xarray.Dataset(
         ...   {
         ...     "temperature": (["lat", "lon", "time"], temp),
@@ -340,18 +341,18 @@ class AatRasterMixin:
         ...   coords={
         ...     "lat":numpy.array([87, 88, 89, 90]),
         ...     "lon":numpy.array([5, 120, 199, 360]),
-        ...     "time": pd.date_range("2014-09-06", periods=3)
+        ...     "time": pandas.date_range("2014-09-06", periods=3)
         ...   }
         ... )
         >>> ds_inv = ds.aat.change_longitude_range()
         >>> ds_inv.get_index("lon")
         Int64Index([-161, 0, 5, 120], dtype='int64', name='lon')
         >>> # invert coordinates back to original, in place
-        >>> ds_inv.aat.change_longitude_range(inplace=True)
+        >>> ds_inv.aat.change_longitude_range(to_180_range=False, inplace=True)
         >>> ds_inv.get_index("lon")
         Int64Index([0, 5, 120, 199], dtype='int64', name='lon')
         """
-        data_obj = self._get_obj(inplace=inplace)
+        data_obj = self._get_obj_aat(inplace=inplace)
 
         if to_180_range and self.longitude_range == "360":
             logger.info("Converting longitude from 0 360 to -180 to 180.")
@@ -359,18 +360,53 @@ class AatRasterMixin:
             data_obj[self.x_dim] = np.sort(
                 ((data_obj[self.x_dim] + 180) % 360) - 180
             )
-            self._longitude_range = "180"
+            data_obj.aat._longitude_range = "180"
 
         elif not to_180_range and self.longitude_range == "180":
             logger.info("Converting longitude from -180 to 180 to 0 to 360.")
 
             data_obj[self.x_dim] = np.sort(data_obj[self.x_dim] % 360)
-            self._longitude_range = "360"
+            data_obj.aat._longitude_range = "360"
 
         else:
             logger.info("Coordinates already in required range.")
 
         return data_obj if not inplace else None
+
+    def _get_obj_aat(self, inplace: bool) -> Union[xr.DataArray, xr.Dataset]:
+        """
+        Get object to modify.
+
+        Originally directly used the ``rioxarray``
+        _get_obj() method, however, this was silently failing
+        so implementing a similar function directly within
+        this module.
+
+        Parameters
+        ----------
+        inplace : bool
+            If True, returns self
+
+        Returns
+        -------
+        Union[xr.DataArray, xr.Dataset]
+            Object to modify.
+        """
+        if inplace:
+            return self._obj
+
+        obj_copy = self._obj.copy(deep=True)
+
+        # preserve attribute information
+        obj_copy.rio._x_dim = self._x_dim
+        obj_copy.rio._y_dim = self._y_dim
+        obj_copy.rio._width = self._width
+        obj_copy.rio._height = self._height
+        obj_copy.rio._crs = self._crs
+        obj_copy.aat._t_dim = self._t_dim
+        obj_copy.aat._longitude_range = self._longitude_range
+
+        return obj_copy
 
 
 @xr.register_dataarray_accessor("aat")
@@ -449,10 +485,10 @@ class AatRasterArray(AatRasterMixin, RasterArray):
         0       3.0  1.5811388300841898        1        5     12.0          4  area_a  # noqa: E501
         1       4.5                 1.5        3        6      9.0          2  area_b  # noqa: E501
         """
-        data_obj = self._get_obj(inplace=False)
-        if data_obj.rio.crs is None:
+        if self._obj.rio.crs is None:
             raise MissingCRS("No CRS found, set CRS before computation.")
 
+        data_obj = self._get_obj_aat(inplace=False)
         df_list = []
 
         if stats_list is None:
@@ -491,14 +527,14 @@ class AatRasterArray(AatRasterMixin, RasterArray):
                     kwargs["min_count"] = 1
                 grid_stat = getattr(da_clip, stat)(
                     dim=[self.x_dim, self.y_dim], **kwargs
-                ).rename(f"{stat}_{feature_col}")
+                ).rename(stat)
                 grid_stat_all.append(grid_stat)
 
             if percentile_list is not None:
                 grid_quant = [
                     da_clip.quantile(quant / 100, dim=[self.x_dim, self.y_dim])
                     .drop("quantile")
-                    .rename(f"{quant}quant_{feature_col}")
+                    .rename(f"{quant}quant")
                     for quant in percentile_list
                 ]
                 grid_stat_all.extend(grid_quant)
@@ -656,7 +692,7 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
         ...    gdf=gdf,
         ...    feature_col="name"
         ... ) # doctest: +SKIP
-        [  mean_name            std_name min_name max_name sum_name count_name    name # noqa: E501
+        [       mean                 std      min      max      sum      count    name # noqa: E501
         0       3.0  1.5811388300841898        1        5     12.0          4  area_a  # noqa: E501
         1       4.5                 1.5        3        6      9.0          2  area_b] # noqa: E501
         """

@@ -8,6 +8,36 @@ Changelog <https://keepachangelog.com/en/1.0.0/>`__, and this project
 adheres to `Semantic
 Versioning <https://semver.org/spec/v2.0.0.html>`__.
 
+[0.5.0] - 2022-12-02
+--------------------
+
+Added
+~~~~~
+
+- Modules for downloading and processing CHIRPS rainfall,
+  GloFAS river discharge, and USGS NDVI data
+- Utilities to streamline use of strings for dates across modules
+- COD AB configuration now has an ``admin{level}_name`` custom
+  layer name parameter
+- Logging for files being overwritten or not due to clobber
+
+Changed
+~~~~~~~
+
+- Documented and moved the raster processing module to the top level
+  for public access
+
+Removed
+~~~~~~~
+- Python 3.6 support
+
+Fixed
+~~~~~
+- The check in ``DataSource`` for the required configuration file
+  section now also checks if the section is ``None``
+- All available admin levels for DRC and Ethiopia are now accessible
+- IRI download method now checks request headers to verify authentication
+
 [0.4.2] - 2022-05-13
 --------------------
 
@@ -15,6 +45,7 @@ Fixed
 ~~~~~
 
 - Upgrade version of hdx-python-api to prevent bug when downloading
+
 
 [0.4.1] - 2022-05-10
 --------------------

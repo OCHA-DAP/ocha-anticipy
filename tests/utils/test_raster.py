@@ -12,11 +12,28 @@ from pandas._testing import assert_frame_equal
 from rioxarray.exceptions import DimensionError, MissingCRS
 from shapely.geometry import Polygon
 
-from aatoolbox.utils import raster
+import aatoolbox
 
-suite = unittest.TestSuite()
-suite.addTest(doctest.DocTestSuite(raster))
-unittest.TextTestRunner().run(suite)
+
+def test_doctest_suite():
+    """
+    Test docstrings in raster module.
+
+    Checks if there are any failures in the doctest
+    suite, meaning that there is some error within
+    the docstrings of the raster module. This is used
+    to avoid running doctest on all docstrings in the
+    library, which would require many exceptions given
+    the extent of downloading and processing other modules
+    rely on.
+
+    Method found in:
+    https://vladyslav-krylasov.medium.com/discover-unit-tests-and-doctests-in-one-run-c5504aea86bd
+    """
+    suite = unittest.TestSuite()
+    suite.addTest(doctest.DocTestSuite(aatoolbox.utils.raster))
+    runner = unittest.TextTestRunner(verbosity=2).run(suite)
+    assert not runner.failures
 
 
 @pytest.fixture
@@ -83,12 +100,12 @@ def expected_2d():
     """Create expected comped stats for 2d raster."""
     df = pd.DataFrame(
         {
-            "mean_name": {0: 3.0, 1: 4.5},
-            "std_name": {0: 1.5811388300841898, 1: 1.5},
-            "min_name": {0: 1, 1: 3},
-            "max_name": {0: 5, 1: 6},
-            "sum_name": {0: 12.0, 1: 9.0},
-            "count_name": {0: 4, 1: 2},
+            "mean": {0: 3.0, 1: 4.5},
+            "std": {0: 1.5811388300841898, 1: 1.5},
+            "min": {0: 1, 1: 3},
+            "max": {0: 5, 1: 6},
+            "sum": {0: 12.0, 1: 9.0},
+            "count": {0: 4, 1: 2},
             "name": {0: "area_a", 1: "area_b"},
         },
     )
@@ -108,7 +125,7 @@ def test_compute_raster_stats_2d(da_2d, gdf, expected_2d):
     """Compute raster stats without time dimensions."""
     result = da_2d.aat.compute_raster_stats(gdf, "name")
     assert_frame_equal(result, expected_2d, check_dtype=False)
-    expected_2d.insert(loc=6, column="95quant_name", value=[4.85, 5.85])
+    expected_2d.insert(loc=6, column="95quant", value=[4.85, 5.85])
     result_pct = da_2d.aat.compute_raster_stats(
         gdf=gdf, feature_col="name", percentile_list=[95]
     )
@@ -134,7 +151,7 @@ def test_compute_raster_stats_3d(ds_3d, gdf, expected_3d):
 def test_compute_raster_stats_da_assertions(da_3d, gdf):
     """Ensure error assertions working in compute raster stats."""
     with pytest.raises(MissingCRS):
-        da_3d.aat._crs = False
+        da_3d.rio._crs = False
         da_3d.aat.compute_raster_stats(gdf=gdf, feature_col="name")
 
 

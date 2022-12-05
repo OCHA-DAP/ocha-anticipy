@@ -1,10 +1,8 @@
 """Tests for the IRI module."""
-
-from pathlib import Path
-
 import cftime
 import numpy as np
 import pytest
+import requests
 import xarray as xr
 from xarray.coding.cftimeindex import CFTimeIndex
 
@@ -108,6 +106,29 @@ def test_download_call_dominant(
     )
 
 
+@pytest.fixture
+def mock_requests(mocker):
+    """Mock requests in the download function."""
+    requests_mock = mocker.patch(
+        "aatoolbox.datasources.iri.iri_seasonal_forecast.requests.get"
+    )
+    mocker.patch.dict(
+        "aatoolbox.datasources.iri.iri_seasonal_forecast.os.environ",
+        {"IRI_AUTH": FAKE_IRI_AUTH},
+    )
+
+    return requests_mock
+
+
+def test_download_wrong_auth(
+    mock_iri, mock_requests, mock_aa_data_dir, mock_country_config
+):
+    """Check that wrong download headers raise an error."""
+    iri = mock_iri(prob_forecast=True)
+    with pytest.raises(requests.RequestException):
+        iri.download()
+
+
 def test_process(mocker, mock_iri, mock_aa_data_dir, mock_country_config):
     """Test process for IRI forecast."""
     ds = xr.DataArray(
@@ -161,7 +182,7 @@ def test_process_if_download_not_called(mock_iri):
     iri = mock_iri()
     # Make sure file doesn't exist
     if iri._get_raw_path().exists():
-        Path.unlink(iri._get_raw_path())
+        iri._get_raw_path().unlink()
     with pytest.raises(FileNotFoundError) as excinfo:
         iri.process()
     assert (
@@ -213,7 +234,7 @@ def test_load_if_process_not_called(mock_iri):
     iri = mock_iri()
     # Make sure file doesn't exist
     if iri._get_processed_path().exists():
-        Path.unlink(iri._get_processed_path())
+        iri._get_processed_path().unlink()
     with pytest.raises(FileNotFoundError) as excinfo:
         iri.load()
     assert (

@@ -29,7 +29,9 @@ def download_url(
     """
     save_path.parent.mkdir(exist_ok=True, parents=True)
     # Remove file if already exists
-    save_path.unlink(missing_ok=True)
+    # TODO: Use missing_ok=True once 3.7 is dropped
+    if save_path.exists():
+        save_path.unlink()
 
     # use a session and chunk_size to prevent
     # crashing when downloading large files while

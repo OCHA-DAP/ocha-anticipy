@@ -65,7 +65,7 @@ class _IriForecast(DataSource):
         To download data from the IRI API, a key is required for
         authentication, and must be set in the ``IRI_AUTH`` environment
         variable. To obtain this key config you need to create an account
-        `here.<https://iridl.ldeo.columbia.edu/auth/login>`_.
+        `here <https://iridl.ldeo.columbia.edu/auth/login>`_.
         Note that this key might be changed over time, and need to be updated
         regularly.
 
@@ -179,15 +179,6 @@ class _IriForecast(DataSource):
                 drop_variables="C",
             )
             return ds
-        except ValueError as err:
-            raise ValueError(
-                f"Cannot open the netcdf file {self._get_raw_path()}. "
-                f"This might be due to invalid "
-                f"download with wrong authentication. Check the validity of "
-                f"the authentication key found in your {_IRI_AUTH} environment"
-                f"variable and try to download again. Otherwise make sure the "
-                f"correct backend for opening a netCDF file is installed."
-            ) from err
         except FileNotFoundError as err:
             raise FileNotFoundError(
                 f"Cannot open the netcdf file {self._get_raw_path()}. Make "
@@ -205,6 +196,15 @@ class _IriForecast(DataSource):
             # have to authenticate by using a cookie
             cookies={"__dlauth_id": iri_auth},
         )
+        if response.headers["Content-Type"] != "application/x-netcdf":
+            msg = (
+                f"The request returned headers indicating that the expected "
+                f"file type was not returned. In some cases th  is may be due "
+                f"to an issue with the authentication. Please check the "
+                f"validity of the authentication key found in your "
+                f"{_IRI_AUTH} environment variable and try again."
+            )
+            raise requests.RequestException(msg)
         with open(filepath, "wb") as out_file:
             out_file.write(response.content)
         return filepath
