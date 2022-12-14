@@ -212,8 +212,8 @@ class _IriForecast(DataSource):
     @check_file_existence
     def _process(self, filepath: Path, ds, clobber: bool) -> Path:
         # fix dates
-        ds.aat.set_time_dim(t_dim="F", inplace=True)
-        ds.aat.correct_calendar(inplace=True)
+        ds.oap.set_time_dim(t_dim="F", inplace=True)
+        ds.oap.correct_calendar(inplace=True)
         ds = xr.decode_cf(ds)
 
         # IRI accepts -180 to 180 longitudes and 0 to 360

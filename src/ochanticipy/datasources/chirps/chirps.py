@@ -475,7 +475,7 @@ class ChirpsMonthly(_Chirps):
     @check_file_existence
     def _process(self, filepath: Path, ds, clobber: bool) -> Path:
         # fix dates
-        ds.aat.correct_calendar(inplace=True)
+        ds.oap.correct_calendar(inplace=True)
         ds = xr.decode_cf(ds)
         if "prcp" in list(ds.keys()):
             ds = ds.rename({"prcp": "precipitation"})
@@ -616,7 +616,7 @@ class ChirpsDaily(_Chirps):
                 ds.T.values, calendar="standard", has_year_zero=False
             )
         )
-        ds.aat.correct_calendar(inplace=True)
+        ds.oap.correct_calendar(inplace=True)
         if "prcp" in list(ds.keys()):
             ds = ds.rename({"prcp": "precipitation"})
         xr.Dataset.to_netcdf(ds, path=filepath)
