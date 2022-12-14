@@ -13,11 +13,11 @@ import pandas as pd
 import requests
 import xarray as xr
 
-from aatoolbox.config.countryconfig import CountryConfig
-from aatoolbox.datasources.datasource import DataSource
-from aatoolbox.utils.check_file_existence import check_file_existence
-from aatoolbox.utils.dates import get_date_from_user_input
-from aatoolbox.utils.geoboundingbox import GeoBoundingBox
+from ochanticipy.config.countryconfig import CountryConfig
+from ochanticipy.datasources.datasource import DataSource
+from ochanticipy.utils.check_file_existence import check_file_existence
+from ochanticipy.utils.dates import get_date_from_user_input
+from ochanticipy.utils.geoboundingbox import GeoBoundingBox
 
 logger = logging.getLogger(__name__)
 
@@ -375,8 +375,8 @@ class ChirpsMonthly(_Chirps):
 
     Examples
     --------
-    >>> from aatoolbox import create_country_config, CodAB, GeoBoundingBox
-    >>> from aatoolbox import ChirpsMonthly
+    >>> from ochanticipy import create_country_config, CodAB, GeoBoundingBox
+    >>> from ochanticipy import ChirpsMonthly
     >>> import datetime
     >>>
     >>> country_config = create_country_config(iso3="bfa")
@@ -508,7 +508,7 @@ class ChirpsDaily(_Chirps):
 
     Examples
     --------
-    >>> from aatoolbox import create_country_config, CodAB, GeoBoundingBox,
+    >>> from ochanticipy import create_country_config, CodAB, GeoBoundingBox,
     ... ChirpsDaily
     >>> import datetime
     >>>

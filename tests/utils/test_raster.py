@@ -12,7 +12,7 @@ from pandas._testing import assert_frame_equal
 from rioxarray.exceptions import DimensionError, MissingCRS
 from shapely.geometry import Polygon
 
-import aatoolbox
+import ochanticipy
 
 
 def test_doctest_suite():
@@ -31,7 +31,7 @@ def test_doctest_suite():
     https://vladyslav-krylasov.medium.com/discover-unit-tests-and-doctests-in-one-run-c5504aea86bd
     """
     suite = unittest.TestSuite()
-    suite.addTest(doctest.DocTestSuite(aatoolbox.utils.raster))
+    suite.addTest(doctest.DocTestSuite(ochanticipy.utils.raster))
     runner = unittest.TextTestRunner(verbosity=2).run(suite)
     assert not runner.failures
 

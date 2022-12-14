@@ -13,8 +13,8 @@ import logging
 from datetime import date
 from typing import Tuple, Union
 
-from aatoolbox.config.countryconfig import CountryConfig
-from aatoolbox.datasources.usgs.ndvi_base import _UsgsNdvi
+from ochanticipy.config.countryconfig import CountryConfig
+from ochanticipy.datasources.usgs.ndvi_base import _UsgsNdvi
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +49,7 @@ class UsgsNdviSmoothed(_UsgsNdvi):
 
     Examples
     --------
-    >>> from aatoolbox import create_country_config, \
+    >>> from ochanticipy import create_country_config, \
     ...  CodAB, UsgsNdviSmoothed
     >>>
     >>> # Retrieve admin 2 boundaries for Burkina Faso
@@ -116,7 +116,7 @@ class UsgsNdviPctMedian(_UsgsNdvi):
 
     Examples
     --------
-    >>> from aatoolbox import create_country_config, \
+    >>> from ochanticipy import create_country_config, \
     ...  CodAB, UsgsNdviPctMedian
     >>>
     >>> # Retrieve admin 2 boundaries for Burkina Faso
@@ -186,7 +186,7 @@ class UsgsNdviMedianAnomaly(_UsgsNdvi):
 
     Examples
     --------
-    >>> from aatoolbox import create_country_config, \
+    >>> from ochanticipy import create_country_config, \
     ...  CodAB, UsgsNdviMedianAnomaly
     >>>
     >>> # Retrieve admin 2 boundaries for Burkina Faso
@@ -256,7 +256,7 @@ class UsgsNdviYearDifference(_UsgsNdvi):
 
     Examples
     --------
-    >>> from aatoolbox import create_country_config, \
+    >>> from ochanticipy import create_country_config, \
     ...  CodAB, UsgsNdviDifference
     >>>
     >>> # Retrieve admin 2 boundaries for Burkina Faso

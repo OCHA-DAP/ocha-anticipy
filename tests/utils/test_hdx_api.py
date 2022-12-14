@@ -3,7 +3,7 @@ from collections import UserDict
 
 import pytest
 
-from aatoolbox.utils.hdx_api import load_dataset_from_hdx
+from ochanticipy.utils.hdx_api import load_dataset_from_hdx
 
 
 @pytest.fixture(autouse=True)
@@ -15,7 +15,7 @@ def mock_resource(mocker):
             return "", "resource_filepath"
 
     mock_dataset = mocker.patch(
-        "aatoolbox.utils.hdx_api.Dataset.read_from_hdx"
+        "ochanticipy.utils.hdx_api.Dataset.read_from_hdx"
     )
     # read_from_hdx creates an instance, need to mock the instance
     # method get_resources to return custom resources
@@ -23,7 +23,7 @@ def mock_resource(mocker):
         MockResource({"name": "resource1"})
     ]
     # Also need to mock out shutil
-    mocker.patch("aatoolbox.utils.hdx_api.shutil")
+    mocker.patch("ochanticipy.utils.hdx_api.shutil")
 
 
 def test_returns_filepath(tmp_path):

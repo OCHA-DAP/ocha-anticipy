@@ -4,7 +4,7 @@ import logging
 
 import pytest
 
-from aatoolbox.utils.check_file_existence import check_file_existence
+from ochanticipy.utils.check_file_existence import check_file_existence
 
 
 @check_file_existence

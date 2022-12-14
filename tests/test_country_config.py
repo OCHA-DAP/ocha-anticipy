@@ -4,8 +4,8 @@ from typing import Dict, List
 
 import pytest
 
-from aatoolbox import create_country_config
-from aatoolbox.config.countryconfig import FewsNetConfig
+from ochanticipy import create_country_config
+from ochanticipy.config.countryconfig import FewsNetConfig
 
 
 @pytest.fixture
@@ -16,7 +16,7 @@ def mock_parse_yaml(mocker):
         if output_list is None:
             output_list = [{"iso3": "abc"}]
         return mocker.patch(
-            "aatoolbox.config.countryconfig.parse_yaml",
+            "ochanticipy.config.countryconfig.parse_yaml",
             side_effect=output_list,
         )
 

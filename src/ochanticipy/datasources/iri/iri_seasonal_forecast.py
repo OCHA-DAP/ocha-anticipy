@@ -7,11 +7,11 @@ import requests
 import xarray as xr
 from typing_extensions import Literal
 
-import aatoolbox.utils.raster  # noqa: F401
-from aatoolbox.config.countryconfig import CountryConfig
-from aatoolbox.datasources.datasource import DataSource
-from aatoolbox.utils.check_file_existence import check_file_existence
-from aatoolbox.utils.geoboundingbox import GeoBoundingBox
+import ochanticipy.utils.raster  # noqa: F401
+from ochanticipy.config.countryconfig import CountryConfig
+from ochanticipy.datasources.datasource import DataSource
+from ochanticipy.utils.check_file_existence import check_file_existence
+from ochanticipy.utils.geoboundingbox import GeoBoundingBox
 
 logger = logging.getLogger(__name__)
 
@@ -242,7 +242,7 @@ class IriForecastProb(_IriForecast):
 
     Examples
     --------
-    >>> from aatoolbox import create_country_config, \
+    >>> from ochanticipy import create_country_config, \
     ...     GeoBoundingBox, IriForecastProb
     >>> country_config = create_country_config(iso3="bfa")
     >>> geo_bounding_box = GeoBoundingBox(lat_max=13.0,
@@ -284,7 +284,7 @@ class IriForecastDominant(_IriForecast):
 
     Examples
     --------
-    >>> from aatoolbox import create_country_config, \
+    >>> from ochanticipy import create_country_config, \
     ...     GeoBoundingBox, IriForecastDominant
     >>> country_config = create_country_config(iso3="bfa")
     >>> geo_bounding_box = GeoBoundingBox(lat_max=13.0,

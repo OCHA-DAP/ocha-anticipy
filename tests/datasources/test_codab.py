@@ -1,7 +1,7 @@
 """Test COD AB methods."""
 import pytest
 
-from aatoolbox import CodAB
+from ochanticipy import CodAB
 
 DATASOURCE_BASE_DIR = "cod_ab"
 
@@ -10,14 +10,14 @@ DATASOURCE_BASE_DIR = "cod_ab"
 def downloader(mocker):
     """Mock the HDX download function."""
     return mocker.patch(
-        "aatoolbox.datasources.codab.codab.load_dataset_from_hdx"
+        "ochanticipy.datasources.codab.codab.load_dataset_from_hdx"
     )
 
 
 @pytest.fixture
 def gpd_read_file(mocker):
     """Mock GeoPandas file reading function."""
-    return mocker.patch("aatoolbox.datasources.codab.codab.gpd.read_file")
+    return mocker.patch("ochanticipy.datasources.codab.codab.gpd.read_file")
 
 
 def test_codab_download(mock_aa_data_dir, mock_country_config, downloader):

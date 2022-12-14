@@ -10,7 +10,7 @@ import pytest
 import xarray as xr
 from shapely.geometry import Polygon
 
-from aatoolbox import (
+from ochanticipy import (
     UsgsNdviMedianAnomaly,
     UsgsNdviPctMedian,
     UsgsNdviSmoothed,
@@ -55,7 +55,7 @@ def mock_download(mocker, mock_ndvi):
     """
     download_mock = mocker.patch(
         (
-            "aatoolbox.datasources.usgs."
+            "ochanticipy.datasources.usgs."
             "ndvi_base._UsgsNdvi._download_ndvi_dekad"
         )
     )
@@ -78,7 +78,7 @@ def mock_determine_process_dates(mocker, mock_ndvi):
     download method and the returned filepath.
     """
     mocker.patch(
-        ("aatoolbox.datasources.usgs.ndvi_base._UsgsNdvi._load"),
+        ("ochanticipy.datasources.usgs.ndvi_base._UsgsNdvi._load"),
         return_value=pd.DataFrame(
             {
                 "year": [2019, 2020, 2020],
@@ -89,7 +89,7 @@ def mock_determine_process_dates(mocker, mock_ndvi):
     )
 
     mocker.patch(
-        "aatoolbox.datasources.usgs.ndvi_base._UsgsNdvi._get_raw_path",
+        "ochanticipy.datasources.usgs.ndvi_base._UsgsNdvi._get_raw_path",
         return_value=Path(tempfile.mkstemp()[1]),
     )
 
@@ -184,12 +184,12 @@ def test_process_and_load(
     # TODO: now created `load_raw` to be able to mock but would like
     #  to do it from xr.load_dataset directly
     mocker.patch(
-        "aatoolbox.datasources.usgs.ndvi_base.rioxarray.open_rasterio",
+        "ochanticipy.datasources.usgs.ndvi_base.rioxarray.open_rasterio",
         side_effect=[da((2019, 36)), da((2020, 1)), da((2020, 2))] * 6,
     )
 
     mocker.patch(
-        "aatoolbox.datasources.usgs.ndvi_base._UsgsNdvi._get_raw_path",
+        "ochanticipy.datasources.usgs.ndvi_base._UsgsNdvi._get_raw_path",
         return_value=Path(tempfile.mkstemp()[1]),
     )
 

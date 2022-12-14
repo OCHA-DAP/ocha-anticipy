@@ -30,10 +30,10 @@ import rioxarray  # noqa: F401
 import xarray as xr
 from rasterio.errors import RasterioIOError
 
-import aatoolbox.utils.raster  # noqa: F401
-from aatoolbox.config.countryconfig import CountryConfig
-from aatoolbox.datasources.datasource import DataSource
-from aatoolbox.utils.dates import (
+import ochanticipy.utils.raster  # noqa: F401
+from ochanticipy.config.countryconfig import CountryConfig
+from ochanticipy.datasources.datasource import DataSource
+from ochanticipy.utils.dates import (
     compare_dekads_gt,
     compare_dekads_lt,
     dekad_to_date,
@@ -150,7 +150,7 @@ class _UsgsNdvi(DataSource):
 
         Examples
         --------
-        >>> from aatoolbox import create_country_config, \
+        >>> from ochanticipy import create_country_config, \
         ...  CodAB, UsgsNdviSmoothed
         >>>
         >>> # Retrieve admin 2 boundaries for Burkina Faso
@@ -227,7 +227,7 @@ class _UsgsNdvi(DataSource):
 
         Examples
         --------
-        >>> from aatoolbox import create_country_config, \
+        >>> from ochanticipy import create_country_config, \
         ...  CodAB, UsgsNdviSmoothed
         >>>
         >>> # Retrieve admin 2 boundaries for Burkina Faso
@@ -321,7 +321,7 @@ class _UsgsNdvi(DataSource):
 
         Examples
         --------
-        >>> from aatoolbox import create_country_config, \
+        >>> from ochanticipy import create_country_config, \
         ...  CodAB, UsgsNdviSmoothed
         >>>
         >>> # Retrieve admin 2 boundaries for Burkina Faso

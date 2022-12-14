@@ -4,7 +4,7 @@ from typing import Any, Callable, Optional, TypeVar
 
 import wrapt
 
-from aatoolbox.datasources.datasource import DataSource
+from ochanticipy.datasources.datasource import DataSource
 
 logger = logging.getLogger(__name__)
 
