@@ -16,7 +16,7 @@ CHPclim (CHC in-house climatology), 0.05° resolution satellite imagery, and in-
 data to create gridded rainfall time series for trend analysis and seasonal drought
 monitoring. More information are available `here <https://www.nature.com/articles/sdata201566>`_.
 
-Through the AA toolbox, it is possible to have access to daily and monthly data.
+Through OCHA AnticiPy, it is possible to have access to daily and monthly data.
 
 The data is downloaded from `IRI's maproom
 <http://iridl.ldeo.columbia.edu/SOURCES/.UCSB/.CHIRPS/.v2p0>`_ as the platform allows

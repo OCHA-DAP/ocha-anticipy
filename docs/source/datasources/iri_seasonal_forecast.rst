@@ -15,13 +15,14 @@ found `here <https://iri.columbia
 .edu/our-expertise/climate/forecasts/seasonal-climate-forecasts/methodology
 />`_.
 
-Currently in AA toolbox, only the tercile precipitation forecast has been
+Currently in OCHA AnticiPy, only the tercile precipitation forecast has been
 implemented.
 
 The tercile precipitation forecast is published in two formats. One only
 indicates the dominant tercile probability while the other format indicates
-the probability for each tercile. Both formats are implemented in the AA
-toolbox.
+the probability for each tercile. Both formats are implemented in
+OCHA AnticiPy.
+
 
 The data is downloaded from `IRI's maproom
 <https://iridl.ldeo.columbia.edu/maproom/Global/Forecasts/NMME_Seasonal_Forecasts/Precipitation_ELR.html>`_

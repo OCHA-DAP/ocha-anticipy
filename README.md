@@ -1,10 +1,10 @@
 # OCHA AnticiPy: Get the data you need for anticipating humanitarian risk
 
-[![license](https://img.shields.io/github/license/OCHA-DAP/pa-aa-toolbox.svg)](https://github.com/OCHA-DAP/pa-aa-toolbx/blob/main/LICENSE)
-[![Test Status](https://github.com/OCHA-DAP/pa-aa-toolbox/workflows/tests/badge.svg)](https://github.com/OCHA-DAP/pa-aa-toolbox/actions?query=workflow%3Atests)
-[![PyPI Status](https://github.com/OCHA-DAP/pa-aa-toolbox/workflows/PyPI/badge.svg)](https://github.com/OCHA-DAP/pa-aa-toolbox/actions?query=workflow%3APyPI)
-[![Documentation Status](https://readthedocs.org/projects/aa-toolbox/badge/?version=latest)](https://aa-toolbox.readthedocs.io/en/latest/?badge=latest)
-[![Coverage Status](https://codecov.io/gh/OCHA-DAP/pa-aa-toolbox/branch/main/graph/badge.svg?token=JpWZc5js4y)](https://codecov.io/gh/OCHA-DAP/pa-aa-toolbox)
+[![license](https://img.shields.io/github/license/OCHA-DAP/ocha-anticipy.svg)](https://github.com/OCHA-DAP/pa-aa-toolbx/blob/main/LICENSE)
+[![Test Status](https://github.com/OCHA-DAP/ocha-anticipy/workflows/tests/badge.svg)](https://github.com/OCHA-DAP/ocha-anticipy/actions?query=workflow%3Atests)
+[![PyPI Status](https://github.com/OCHA-DAP/ocha-anticipy/workflows/PyPI/badge.svg)](https://github.com/OCHA-DAP/ocha-anticipy/actions?query=workflow%3APyPI)
+[![Documentation Status](https://readthedocs.org/projects/ocha-anticipy/badge/?version=latest)](https://ocha-anticipy.readthedocs.io/en/latest/?badge=latest)
+[![Coverage Status](https://codecov.io/gh/OCHA-DAP/ocha-anticipy/branch/main/graph/badge.svg?token=JpWZc5js4y)](https://codecov.io/gh/OCHA-DAP/ocha-anticipy)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)

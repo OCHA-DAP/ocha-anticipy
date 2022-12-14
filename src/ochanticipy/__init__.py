@@ -1,9 +1,10 @@
-"""aa-toolbox: Toolbox for Anticipatory Action.
+"""OCHA AnticiPy: Get the data you need for anticipating humanitarian risk.
 
-The ``ochanticipy`` library contains modules designed to assist with
-downloading and processing the data required for disaster-related
-anticipatory action.
+The OCHA AnticiPy library contains modules designed to simplify the
+downloading and processing of data related to the anticipation of
+humanitarian risk, such as climate and food security data.
 """
+
 from ochanticipy.config.countryconfig import (
     CountryConfig,
     create_country_config,
