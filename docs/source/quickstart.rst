@@ -10,7 +10,7 @@ Setup environment variables
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 OCHA AnticiPy downloads data to the directory referenced by the
-environment variable `AA_DATA_DIR`. Before beginning, please make
+environment variable `OAP_DATA_DIR`. Before beginning, please make
 sure that this environment variable is defined and points to where you would
 like the data to go.
 
@@ -63,7 +63,7 @@ What does this code do?
 4.  From the CodAB instance, we are then able to call `download()`, which
     downloads the COD
     administrative boundaries for Nepal. These are placed in the directory where
-    the environment variable named ``AA_DATA_DIR`` points to.
+    the environment variable named ``OAP_DATA_DIR`` points to.
 5.  Finally, we can use the CodAB instance to load a specific administrative
     boundary level. In this case we are loading level 1 which corresponds
     to provinces in Nepal.

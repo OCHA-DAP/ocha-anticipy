@@ -34,8 +34,13 @@ pip install ocha-anticipy
 
 ## A Simple Example
 
-Download the admin boundary CODs for Nepal, and retrieve provinces
-as a GeoDataFrame:
+OCHA AnticiPy downloads data to the directory referenced by the
+environment variable `OAP_DATA_DIR`. Before beginning, please make
+sure that this environment variable is defined and points to where you would
+like the data to go.
+
+Next, you can simply download the admin boundary CODs for Nepal,
+and retrieve provinces as a GeoDataFrame:
 
 ```python
 from ochanticipy import create_country_config, CodAB
