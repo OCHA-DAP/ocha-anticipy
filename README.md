@@ -1,4 +1,4 @@
-# aa-toolbox: Toolbox for anticipatory action
+# OCHA AnticiPy: Get the data you need for anticipating humanitarian risk
 
 [![license](https://img.shields.io/github/license/OCHA-DAP/pa-aa-toolbox.svg)](https://github.com/OCHA-DAP/pa-aa-toolbx/blob/main/LICENSE)
 [![Test Status](https://github.com/OCHA-DAP/pa-aa-toolbox/workflows/tests/badge.svg)](https://github.com/OCHA-DAP/pa-aa-toolbox/actions?query=workflow%3Atests)
@@ -9,9 +9,8 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
 
-The [anticipatory action](https://centre.humdata.org/anticipatory-action/)
-(AA) toolbox is a Python package to support development of AA frameworks, by
-simplifying the downloading and processing of commonly used datasets.
+OCHA AnticiPy is a Python library for simple downloading and processing
+data related to the anticipation of humanitarian risk.
 
 The datasets that we currently support are:
 
@@ -23,14 +22,14 @@ The datasets that we currently support are:
 - USGS NDVI (normalized difference vegetation index)
 
 For more information, please see the
-[documentation](https://aa-toolbox.readthedocs.io/en/latest/).
+[documentation](https://ocha-anticipy.readthedocs.io/en/latest/).
 
 ## Installing
 
 Install and update using [pip](https://pip.pypa.io/en/stable/getting-started/):
 
 ```shell
-pip install -U aa-toolbox
+pip install ocha-anticipy
 ```
 
 ## A Simple Example
@@ -39,7 +38,7 @@ Download the admin boundary CODs for Nepal, and retrieve provinces
 as a GeoDataFrame:
 
 ```python
-from aatoolbox import create_country_config, CodAB
+from ochanticipy import create_country_config, CodAB
 
 country_config = create_country_config('npl')
 codab = CodAB(country_config=country_config)
@@ -50,12 +49,12 @@ provinces = codab.load(admin_level=1)
 ## Contributing
 
 For guidance on setting up a development environment, see the
-[contributing guidelines](https://github.com/OCHA-DAP/pa-aa-toolbox/blob/main/CONTRIBUTING.rst)
+[contributing guidelines](https://github.com/OCHA-DAP/ocha-anticipy/blob/main/CONTRIBUTING.rst)
 
 ## Links
 
-- [Documentation](https://aa-toolbox.readthedocs.io/en/latest/)
-- [Changes](https://github.com/OCHA-DAP/pa-aa-toolbox/blob/main/CHANGELOG.rst)
-- [PyPI Releases](https://pypi.org/project/aa-toolbox/)
-- [Source Code](https://github.com/OCHA-DAP/pa-aa-toolbox)
-- [Issue Tracker](https://github.com/OCHA-DAP/pa-aa-toolbox/issues)
+- [Documentation](https://ocha-anticipy.readthedocs.io/en/latest/)
+- [Changes](https://github.com/OCHA-DAP/ocha-anticipy/blob/main/CHANGELOG.rst)
+- [PyPI Releases](https://pypi.org/project/ocha-anticipy/)
+- [Source Code](https://github.com/OCHA-DAP/ocha-anticipy)
+- [Issue Tracker](https://github.com/OCHA-DAP/ocha-anticipy/issues)

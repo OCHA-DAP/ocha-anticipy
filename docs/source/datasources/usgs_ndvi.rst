@@ -77,7 +77,7 @@ Once you have created the config you can load it:
 
 .. code-block:: python
 
-    from aatoolbox import create_country_config
+    from ochanticipy import create_country_config
     country_config = create_country_config(iso3="eth")
 
 Next you need to instantiate the USGS NDVI class with the country config. For this
@@ -87,7 +87,7 @@ sample of data from a few dekads, corresponding to the dates in January:
 
 .. code-block:: python
 
-    from aatoolbox import UsgsNdviSmoothed
+    from ochanticipy import UsgsNdviSmoothed
     ndvi_smooth = UsgsNdviSmoothed(
         country_config=country_config,
         start_date="2021-01-01",
@@ -123,7 +123,7 @@ config, and use this to calculate basic statistics for the dekads we've loaded.
 
 .. code-block:: python
 
-    from aatoolbox import CodAB
+    from ochanticipy import CodAB
 
     eth_cod = CodAB(country_config=country_config)
     # assuming you've downloaded the file already

@@ -1,16 +1,18 @@
 Introduction
 ============
 
-`Anticipatory action <https://centre.humdata.org/anticipatory-action/>`_
-(AA) means shifting humanitarian response to be deployed ahead of a crisis.
-Knowing when to provide humanitarian aid involves understanding the
-risk that a potential shock may occur. Gaining this understanding often
+Humanitarians are increasingly recognizing that anticipating
+the risk of a disaster can be more effective than traditional
+emergency response. To reduce the vulnerability and exposure
+of affected populations, the underlying hazard risk
+must be identified and understood.
+
+This is where OCHA AnticiPy comes in. Gaining the understanding of hazard risk
 requires in-depth analysis of decades of historical data relating to
 the shock of interest as well as any related indicators.
-
-This is where the AA Toolbox comes in. The goal of the toolbox is to to
-support development of AA frameworks by simplifying the downloading and
-processing of commonly used datasets.
+The goal of OCHA AnticiPy is to to
+simplify the downloading and processing of
+data related to the anticipation of humanitarian risk.
 
 Datasets currently supported are:
 
@@ -22,10 +24,10 @@ Datasets currently supported are:
 - USGS NDVI (normalized difference vegetation index)
 
 At the `Centre for Humanitarian Data <https://centre.humdata.org/>`_,
-we've now used AA Toolbox to develop
-some of our own AA frameworks. See the links below for more info:
-
-* `Drought in Burkina Faso <https://github.com/OCHA-DAP/pa-aa-bfa-drought>`_
-* `Cholera in DRC <https://github.com/OCHA-DAP/pa-aa-cod-infectious-disease>`_
-  (this repository is private, please `contact us <mailto:centrehumdata@un.org>`_
-  if you would like more information)
+we've now used OCHA Anticipy to develop
+some of our own
+`anticipatory action
+<https://www.unocha.org/our-work/humanitarian-financing/anticipatory-action>`_
+frameworks, such as for
+`drought in Burkina Faso
+<https://github.com/OCHA-DAP/pa-aa-bfa-drought>`_.

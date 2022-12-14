@@ -1,11 +1,12 @@
-Welcome to AA Toolbox
-=====================
+Welcome to OCHA AnticiPy
+========================
 
-Welcome to AA Toolbox's documentation.
+Welcome to OCHA AnticiPy's documentation.
 
-The `anticipatory action <https://centre.humdata.org/anticipatory-action/>`_
-(AA) toolbox is a Python package to support development of AA frameworks, by
-simplifying the downloading and processing of commonly used datasets.
+OCHA AnticiPy is a Python library for simple downloading and processing
+data related to the anticipation of humanitarian risk.
+The types of datasets include administrative boundaries, food insecurity data,
+and climate data.
 
 Get set up
 and start downloading data using :doc:`quickstart`.
@@ -16,7 +17,7 @@ the :doc:`api` section.
 User Guide
 ----------
 
-The following links provide background information on the AA Toolbox,
+The following links provide background information on OCHA AnticiPy,
 how to get started,
 and detailed guides on the individual data sources plus any
 additional functionality.

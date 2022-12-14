@@ -34,14 +34,14 @@ for the country you would like to use:
 
 .. code-block:: python
 
-    from aatoolbox import create_country_config
+    from ochanticipy import create_country_config
     country_config = create_country_config(iso3="eth")
 
 Next you need to instantiate the FEWS NET class with the country config:
 
 .. code-block:: python
 
-    from aatoolbox import FewsNet
+    from ochanticipy import FewsNet
     fewsnet = FewsNet(country_config=country_config)
 
 Upon first use, you will need to downlaod the FEWS NET data.
@@ -74,7 +74,7 @@ The full code snippet is below in case you would like to copy it:
 
 .. code-block:: python
 
-    from aatoolbox import create_country_config, FewsNet
+    from ochanticipy import create_country_config, FewsNet
     country_config = create_country_config(iso3="eth")
     fewsnet = FewsNet(country_config=country_config)
     fewsnet.download(pub_year=2021, pub_month=6)

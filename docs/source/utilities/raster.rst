@@ -20,7 +20,7 @@ Accessor
 ^^^^^^^^
 
 To make the extension accessible, you only need to import
-``aatoolbox`` directly. Then, extension methods and properties
+``ochanticipy`` directly. Then, extension methods and properties
 are simply accessed using ``da.aat.method()`` or
 ``da.aat.property`` on a data array or dataset.  As a simple
 example, we can create a data array that has
@@ -32,7 +32,7 @@ the correct ordering.
 
     import xarray
     import numpy
-    import aatoolbox
+    import ochanticipy
 
     da = xarray.DataArray(
       numpy.arange(16).reshape(4,4),
@@ -61,17 +61,17 @@ A full snippet of example code is available below.
 
 .. code-block:: python
 
-    import aatoolbox
+    import ochanticipy
     import datetime
 
     # load the administrative boundaries
-    country_config = aatoolbox.create_country_config(iso3="eth")
-    codab = aatoolbox.CodAB(country_config)
+    country_config = ochanticipy.create_country_config(iso3="eth")
+    codab = ochanticipy.CodAB(country_config)
     codab.download()
     codab_eth = codab.load(admin_level=2)
 
     # get geobounding box for CHIRPS downloading
-    geo_bounding_box = aatoolbox.GeoBoundingBox.from_shape(codab_eth)
+    geo_bounding_box = ochanticipy.GeoBoundingBox.from_shape(codab_eth)
 
     # load CHIRPs data for processing
     start_date = datetime.date(year=2001, month=2, day=1)
@@ -115,7 +115,7 @@ names are not automatically detected.
 
     import xarray
     import numpy
-    import aatoolbox
+    import ochanticipy
 
     da = xarray.DataArray(
         numpy.arange(16).reshape(4,4),

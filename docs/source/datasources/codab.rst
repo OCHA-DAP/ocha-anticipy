@@ -24,14 +24,14 @@ for the country you would like to use:
 
 .. code-block:: python
 
-    from aatoolbox import create_country_config
+    from ochanticipy import create_country_config
     country_config = create_country_config(iso3="npl")
 
 Next you need to instantiate the CodAB class with the country config:
 
 .. code-block:: python
 
-    from aatoolbox import CodAB
+    from ochanticipy import CodAB
     codab = CodAB(country_config=country_config)
 
 Upon first use, you will need to downlaod the COD AB data:
@@ -59,7 +59,7 @@ The full code snippet is below in case you would like to copy it:
 
 .. code-block:: python
 
-    from aatoolbox import create_country_config, CodAB
+    from ochanticipy import create_country_config, CodAB
     country_config = create_country_config(iso3="npl")
     codab = CodAB(country_config=country_config)
     codab.download()
