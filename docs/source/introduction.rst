@@ -1,18 +1,19 @@
 Introduction
 ============
 
-Humanitarians are increasingly recognizing that anticipating
-the risk of a disaster can be more effective than traditional
-emergency response. To reduce the vulnerability and exposure
-of affected populations, the underlying hazard risk
-must be identified and understood.
 
-This is where OCHA AnticiPy comes in. Gaining the understanding of hazard risk
-requires in-depth analysis of decades of historical data relating to
-the shock of interest as well as any related indicators.
-The goal of OCHA AnticiPy is to to
-simplify the downloading and processing of
-data related to the anticipation of humanitarian risk.
+Whether it is through reducing the vulnerability and exposure of affected
+populations to likely hazards or acting in anticipation of predictable shocks,
+Humanitarians are increasingly recognizing the importance of estimating the
+risk and predicting the occurrence of shocks and disasters,
+whether it is through reducing the vulnerability and exposure of affected
+populations to likely hazards, or acting in anticipation of predictable shocks.
+This requires a wide array of data, from historical observations, to existing model forecasts
+and related covariates.
+
+This is where OCHA AnticiPy comes in, providing a simple interface for downloading and
+processing a range of data relevant for anticipatory action and
+disaster risk reduction in humanitarian response.
 
 Datasets currently supported are:
 

@@ -1,8 +1,8 @@
-"""OCHA AnticiPy: Get the data you need for anticipating humanitarian risk.
+"""OCHA AnticiPy: Access data for anticipating humanitarian risk.
 
-The OCHA AnticiPy library contains modules designed to simplify the
-downloading and processing of data related to the anticipation of
-humanitarian risk, such as climate and food security data.
+OCHA AnticiPy is a Python library for simple downloading and processing
+of data related to the anticipation of humanitarian risk,
+from climate observations and forecasts to food insecurity.
 """
 
 from ochanticipy.config.countryconfig import (

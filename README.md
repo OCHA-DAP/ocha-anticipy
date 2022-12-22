@@ -1,4 +1,4 @@
-# OCHA AnticiPy: Get the data you need for anticipating humanitarian risk
+# OCHA AnticiPy: Access data for anticipating humanitarian risk
 
 [![license](https://img.shields.io/github/license/OCHA-DAP/ocha-anticipy.svg)](https://github.com/OCHA-DAP/pa-aa-toolbx/blob/main/LICENSE)
 [![Test Status](https://github.com/OCHA-DAP/ocha-anticipy/workflows/tests/badge.svg)](https://github.com/OCHA-DAP/ocha-anticipy/actions?query=workflow%3Atests)
@@ -10,7 +10,8 @@
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
 
 OCHA AnticiPy is a Python library for simple downloading and processing
-data related to the anticipation of humanitarian risk.
+of data related to the anticipation of humanitarian risk,
+from climate observations and forecasts to food insecurity.
 
 The datasets that we currently support are:
 

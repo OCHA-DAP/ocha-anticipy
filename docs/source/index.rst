@@ -4,9 +4,8 @@ Welcome to OCHA AnticiPy
 Welcome to OCHA AnticiPy's documentation.
 
 OCHA AnticiPy is a Python library for simple downloading and processing
-data related to the anticipation of humanitarian risk.
-The types of datasets include administrative boundaries, food insecurity data,
-and climate data.
+of data related to the anticipation of humanitarian risk,
+from climate observations and forecasts to food insecurity.
 
 Get set up
 and start downloading data using :doc:`quickstart`.
