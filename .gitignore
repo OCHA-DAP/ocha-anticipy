@@ -71,7 +71,7 @@ instance/
 # Sphinx documentation
 docs/build/
 docs/source/modules.rst
-docs/source/aatoolbox*.rst
+docs/source/ochanticipy*.rst
 
 # PyBuilder
 target/
@@ -138,4 +138,4 @@ dmypy.json
 .DS_Store
 
 # build files
-src/aatoolbox/_version.py
+src/ochanticipy/_version.py

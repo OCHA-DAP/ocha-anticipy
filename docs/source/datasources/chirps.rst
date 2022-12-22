@@ -16,7 +16,7 @@ CHPclim (CHC in-house climatology), 0.05° resolution satellite imagery, and in-
 data to create gridded rainfall time series for trend analysis and seasonal drought
 monitoring. More information are available `here <https://www.nature.com/articles/sdata201566>`_.
 
-Through the AA toolbox, it is possible to have access to daily and monthly data.
+Through OCHA AnticiPy, it is possible to have access to daily and monthly data.
 
 The data is downloaded from `IRI's maproom
 <http://iridl.ldeo.columbia.edu/SOURCES/.UCSB/.CHIRPS/.v2p0>`_ as the platform allows
@@ -35,7 +35,7 @@ we will use Burkina Faso, which corresponds to the ISO3 code "bfa":
 
 .. code-block:: python
 
-    from aatoolbox import create_country_config
+    from ochanticipy import create_country_config
     country_config = create_country_config(iso3="bfa")
 
 Another required input is the geographic area of interest. A simple
@@ -44,7 +44,7 @@ administrative boundaries. As a first step, you need to download them:
 
 .. code-block:: python
 
-    from aatoolbox import CodAB
+    from ochanticipy import CodAB
     codab = CodAB(country_config=country_config)
     codab.download()
     admin0 = codab.load(admin_level=0)
@@ -53,7 +53,7 @@ Next, an instance of the class GeoBoundingBox needs to be created:
 
 .. code-block:: python
 
-    from aatoolbox import GeoBoundingBox
+    from ochanticipy import GeoBoundingBox
     geo_bounding_box = GeoBoundingBox.from_shape(admin0)
 
 You can then choose start and end date of the dataset to be considered in your
@@ -72,7 +72,7 @@ In the following example, monthly data ranging from February 2001 to March
 
 .. code-block:: python
 
-    from aatoolbox import ChirpsMonthly
+    from ochanticipy import ChirpsMonthly
 
     start_date = datetime.date(year=2001, month=2, day=1)
     end_date = datetime.date(year=2006, month=3, day=31)
@@ -92,7 +92,7 @@ available data:
 
 .. code-block:: python
 
-    from aatoolbox import ChirpsDaily
+    from ochanticipy import ChirpsDaily
 
     start_date = datetime.date(year=2007, month=10, day=23)
 

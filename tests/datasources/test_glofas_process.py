@@ -7,7 +7,7 @@ import pandas as pd
 import pytest
 import xarray as xr
 
-from aatoolbox import (
+from ochanticipy import (
     CountryConfig,
     GeoBoundingBox,
     GlofasForecast,
@@ -194,7 +194,7 @@ class TestProcess:
     ) -> xr.Dataset:
         """Create fake processed GloFAS reanalysis data."""
         mocker.patch(
-            "aatoolbox.datasources.glofas.reanalysis.xr.load_dataset",
+            "ochanticipy.datasources.glofas.reanalysis.xr.load_dataset",
             return_value=self.get_raw_data(),
         )
         return self.get_processed_data(country_config=mock_country_config)
@@ -210,7 +210,7 @@ class TestProcess:
                 single_day=single_day
             )
             mocker.patch(
-                "aatoolbox.datasources.glofas.forecast.xr.load_dataset",
+                "ochanticipy.datasources.glofas.forecast.xr.load_dataset",
                 side_effect=[cf_raw, pf_raw],
             )
             return self.get_processed_data(

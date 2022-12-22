@@ -3,7 +3,7 @@ import pytest
 from geopandas import GeoSeries
 from shapely.geometry import Polygon
 
-from aatoolbox.utils.geoboundingbox import GeoBoundingBox
+from ochanticipy.utils.geoboundingbox import GeoBoundingBox
 
 
 def test_geoboundingbox_round_coords():

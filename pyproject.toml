@@ -3,7 +3,7 @@ requires = ["setuptools>=45", "wheel", "setuptools_scm>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
-write_to = "src/aatoolbox/_version.py"
+write_to = "src/ochanticipy/_version.py"
 local_scheme = "no-local-version"
 version_scheme = "release-branch-semver"
 

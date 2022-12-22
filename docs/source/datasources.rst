@@ -1,7 +1,7 @@
 Data Sources
 ============
 
-AA Toolbox supports the following data sources:
+OCHA AnticiPy supports the following data sources:
 
 .. toctree::
    :maxdepth: 1

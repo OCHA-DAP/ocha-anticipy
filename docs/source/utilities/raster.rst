@@ -20,9 +20,9 @@ Accessor
 ^^^^^^^^
 
 To make the extension accessible, you only need to import
-``aatoolbox`` directly. Then, extension methods and properties
-are simply accessed using ``da.aat.method()`` or
-``da.aat.property`` on a data array or dataset.  As a simple
+``ochanticipy`` directly. Then, extension methods and properties
+are simply accessed using ``da.oap.method()`` or
+``da.oap.property`` on a data array or dataset.  As a simple
 example, we can create a data array that has
 incorrect coordinates (ascending latitude and descending
 longitude). Then we can use the extension to invert them to
@@ -32,14 +32,15 @@ the correct ordering.
 
     import xarray
     import numpy
-    import aatoolbox
+
+    import ochanticipy
 
     da = xarray.DataArray(
       numpy.arange(16).reshape(4,4),
       coords={"lat":numpy.array([87, 88, 89, 90]),
               "lon":numpy.array([70, 69, 68, 67])}
     )
-    da_inv = da.aat.invert_coordinates()
+    da_inv = da.oap.invert_coordinates()
 
     # check they have inverted
     da_inv.get_index("lon")
@@ -61,17 +62,17 @@ A full snippet of example code is available below.
 
 .. code-block:: python
 
-    import aatoolbox
+    import ochanticipy
     import datetime
 
     # load the administrative boundaries
-    country_config = aatoolbox.create_country_config(iso3="eth")
-    codab = aatoolbox.CodAB(country_config)
+    country_config = ochanticipy.create_country_config(iso3="eth")
+    codab = ochanticipy.CodAB(country_config)
     codab.download()
     codab_eth = codab.load(admin_level=2)
 
     # get geobounding box for CHIRPS downloading
-    geo_bounding_box = aatoolbox.GeoBoundingBox.from_shape(codab_eth)
+    geo_bounding_box = ochanticipy.GeoBoundingBox.from_shape(codab_eth)
 
     # load CHIRPs data for processing
     start_date = datetime.date(year=2001, month=2, day=1)
@@ -90,7 +91,7 @@ A full snippet of example code is available below.
 
     # compute raster statistics
 
-    chirps_monthly_data.aat.compute_raster_stats(
+    chirps_monthly_data.oap.compute_raster_stats(
       gdf=codab_eth,
       feature_col="ADM2_PCODE"
     )
@@ -103,8 +104,8 @@ a data array when using the raster module. This module
 builds on `rioxarray <https://corteva.github.io/rioxarray>_`
 extensions, and thus methods and attributes accessible
 via ``da.rio.method()``  or ``da.rio.property`` are
-also accessible using ``da.aat.method()`` or
-``da.aat.property``. However, original rioxarray properties
+also accessible using ``da.oap.method()`` or
+``da.oap.property``. However, original rioxarray properties
 should be accessed using ``da.rio.property``.
 
 Let's create a simple data array where we want to specify
@@ -115,7 +116,7 @@ names are not automatically detected.
 
     import xarray
     import numpy
-    import aatoolbox
+    import ochanticipy
 
     da = xarray.DataArray(
         numpy.arange(16).reshape(4,4),
@@ -125,11 +126,11 @@ names are not automatically detected.
 
 We can set the spatial dimensions using
 ``da.rio.set_spatial_dims()`` or call it directly
-from ``da.aat``.
+from ``da.oap``.
 
 .. code-block:: python
 
-  da_new = da.aat.set_spatial_dims(
+  da_new = da.oap.set_spatial_dims(
     x_dim="a",
     y_dim="b"
   )
@@ -143,18 +144,18 @@ accessing the properties.
   da_new.rio.x_dim
   #> 'a'
 
-  da_new.aat.x_dim
+  da_new.oap.x_dim
   #> MissingSpatialDimensionError: x dimension not found.
   #> 'rio.set_spatial_dims()' or using 'rename()' to change
   #> the dimension name to 'x' can address this.
 
-Even though the method was called using ``aat``, the property
+Even though the method was called using ``oap``, the property
 is not accessible through it. Users need to be careful about
-accessing rioxarray properties using the ``aat`` accessor.
+accessing rioxarray properties using the ``oap`` accessor.
 
 For best practice, rioxarray methods and properties should all
 be accessed using ``rio``. These properties are ``rio.x_dim``,
 ``rio.y_dim``, ``rio.shape``, ``rio.width``, ``rio.height``, and
 ``rio.crs``. This module's methods and properties should be
-accessed using the ``aat`` accessor. These properties are
-``aat.t_dim`` and ``aat.longitude_range``.
+accessed using the ``oap`` accessor. These properties are
+``oap.t_dim`` and ``oap.longitude_range``.

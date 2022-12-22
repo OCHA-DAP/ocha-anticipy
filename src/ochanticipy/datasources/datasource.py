@@ -1,9 +1,9 @@
-"""Base class for aatoolbox data source."""
+"""Base class for ochanticipy data source."""
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from aatoolbox.config.countryconfig import CountryConfig
-from aatoolbox.config.pathconfig import PathConfig
+from ochanticipy.config.countryconfig import CountryConfig
+from ochanticipy.config.pathconfig import PathConfig
 
 _GLOBAL_DIR = "glb"
 

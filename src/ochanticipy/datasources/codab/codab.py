@@ -5,10 +5,10 @@ from pathlib import Path
 import geopandas as gpd
 from fiona.errors import DriverError
 
-from aatoolbox.config.countryconfig import CountryConfig
-from aatoolbox.datasources.datasource import DataSource
-from aatoolbox.utils.check_file_existence import check_file_existence
-from aatoolbox.utils.hdx_api import load_dataset_from_hdx
+from ochanticipy.config.countryconfig import CountryConfig
+from ochanticipy.datasources.datasource import DataSource
+from ochanticipy.utils.check_file_existence import check_file_existence
+from ochanticipy.utils.hdx_api import load_dataset_from_hdx
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +50,7 @@ class CodAB(DataSource):
 
         Examples
         --------
-        >>> from aatoolbox import create_country_config, CodAB
+        >>> from ochanticipy import create_country_config, CodAB
         >>> # Download COD administrative boundaries for Nepal
         >>> country_config = create_country_config(iso3="npl")
         >>> codab = CodAB(country_config=country_config)
@@ -93,7 +93,7 @@ class CodAB(DataSource):
 
         Examples
         --------
-        >>> from aatoolbox import create_country_config, CodAB
+        >>> from ochanticipy import create_country_config, CodAB
         >>>
         >>> # Retrieve admin 2 boundaries for Nepal
         >>> country_config = create_country_config(iso3="npl")
@@ -136,7 +136,7 @@ class CodAB(DataSource):
 
         Examples
         --------
-        >>> from aatoolbox import create_country_config, CodAB
+        >>> from ochanticipy import create_country_config, CodAB
         >>>
         >>> # Retrieve district boundaries for Nepal
         >>> country_config = create_country_config(iso3="npl")
