@@ -1,9 +1,6 @@
 Introduction
 ============
 
-
-Whether it is through reducing the vulnerability and exposure of affected
-populations to likely hazards or acting in anticipation of predictable shocks,
 Humanitarians are increasingly recognizing the importance of estimating the
 risk and predicting the occurrence of shocks and disasters,
 whether it is through reducing the vulnerability and exposure of affected
