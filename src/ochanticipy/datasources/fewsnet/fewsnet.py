@@ -18,9 +18,9 @@ from tempfile import TemporaryDirectory
 import geopandas as gpd
 from hdx.location.country import Country
 
-from aatoolbox.datasources.datasource import DataSource
-from aatoolbox.utils.check_file_existence import check_file_existence
-from aatoolbox.utils.io import download_url, unzip
+from ochanticipy.datasources.datasource import DataSource
+from ochanticipy.utils.check_file_existence import check_file_existence
+from ochanticipy.utils.io import download_url, unzip
 
 logger = logging.getLogger(__name__)
 _BASE_URL_COUNTRY = (
@@ -114,7 +114,7 @@ class FewsNet(DataSource):
 
         Examples
         --------
-        >>> from aatoolbox import create_country_config, FewsNet
+        >>> from ochanticipy import create_country_config, FewsNet
         >>> # Download FEWS NET data for ETH published in 2021-06
         >>> country_config = create_country_config(iso3="eth")
         >>> fewsnet = FewsNet(country_config=country_config)
@@ -182,7 +182,7 @@ class FewsNet(DataSource):
 
         Examples
         --------
-        >>> from aatoolbox import create_country_config, FewsNet
+        >>> from ochanticipy import create_country_config, FewsNet
         >>> # Load FEWS NET data for ETH published in 2021-06 of medium-term
         ... projection period (ML1)
         >>> country_config = create_country_config(iso3="eth")

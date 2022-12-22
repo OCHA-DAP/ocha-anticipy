@@ -1,7 +1,8 @@
 """Fixtures for all pipeline-related tests."""
 import pytest
 
-from aatoolbox import GeoBoundingBox, create_custom_country_config
+from ochanticipy import GeoBoundingBox, create_custom_country_config
+from ochanticipy.config.pathconfig import BASE_DIR_ENV
 
 CONFIG_FILE = "tests/datasources/fake_config.yaml"
 ISO3 = "abc"
@@ -10,13 +11,13 @@ ISO2 = "ab"
 
 @pytest.fixture(autouse=True)
 def mock_aa_data_dir(tmp_path_factory, mocker):
-    """Mock out the AA_DATA_DIR environment variable."""
+    """Mock out the base directory environment variable."""
     mock_aa_data_dir_path = tmp_path_factory.mktemp(
         basename="test_aa_data_dir"
     )
     mocker.patch.dict(
-        "aatoolbox.config.pathconfig.os.environ",
-        {"AA_DATA_DIR": str(mock_aa_data_dir_path)},
+        "ochanticipy.config.pathconfig.os.environ",
+        {BASE_DIR_ENV: str(mock_aa_data_dir_path)},
     )
     return mock_aa_data_dir_path
 

@@ -7,7 +7,7 @@ from pathlib import Path
 from hdx.api.configuration import Configuration
 from hdx.data.dataset import Dataset
 
-USER_AGENT = "aa-toolbox"
+USER_AGENT = "ocha-anticipy"
 
 logger = logging.getLogger(__name__)
 Configuration.create(

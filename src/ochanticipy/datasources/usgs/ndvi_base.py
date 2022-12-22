@@ -30,10 +30,10 @@ import rioxarray  # noqa: F401
 import xarray as xr
 from rasterio.errors import RasterioIOError
 
-import aatoolbox.utils.raster  # noqa: F401
-from aatoolbox.config.countryconfig import CountryConfig
-from aatoolbox.datasources.datasource import DataSource
-from aatoolbox.utils.dates import (
+import ochanticipy.utils.raster  # noqa: F401
+from ochanticipy.config.countryconfig import CountryConfig
+from ochanticipy.datasources.datasource import DataSource
+from ochanticipy.utils.dates import (
     compare_dekads_gt,
     compare_dekads_lt,
     dekad_to_date,
@@ -150,7 +150,7 @@ class _UsgsNdvi(DataSource):
 
         Examples
         --------
-        >>> from aatoolbox import create_country_config, \
+        >>> from ochanticipy import create_country_config, \
         ...  CodAB, UsgsNdviSmoothed
         >>>
         >>> # Retrieve admin 2 boundaries for Burkina Faso
@@ -184,7 +184,7 @@ class _UsgsNdvi(DataSource):
         NDVI data is clipped to the provided
         ``geometries``, usually a geopandas
         dataframes ``geometry`` feature. ``kwargs``
-        are passed on to ``aat.computer_raster_stats()``.
+        are passed on to ``oap.computer_raster_stats()``.
         The ``feature_col`` is used to define
         the unique processed file.
 
@@ -200,10 +200,10 @@ class _UsgsNdvi(DataSource):
             GeoDataFrame with row per area for stats computation.
             If ``pd.DataFrame`` is passed, geometry column must
             have the name ``geometry``. Passed to
-            ``aat.compute_raster_stats()``.
+            ``oap.compute_raster_stats()``.
         feature_col : str
             Column in ``gdf`` to use as row/feature identifier.
-            and dates. Passed to ``aat.compute_raster_stats()``.
+            and dates. Passed to ``oap.compute_raster_stats()``.
             The string is also used as a suffix to the
             processed file path for unique identication of
             analyses done on different files and columns.
@@ -218,7 +218,7 @@ class _UsgsNdvi(DataSource):
             value error will be raised.
         **kwargs
             Additional keyword arguments passed to
-            ``aat.computer_raster_stats()``.
+            ``oap.computer_raster_stats()``.
 
         Returns
         -------
@@ -227,7 +227,7 @@ class _UsgsNdvi(DataSource):
 
         Examples
         --------
-        >>> from aatoolbox import create_country_config, \
+        >>> from ochanticipy import create_country_config, \
         ...  CodAB, UsgsNdviSmoothed
         >>>
         >>> # Retrieve admin 2 boundaries for Burkina Faso
@@ -321,7 +321,7 @@ class _UsgsNdvi(DataSource):
 
         Examples
         --------
-        >>> from aatoolbox import create_country_config, \
+        >>> from ochanticipy import create_country_config, \
         ...  CodAB, UsgsNdviSmoothed
         >>>
         >>> # Retrieve admin 2 boundaries for Burkina Faso
@@ -588,7 +588,7 @@ class _UsgsNdvi(DataSource):
         data = [df_already_processed]
         for process_date in dates_to_process:
             da = self.load_raster(process_date)
-            stats = da.aat.compute_raster_stats(
+            stats = da.oap.compute_raster_stats(
                 gdf=gdf,
                 feature_col=feature_col,
                 stats_list=stats_list,

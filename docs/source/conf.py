@@ -17,9 +17,9 @@ sys.path.insert(0, os.path.abspath("../.."))
 
 # -- Project information -----------------------------------------------------
 
-project = "AA Toolbox"
-author = "Centre for Humanitarian Data Predictive Analytics Team"
-copyright = "2022, Centre for Humanitarian Data Predictive Analytics Team"
+project = "OCHA AnticiPy"
+author = "Data Science Team, UN OCHA Centre for Humanitarian Data"
+copyright = "2023, UN OCHA Centre for Humanitarian Data"
 
 # -- General configuration ---------------------------------------------------
 
@@ -42,7 +42,7 @@ templates_path = ["_templates"]
 exclude_patterns = []  # type: list
 
 # API doc settings
-apidoc_module_dir = "../../src/aatoolbox"
+apidoc_module_dir = "../../src/ochanticipy"
 apidoc_output_dir = "."
 
 # -- Options for HTML output -------------------------------------------------

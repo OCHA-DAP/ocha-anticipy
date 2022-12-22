@@ -4,7 +4,7 @@ from typing import Dict, List, Optional, Tuple, Union
 
 from pydantic import BaseModel, root_validator, validator
 
-from aatoolbox.utils.io import parse_yaml
+from ochanticipy.utils.io import parse_yaml
 
 
 class CodABConfig(BaseModel):

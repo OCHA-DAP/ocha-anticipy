@@ -1,7 +1,7 @@
 """Tests for the DataSource class."""
 import pytest
 
-from aatoolbox.datasources.datasource import DataSource
+from ochanticipy.datasources.datasource import DataSource
 
 
 class DataSourceTesting(DataSource):
