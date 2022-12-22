@@ -8,11 +8,11 @@ Changelog <https://keepachangelog.com/en/1.0.0/>`__, and this project
 adheres to `Semantic
 Versioning <https://semver.org/spec/v2.0.0.html>`__.
 
-[Unreleased]
-------------
+[1.0.0] - 2022-12-22
+--------------------
 
 Changed
--------
+~~~~~~~
 
 - Renamed from AA Toolbox to OCHA AnticiPy
 
