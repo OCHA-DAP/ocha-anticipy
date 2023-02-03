@@ -17,7 +17,7 @@ like the data to go.
 Install OCHA AnticiPy
 ^^^^^^^^^^^^^^^^^^
 
-OCHA AnticiPy supports Python 3.7 and newer. It can be installed in your Python
+OCHA AnticiPy supports Python 3.8 and newer. It can be installed in your Python
 environment using the following command:
 
 .. code-block:: sh
