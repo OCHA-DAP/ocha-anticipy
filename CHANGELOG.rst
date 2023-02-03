@@ -13,7 +13,7 @@ Versioning <https://semver.org/spec/v2.0.0.html>`__.
 
 Removed
 ~~~~~~~
-- `sphinx-rtd-theme` dependency for docs (switch to Alabaster theme)
+- ``sphinx-rtd-theme`` dependency for docs (switch to Alabaster theme)
 
 Fixed
 ~~~~~
