@@ -1,6 +1,6 @@
 # OCHA AnticiPy: Access data for anticipating humanitarian risk
 
-[![license](https://img.shields.io/github/license/OCHA-DAP/ocha-anticipy.svg)](https://github.com/OCHA-DAP/pa-aa-toolbx/blob/main/LICENSE)
+[![license](https://img.shields.io/github/license/OCHA-DAP/ocha-anticipy.svg)](https://github.com/OCHA-DAP/ocha-anticipy/blob/main/LICENSE)
 [![Test Status](https://github.com/OCHA-DAP/ocha-anticipy/workflows/tests/badge.svg)](https://github.com/OCHA-DAP/ocha-anticipy/actions?query=workflow%3Atests)
 [![PyPI Status](https://github.com/OCHA-DAP/ocha-anticipy/workflows/PyPI/badge.svg)](https://github.com/OCHA-DAP/ocha-anticipy/actions?query=workflow%3APyPI)
 [![Documentation Status](https://readthedocs.org/projects/ocha-anticipy/badge/?version=latest)](https://ocha-anticipy.readthedocs.io/en/latest/?badge=latest)
