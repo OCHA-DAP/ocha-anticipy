@@ -42,7 +42,7 @@ repos:
           - types-python-dateutil==2.8.19
         exclude: tests
   - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.29.0
+    rev: v0.32.0
     hooks:
       - id: markdownlint
   - repo: https://github.com/jazzband/pip-tools
