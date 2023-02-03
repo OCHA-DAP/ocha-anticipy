@@ -8,7 +8,7 @@ affine==2.4.0
     # via
     #   -r requirements/requirements.txt
     #   rasterio
-alabaster==0.7.12
+alabaster==0.7.13
     # via
     #   -r requirements/requirements-docs.txt
     #   sphinx
@@ -38,15 +38,19 @@ bokeh==2.4.3
     # via
     #   -r requirements/requirements.txt
     #   dask
-build==0.9.0
+build==0.10.0
     # via pip-tools
+cachetools==5.3.0
+    # via
+    #   -r requirements/requirements-tests.txt
+    #   tox
 cattrs==22.2.0
     # via
     #   -r requirements/requirements.txt
     #   requests-cache
 cdsapi==0.5.1
     # via -r requirements/requirements.txt
-certifi==2022.9.24
+certifi==2022.12.7
     # via
     #   -r requirements/requirements-docs.txt
     #   -r requirements/requirements.txt
@@ -70,9 +74,11 @@ cftime==1.6.2
     #   netcdf4
 chardet==5.1.0
     # via
+    #   -r requirements/requirements-tests.txt
     #   -r requirements/requirements.txt
     #   frictionless
-charset-normalizer==2.1.1
+    #   tox
+charset-normalizer==3.0.1
     # via
     #   -r requirements/requirements-docs.txt
     #   -r requirements/requirements.txt
@@ -110,7 +116,9 @@ cloudpickle==2.2.1
     #   distributed
 colorama==0.4.6
     # via
+    #   -r requirements/requirements-tests.txt
     #   -r requirements/requirements.txt
+    #   tox
     #   typer
 commonmark==0.9.1
     # via
@@ -155,13 +163,12 @@ docopt==0.6.2
     #   -r requirements/requirements.txt
     #   ckanapi
     #   num2words
-docutils==0.17.1
+docutils==0.19
     # via
     #   -r requirements/requirements-docs.txt
     #   -r requirements/requirements.txt
     #   defopt
     #   sphinx
-    #   sphinx-rtd-theme
 eccodes==1.5.1
     # via
     #   -r requirements/requirements.txt
@@ -187,7 +194,7 @@ fiona==1.9.0
     # via
     #   -r requirements/requirements.txt
     #   geopandas
-frictionless==5.5.2
+frictionless==5.5.3
     # via
     #   -r requirements/requirements.txt
     #   hdx-python-utilities
@@ -215,7 +222,7 @@ humanize==4.5.0
     # via
     #   -r requirements/requirements.txt
     #   frictionless
-identify==2.5.9
+identify==2.5.17
     # via pre-commit
 idna==3.4
     # via
@@ -286,7 +293,7 @@ marko==1.3.0
     # via
     #   -r requirements/requirements.txt
     #   frictionless
-markupsafe==2.1.1
+markupsafe==2.1.2
     # via
     #   -r requirements/requirements-docs.txt
     #   -r requirements/requirements.txt
@@ -332,7 +339,7 @@ openpyxl==3.1.0
     # via
     #   -r requirements/requirements.txt
     #   hdx-python-utilities
-packaging==21.3
+packaging==23.0
     # via
     #   -r requirements/requirements-docs.txt
     #   -r requirements/requirements-tests.txt
@@ -342,6 +349,7 @@ packaging==21.3
     #   dask
     #   distributed
     #   geopandas
+    #   pyproject-api
     #   pytest
     #   rioxarray
     #   sphinx
@@ -357,12 +365,10 @@ partd==1.3.0
     # via
     #   -r requirements/requirements.txt
     #   dask
-pbr==5.11.0
+pbr==5.11.1
     # via
     #   -r requirements/requirements-docs.txt
     #   sphinxcontrib-apidoc
-pep517==0.13.0
-    # via build
 petl==1.7.12
     # via
     #   -r requirements/requirements.txt
@@ -371,11 +377,12 @@ pillow==9.4.0
     # via
     #   -r requirements/requirements.txt
     #   bokeh
-pip-tools==6.10.0
+pip-tools==6.12.2
     # via -r requirements/dev.in
 platformdirs==2.6.2
     # via
     #   -r requirements/requirements-tests.txt
+    #   tox
     #   virtualenv
 pluggy==1.0.0
     # via
@@ -391,17 +398,12 @@ pockets==0.9.1
     # via
     #   -r requirements/requirements.txt
     #   sphinxcontrib-napoleon
-pre-commit==2.20.0
+pre-commit==3.0.3
     # via -r requirements/dev.in
 psutil==5.9.4
     # via
     #   -r requirements/requirements.txt
     #   distributed
-py==1.11.0
-    # via
-    #   -r requirements/requirements-tests.txt
-    #   pytest
-    #   tox
 pyasn1==0.4.8
     # via
     #   -r requirements/requirements.txt
@@ -416,7 +418,7 @@ pydantic==1.10.4
     #   -r requirements/requirements.txt
     #   frictionless
     #   inflect
-pygments==2.13.0
+pygments==2.14.0
     # via
     #   -r requirements/requirements-docs.txt
     #   -r requirements/requirements.txt
@@ -429,10 +431,7 @@ pyopenssl==23.0.0
     #   ndg-httpsclient
 pyparsing==3.0.9
     # via
-    #   -r requirements/requirements-docs.txt
-    #   -r requirements/requirements-tests.txt
     #   -r requirements/requirements.txt
-    #   packaging
     #   snuggs
 pyphonetics==0.5.3
     # via
@@ -443,11 +442,17 @@ pyproj==3.4.1
     #   -r requirements/requirements.txt
     #   geopandas
     #   rioxarray
+pyproject-api==1.5.0
+    # via
+    #   -r requirements/requirements-tests.txt
+    #   tox
+pyproject-hooks==1.0.0
+    # via build
 pyrsistent==0.19.3
     # via
     #   -r requirements/requirements.txt
     #   jsonschema
-pytest==7.1.2
+pytest==7.2.1
     # via
     #   -r requirements/requirements-tests.txt
     #   pytest-cov
@@ -472,7 +477,7 @@ python-slugify==8.0.0
     #   -r requirements/requirements.txt
     #   ckanapi
     #   frictionless
-pytz==2022.6
+pytz==2022.7.1
     # via
     #   -r requirements/requirements-docs.txt
     #   -r requirements/requirements.txt
@@ -499,7 +504,7 @@ ratelimit==2.2.1
     # via
     #   -r requirements/requirements.txt
     #   hdx-python-utilities
-requests==2.28.1
+requests==2.28.2
     # via
     #   -r requirements/requirements-docs.txt
     #   -r requirements/requirements.txt
@@ -546,7 +551,6 @@ simpleeval==0.9.12
     #   frictionless
 six==1.16.0
     # via
-    #   -r requirements/requirements-tests.txt
     #   -r requirements/requirements.txt
     #   ckanapi
     #   isodate
@@ -556,7 +560,6 @@ six==1.16.0
     #   python-dateutil
     #   requests-file
     #   sphinxcontrib-napoleon
-    #   tox
     #   url-normalize
 snowballstemmer==2.2.0
     # via
@@ -570,16 +573,13 @@ sortedcontainers==2.4.0
     # via
     #   -r requirements/requirements.txt
     #   distributed
-sphinx==5.3.0
+sphinx==6.1.3
     # via
     #   -r requirements/requirements-docs.txt
-    #   sphinx-rtd-theme
     #   sphinxcontrib-apidoc
-sphinx-rtd-theme==1.1.1
-    # via -r requirements/requirements-docs.txt
 sphinxcontrib-apidoc==0.3.0
     # via -r requirements/requirements-docs.txt
-sphinxcontrib-applehelp==1.0.2
+sphinxcontrib-applehelp==1.0.4
     # via
     #   -r requirements/requirements-docs.txt
     #   sphinx
@@ -587,7 +587,7 @@ sphinxcontrib-devhelp==1.0.2
     # via
     #   -r requirements/requirements-docs.txt
     #   sphinx
-sphinxcontrib-htmlhelp==2.0.0
+sphinxcontrib-htmlhelp==2.0.1
     # via
     #   -r requirements/requirements-docs.txt
     #   sphinx
@@ -631,12 +631,6 @@ text-unidecode==1.3
     # via
     #   -r requirements/requirements.txt
     #   python-slugify
-toml==0.10.2
-    # via pre-commit
-tomli==2.0.1
-    # via
-    #   -r requirements/requirements-tests.txt
-    #   pytest
 toolz==0.12.0
     # via
     #   -r requirements/requirements.txt
@@ -648,7 +642,7 @@ tornado==6.2
     #   -r requirements/requirements.txt
     #   bokeh
     #   distributed
-tox==3.28.0
+tox==4.4.4
     # via -r requirements/requirements-tests.txt
 tqdm==4.64.1
     # via
@@ -673,7 +667,7 @@ url-normalize==1.4.3
     # via
     #   -r requirements/requirements.txt
     #   requests-cache
-urllib3==1.26.13
+urllib3==1.26.14
     # via
     #   -r requirements/requirements-docs.txt
     #   -r requirements/requirements.txt
