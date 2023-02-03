@@ -11,6 +11,11 @@ Versioning <https://semver.org/spec/v2.0.0.html>`__.
 [Unreleased]
 ------------
 
+Fixed
+~~~~~
+
+- Fixed badge link in README.md and deprecated PyPI GHA
+
 Changed
 -------
 
