@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        python-version: ['3.8', '3.9', '3.10', '3.11']
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
@@ -38,7 +38,7 @@ jobs:
         path: .tox/test-results.xml
     - name: Upload coverage results to Codecov
       uses: codecov/codecov-action@v2
-      if: success() && matrix.python-version == 3.12
+      if: success() && matrix.python-version == 3.11
 
   publish-test-results:
     name: Publish unit test results
