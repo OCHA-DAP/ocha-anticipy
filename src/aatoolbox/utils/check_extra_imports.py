@@ -2,7 +2,7 @@
 import importlib.util
 
 
-def _check_extra_imports(libraries: list, subpackage: str):
+def check_extra_imports(libraries: list, subpackage: str):
     """Check that libraries are installed and available.
 
     Parameters

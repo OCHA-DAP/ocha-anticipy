@@ -13,7 +13,7 @@ from dateutil import rrule
 
 from aatoolbox.config.countryconfig import CountryConfig
 from aatoolbox.datasources.datasource import DataSource
-from aatoolbox.utils.check_extra_imports import _check_extra_imports
+from aatoolbox.utils.check_extra_imports import check_extra_imports
 from aatoolbox.utils.dates import get_date_from_user_input
 from aatoolbox.utils.geoboundingbox import GeoBoundingBox
 
@@ -105,7 +105,7 @@ class Glofas(DataSource):
             is_public=True,
         )
         # check that extra dependencies are installed
-        _check_extra_imports(
+        check_extra_imports(
             libraries=["cdsapi", "cfgrib"], subpackage="glofas"
         )
 
