@@ -44,11 +44,11 @@ templates_path = ["_templates"]
 exclude_patterns = []  # type: list
 
 # API doc settings
-apidoc_module_dir = "../src/aatoolbox"
+apidoc_module_dir = "../src/ochanticipy"
 apidoc_output_dir = "."
 
 # Needed to sphinxcontrib.extra_requires to work
-package_root = "pa-aa-toolbox"
+package_root = "ochanticipy"
 
 # -- Options for HTML output -------------------------------------------------
 
