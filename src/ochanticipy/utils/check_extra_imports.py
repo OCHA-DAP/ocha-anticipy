@@ -21,5 +21,5 @@ def check_extra_imports(libraries: list, subpackage: str):
     if missing_pkgs:
         raise ModuleNotFoundError(
             f"{', '.join(missing_pkgs)} were not found. Install the "
-            f"missing packages with `pip install aa-toolbox[{subpackage}]`."
+            f"missing packages with `pip install ochanticipy[{subpackage}]`."
         )

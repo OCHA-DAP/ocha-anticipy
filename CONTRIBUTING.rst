@@ -17,9 +17,8 @@ development by running:
 
 .. code:: shell
 
-   pip install .[dev]
+   pip install -r requirements/requirements-dev.txt
 
-If using ZSH, you need to wrap the last term in quotes, `'.[dev]'`.
 ``aa-toolbox`` makes use of
 `geopandas <https://geopandas.org/en/stable/>`__, which depends on
 `Fiona <https://github.com/Toblerity/Fiona>`__, so you will need to
@@ -33,7 +32,7 @@ To install in editable mode for development, execute:
 
 .. code:: shell
 
-   pip install -e .[dev]
+   pip install -e -r requirements/requirements-dev.txt
 
 Testing
 -------

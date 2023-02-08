@@ -7,6 +7,14 @@ The format is based on `Keep a
 Changelog <https://keepachangelog.com/en/1.0.0/>`__, and this project
 adheres to `Semantic
 Versioning <https://semver.org/spec/v2.0.0.html>`__.
+Unreleased
+----------
+
+Changed
+~~~~~~~
+- Optional dependencies and documentation, testing, and development
+reqirements moved to ``extras_require``
+- GLOFAS module dependencies made optional
 
 [1.0.1] - 2023-02-03
 --------------------
@@ -47,8 +55,6 @@ Changed
 
 - Documented and moved the raster processing module to the top level
   for public access
-- Optional dependencies and documentation, testing, and development
-reqirements moved to ``extras_require``
 
 Removed
 ~~~~~~~

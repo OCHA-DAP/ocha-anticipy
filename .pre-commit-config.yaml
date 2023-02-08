@@ -45,3 +45,12 @@ repos:
     rev: v0.32.0
     hooks:
       - id: markdownlint
+  - repo: https://github.com/jazzband/pip-tools
+    rev: 6.12.2
+    hooks:
+      - id: pip-compile
+        name: pip-compile requirements-dev.txt
+        files: setup.cfg
+        args: [setup.cfg, --resolver=backtracking,
+              --extra, dev, -q, -o,
+              requirements/requirements-dev.txt]

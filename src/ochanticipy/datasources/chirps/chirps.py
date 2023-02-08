@@ -278,7 +278,6 @@ class _Chirps(DataSource):
         return self._processed_base_dir / raw_path.parts[-1]
 
     def _get_location_url(self):
-
         location_url = (
             f"X/%28{self._geobb.lon_min}%29%28{self._geobb.lon_max}"
             f"%29RANGEEDGES/"
@@ -330,7 +329,6 @@ class _Chirps(DataSource):
 
     @staticmethod
     def _read_csv_from_url(url):
-
         context = ssl.create_default_context()
         context.set_ciphers("DEFAULT")
         result = urlopen(url, context=context)
@@ -421,7 +419,6 @@ class ChirpsMonthly(_Chirps):
         month: str,
         day: str,
     ) -> str:
-
         file_name_base = self._get_file_name_base(
             year=year,
             month=month,
@@ -455,7 +452,6 @@ class ChirpsMonthly(_Chirps):
         return datetime_object.date()
 
     def _get_url(self, year: str, month: str, day: str) -> str:
-
         # Convert month from month number (in string format) to
         # three-letter name
         month_name = calendar.month_abbr[int(month)]
@@ -554,7 +550,6 @@ class ChirpsDaily(_Chirps):
         month: str,
         day: str,
     ) -> str:
-
         file_name_base = self._get_file_name_base(
             year=year,
             month=month,
@@ -589,7 +584,6 @@ class ChirpsDaily(_Chirps):
         return datetime_object.date()
 
     def _get_url(self, year: str, month: str, day: str) -> str:
-
         # Convert month from month number (in string format) to
         # three-letter name
         month_name = calendar.month_abbr[int(month)]

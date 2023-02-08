@@ -6,6 +6,7 @@ from pydantic import BaseModel, root_validator, validator
 
 from ochanticipy.utils.io import parse_yaml
 
+
 class CodABConfig(BaseModel):
     """COD AB configuration.
 

@@ -1,7 +1,6 @@
 """Test the GloFAS instantiation."""
 import sys
 from datetime import date
-from unittest.mock import patch
 
 import pytest
 
@@ -101,20 +100,22 @@ def test_reforecast_dates(mock_country_config, geo_bounding_box):
         )
 
 
-def test_optional_module_error(mock_country_config, geo_bounding_box):
+def test_optional_module_error(
+    mock_country_config, geo_bounding_box, monkeypatch
+):
     """Test module error raised correctly if dependencies missing."""
-    with patch.dict(sys.modules, {"cdsapi": None}):
-        with pytest.raises(ModuleNotFoundError, match=r"aa-toolbox"):
-            from aatoolbox import GlofasForecast
+    monkeypatch.setitem(mapping=sys.modules, name="cdsapi", value=None)
+    with pytest.raises(ModuleNotFoundError, match=r"ochanticipy"):
+        from ochanticipy import GlofasForecast
 
-            GlofasForecast(
-                country_config=mock_country_config,
-                geo_bounding_box=geo_bounding_box,
-                leadtime_max=1,
-            )
+        GlofasForecast(
+            country_config=mock_country_config,
+            geo_bounding_box=geo_bounding_box,
+            leadtime_max=1,
+        )
 
 
-def test_optional_module_no_error():
+def test_optional_module_no_error(monkeypatch):
     """Test no errors generated on library import w/o dependencies."""
-    with patch.dict(sys.modules, {"cdsapi": None, "cfgrib": None}):
-        import aatoolbox  # noqa: F401
+    monkeypatch.setitem(mapping=sys.modules, name="cdsapi", value=None)
+    import ochanticipy  # noqa: F401

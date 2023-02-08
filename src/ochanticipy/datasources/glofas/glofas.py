@@ -13,6 +13,7 @@ from dateutil import rrule
 
 from ochanticipy.config.countryconfig import CountryConfig
 from ochanticipy.datasources.datasource import DataSource
+from ochanticipy.utils.check_extra_imports import check_extra_imports
 from ochanticipy.utils.dates import get_date_from_user_input
 from ochanticipy.utils.geoboundingbox import GeoBoundingBox
 
@@ -22,6 +23,12 @@ _RIVER_DISCHARGE_VAR = "dis24"
 _REQUEST_SLEEP_TIME = 60  # seconds
 
 logger = logging.getLogger(__name__)
+
+# putting on top level to ensure easy mocking in tests
+try:
+    import cdsapi
+except ModuleNotFoundError:
+    pass
 
 
 @dataclass
@@ -333,9 +340,6 @@ class Glofas(DataSource):
         and then removed from the list of requests. The process continues
         until the request list is empty
         """
-        # optional dependency
-        cdsapi = __import__("cdsapi")
-
         # First make the requests to the CDS client and store request number
         for query_params in query_params_list:
             logger.debug(f"Making request {query_params.query}")
