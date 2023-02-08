@@ -69,9 +69,9 @@ instance/
 .scrapy
 
 # Sphinx documentation
-docs-build/
-docs-source/modules.rst
-docs-source/aatoolbox*.rst
+docs/_build/
+docs/modules.rst
+docs/ochanticipy*.rst
 
 # PyBuilder
 target/
