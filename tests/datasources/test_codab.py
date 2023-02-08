@@ -1,7 +1,7 @@
 """Test COD AB methods."""
 import pytest
 
-from aatoolbox import CodAB
+from ochanticipy import CodAB
 
 DATASOURCE_BASE_DIR = "cod_ab"
 
@@ -10,14 +10,14 @@ DATASOURCE_BASE_DIR = "cod_ab"
 def downloader(mocker):
     """Mock the HDX download function."""
     return mocker.patch(
-        "aatoolbox.datasources.codab.codab.load_dataset_from_hdx"
+        "ochanticipy.datasources.codab.codab.load_dataset_from_hdx"
     )
 
 
 @pytest.fixture
 def gpd_read_file(mocker):
     """Mock GeoPandas file reading function."""
-    return mocker.patch("aatoolbox.datasources.codab.codab.gpd.read_file")
+    return mocker.patch("ochanticipy.datasources.codab.codab.gpd.read_file")
 
 
 def test_codab_download(mock_aa_data_dir, mock_country_config, downloader):
@@ -94,9 +94,7 @@ def test_codab_load_fail(mock_country_config):
     """Test raises file not found error when load fails."""
     codab = CodAB(country_config=mock_country_config)
     # Remove file if it exists
-    # TODO: Use missing_ok=True once 3.7 is dropped
-    if codab._raw_filepath.exists():
-        codab._raw_filepath.unlink()
+    codab._raw_filepath.unlink(missing_ok=True)
     with pytest.raises(FileNotFoundError) as excinfo:
         codab.load(admin_level=0)
     assert (

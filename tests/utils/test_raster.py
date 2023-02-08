@@ -12,7 +12,7 @@ from pandas._testing import assert_frame_equal
 from rioxarray.exceptions import DimensionError, MissingCRS
 from shapely.geometry import Polygon
 
-import aatoolbox
+import ochanticipy
 
 
 def test_doctest_suite():
@@ -31,7 +31,7 @@ def test_doctest_suite():
     https://vladyslav-krylasov.medium.com/discover-unit-tests-and-doctests-in-one-run-c5504aea86bd
     """
     suite = unittest.TestSuite()
-    suite.addTest(doctest.DocTestSuite(aatoolbox.utils.raster))
+    suite.addTest(doctest.DocTestSuite(ochanticipy.utils.raster))
     runner = unittest.TextTestRunner(verbosity=2).run(suite)
     assert not runner.failures
 
@@ -123,10 +123,10 @@ def expected_3d(expected_2d):
 
 def test_compute_raster_stats_2d(da_2d, gdf, expected_2d):
     """Compute raster stats without time dimensions."""
-    result = da_2d.aat.compute_raster_stats(gdf, "name")
+    result = da_2d.oap.compute_raster_stats(gdf, "name")
     assert_frame_equal(result, expected_2d, check_dtype=False)
     expected_2d.insert(loc=6, column="95quant", value=[4.85, 5.85])
-    result_pct = da_2d.aat.compute_raster_stats(
+    result_pct = da_2d.oap.compute_raster_stats(
         gdf=gdf, feature_col="name", percentile_list=[95]
     )
     assert_frame_equal(result_pct, expected_2d, check_dtype=False)
@@ -134,15 +134,15 @@ def test_compute_raster_stats_2d(da_2d, gdf, expected_2d):
 
 def test_compute_raster_stats_3d(ds_3d, gdf, expected_3d):
     """Compute raster stats with time dimensions."""
-    result = ds_3d.aat.compute_raster_stats(
+    result = ds_3d.oap.compute_raster_stats(
         var_names=["val"], gdf=gdf, feature_col="name"
     )
     assert_frame_equal(result[0], expected_3d, check_dtype=False)
-    result_all_vars = ds_3d.aat.compute_raster_stats(
+    result_all_vars = ds_3d.oap.compute_raster_stats(
         gdf=gdf, feature_col="name"
     )
     assert_frame_equal(result_all_vars[0], expected_3d, check_dtype=False)
-    result_str = ds_3d.aat.compute_raster_stats(
+    result_str = ds_3d.oap.compute_raster_stats(
         var_names="val", gdf=gdf, feature_col="name"
     )
     assert_frame_equal(result_str[0], expected_3d, check_dtype=False)
@@ -152,28 +152,28 @@ def test_compute_raster_stats_da_assertions(da_3d, gdf):
     """Ensure error assertions working in compute raster stats."""
     with pytest.raises(MissingCRS):
         da_3d.rio._crs = False
-        da_3d.aat.compute_raster_stats(gdf=gdf, feature_col="name")
+        da_3d.oap.compute_raster_stats(gdf=gdf, feature_col="name")
 
 
 def test_set_time_dim(da_2d):
     """Ensure error assertions working in set time dim."""
     with pytest.raises(DimensionError):
-        da_2d.aat.set_time_dim("time")
+        da_2d.oap.set_time_dim("time")
 
 
 def test_correct_calendar_change(da_3d, caplog):
     """Ensure calendar logs change from 360 to 360_day."""
     caplog.set_level(logging.INFO)
-    da_3d[da_3d.aat.t_dim].attrs["calendar"] = "360"
-    da_3d.aat.correct_calendar()
+    da_3d[da_3d.oap.t_dim].attrs["calendar"] = "360"
+    da_3d.oap.correct_calendar()
     assert "Calendar attribute changed from '360' to '360_day'." in caplog.text
 
 
 def test_correct_calendar_add(da_3d, caplog):
     """Ensure calendar logs change from units to 360_day."""
     caplog.set_level(logging.INFO)
-    da_3d[da_3d.aat.t_dim].attrs["units"] = "months since 1960-01-01"
-    da_3d.aat.correct_calendar()
+    da_3d[da_3d.oap.t_dim].attrs["units"] = "months since 1960-01-01"
+    da_3d.oap.correct_calendar()
     assert (
         "Calendar attribute '360_day' added, "
         "equivalent of 'units' 'months since'." in caplog.text
@@ -183,15 +183,15 @@ def test_correct_calendar_add(da_3d, caplog):
 def test_correct_calendar_no_change(da_3d, caplog):
     """Ensure calendar logs no change."""
     caplog.set_level(logging.INFO)
-    da_3d[da_3d.aat.t_dim].attrs["calendar"] = "360_day"
-    da_3d.aat.correct_calendar()
+    da_3d[da_3d.oap.t_dim].attrs["calendar"] = "360_day"
+    da_3d.oap.correct_calendar()
     assert "No 'units' or 'calendar' attributes to correct." in caplog.text
 
 
 def test_change_longitude_range_no_change(da_2d, caplog):
     """Ensure change longitude logs no change."""
     caplog.set_level(logging.INFO)
-    da_2d.aat.change_longitude_range()
+    da_2d.oap.change_longitude_range()
     assert "Coordinates already in required range." in caplog.text
 
 
@@ -200,7 +200,7 @@ def test_compute_raster_stats_no_data_in_bounds(
 ):
     """Ensure compute stats skips non-overlapping areas correctly."""
     caplog.set_level(logging.INFO)
-    result = da_2d.aat.compute_raster_stats(
+    result = da_2d.oap.compute_raster_stats(
         gdf=gdf_missing, feature_col="name"
     )
     assert "No overlapping raster cells for area_c, skipping." in caplog.text
@@ -209,5 +209,5 @@ def test_compute_raster_stats_no_data_in_bounds(
 
 def test_get_raster_array_crs(ds_3d):
     """Ensure dataset to array works when CRS set."""
-    da = ds_3d.aat.get_raster_array("val")
+    da = ds_3d.oap.get_raster_array("val")
     assert da.rio.crs == ds_3d.rio.crs

@@ -7,10 +7,10 @@ from typing import List, Union
 import xarray as xr
 from dateutil import rrule
 
-from aatoolbox.config.countryconfig import CountryConfig
-from aatoolbox.datasources.glofas import glofas
-from aatoolbox.utils.check_file_existence import check_file_existence
-from aatoolbox.utils.geoboundingbox import GeoBoundingBox
+from ochanticipy.config.countryconfig import CountryConfig
+from ochanticipy.datasources.glofas import glofas
+from ochanticipy.utils.check_file_existence import check_file_existence
+from ochanticipy.utils.geoboundingbox import GeoBoundingBox
 
 logger = logging.getLogger(__name__)
 
@@ -132,7 +132,7 @@ class GlofasForecast(_GlofasForecastBase):
     for a lead time of 15 days.
 
     >>> from datetime import date
-    >>> from aatoolbox import create_country_config, CodAB, GeoBoundingBox,
+    >>> from ochanticipy import create_country_config, CodAB, GeoBoundingBox,
     ... GlofasForecast
     >>>
     >>> country_config = create_country_config(iso3="npl")
@@ -221,7 +221,7 @@ class GlofasReforecast(_GlofasForecastBase):
     Download, process and load all available GloFAS reforecast data
     for a lead time of 15 days.
 
-    >>> from aatoolbox import create_country_config, CodAB, GeoBoundingBox,
+    >>> from ochanticipy import create_country_config, CodAB, GeoBoundingBox,
     ... GlofasReforecast
     >>>
     >>> country_config = create_country_config(iso3="npl")

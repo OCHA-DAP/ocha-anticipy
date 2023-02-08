@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 import pytest
 
-from aatoolbox import GlofasForecast, GlofasReanalysis, GlofasReforecast
+from ochanticipy import GlofasForecast, GlofasReanalysis, GlofasReforecast
 
 
 def test_reanalysis_dates(mock_country_config, geo_bounding_box):

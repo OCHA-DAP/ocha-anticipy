@@ -36,7 +36,7 @@ for Nepal, which has the ISO3 "NPL":
 
 .. code-block:: python
 
-    from aatoolbox import create_country_config
+    from ochanticipy import create_country_config
     country_config = create_country_config(iso3="npl")
 
 Custom Country Configuration
@@ -50,7 +50,7 @@ file and passing the filename to the custom constructor:
 
 .. code-block:: python
 
-    from aatoolbox import create_custom_country_config
+    from ochanticipy import create_custom_country_config
 
     filename = "/path/to/filename"
     country_config = create_custom_country_config(filename=filename)

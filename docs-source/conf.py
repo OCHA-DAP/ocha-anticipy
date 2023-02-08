@@ -17,9 +17,9 @@ sys.path.insert(0, os.path.abspath(".."))
 
 # -- Project information -----------------------------------------------------
 
-project = "aa-toolbox"
-author = "Centre for Humanitarian Data Predictive Analytics Team"
-copyright = "2022, Centre for Humanitarian Data Predictive Analytics Team"
+project = "OCHA AnticiPy"
+author = "Data Science Team, UN OCHA Centre for Humanitarian Data"
+copyright = "2023, UN OCHA Centre for Humanitarian Data"
 
 # -- General configuration ---------------------------------------------------
 
@@ -54,7 +54,7 @@ package_root = "pa-aa-toolbox"
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = "sphinx_rtd_theme"
+html_theme = "alabaster"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

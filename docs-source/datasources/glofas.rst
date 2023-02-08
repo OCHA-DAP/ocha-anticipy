@@ -235,7 +235,7 @@ You can initialize a built-in country config as follows:
 
 .. code-block:: python
 
-    from aatoolbox import create_country_config
+    from ochanticipy import create_country_config
 
     country_config = create_country_config(iso3="bgd")
 
@@ -247,7 +247,7 @@ and extract a geo bounding box:
 
 .. code-block:: python
 
-    from aatoolbox import CodAB, GeoBoundingBox
+    from ochanticipy import CodAB, GeoBoundingBox
 
     codab = CodAB(country_config=country_config)
     codab.download()
@@ -270,7 +270,7 @@ the same results when run on a different day.
 
     from datetime import date
 
-    from aatoolbox import GlofasForecast
+    from ochanticipy import GlofasForecast
 
     glofas_forecast = GlofasForecast(
         country_config=country_config,
@@ -337,7 +337,7 @@ The full codde snippet is below:
 
     from datetime import date
 
-    from aatoolbox import create_country_config, CodAB, \
+    from ochanticipy import create_country_config, CodAB, \
         GeoBoundingBox, GlofasForecast
 
     codab = CodAB(country_config=country_config)

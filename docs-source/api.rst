@@ -4,10 +4,10 @@ AA Toolbox API
 Configuration
 -------------
 
-.. autoclass:: aatoolbox.CountryConfig
+.. autoclass:: ochanticipy.CountryConfig
 
-.. autofunction:: aatoolbox.create_country_config
-.. autofunction:: aatoolbox.create_custom_country_config
+.. autofunction:: ochanticipy.create_country_config
+.. autofunction:: ochanticipy.create_custom_country_config
 
 Data sources
 ------------
@@ -15,32 +15,32 @@ Data sources
 CHIRPS
 ^^^^^^
 
-.. automodule:: aatoolbox.datasources.chirps.chirps
+.. automodule:: ochanticipy.datasources.chirps.chirps
 
 Daily
 """""
 
-.. autoclass:: aatoolbox.ChirpsDaily
+.. autoclass:: ochanticipy.ChirpsDaily
    :inherited-members:
 
 Monthly
 """""""
 
-.. autoclass:: aatoolbox.ChirpsMonthly
+.. autoclass:: ochanticipy.ChirpsMonthly
    :inherited-members:
 
 Common Operational Datasets
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. automodule:: aatoolbox.datasources.codab.codab
-.. autoclass:: aatoolbox.CodAB
+.. automodule:: ochanticipy.datasources.codab.codab
+.. autoclass:: ochanticipy.CodAB
    :members:
 
 FEWS NET
 ^^^^^^^^
 
-.. automodule:: aatoolbox.datasources.fewsnet.fewsnet
-.. autoclass:: aatoolbox.FewsNet
+.. automodule:: ochanticipy.datasources.fewsnet.fewsnet
+.. autoclass:: ochanticipy.FewsNet
    :members:
 
 GloFAS
@@ -49,70 +49,70 @@ GloFAS
 .. extras-require:: glofas
     :setup.cfg:
 
-.. automodule:: aatoolbox.datasources.glofas.glofas
+.. automodule:: ochanticipy.datasources.glofas.glofas
 
 Reanalysis
 """"""""""
 
-.. autoclass:: aatoolbox.GlofasReanalysis
+.. autoclass:: ochanticipy.GlofasReanalysis
    :inherited-members:
 
 Forecast
 """"""""
 
-.. autoclass:: aatoolbox.GlofasForecast
+.. autoclass:: ochanticipy.GlofasForecast
    :inherited-members:
 
 Reforecast
 """"""""""
 
-.. autoclass:: aatoolbox.GlofasReforecast
+.. autoclass:: ochanticipy.GlofasReforecast
    :inherited-members:
 
 IRI
 ^^^
 
-.. automodule:: aatoolbox.datasources.iri.iri_seasonal_forecast
+.. automodule:: ochanticipy.datasources.iri.iri_seasonal_forecast
 
 Probability forecast
 """"""""""""""""""""
 
-.. autoclass:: aatoolbox.IriForecastProb
+.. autoclass:: ochanticipy.IriForecastProb
    :inherited-members:
 
 Dominant forecast
 """""""""""""""""
 
-.. autoclass:: aatoolbox.IriForecastDominant
+.. autoclass:: ochanticipy.IriForecastDominant
    :inherited-members:
 
 NDVI (USGS eMODIS)
 ^^^^^^^^^^^^^^^^^^
 
-.. automodule:: aatoolbox.datasources.usgs.ndvi_products
+.. automodule:: ochanticipy.datasources.usgs.ndvi_products
 
 Smoothed
 """"""""
 
-.. autoclass:: aatoolbox.UsgsNdviSmoothed
+.. autoclass:: ochanticipy.UsgsNdviSmoothed
    :inherited-members:
 
 Percent of median
 """""""""""""""""
 
-.. autoclass:: aatoolbox.UsgsNdviPctMedian
+.. autoclass:: ochanticipy.UsgsNdviPctMedian
    :inherited-members:
 
 Median anomaly
 """"""""""""""
 
-.. autoclass:: aatoolbox.UsgsNdviMedianAnomaly
+.. autoclass:: ochanticipy.UsgsNdviMedianAnomaly
    :inherited-members:
 
 Difference from previous year
 """""""""""""""""""""""""""""
 
-.. autoclass:: aatoolbox.UsgsNdviYearDifference
+.. autoclass:: ochanticipy.UsgsNdviYearDifference
    :inherited-members:
 
 Utilities
@@ -121,25 +121,25 @@ Utilities
 GeoboundingBox
 ^^^^^^^^^^^^^^
 
-.. automodule:: aatoolbox.utils.geoboundingbox
-.. autoclass:: aatoolbox.GeoBoundingBox
+.. automodule:: ochanticipy.utils.geoboundingbox
+.. autoclass:: ochanticipy.GeoBoundingBox
    :members:
 
 Raster module
 ^^^^^^^^^^^^^
 
-.. automodule:: aatoolbox.utils.raster
+.. automodule:: ochanticipy.utils.raster
 
 Data arrays
 """""""""""
 
-.. autoclass:: aatoolbox.utils.raster.AatRasterArray
+.. autoclass:: ochanticipy.utils.raster.AatRasterArray
    :members:
    :inherited-members: RasterArray
 
 Datasets
 """"""""
 
-.. autoclass:: aatoolbox.utils.raster.AatRasterDataset
+.. autoclass:: ochanticipy.utils.raster.AatRasterDataset
    :members:
    :inherited-members: RasterDataset

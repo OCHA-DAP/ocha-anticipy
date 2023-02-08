@@ -1,15 +1,36 @@
 Changelog
 =========
 
-All notable changes to ``aa-toolbox`` will be documented in this file.
+All notable changes to OCHA AnticiPy will be documented in this file.
 
 The format is based on `Keep a
 Changelog <https://keepachangelog.com/en/1.0.0/>`__, and this project
 adheres to `Semantic
 Versioning <https://semver.org/spec/v2.0.0.html>`__.
 
-Unreleased
-----------
+[1.0.1] - 2023-02-03
+--------------------
+
+Removed
+~~~~~~~
+- ``sphinx-rtd-theme`` dependency for docs (switch to Alabaster theme)
+
+Fixed
+~~~~~
+
+- Dropped support for Python 3.7 as it was dropped in dependencies
+- Fixed badge link in README.md and deprecated PyPI GHA
+
+[1.0.0] - 2022-12-22
+--------------------
+
+Changed
+~~~~~~~
+
+- Renamed from AA Toolbox to OCHA AnticiPy
+
+[0.5.0] - 2022-12-02
+--------------------
 
 Added
 ~~~~~

@@ -9,7 +9,7 @@ import pytest
 import xarray as xr
 from xarray.coding.cftimeindex import CFTimeIndex
 
-from aatoolbox import ChirpsDaily, ChirpsMonthly, GeoBoundingBox
+from ochanticipy import ChirpsDaily, ChirpsMonthly, GeoBoundingBox
 
 DATASOURCE_BASE_DIR = "chirps"
 
@@ -39,7 +39,7 @@ def mock_chirps(mocker, mock_country_config):
 
     mocker.patch(
         (
-            "aatoolbox.datasources.chirps.chirps.ChirpsDaily"
+            "ochanticipy.datasources.chirps.chirps.ChirpsDaily"
             "._get_last_available_date"
         ),
         return_value=CURRENT_DATE,
@@ -47,7 +47,7 @@ def mock_chirps(mocker, mock_country_config):
 
     mocker.patch(
         (
-            "aatoolbox.datasources.chirps.chirps.ChirpsMonthly"
+            "ochanticipy.datasources.chirps.chirps.ChirpsMonthly"
             "._get_last_available_date"
         ),
         return_value=CURRENT_DATE,
@@ -84,7 +84,7 @@ def mock_xr_open_multiple_dataset(mocker):
     """Mock GeoPandas file reading function."""
     ds = xr.Dataset()
     return mocker.patch(
-        "aatoolbox.datasources.chirps.chirps.xr.open_mfdataset",
+        "ochanticipy.datasources.chirps.chirps.xr.open_mfdataset",
         return_value=ds,
     )
 
@@ -93,7 +93,7 @@ def mock_xr_open_multiple_dataset(mocker):
 def mock_dataset_to_netcdf(mocker):
     """Mock GeoPandas file writing function."""
     return mocker.patch(
-        "aatoolbox.datasources.chirps.chirps.xr.Dataset.to_netcdf",
+        "ochanticipy.datasources.chirps.chirps.xr.Dataset.to_netcdf",
     )
 
 
@@ -101,7 +101,7 @@ def mock_dataset_to_netcdf(mocker):
 def mock_download(mocker, mock_chirps):
     """Create mock for download method."""
     download_mock = mocker.patch(
-        "aatoolbox.datasources.chirps.chirps._Chirps._download"
+        "ochanticipy.datasources.chirps.chirps._Chirps._download"
     )
 
     def _mock_download(
@@ -125,7 +125,7 @@ def test_valid_arguments_class(mocker, mock_country_config):
     """Test for resolution and wrong dates in initialisation class."""
     mocker.patch(
         (
-            "aatoolbox.datasources.chirps.chirps.ChirpsDaily"
+            "ochanticipy.datasources.chirps.chirps.ChirpsDaily"
             "._get_last_available_date"
         ),
         return_value=CURRENT_DATE,
@@ -266,7 +266,7 @@ def test_process_monthly(
     ds["T"].attrs["units"] = "months since 1960-01-01"
 
     mock_xr_open_dataset = mocker.patch(
-        "aatoolbox.datasources.chirps.chirps.xr.open_dataset",
+        "ochanticipy.datasources.chirps.chirps.xr.open_dataset",
         return_value=ds,
     )
 
@@ -343,7 +343,7 @@ def test_process_daily(
     ds["T"].attrs["units"] = "julian_day"
 
     mock_xr_open_dataset = mocker.patch(
-        "aatoolbox.datasources.chirps.chirps.xr.open_dataset",
+        "ochanticipy.datasources.chirps.chirps.xr.open_dataset",
         return_value=ds,
     )
 

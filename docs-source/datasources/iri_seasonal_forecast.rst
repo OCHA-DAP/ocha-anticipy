@@ -15,13 +15,14 @@ found `here <https://iri.columbia
 .edu/our-expertise/climate/forecasts/seasonal-climate-forecasts/methodology
 />`_.
 
-Currently in AA toolbox, only the tercile precipitation forecast has been
+Currently in OCHA AnticiPy, only the tercile precipitation forecast has been
 implemented.
 
 The tercile precipitation forecast is published in two formats. One only
 indicates the dominant tercile probability while the other format indicates
-the probability for each tercile. Both formats are implemented in the AA
-toolbox.
+the probability for each tercile. Both formats are implemented in
+OCHA AnticiPy.
+
 
 The data is downloaded from `IRI's maproom
 <https://iridl.ldeo.columbia.edu/maproom/Global/Forecasts/NMME_Seasonal_Forecasts/Precipitation_ELR.html>`_
@@ -43,7 +44,7 @@ Burkina Faso, which has the ISO3 "bfa":
 
 .. code-block:: python
 
-    from aatoolbox import create_country_config
+    from ochanticipy import create_country_config
     country_config = create_country_config(iso3="bfa")
 
 The IRI class also requires a geographic area as input. A simple
@@ -52,7 +53,7 @@ administrative boundaries. The first step is to download them:
 
 .. code-block:: python
 
-    from aatoolbox import CodAB
+    from ochanticipy import CodAB
     codab = CodAB(country_config=country_config)
     codab.download()
     admin0 = codab.load(admin_level=0)
@@ -61,14 +62,14 @@ Next, create a GeoBoundingBox for input to IRI:
 
 .. code-block:: python
 
-    from aatoolbox import GeoBoundingBox
+    from ochanticipy import GeoBoundingBox
     geo_bounding_box = GeoBoundingBox.from_shape(admin0)
 
 Now we're ready to get the IRI data:
 
 .. code-block:: python
 
-    from aatoolbox import IriForecastDominant
+    from ochanticipy import IriForecastDominant
 
     iri_dominant = IriForecastDominant(country_config=country_config,
                                        geo_bounding_box=geo_bounding_box)
@@ -81,7 +82,7 @@ tercile:
 
 .. code-block:: python
 
-    from aatoolbox import IriForecastProb
+    from ochanticipy import IriForecastProb
 
     iri_prob = IriForecastProb(country_config=country_config,
                                geo_bounding_box=geo_bounding_box)
@@ -93,7 +94,7 @@ The full code snippet is below in case you would like to copy it:
 
 .. code-block:: python
 
-    from aatoolbox import create_country_config, CodAB, GeoBoundingBox, \
+    from ochanticipy import create_country_config, CodAB, GeoBoundingBox, \
                           IriForecastDominant, IriForecastProb
 
     country_config = create_country_config(iso3="bfa")

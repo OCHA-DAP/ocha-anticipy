@@ -11,11 +11,10 @@ import numpy as np
 import xarray as xr
 from dateutil import rrule
 
-from aatoolbox.config.countryconfig import CountryConfig
-from aatoolbox.datasources.datasource import DataSource
-from aatoolbox.utils.check_extra_imports import check_extra_imports
-from aatoolbox.utils.dates import get_date_from_user_input
-from aatoolbox.utils.geoboundingbox import GeoBoundingBox
+from ochanticipy.config.countryconfig import CountryConfig
+from ochanticipy.datasources.datasource import DataSource
+from ochanticipy.utils.dates import get_date_from_user_input
+from ochanticipy.utils.geoboundingbox import GeoBoundingBox
 
 _MODULE_BASENAME = "glofas"
 _HYDROLOGICAL_MODEL = "lisflood"

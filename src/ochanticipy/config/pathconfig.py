@@ -4,14 +4,14 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 
-_BASE_DIR_ENV = "AA_DATA_DIR"
+BASE_DIR_ENV = "OAP_DATA_DIR"
 
 
 @dataclass
 class PathConfig:
     """Global directory parameters."""
 
-    base_dir_env: str = _BASE_DIR_ENV
+    base_dir_env: str = BASE_DIR_ENV
     public: str = "public"
     private: str = "private"
     raw: str = "raw"

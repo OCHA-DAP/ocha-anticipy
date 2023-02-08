@@ -1,7 +1,7 @@
 Utilities
 =========
 
-AA Toolbox provides the following utilities:
+OCHA AnticiPy provides the following utilities:
 
 .. toctree::
    :maxdepth: 1

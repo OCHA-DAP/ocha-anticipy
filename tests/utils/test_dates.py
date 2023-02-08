@@ -4,7 +4,7 @@ from datetime import date, datetime
 
 import pytest
 
-from aatoolbox.utils import dates
+from ochanticipy.utils import dates
 
 
 def test_get_date():

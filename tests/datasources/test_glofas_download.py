@@ -5,7 +5,7 @@ from unittest import mock
 
 import pytest
 
-from aatoolbox import (
+from ochanticipy import (
     GeoBoundingBox,
     GlofasForecast,
     GlofasReanalysis,
@@ -17,10 +17,12 @@ from aatoolbox import (
 def mock_retrieve(mocker):
     """Mock only the retrieve method of the Client."""
     mocker.patch(
-        "cdsapi.Client.__init__",
+        "ochanticipy.datasources.glofas.glofas.cdsapi.Client.__init__",
         return_value=None,
     )
-    return mocker.patch("cdsapi.Client.retrieve")
+    return mocker.patch(
+        "ochanticipy.datasources.glofas.glofas.cdsapi.Client.retrieve"
+    )
 
 
 @pytest.fixture
@@ -41,7 +43,7 @@ def mock_result(mocker):
             pass
 
     return mocker.patch(
-        "cdsapi.api.Result",
+        "ochanticipy.datasources.glofas.glofas.cdsapi.api.Result",
         return_value=MockResult(),
     )
 

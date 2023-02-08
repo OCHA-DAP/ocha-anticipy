@@ -6,7 +6,7 @@ import requests
 import xarray as xr
 from xarray.coding.cftimeindex import CFTimeIndex
 
-from aatoolbox import GeoBoundingBox, IriForecastDominant, IriForecastProb
+from ochanticipy import GeoBoundingBox, IriForecastDominant, IriForecastProb
 
 DATASOURCE_BASE_DIR = "iri"
 FAKE_IRI_AUTH = "FAKE_IRI_AUTH"
@@ -45,13 +45,13 @@ def mock_download(mocker, mock_iri):
     """
     download_mock = mocker.patch(
         (
-            "aatoolbox.datasources.iri.iri_seasonal_forecast"
+            "ochanticipy.datasources.iri.iri_seasonal_forecast"
             "._IriForecast._download"
         )
     )
 
     mocker.patch.dict(
-        "aatoolbox.datasources.iri.iri_seasonal_forecast.os.environ",
+        "ochanticipy.datasources.iri.iri_seasonal_forecast.os.environ",
         {"IRI_AUTH": FAKE_IRI_AUTH},
     )
 
@@ -110,10 +110,10 @@ def test_download_call_dominant(
 def mock_requests(mocker):
     """Mock requests in the download function."""
     requests_mock = mocker.patch(
-        "aatoolbox.datasources.iri.iri_seasonal_forecast.requests.get"
+        "ochanticipy.datasources.iri.iri_seasonal_forecast.requests.get"
     )
     mocker.patch.dict(
-        "aatoolbox.datasources.iri.iri_seasonal_forecast.os.environ",
+        "ochanticipy.datasources.iri.iri_seasonal_forecast.os.environ",
         {"IRI_AUTH": FAKE_IRI_AUTH},
     )
 
@@ -150,7 +150,7 @@ def test_process(mocker, mock_iri, mock_aa_data_dir, mock_country_config):
     # TODO: now created `load_raw` to be able to mock but would like
     #  to do it from xr.load_dataset directly
     mocker.patch(
-        "aatoolbox.datasources.iri.iri_seasonal_forecast."
+        "ochanticipy.datasources.iri.iri_seasonal_forecast."
         "_IriForecast._load_raw",
         return_value=ds,
     )
@@ -195,7 +195,7 @@ def test_process_if_download_not_called(mock_iri):
 def mock_xr_load_dataset(mocker):
     """Mock GeoPandas file reading function."""
     return mocker.patch(
-        "aatoolbox.datasources.iri.iri_seasonal_forecast.xr.load_dataset"
+        "ochanticipy.datasources.iri.iri_seasonal_forecast.xr.load_dataset"
     )
 
 
@@ -209,7 +209,7 @@ def test_iri_load(
     """Test that load_codab calls the HDX API to download."""
     mocker.patch(
         (
-            "aatoolbox.datasources.iri.iri_seasonal_forecast"
+            "ochanticipy.datasources.iri.iri_seasonal_forecast"
             "._IriForecast._download"
         )
     )

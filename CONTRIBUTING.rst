@@ -42,7 +42,7 @@ To run the tests and view coverage, execute:
 
 .. code:: shell
 
-   python -m pytest --cov=aatoolbox
+   python -m pytest --cov=ochanticipy
 
 Directly running pytest may
 [produce errors](https://stackoverflow.com/questions/40718770/pytest-running-with-another-version-of-python).
@@ -95,7 +95,7 @@ Module order
 """"""""""""
 
 The ordering of the ``api.rst`` documentation should match the ordering
-specified in the ``__all__`` list ``src/aatoolbox/__init__.py``.
+specified in the ``__all__`` list ``src/ochanticipy/__init__.py``.
 
 Build and view
 ^^^^^^^^^^^^^^
@@ -174,13 +174,13 @@ Versioning is handled by
 `setuptools_scm <https://github.com/pypa/setuptools_scm>`__, and the
 configuration for this can be found in ``pyproject.toml``
 
-The ``aa-toolbox`` package is built and published to
-`PyPI <https://pypi.org/project/aa-toolbox/>`__ whenever a new tag is
+The OCHA AnticiPy package is built and published to
+`PyPI <https://pypi.org/project/ocha-anticipy/>`__ whenever a new tag is
 pushed. With each new commit, a development version is pushed to
-`TestPyPI <https://test.pypi.org/project/aa-toolbox>`__ and is available
+`TestPyPI <https://test.pypi.org/project/ocha-anticipy>`__ and is available
 to install for testing purposes by running:
 
 .. code:: shell
 
    pip install --index-url https://test.pypi.org/simple/
-   --extra-index-url https://pypi.org/simple aa-toolbox==$VERSION
+   --extra-index-url https://pypi.org/simple ocha-anticipy==$VERSION

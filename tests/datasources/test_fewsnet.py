@@ -4,8 +4,8 @@ import zipfile
 import pytest
 from conftest import ISO2
 
-from aatoolbox.config.countryconfig import FewsNetConfig
-from aatoolbox.datasources.fewsnet.fewsnet import FewsNet
+from ochanticipy.config.countryconfig import FewsNetConfig
+from ochanticipy.datasources.fewsnet.fewsnet import FewsNet
 
 DATASOURCE_BASE_DIR = "fewsnet"
 _PUB_YEAR = 2020
@@ -19,7 +19,7 @@ def mock_iso2(mocker, request):
     if request.node.get_closest_marker("nomockiso2"):
         return
     mocker.patch(
-        "aatoolbox.datasources.fewsnet.fewsnet.Country.get_iso2_from_iso3",
+        "ochanticipy.datasources.fewsnet.fewsnet.Country.get_iso2_from_iso3",
         return_value=ISO2.upper(),
     )
 
@@ -156,9 +156,9 @@ def mock_download_call(mock_fake_url, mock_countryregion):
 def mock_fake_url(mocker):
     """Mock url and unzip call."""
     fakedownloadurl = mocker.patch(
-        "aatoolbox.datasources.fewsnet.fewsnet.download_url"
+        "ochanticipy.datasources.fewsnet.fewsnet.download_url"
     )
-    mocker.patch("aatoolbox.datasources.fewsnet.fewsnet.unzip")
+    mocker.patch("ochanticipy.datasources.fewsnet.fewsnet.unzip")
     return fakedownloadurl
 
 
@@ -172,17 +172,17 @@ def mock_countryregion(mocker):
         else:
             if region_data:
                 return mocker.patch(
-                    "aatoolbox.datasources.fewsnet.fewsnet."
+                    "ochanticipy.datasources.fewsnet.fewsnet."
                     "FewsNet._download_country",
                     side_effect=zipfile.BadZipFile,
                 )
             else:
                 return mocker.patch(
-                    "aatoolbox.datasources.fewsnet.fewsnet."
+                    "ochanticipy.datasources.fewsnet.fewsnet."
                     "FewsNet._download_country",
                     side_effect=zipfile.BadZipFile,
                 ), mocker.patch(
-                    "aatoolbox.datasources.fewsnet.fewsnet."
+                    "ochanticipy.datasources.fewsnet.fewsnet."
                     "FewsNet._download_region",
                     side_effect=zipfile.BadZipFile,
                 )
@@ -193,7 +193,9 @@ def mock_countryregion(mocker):
 @pytest.fixture
 def mock_gpd_read_file(mocker):
     """Mock GeoPandas file reading function."""
-    return mocker.patch("aatoolbox.datasources.fewsnet.fewsnet.gpd.read_file")
+    return mocker.patch(
+        "ochanticipy.datasources.fewsnet.fewsnet.gpd.read_file"
+    )
 
 
 def test_load(

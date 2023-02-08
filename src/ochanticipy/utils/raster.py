@@ -2,12 +2,12 @@
 Utilities to manipulate and analyze raster data.
 
 The raster module provides accessor utilities for xarray
-data arrays and datasets accessible using the `aat` accessor.
+data arrays and datasets accessible using the `oap` accessor.
 These functions are available just by importing directly
-the library using ``import aatoolbox``.
+the library using ``import ochanticipy``.
 
 Since rioxarray already extends xarray, this
-modules extensions inherit from the RasterArray and
+module's extensions inherit from the RasterArray and
 RasterDataset extensions respectively. This ensures
 cleaner code in the module as ``rio`` methods are
 available immediately, but also means a couple of
@@ -16,7 +16,7 @@ design decisions are followed.
 The ``xarray.DataArray`` and ``xarray.Dataset``
 extensions here inherit from rioxarray base classes.
 Thus, methods that are identical for both objects
-are defined in a mixin class ``AatRasterMixin`` which
+are defined in a mixin class ``OapRasterMixin`` which
 can be inherited by the two respective extensions.
 """
 
@@ -36,8 +36,8 @@ from rioxarray.rioxarray import CRS, _get_data_var_message
 logger = logging.getLogger(__name__)
 
 
-class AatRasterMixin:
-    """AA toolbox mixin base class."""
+class OapRasterMixin:
+    """OCHA AnticiPy mixin base class."""
 
     # setting attributes to avoid mypy error, from SO
     # https://stackoverflow.com/questions/53120262/mypy-how-to-
@@ -78,7 +78,7 @@ class AatRasterMixin:
         """str: The dimension for time."""
         if self._t_dim is None:
             raise DimensionError(
-                "Time dimension not found. 'aat.set_time_dim()' or "
+                "Time dimension not found. 'oap.set_time_dim()' or "
                 "using 'rename()' to change the dimension name to "
                 f"'t' can address this.{_get_data_var_message(self._obj)}"
             )
@@ -94,7 +94,7 @@ class AatRasterMixin:
         """
         if self._longitude_range is None:
             if self._x_dim is not None:
-                data_obj = self._get_obj_aat(inplace=False)
+                data_obj = self._get_obj_oap(inplace=False)
                 lon_max = data_obj.indexes[self.x_dim].max()
                 if lon_max > 180:
                     self._longitude_range = "360"
@@ -103,7 +103,7 @@ class AatRasterMixin:
             else:
                 raise DimensionError(
                     "Longitude range not set due to missing 'x_dim'."
-                    "Use 'aat.set_spatial_dims()' to set the name of "
+                    "Use 'oap.set_spatial_dims()' to set the name of "
                     f"the x dimension. {_get_data_var_message(self._obj)}"
                 )
         return self._longitude_range
@@ -136,17 +136,17 @@ class AatRasterMixin:
         ...          "lon":numpy.array([5, 120, 199, 360]),
         ...          "F":numpy.array([10,11,12,13])}
         ... )
-        >>> da.aat.set_time_dim(t_dim="F", inplace=True)
-        >>> da.aat.t_dim
+        >>> da.oap.set_time_dim(t_dim="F", inplace=True)
+        >>> da.oap.t_dim
         'F'
         """
-        data_obj = self._get_obj_aat(inplace=inplace)
+        data_obj = self._get_obj_oap(inplace=inplace)
         if t_dim not in data_obj.dims:
             raise DimensionError(
                 "Time dimension ({t_dim}) not found."
                 f"{_get_data_var_message(data_obj)}"
             )
-        data_obj.aat._t_dim = t_dim
+        data_obj.oap._t_dim = t_dim
         return data_obj if not inplace else None
 
     def correct_calendar(
@@ -191,11 +191,11 @@ class AatRasterMixin:
         ...          "t":numpy.array([10,11,12,13])}
         ... )
         >>> da["t"].attrs["units"] = "months since 1960-01-01"
-        >>> da_crct = da.aat.correct_calendar()
+        >>> da_crct = da.oap.correct_calendar()
         >>> da_crct["t"].attrs["calendar"]
         '360_day'
         """
-        data_obj = self._get_obj_aat(inplace=inplace)
+        data_obj = self._get_obj_oap(inplace=inplace)
         if (
             "calendar" in data_obj[self.t_dim].attrs.keys()
             and data_obj[self.t_dim].attrs["calendar"] == "360"
@@ -256,13 +256,13 @@ class AatRasterMixin:
         ...  coords={"lat":numpy.array([87, 88, 89, 90]),
         ...          "lon":numpy.array([70, 69, 68, 67])}
         ... )
-        >>> da.aat.invert_coordinates(inplace=True)
+        >>> da.oap.invert_coordinates(inplace=True)
         >>> da.get_index("lon")
         Int64Index([67, 68, 69, 70], dtype='int64', name='lon')
         >>> da.get_index("lat")
         Int64Index([90, 89, 88, 87], dtype='int64', name='lat')
         """
-        data_obj = self._get_obj_aat(inplace=inplace)
+        data_obj = self._get_obj_oap(inplace=inplace)
         lon_inv, lat_inv = self._check_coords_inverted()
 
         if lon_inv:
@@ -288,10 +288,10 @@ class AatRasterMixin:
         ...  coords={"lat":numpy.array([90, 89, 88, 87]),
         ...          "lon":numpy.array([70, 69, 68, 67])}
         ... )
-        >>> da.aat._check_coords_inverted()
+        >>> da.oap._check_coords_inverted()
         (True, False)
         """
-        data_obj = self._get_obj_aat(inplace=False)
+        data_obj = self._get_obj_oap(inplace=False)
         lat = data_obj.get_index(self.y_dim)
         lon = data_obj.get_index(self.x_dim)
         return lon[0] > lon[-1], lat[0] < lat[-1]
@@ -344,15 +344,15 @@ class AatRasterMixin:
         ...     "time": pandas.date_range("2014-09-06", periods=3)
         ...   }
         ... )
-        >>> ds_inv = ds.aat.change_longitude_range()
+        >>> ds_inv = ds.oap.change_longitude_range()
         >>> ds_inv.get_index("lon")
         Int64Index([-161, 0, 5, 120], dtype='int64', name='lon')
         >>> # invert coordinates back to original, in place
-        >>> ds_inv.aat.change_longitude_range(to_180_range=False, inplace=True)
+        >>> ds_inv.oap.change_longitude_range(to_180_range=False, inplace=True)
         >>> ds_inv.get_index("lon")
         Int64Index([0, 5, 120, 199], dtype='int64', name='lon')
         """
-        data_obj = self._get_obj_aat(inplace=inplace)
+        data_obj = self._get_obj_oap(inplace=inplace)
 
         if to_180_range and self.longitude_range == "360":
             logger.info("Converting longitude from 0 360 to -180 to 180.")
@@ -360,20 +360,20 @@ class AatRasterMixin:
             data_obj[self.x_dim] = np.sort(
                 ((data_obj[self.x_dim] + 180) % 360) - 180
             )
-            data_obj.aat._longitude_range = "180"
+            data_obj.oap._longitude_range = "180"
 
         elif not to_180_range and self.longitude_range == "180":
             logger.info("Converting longitude from -180 to 180 to 0 to 360.")
 
             data_obj[self.x_dim] = np.sort(data_obj[self.x_dim] % 360)
-            data_obj.aat._longitude_range = "360"
+            data_obj.oap._longitude_range = "360"
 
         else:
             logger.info("Coordinates already in required range.")
 
         return data_obj if not inplace else None
 
-    def _get_obj_aat(self, inplace: bool) -> Union[xr.DataArray, xr.Dataset]:
+    def _get_obj_oap(self, inplace: bool) -> Union[xr.DataArray, xr.Dataset]:
         """
         Get object to modify.
 
@@ -403,15 +403,15 @@ class AatRasterMixin:
         obj_copy.rio._width = self._width
         obj_copy.rio._height = self._height
         obj_copy.rio._crs = self._crs
-        obj_copy.aat._t_dim = self._t_dim
-        obj_copy.aat._longitude_range = self._longitude_range
+        obj_copy.oap._t_dim = self._t_dim
+        obj_copy.oap._longitude_range = self._longitude_range
 
         return obj_copy
 
 
-@xr.register_dataarray_accessor("aat")
-class AatRasterArray(AatRasterMixin, RasterArray):
-    """AA toolbox extension for xarray.DataArray."""
+@xr.register_dataarray_accessor("oap")
+class OapRasterArray(OapRasterMixin, RasterArray):
+    """OCHA AnticiPy extension for xarray.DataArray."""
 
     def __init__(self, xarray_object):
         super().__init__(xarray_object)
@@ -477,7 +477,7 @@ class AatRasterArray(AatRasterMixin, RasterArray):
         ...     coords={"y": [1.5, 0.5], "x": [0.5, 1.5, 2.5]},
         ... ).rio.write_crs("EPSG:4326")
         >>>
-        >>> da.aat.compute_raster_stats(
+        >>> da.oap.compute_raster_stats(
         ...     gdf=gdf,
         ...     feature_col="name"
         ... ) # doctest: +SKIP
@@ -488,7 +488,7 @@ class AatRasterArray(AatRasterMixin, RasterArray):
         if self._obj.rio.crs is None:
             raise MissingCRS("No CRS found, set CRS before computation.")
 
-        data_obj = self._get_obj_aat(inplace=False)
+        data_obj = self._get_obj_oap(inplace=False)
         df_list = []
 
         if stats_list is None:
@@ -564,9 +564,9 @@ class AatRasterArray(AatRasterMixin, RasterArray):
         return df_zonal_stats
 
 
-@xr.register_dataset_accessor("aat")
-class AatRasterDataset(AatRasterMixin, RasterDataset):
-    """AA toolbox extension for xarray.Dataset."""
+@xr.register_dataset_accessor("oap")
+class OapRasterDataset(OapRasterMixin, RasterDataset):
+    """OCHA AnticiPy extension for xarray.Dataset."""
 
     def __init__(self, xarray_object):
         super().__init__(xarray_object)
@@ -576,10 +576,10 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
 
         Accessing a component xarray.DataArray using the
         non-coordinate variable name loses and dimensions set
-        through ``rio`` or ``aat``. This includes ``x_dim``,
+        through ``rio`` or ``oap``. This includes ``x_dim``,
         ``y_dim``, and ``t_dim`` that have to be specifically
         set using ``rio.set_spatial_dims()`` or
-        ``aat.set_time_dim()`` respectively. For any dataset
+        ``oap.set_time_dim()`` respectively. For any dataset
         ``ds``, ``ds.get_raster_array("var")`` will retrieve
         the data array without losing the dimensions. Using
         ``ds["var"]`` will lose the dimensions.
@@ -611,16 +611,16 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
         ...     "F": pd.date_range("2014-09-06", periods=3)
         ...   }
         ... )
-        >>> ds.aat.set_time_dim("F", inplace=True)
-        >>> da = ds.aat.get_raster_array("temperature")
-        >>> da.aat.t_dim
+        >>> ds.oap.set_time_dim("F", inplace=True)
+        >>> da = ds.oap.get_raster_array("temperature")
+        >>> da.oap.t_dim
         'F'
         >>> # directly accessing array loses set dimensions
-        >>> ds['temperature'].aat.t_dim # doctest: +NORMALIZE_WHITESPACE
+        >>> ds['temperature'].oap.t_dim # doctest: +NORMALIZE_WHITESPACE
         Traceback (most recent call last):
             ...
         rioxarray.exceptions.DimensionError: Time dimension not found.
-            'aat.set_time_dim()' or using 'rename()' to change the
+            'oap.set_time_dim()' or using 'rename()' to change the
             dimension name to 't' can address this.
         Data variable: temperature
         """
@@ -636,7 +636,7 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
 
         # raster module attributes
         if self._t_dim is not None:
-            obj.aat.set_time_dim(self._t_dim, inplace=True)
+            obj.oap.set_time_dim(self._t_dim, inplace=True)
 
         return obj
 
@@ -657,7 +657,7 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
 
         kwargs : Any
             Keyword arguments passed to the array method
-            :meth:`~AatRasterArray.compute_raster_stats`
+            :meth:`~OapRasterArray.compute_raster_stats`
 
         Returns
         -------
@@ -687,7 +687,7 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
         ...     coords={"y": [1.5, 0.5], "x": [0.5, 1.5, 2.5]},
         ... ).rio.write_crs("EPSG:4326").to_dataset(name="data")
         >>>
-        >>> ds.aat.compute_raster_stats(
+        >>> ds.oap.compute_raster_stats(
         ...    var_names=["data"],
         ...    gdf=gdf,
         ...    feature_col="name"
@@ -702,7 +702,7 @@ class AatRasterDataset(AatRasterMixin, RasterDataset):
             var_names = [var_names]
 
         stats = [
-            self._obj[var].aat.compute_raster_stats(**kwargs)
+            self._obj[var].oap.compute_raster_stats(**kwargs)
             for var in var_names
         ]
         return stats

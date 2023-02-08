@@ -7,10 +7,10 @@ from typing import Union
 import xarray as xr
 from dateutil import rrule
 
-from aatoolbox.config.countryconfig import CountryConfig
-from aatoolbox.datasources.glofas import glofas
-from aatoolbox.utils.check_file_existence import check_file_existence
-from aatoolbox.utils.geoboundingbox import GeoBoundingBox
+from ochanticipy.config.countryconfig import CountryConfig
+from ochanticipy.datasources.glofas import glofas
+from ochanticipy.utils.check_file_existence import check_file_existence
+from ochanticipy.utils.geoboundingbox import GeoBoundingBox
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +51,7 @@ class GlofasReanalysis(glofas.Glofas):
     until the current date, set to Oct 22, 2022 for this example.
 
     >>> from datetime import date
-    >>> from aatoolbox import create_country_config, CodAB, GeoBoundingBox,
+    >>> from ochanticipy import create_country_config, CodAB, GeoBoundingBox,
     ... GlofasReanalysis
     >>>
     >>> country_config = create_country_config(iso3="bgd")
