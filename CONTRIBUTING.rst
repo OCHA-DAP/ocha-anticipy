@@ -103,7 +103,7 @@ To build the documentation and test your implementation, use the following comma
 
 .. code:: shell
 
-   sphinx-build -b html -d docs-build/doctrees docs-source docs-build/html
+   sphinx-build -b html -d docs/_build/doctrees docs docs/_build/html
 
 To view the docs, open up ``docs-build/html/index.html`` in your
 browser.

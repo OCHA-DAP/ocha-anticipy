@@ -104,7 +104,7 @@ def test_optional_module_error(
     mock_country_config, geo_bounding_box, monkeypatch
 ):
     """Test module error raised correctly if dependencies missing."""
-    monkeypatch.setitem(mapping=sys.modules, name="cdsapi", value=None)
+    monkeypatch.setitem(sys.modules, "cdsapi", None)  # noqa: FKA01
     with pytest.raises(ModuleNotFoundError, match=r"ochanticipy"):
         from ochanticipy import GlofasForecast
 
@@ -117,5 +117,5 @@ def test_optional_module_error(
 
 def test_optional_module_no_error(monkeypatch):
     """Test no errors generated on library import w/o dependencies."""
-    monkeypatch.setitem(mapping=sys.modules, name="cdsapi", value=None)
+    monkeypatch.setitem(sys.modules, "cdsapi", None)  # noqa: FKA01
     import ochanticipy  # noqa: F401
