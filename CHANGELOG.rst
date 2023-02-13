@@ -8,6 +8,15 @@ Changelog <https://keepachangelog.com/en/1.0.0/>`__, and this project
 adheres to `Semantic
 Versioning <https://semver.org/spec/v2.0.0.html>`__.
 
+Unreleased
+----------
+
+Changed
+~~~~~~~
+
+- tox configuration moved to ``setup.cfg`` from ``tox.ini``
+
+
 [1.0.1] - 2023-02-03
 --------------------
 
