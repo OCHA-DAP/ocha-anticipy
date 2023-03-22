@@ -36,8 +36,6 @@ beautifulsoup4==4.11.2
     # via sphinx-toolbox
 bokeh==2.4.3
     # via dask
-build==0.10.0
-    # via pip-tools
 cachecontrol[filecache]==0.12.11
     # via sphinx-toolbox
 cachetools==5.3.0
@@ -80,8 +78,6 @@ click==8.1.3
     #   dask
     #   distributed
     #   fiona
-    #   pip-compile-multi
-    #   pip-tools
     #   rasterio
     #   typer
 click-plugins==1.1.1
@@ -278,7 +274,6 @@ openpyxl==3.1.0
 packaging==23.0
     # via
     #   bokeh
-    #   build
     #   dask
     #   dist-meta
     #   distributed
@@ -304,10 +299,6 @@ petl==1.7.12
     # via frictionless
 pillow==9.4.0
     # via bokeh
-pip-compile-multi==2.6.2
-    # via ocha-anticipy (setup.cfg)
-pip-tools==6.12.3
-    # via pip-compile-multi
 platformdirs==3.0.0
     # via
     #   apeye
@@ -359,8 +350,6 @@ pyproj==3.4.1
     #   rioxarray
 pyproject-api==1.5.0
     # via tox
-pyproject-hooks==1.0.0
-    # via build
 pyrsistent==0.19.3
     # via jsonschema
 pytest==7.2.1
@@ -524,8 +513,6 @@ toolz==0.12.0
     #   dask
     #   distributed
     #   partd
-toposort==1.10
-    # via pip-compile-multi
 tornado==6.2
     # via
     #   bokeh
@@ -565,9 +552,7 @@ virtualenv==20.19.0
 webencodings==0.5.1
     # via html5lib
 wheel==0.38.4
-    # via
-    #   libhxl
-    #   pip-tools
+    # via libhxl
 wrapt==1.14.1
     # via ocha-anticipy (setup.cfg)
 xarray[parallel]==2023.1.0
@@ -586,5 +571,4 @@ zict==2.2.0
     # via distributed
 
 # The following packages are considered to be unsafe in a requirements file:
-# pip
 # setuptools
