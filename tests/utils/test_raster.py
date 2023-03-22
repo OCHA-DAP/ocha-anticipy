@@ -65,8 +65,8 @@ def da_2d():
     """Create 2d raster array."""
     da = xr.DataArray(
         [[1, 2, 3], [4, 5, 6]],
-        dims=("y", "x"),
-        coords={"y": [1.5, 0.5], "x": [0.5, 1.5, 2.5]},
+        dims=("Y", "X"),
+        coords={"Y": [1.5, 0.5], "X": [0.5, 1.5, 2.5]},
     ).rio.write_crs("EPSG:4326")
     return da
 
@@ -211,3 +211,16 @@ def test_get_raster_array_crs(ds_3d):
     """Ensure dataset to array works when CRS set."""
     da = ds_3d.oap.get_raster_array("val")
     assert da.rio.crs == ds_3d.rio.crs
+
+
+def test_auto_dim_detect():
+    """Ensure lat/lon dimensions automatically set."""
+    da = xr.DataArray(
+        [[1, 2, 3], [4, 5, 6]],
+        dims=("lat", "lon"),
+        coords={"lat": [1.5, 0.5], "lon": [0.5, 1.5, 2.5]},
+    ).rio.write_crs("EPSG:4326")
+    assert da.oap.x_dim == "lon"
+    assert da.oap.y_dim == "lat"
+    assert da.rio.x_dim == "lon"
+    assert da.rio.y_dim == "lat"
