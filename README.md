@@ -38,7 +38,7 @@ These are documented within each module, but all dependencies can be installed
 using.
 
 ```shell
-pip install -U aa-toolbox[full]
+pip install -U ocha-anticipy[full]
 ```
 
 ## A Simple Example
