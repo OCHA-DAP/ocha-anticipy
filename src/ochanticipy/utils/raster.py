@@ -533,7 +533,7 @@ class OapRasterArray(OapRasterMixin, RasterArray):
             if percentile_list is not None:
                 grid_quant = [
                     da_clip.quantile(quant / 100, dim=[self.x_dim, self.y_dim])
-                    .drop("quantile")
+                    .drop_vars("quantile")
                     .rename(f"{quant}quant")
                     for quant in percentile_list
                 ]
