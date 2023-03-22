@@ -18,7 +18,6 @@ sys.path.insert(0, os.path.abspath(".."))
 # -- Project information -----------------------------------------------------
 
 project = "OCHA AnticiPy"
-pypi_name = "ocha-anticipy"
 author = "Data Science Team, UN OCHA Centre for Humanitarian Data"
 copyright = "2023, UN OCHA Centre for Humanitarian Data"
 
@@ -49,6 +48,7 @@ apidoc_output_dir = "."
 
 # Needed to sphinxcontrib.extra_requires to work
 package_root = "ochanticipy"
+pypi_name = "ocha-anticipy"
 
 # -- Options for HTML output -------------------------------------------------
 
