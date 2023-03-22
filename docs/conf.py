@@ -18,6 +18,7 @@ sys.path.insert(0, os.path.abspath(".."))
 # -- Project information -----------------------------------------------------
 
 project = "OCHA AnticiPy"
+pypi_name = "ocha-anticipy"
 author = "Data Science Team, UN OCHA Centre for Humanitarian Data"
 copyright = "2023, UN OCHA Centre for Humanitarian Data"
 
@@ -27,7 +28,6 @@ copyright = "2023, UN OCHA Centre for Humanitarian Data"
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "sphinx-prompt",
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
