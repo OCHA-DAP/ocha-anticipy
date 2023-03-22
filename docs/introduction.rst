@@ -12,6 +12,15 @@ This is where OCHA AnticiPy comes in, providing a simple interface for downloadi
 processing a range of data relevant for anticipatory action and
 disaster risk reduction in humanitarian response.
 
+Datasets currently supported are:
+
+ - CHIRPS rainfall
+ - COD ABs (Common Operational Datasets administrative boundaries)
+ - FEWS NET food insecurity
+ - GloFAS river discharge
+ - IRI seasonal rainfall forecast
+ - USGS NDVI (normalized difference vegetation index)
+
 At the `Centre for Humanitarian Data <https://centre.humdata.org/>`_,
 we've now used OCHA Anticipy to develop
 some of our own
