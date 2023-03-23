@@ -54,13 +54,13 @@ class OapRasterMixin:
 
         # Adding lat/lon to set of default spatial dims
         if "lat" in self._obj.dims and "lon" in self._obj.dims:
-            self._x_dim = "lon"
-            self._y_dim = "lat"
+            self._x_dim = self._obj.rio._x_dim = "lon"
+            self._y_dim = self._obj.rio._y_dim = "lat"
 
         # Adding Y/X to set of default spatial dims
         if "Y" in self._obj.dims and "X" in self._obj.dims:
-            self._x_dim = "X"
-            self._y_dim = "Y"
+            self._x_dim = self._obj.rio._x_dim = "X"
+            self._y_dim = self._obj.rio._y_dim = "Y"
 
         # Managing time coordinate default dims
         self._t_dim = None
@@ -533,7 +533,7 @@ class OapRasterArray(OapRasterMixin, RasterArray):
             if percentile_list is not None:
                 grid_quant = [
                     da_clip.quantile(quant / 100, dim=[self.x_dim, self.y_dim])
-                    .drop("quantile")
+                    .drop_vars("quantile")
                     .rename(f"{quant}quant")
                     for quant in percentile_list
                 ]
