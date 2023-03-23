@@ -17,6 +17,12 @@ Changed
 - tox configuration moved to ``setup.cfg`` from ``tox.ini``
 - ``kalendar`` library used for ``dekad`` and ``pentad`` classes
 
+Fixed
+~~~~~
+
+-  Automatic raster dimension setting for `lat/lon` and `X/Y`
+fixed to work for `rioxarray` methods
+
 [1.0.1] - 2023-02-03
 --------------------
 
