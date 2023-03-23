@@ -66,15 +66,10 @@ def get_kalendar_date(
         date, str, Tuple[int, int], Dekad, Pentad, None
     ] = None,
 ) -> Union[Dekad, Pentad]:
-    """Calculate dekadal date from general input.
+    """Calculate kalendar date from general input.
 
-    Processes input ``input_date`` and returns two
-    values, the year and dekad. Input can be of
-    format ``datetime.date``, an ISO8601 date
-    string, an already calculated ``(year, dekad)``
-    format date, or ``None``. If ``None``,
-    ``default_date`` is returned. ``default_date``
-    can also be passed in the above formats.
+    Is used for both dekads and pentads coming from
+    kalendar.
     """
     if input_date is None and default_date is not None:
         input_date = default_date
@@ -98,6 +93,44 @@ def get_kalendar_date(
                 "of `(year, dekad)` format, or "
                 "ISO8601 date strings."
             ) from e
+
+
+def get_dekadal_date(
+    input_date: Union[date, str, Tuple[int, int], Dekad, None],
+    default_date: Union[date, str, Tuple[int, int], Dekad, None] = None,
+) -> Dekad:
+    """Calculate dekadal date from general input.
+
+    Processes input ``input_date`` and returns two
+    values, the year and dekad. Input can be of
+    format ``datetime.date``, an ISO8601 date
+    string, an already calculated ``(year, dekad)``
+    tuple, ``kalendar.Dekad`` object, or ``None``. If ``None``,
+    ``default_date`` is returned. ``default_date``
+    can also be passed in the above formats.
+    """
+    return get_kalendar_date(
+        kalendar_class=Dekad, input_date=input_date, default_date=default_date
+    )
+
+
+def get_pentadal_date(
+    input_date: Union[date, str, Tuple[int, int], Pentad, None],
+    default_date: Union[date, str, Tuple[int, int], Pentad, None] = None,
+) -> Pentad:
+    """Calculate kalendar date from general input.
+
+    Processes input ``input_date`` and returns two
+    values, the year and pentad. Input can be of
+    format ``datetime.date``, an ISO8601 date
+    string, an already calculated ``(year, pentad)``
+    tuple, ``kalendar.Pentad`` object, or ``None``. If ``None``,
+    ``default_date`` is returned. ``default_date``
+    can also be passed in the above formats.
+    """
+    return get_kalendar_date(
+        kalendar_class=Pentad, input_date=input_date, default_date=default_date
+    )
 
 
 @overload
