@@ -54,17 +54,13 @@ class OapRasterMixin:
 
         # Adding lat/lon to set of default spatial dims
         if "lat" in self._obj.dims and "lon" in self._obj.dims:
-            self._x_dim = "lon"
-            self._y_dim = "lat"
-            self._obj.rio._x_dim = "lon"
-            self._obj.rio._y_dim = "lat"
+            self._x_dim = self._obj.rio._x_dim = "lon"
+            self._y_dim = self._obj.rio._y_dim = "lat"
 
         # Adding Y/X to set of default spatial dims
         if "Y" in self._obj.dims and "X" in self._obj.dims:
-            self._x_dim = "X"
-            self._y_dim = "Y"
-            self._obj.rio._x_dim = "X"
-            self._obj.rio._y_dim = "Y"
+            self._x_dim = self._obj.rio._x_dim = "X"
+            self._y_dim = self._obj.rio._y_dim = "Y"
 
         # Managing time coordinate default dims
         self._t_dim = None
