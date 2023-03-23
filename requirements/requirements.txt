@@ -147,6 +147,8 @@ jsonschema==4.17.3
     # via
     #   frictionless
     #   tableschema-to-template
+kalendar==0.1.1
+    # via ocha-anticipy (setup.cfg)
 libhxl==4.27.3
     # via hdx-python-country
 locket==1.0.0

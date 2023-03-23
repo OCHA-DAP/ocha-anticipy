@@ -272,6 +272,8 @@ jsonschema==4.17.3
     #   -r requirements/requirements.txt
     #   frictionless
     #   tableschema-to-template
+kalendar==0.1.1
+    # via -r requirements/requirements.txt
 libhxl==4.27.3
     # via
     #   -r requirements/requirements.txt

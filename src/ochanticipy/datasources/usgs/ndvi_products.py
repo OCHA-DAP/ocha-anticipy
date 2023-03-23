@@ -13,6 +13,8 @@ import logging
 from datetime import date
 from typing import Tuple, Union
 
+from kalendar import Dekad
+
 from ochanticipy.config.countryconfig import CountryConfig
 from ochanticipy.datasources.usgs.ndvi_base import _UsgsNdvi
 
@@ -37,15 +39,16 @@ class UsgsNdviSmoothed(_UsgsNdvi):
         Start date. Can be passed as a ``datetime.date``
         object or a data string in ISO8601 format, and
         the relevant dekad will be determined. Or pass
-        directly as year-dekad tuple, e.g. (2020, 1).
-        If ``None``, ``start_date`` is set to earliest
-        date with data: 2002, dekad 19.
+        directly as year-dekad tuple, e.g. (2020, 1) or
+        ``kalendar.Dekad``. If ``None``, ``start_date``
+        is set to earliest date with data: 2002, dekad 19.
     end_date : _DATE_TYPE, default = None
         End date. Can be passed as a ``datetime.date``
-        object and the relevant dekad will be determined,
-        as a date string in ISO8601 format, or as a
-        year-dekad tuple, i.e. (2020, 1). If ``None``,
-        ``end_date`` is set to ``date.today()``.
+        object or a data string in ISO8601 format, and
+        the relevant dekad will be determined. Or pass
+        directly as year-dekad tuple, e.g. (2020, 1) or
+        ``kalendar.Dekad``. If ``None``, ``end_date`` is
+        set to earliest ``date.today``.
 
     Examples
     --------
@@ -76,8 +79,8 @@ class UsgsNdviSmoothed(_UsgsNdvi):
     def __init__(
         self,
         country_config: CountryConfig,
-        start_date: Union[date, str, Tuple[int, int], None] = None,
-        end_date: Union[date, str, Tuple[int, int], None] = None,
+        start_date: Union[date, str, Tuple[int, int], Dekad, None] = None,
+        end_date: Union[date, str, Tuple[int, int], Dekad, None] = None,
     ):
         super().__init__(
             country_config=country_config,
@@ -104,15 +107,16 @@ class UsgsNdviPctMedian(_UsgsNdvi):
         Start date. Can be passed as a ``datetime.date``
         object or a data string in ISO8601 format, and
         the relevant dekad will be determined. Or pass
-        directly as year-dekad tuple, e.g. (2020, 1).
-        If ``None``, ``start_date`` is set to earliest
-        date with data: 2002, dekad 19.
+        directly as year-dekad tuple, e.g. (2020, 1) or
+        ``kalendar.Dekad``. If ``None``, ``start_date``
+        is set to earliest date with data: 2002, dekad 19.
     end_date : _DATE_TYPE, default = None
         End date. Can be passed as a ``datetime.date``
-        object and the relevant dekad will be determined,
-        as a date string in ISO8601 format, or as a
-        year-dekad tuple, i.e. (2020, 1). If ``None``,
-        ``end_date`` is set to ``date.today()``.
+        object or a data string in ISO8601 format, and
+        the relevant dekad will be determined. Or pass
+        directly as year-dekad tuple, e.g. (2020, 1) or
+        ``kalendar.Dekad``. If ``None``, ``end_date`` is
+        set to earliest ``date.today``.
 
     Examples
     --------
@@ -143,8 +147,8 @@ class UsgsNdviPctMedian(_UsgsNdvi):
     def __init__(
         self,
         country_config: CountryConfig,
-        start_date: Union[date, str, Tuple[int, int], None] = None,
-        end_date: Union[date, str, Tuple[int, int], None] = None,
+        start_date: Union[date, str, Tuple[int, int], Dekad, None] = None,
+        end_date: Union[date, str, Tuple[int, int], Dekad, None] = None,
     ):
         super().__init__(
             country_config=country_config,
@@ -174,15 +178,16 @@ class UsgsNdviMedianAnomaly(_UsgsNdvi):
         Start date. Can be passed as a ``datetime.date``
         object or a data string in ISO8601 format, and
         the relevant dekad will be determined. Or pass
-        directly as year-dekad tuple, e.g. (2020, 1).
-        If ``None``, ``start_date`` is set to earliest
-        date with data: 2002, dekad 19.
+        directly as year-dekad tuple, e.g. (2020, 1) or
+        ``kalendar.Dekad``. If ``None``, ``start_date``
+        is set to earliest date with data: 2002, dekad 19.
     end_date : _DATE_TYPE, default = None
         End date. Can be passed as a ``datetime.date``
-        object and the relevant dekad will be determined,
-        as a date string in ISO8601 format, or as a
-        year-dekad tuple, i.e. (2020, 1). If ``None``,
-        ``end_date`` is set to ``date.today()``.
+        object or a data string in ISO8601 format, and
+        the relevant dekad will be determined. Or pass
+        directly as year-dekad tuple, e.g. (2020, 1) or
+        ``kalendar.Dekad``. If ``None``, ``end_date`` is
+        set to earliest ``date.today``.
 
     Examples
     --------
@@ -213,8 +218,8 @@ class UsgsNdviMedianAnomaly(_UsgsNdvi):
     def __init__(
         self,
         country_config: CountryConfig,
-        start_date: Union[date, str, Tuple[int, int], None] = None,
-        end_date: Union[date, str, Tuple[int, int], None] = None,
+        start_date: Union[date, str, Tuple[int, int], Dekad, None] = None,
+        end_date: Union[date, str, Tuple[int, int], Dekad, None] = None,
     ):
         super().__init__(
             country_config=country_config,
@@ -244,15 +249,16 @@ class UsgsNdviYearDifference(_UsgsNdvi):
         Start date. Can be passed as a ``datetime.date``
         object or a data string in ISO8601 format, and
         the relevant dekad will be determined. Or pass
-        directly as year-dekad tuple, e.g. (2020, 1).
-        If ``None``, ``start_date`` is set to earliest
-        date with data: 2002, dekad 19.
+        directly as year-dekad tuple, e.g. (2020, 1) or
+        `kalendar.Dekad`. If ``None``, ``start_date``
+        is set to earliest date with data: 2002, dekad 19.
     end_date : _DATE_TYPE, default = None
         End date. Can be passed as a ``datetime.date``
-        object and the relevant dekad will be determined,
-        as a date string in ISO8601 format, or as a
-        year-dekad tuple, i.e. (2020, 1). If ``None``,
-        ``end_date`` is set to ``date.today()``.
+        object or a data string in ISO8601 format, and
+        the relevant dekad will be determined. Or pass
+        directly as year-dekad tuple, e.g. (2020, 1) or
+        `kalendar.Dekad`. If ``None``, ``end_date`` is
+        set to earliest ``date.today``.
 
     Examples
     --------
@@ -283,8 +289,8 @@ class UsgsNdviYearDifference(_UsgsNdvi):
     def __init__(
         self,
         country_config: CountryConfig,
-        start_date: Union[date, str, Tuple[int, int], None] = None,
-        end_date: Union[date, str, Tuple[int, int], None] = None,
+        start_date: Union[date, str, Tuple[int, int], Dekad, None] = None,
+        end_date: Union[date, str, Tuple[int, int], Dekad, None] = None,
     ):
         super().__init__(
             country_config=country_config,
