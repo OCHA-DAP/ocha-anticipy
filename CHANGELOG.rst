@@ -15,7 +15,7 @@ Changed
 ~~~~~~~
 
 - tox configuration moved to ``setup.cfg`` from ``tox.ini``
-
+- ``kalendar`` library used for ``dekad`` and ``pentad`` classes
 
 [1.0.1] - 2023-02-03
 --------------------

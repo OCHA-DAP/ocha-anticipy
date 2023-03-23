@@ -28,27 +28,22 @@ import geopandas as gpd
 import pandas as pd
 import rioxarray  # noqa: F401
 import xarray as xr
+from kalendar import Dekad
 from rasterio.errors import RasterioIOError
 
 import ochanticipy.utils.raster  # noqa: F401
 from ochanticipy.config.countryconfig import CountryConfig
 from ochanticipy.datasources.datasource import DataSource
-from ochanticipy.utils.dates import (
-    compare_dekads_gt,
-    compare_dekads_lt,
-    dekad_to_date,
-    expand_dekads,
-    get_dekadal_date,
-)
+from ochanticipy.utils.dates import get_kalendar_date, kalendar_range
 
 logger = logging.getLogger(__name__)
 
-_DATE_TYPE = Union[date, str, Tuple[int, int], None]
-_EARLIEST_DATE = (2002, 19)
+_DATE_TYPE = Union[date, str, Tuple[int, int], Dekad, None]
+_EARLIEST_DATE = Dekad(2002, 19)
 
 # USGS has reported degradation of USGS NDVI data
 # from the below date and warnings should be used
-_DEGRADATION_DATE = (2022, 13)
+_DEGRADATION_DATE = Dekad(2022, 13)
 
 
 class _UsgsNdvi(DataSource):
@@ -68,15 +63,16 @@ class _UsgsNdvi(DataSource):
         Start date. Can be passed as a ``datetime.date``
         object or a data string in ISO8601 format, and
         the relevant dekad will be determined. Or pass
-        directly as year-dekad tuple, e.g. (2020, 1).
-        If ``None``, ``start_date`` is set to earliest
+        directly as year-dekad tuple, e.g. (2020, 1) or
+        ``kalendar.Dekad``. If ``None``, ``start_date`` is set to earliest
         date with data: 2002, dekad 19.
     end_date : _DATE_TYPE, default = None
         End date. Can be passed as a ``datetime.date``
-        object and the relevant dekad will be determined,
-        as a date string in ISO8601 format, or as a
-        year-dekad tuple, i.e. (2020, 1). If ``None``,
-        ``end_date`` is set to ``date.today()``.
+        object or a data string in ISO8601 format, and
+        the relevant dekad will be determined. Or pass
+        directly as year-dekad tuple, e.g. (2020, 1) or
+        ``kalendar.Dekad``. If ``None``, ``end_date`` is
+        set to earliest ``date.today``.
     """
 
     def __init__(
@@ -102,15 +98,19 @@ class _UsgsNdvi(DataSource):
         self._data_variable_suffix = data_variable_suffix
 
         # set dates for data download and processing
-        self._start_date = get_dekadal_date(
-            input_date=start_date, default_date=_EARLIEST_DATE
+        self._start_date = get_kalendar_date(
+            kalendar_class=Dekad,
+            input_date=start_date,
+            default_date=_EARLIEST_DATE,
         )
 
-        self._end_date = get_dekadal_date(
-            input_date=end_date, default_date=date.today()
+        self._end_date = get_kalendar_date(
+            kalendar_class=Dekad,
+            input_date=end_date,
+            default_date=date.today(),
         )
 
-        if compare_dekads_gt(self._end_date, _DEGRADATION_DATE):
+        if self._end_date > _DEGRADATION_DATE:
             logger.warning(
                 "USGS has reported degradation of eMODIS NDVI data "
                 "due to issues with the MODIS sensor's satellite. "
@@ -121,11 +121,10 @@ class _UsgsNdvi(DataSource):
             )
 
         # warn if dates outside earliest dates
-        if compare_dekads_lt(self._start_date, _EARLIEST_DATE):
+        if self._start_date < _EARLIEST_DATE:
             logger.warning(
                 "Start date is before earliest date data is available. "
-                f"Data will be downloaded from {_EARLIEST_DATE[0]}, dekad "
-                f"{_EARLIEST_DATE[1]}."
+                f"Data will be downloaded from {_EARLIEST_DATE}."
             )
 
     def download(self, clobber: bool = False) -> Path:
@@ -164,11 +163,9 @@ class _UsgsNdvi(DataSource):
         ... )
         >>> bfa_ndvi.download()
         """
-        download_dekads = expand_dekads(
-            dekad1=self._start_date, dekad2=self._end_date
-        )
-        for year, dekad in download_dekads:
-            self._download_ndvi_dekad(year=year, dekad=dekad, clobber=clobber)
+        download_dekads = kalendar_range(x=self._start_date, y=self._end_date)
+        for dekad in download_dekads:
+            self._download_ndvi_dekad(dekad=dekad, clobber=clobber)
         return self._raw_base_dir
 
     def process(  # type: ignore
@@ -280,8 +277,8 @@ class _UsgsNdvi(DataSource):
         )
 
         # get dates for processing
-        all_dates_to_process = expand_dekads(
-            dekad1=self._start_date, dekad2=self._end_date
+        all_dates_to_process = kalendar_range(
+            x=self._start_date, y=self._end_date
         )
 
         for stat, is_percentile in zip(process_stats, percentile_identifier):
@@ -364,12 +361,10 @@ class _UsgsNdvi(DataSource):
             ) from err
 
         # filter loaded data frame between our instances dates
-        load_dates = expand_dekads(
-            dekad1=self._start_date, dekad2=self._end_date
-        )
+        load_dates = kalendar_range(x=self._start_date, y=self._end_date)
 
         loaded_dates = df[["year", "dekad"]].values.tolist()
-        keep_rows = [tuple(d) in load_dates for d in loaded_dates]
+        keep_rows = [Dekad(*d) in load_dates for d in loaded_dates]
 
         df = df.loc[keep_rows]
 
@@ -380,7 +375,7 @@ class _UsgsNdvi(DataSource):
         return df
 
     def load_raster(
-        self, load_date: Union[date, str, Tuple[int, int]]
+        self, load_date: Union[date, str, Tuple[int, int], Dekad]
     ) -> xr.DataArray:
         """Load raster for specific year and dekad.
 
@@ -389,8 +384,9 @@ class _UsgsNdvi(DataSource):
         load_date : Union[date, str, Tuple[int, int]]
             Date. Can be passed as a ``datetime.date``
             object and the relevant dekad will be determined,
-            as a date string in ISO8601 format, or as a
-            year-dekad tuple, i.e. (2020, 1).
+            as a date string in ISO8601 format, as a
+            year-dekad tuple, i.e. (2020, 1), or a
+            ``kalendar.Dekad``.
 
         Returns
         -------
@@ -402,9 +398,9 @@ class _UsgsNdvi(DataSource):
         FileNotFoundError
             If the requested file cannot be found.
         """
-        year, dekad = get_dekadal_date(input_date=load_date)
+        dekad = get_kalendar_date(kalendar_class=Dekad, input_date=load_date)
 
-        filepath = self._get_raw_path(year=year, dekad=dekad, local=True)
+        filepath = self._get_raw_path(dekad=dekad, local=True)
         try:
             da = rioxarray.open_rasterio(filepath)
             # get time file was updated
@@ -414,9 +410,9 @@ class _UsgsNdvi(DataSource):
             da = (
                 da.assign_coords(
                     {
-                        "year": year,
-                        "dekad": dekad,
-                        "date": dekad_to_date(dekad=(year, dekad)),
+                        "year": dekad.year,
+                        "dekad": dekad.dekad,
+                        "date": dekad.todate(),
                         "modified": file_time,
                     }
                 )
@@ -429,19 +425,14 @@ class _UsgsNdvi(DataSource):
         except RasterioIOError as err:
             # check if the requested date is outside the instance bounds
             # don't prevent loading, but use for meaningful error
-            gt_end = compare_dekads_gt(
-                dekad1=(year, dekad), dekad2=self._end_date
-            )
-            lt_start = compare_dekads_lt(
-                dekad1=(year, dekad), dekad2=self._start_date
-            )
+            gt_end = dekad > self._end_date
+            lt_start = dekad < self._start_date
             if gt_end or lt_start:
                 file_warning = (
-                    f"The requested year and dekad, {year}-{dekad}"
-                    f"are {'greater' if gt_end else 'less'} than the "
-                    f"instance {'end' if gt_end else 'start'} year and dekad, "
-                    f"{self._end_date[0] if gt_end else self._start_date[0]}-"
-                    f"{self._end_date[1] if gt_end else self._start_date[1]}. "
+                    f"The requested date, {dekad}"
+                    f"is {'greater' if gt_end else 'less'} than the "
+                    f"instance {'end' if gt_end else 'start'} date, "
+                    f"{self._end_date if gt_end else self._start_date[0]}. "
                     "Calling the `download()` method will not download this "
                     "file, and you need to re-instantiate the class to "
                     "include these dates."
@@ -456,24 +447,18 @@ class _UsgsNdvi(DataSource):
                 f"Cannot open the .tif file {filepath}. {file_warning}"
             ) from err
 
-    def _download_ndvi_dekad(
-        self, year: int, dekad: int, clobber: bool
-    ) -> None:
+    def _download_ndvi_dekad(self, dekad: Dekad, clobber: bool) -> None:
         """Download NDVI for specific dekad.
 
         Parameters
         ----------
-        year : int
-            Year
-        dekad : int
-            Dekad
+        dekad : Dekad
+            Dekadal date
         clobber : bool
             If True, overwrites existing file
         """
-        filepath = self._get_raw_path(year=year, dekad=dekad, local=True)
-        url_filename = self._get_raw_filename(
-            year=year, dekad=dekad, local=False
-        )
+        filepath = self._get_raw_path(dekad=dekad, local=True)
+        url_filename = self._get_raw_filename(dekad=dekad, local=False)
         self._download(
             filepath=filepath, url_filename=url_filename, clobber=clobber
         )
@@ -482,15 +467,12 @@ class _UsgsNdvi(DataSource):
         local_filename = filepath.stem
 
         url = self._get_url(filename=url_filename)
-        year, dekad = self._fp_year_dekad(filepath)
+        dekad = self._fp_dekad(filepath)
 
         try:
             resp = urlopen(url)
         except HTTPError:
-            logger.error(
-                f"No NDVI data available for "
-                f"dekad {dekad} of {year}, skipping."
-            )
+            logger.error(f"No NDVI data available for {dekad}, skipping.")
             return
 
         if filepath.exists():
@@ -509,10 +491,7 @@ class _UsgsNdvi(DataSource):
                 )
                 return filepath
 
-        logger.info(
-            f"Downloading NDVI data for {year}, dekad {dekad} "
-            f"into {filepath}."
-        )
+        logger.info(f"Downloading NDVI data for {dekad} into {filepath}.")
 
         # open file within memory
         zf = ZipFile(BytesIO(resp.read()))
@@ -532,7 +511,7 @@ class _UsgsNdvi(DataSource):
         clobber: bool,
         gdf: gpd.GeoDataFrame,
         feature_col: str,
-        dates_to_process: list,
+        dates_to_process: List[Dekad],
         stat: str,
         is_percentile: bool,
         kwargs,
@@ -554,9 +533,8 @@ class _UsgsNdvi(DataSource):
 
         if processed_path.is_file():
             logger.info(
-                f"Processing data from {self._start_date[0]}, "
-                f"dekad {self._start_date[1]} to {self._end_date[0]} "
-                f"dekad {self._end_date[1]} into {processed_path}."
+                f"Processing data from {self._start_date}, "
+                f"to {self._end_date} into {processed_path}. "
             )
 
             (
@@ -572,10 +550,7 @@ class _UsgsNdvi(DataSource):
                 logger.info(
                     (
                         "No new {stat} data to process between "
-                        f"{self._start_date[0]}, "
-                        f"dekad {self._start_date[1]} "
-                        f"and {self._end_date[0]}, "
-                        f"dekad {self._end_date[1]}, "
+                        f"{self._start_date} and {self._end_date}, "
                         "set `clobber = True` to re-process this data."
                     )
                 )
@@ -607,7 +582,7 @@ class _UsgsNdvi(DataSource):
         return processed_path
 
     def _determine_process_dates(
-        self, clobber: bool, filepath: Path, dates_to_process: list
+        self, clobber: bool, filepath: Path, dates_to_process: List[Dekad]
     ) -> Tuple[list, pd.DataFrame]:
         """Determine dates to process.
 
@@ -617,12 +592,12 @@ class _UsgsNdvi(DataSource):
             If True, overwrites existing file
         filepath : Path
             Filepath to the existing processed file.
-        dates_to_process : list
+        dates_to_process : List[Dekad]
             List of dates to process
 
         Returns
         -------
-        Tuple[list, pd.DataFrame]
+        Tuple[List[Dekad], pd.DataFrame]
             Returns a list of dates to process, filtered
             based on clobber, and a data frame of existing
             data to build upon in processing
@@ -641,7 +616,7 @@ class _UsgsNdvi(DataSource):
             ["year", "dekad", "modified"]
         ].values.tolist()
         dates_already_processed = {
-            tuple(d[0:2]): d[2] for d in dates_already_processed
+            Dekad(*d[0:2]): d[2] for d in dates_already_processed
         }
 
         if clobber:
@@ -658,7 +633,7 @@ class _UsgsNdvi(DataSource):
                 d
                 for d in dates_to_process
                 if d not in list(dates_already_processed.keys())
-                or self._get_modified_time(year=d[0], dekad=d[1])
+                or self._get_modified_time(dekad=d)
                 > dates_already_processed[d]
             ]
 
@@ -671,15 +646,13 @@ class _UsgsNdvi(DataSource):
             df = df.loc[keep_rows]
         return (dates_to_process, df)
 
-    def _get_raw_filename(self, year: int, dekad: int, local: bool) -> str:
+    def _get_raw_filename(self, dekad: Dekad, local: bool) -> str:
         """Get raw filename (excluding file type suffix).
 
         Parameters
         ----------
-        year : int
-            4-digit year
         dekad : int
-            Dekad
+            Dekadal date
         local : bool
             If True, returns filepath for local storage,
             which includes full 4-digit year and _
@@ -694,12 +667,12 @@ class _UsgsNdvi(DataSource):
             for .tif files stored within the .zip
         """
         if local:
-            file_year = f"{year:04}_"
+            file_year = f"{dekad.year:04}_"
         else:
-            file_year = f"{year-2000:02}"
+            file_year = f"{dekad.year-2000:02}"
         file_name = (
             f"{self._datasource_config.area_prefix}{file_year}"
-            f"{dekad:02}{self._data_variable_suffix}"
+            f"{dekad.dekad:02}{self._data_variable_suffix}"
         )
         return file_name
 
@@ -725,15 +698,13 @@ class _UsgsNdvi(DataSource):
             df.drop(["modified"], axis=1, inplace=True)
         return df
 
-    def _get_raw_path(self, year: int, dekad: int, local: bool) -> Path:
+    def _get_raw_path(self, dekad: Dekad, local: bool) -> Path:
         """Get raw filepath.
 
         Parameters
         ----------
-        year : int
-            4-digit year
         dekad : int
-            Dekad
+            Dekadal date
         local : bool
             If True, returns filepath for local storage,
             which includes full 4-digit year and _
@@ -746,10 +717,10 @@ class _UsgsNdvi(DataSource):
         Path
             Path to raw file
         """
-        filename = self._get_raw_filename(year=year, dekad=dekad, local=local)
+        filename = self._get_raw_filename(dekad=dekad, local=local)
         return self._raw_base_dir / f"{filename}.tif"
 
-    def _get_modified_time(self, year: int, dekad: int) -> datetime:
+    def _get_modified_time(self, dekad: Dekad) -> datetime:
         """Get modified time of raw file.
 
         Used to determine when to re-process
@@ -767,7 +738,7 @@ class _UsgsNdvi(DataSource):
         datetime
             Timestamp of when file was modified.
         """
-        filepath = self._get_raw_path(year=year, dekad=dekad, local=True)
+        filepath = self._get_raw_path(dekad=dekad, local=True)
         return datetime.fromtimestamp(filepath.stat().st_mtime)
 
     def _get_processed_filename(self, feature_col: str, stat: str) -> str:
@@ -829,7 +800,7 @@ class _UsgsNdvi(DataSource):
     # TODO: potentially move from static method to
     # wider USGS function repository
     @staticmethod
-    def _fp_year_dekad(path: Path) -> List[int]:
+    def _fp_dekad(path: Path) -> Dekad:
         """Extract year and dekad from filepath.
 
         Parameters
@@ -845,4 +816,4 @@ class _UsgsNdvi(DataSource):
         filename = path.stem
         # find two groups, first for year second for dekad
         regex = re.compile(r"(\d{4})_(\d{2})")
-        return [int(x) for x in regex.findall(filename)[0]]
+        return Dekad(*[int(x) for x in regex.findall(filename)[0]])

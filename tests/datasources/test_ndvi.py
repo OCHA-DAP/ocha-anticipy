@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import pytest
 import xarray as xr
+from kalendar import Dekad
 from shapely.geometry import Polygon
 
 from ochanticipy import (
@@ -16,6 +17,7 @@ from ochanticipy import (
     UsgsNdviSmoothed,
     UsgsNdviYearDifference,
 )
+from ochanticipy.utils.dates import kalendar_range
 
 DATASOURCE_BASE_DIR = "usgs_ndvi"
 
@@ -34,7 +36,6 @@ def mock_ndvi(mock_country_config):
     }
 
     def _mock_ndvi(variable: str = "smoothed"):
-
         ndvi = instantiator[variable](
             country_config=mock_country_config,
             start_date=start_date,
@@ -244,10 +245,10 @@ def test_load_if_process_not_called(mock_ndvi):
         ndvi.load(feature_col="name")
 
 
-def test_fp_year_dekad():
+def test_fp_dekad():
     """Test that year and dekad extracted from FP."""
     fp = Path("ea2022_10pct.tif")
-    assert UsgsNdviPctMedian._fp_year_dekad(fp) == [2022, 10]
+    assert UsgsNdviPctMedian._fp_dekad(fp) == Dekad(2022, 10)
 
 
 def test_get_url(mock_ndvi):
@@ -265,7 +266,7 @@ def test_get_url(mock_ndvi):
 
 def test_process_dates_clobber_true(mock_determine_process_dates):
     """Test process dates clobbers properly."""
-    dps = [(2019, 36), (2020, 1), (2020, 2)]
+    dps = kalendar_range(x=Dekad(2019, 36), y=Dekad(2020, 2))
     test_dps, df = mock_determine_process_dates(
         clobber=True, dates_to_process=dps
     )
@@ -275,7 +276,7 @@ def test_process_dates_clobber_true(mock_determine_process_dates):
 
 def test_process_dates_clobber_false(mock_determine_process_dates):
     """Test process dates doesn't clobber unnecessarily."""
-    dps = [(2019, 36), (2020, 1), (2020, 2)]
+    dps = kalendar_range(x=Dekad(2019, 36), y=Dekad(2020, 2))
     test_dps, df = mock_determine_process_dates(
         clobber=False, dates_to_process=dps
     )
@@ -285,7 +286,7 @@ def test_process_dates_clobber_false(mock_determine_process_dates):
 
 def test_process_dates_clobber_true_additional(mock_determine_process_dates):
     """Test process dates clobbers properly."""
-    dps = [(2019, 35), (2019, 36), (2020, 1), (2020, 2), (2020, 3)]
+    dps = kalendar_range(x=Dekad(2019, 35), y=Dekad(2020, 3))
     test_dps, df = mock_determine_process_dates(
         clobber=True, dates_to_process=dps
     )
@@ -295,7 +296,7 @@ def test_process_dates_clobber_true_additional(mock_determine_process_dates):
 
 def test_process_dates_clobber_false_additional(mock_determine_process_dates):
     """Test process dates doesn't clobber unnecessarily."""
-    dps = [(2019, 35), (2019, 36), (2020, 1), (2020, 2), (2020, 3)]
+    dps = kalendar_range(x=Dekad(2019, 35), y=Dekad(2020, 3))
     test_dps, df = mock_determine_process_dates(
         clobber=False, dates_to_process=dps
     )
