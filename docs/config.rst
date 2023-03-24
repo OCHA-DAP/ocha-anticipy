@@ -15,12 +15,31 @@ and we are continuously adding more.
 
 .. _list of supported countries:
 
-A list of countries that we currently support:
+We currently support 20 out of 25 humanitarian response plan (HRP) countries:
 
 - Burkina Faso (BFA)
-- Bangladesh (BGD)
+- Burundi (BDI)
+- Cameroon (CMR)
+- Colombia (COL)
 - Democratic Republic of the Congo (COD)
 - Ethiopia (ETH)
+- Haiti (HTI)
+- Iraq (IRQ)
+- Libya (LBY)
+- Mali (MLI)
+- Mozambique (MOZ)
+- Nigeria (NGA)
+- Somalia (SOM)
+- South Sudan (SSD)
+- State of Palestine (PSE)
+- Sudan (SDN)
+- Syrian Arab Republic (SYR)
+- Ukraine (UKR)
+- Venezuela (VEN)
+- Yemen (YEM)
+
+In addition we support:
+- Bangladesh (BGD)
 - Malawi (MWI)
 - Nepal (NPL)
 
