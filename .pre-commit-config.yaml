@@ -52,23 +52,5 @@ repos:
         name: pip-compile requirements.txt
         files: setup.cfg
         args: [setup.cfg, --resolver=backtracking,
-              --extra, full, -q, -o,
-              requirements/requirements.txt]
-      - id: pip-compile
-        name: pip-compile requirements-docs.txt
-        files: setup.cfg
-        args: [setup.cfg, --resolver=backtracking,
-              --extra, doc, -q, -o,
-              requirements/requirements-docs.txt]
-      - id: pip-compile
-        name: pip-compile requirements-tests.txt
-        files: setup.cfg
-        args: [setup.cfg, --resolver=backtracking,
-              --extra, test, -q, -o,
-              requirements/requirements-tests.txt]
-      - id: pip-compile
-        name: pip-compile requirements-dev.txt
-        files: setup.cfg
-        args: [setup.cfg, --resolver=backtracking,
               --extra, dev, -q, -o,
-              requirements/requirements-dev.txt]
+              requirements.txt]

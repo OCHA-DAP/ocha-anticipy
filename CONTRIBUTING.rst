@@ -17,7 +17,7 @@ development by running:
 
 .. code:: shell
 
-   pip install -r requirements/requirements-dev.txt
+   pip install -r requirements.txt
 
 ``aa-toolbox`` makes use of
 `geopandas <https://geopandas.org/en/stable/>`__, which depends on
@@ -28,11 +28,11 @@ installed.
 Installation
 ------------
 
-To install in editable mode for development, execute:
+To install ``ocha-anticipy`` in editable mode for development, execute:
 
 .. code:: shell
 
-   pip install -e -r requirements/requirements-dev.txt
+   pip install -e .
 
 Testing
 -------
@@ -159,6 +159,14 @@ For adding packages for testing, documentation, or development, add them to
 the relevant subpackage under ``[options.extras_require]``, ``test``,
 ``doc``, and ``dev`` respectively. When you modify any of
 these lists, please try to keep them alphabetical!
+
+Any changes to the dependencies will be automatically reflected in
+``requirements.txt`` with ``pre-commit``, but you can re-generate
+the file without commiting by executing:
+
+.. code:: shell
+
+   pre-commit run pip-compile --all-files
 
 Package Release
 ---------------
