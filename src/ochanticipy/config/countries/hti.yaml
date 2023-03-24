@@ -1,6 +1,6 @@
 iso3: hti
 codab:
-  hdx_dataset_name: hti_adm_cnigs_20181129.zipSHP
+  hdx_dataset_name: hti_adm_cnigs_20181129.zip
   layer_base_name: hti_adm_cnigs_20181129/hti_admbnda_adm{admin_level}_cnigs_20181129.shp
   admin_level_max: 3
 fewsnet:
