@@ -11,6 +11,11 @@ Versioning <https://semver.org/spec/v2.0.0.html>`__.
 Unreleased
 ----------
 
+Added
+~~~~~
+
+- Config files for 20/25 HRP countries
+
 Changed
 ~~~~~~~
 
