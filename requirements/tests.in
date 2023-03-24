@@ -1,6 +1,0 @@
-cftime
-netCDF4
-pytest
-pytest-cov
-pytest-mock
-tox

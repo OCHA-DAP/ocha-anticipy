@@ -9,8 +9,10 @@ from ochanticipy.utils.hdx_api import load_dataset_from_hdx
 @pytest.fixture(autouse=True)
 def mock_resource(mocker):
     """Mock the HDX download function."""
-    # Resource is a UserDict so need to make a class to mock that
+
     class MockResource(UserDict):
+        """Resource is a UserDict so need to make a class to mock."""
+
         def download(self, folder):
             return "", "resource_filepath"
 

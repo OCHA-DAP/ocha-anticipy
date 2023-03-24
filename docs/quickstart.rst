@@ -15,7 +15,7 @@ sure that this environment variable is defined and points to where you would
 like the data to go.
 
 Install OCHA AnticiPy
-^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^
 
 OCHA AnticiPy supports Python 3.8 and newer. It can be installed in your Python
 environment using the following command:
@@ -25,6 +25,24 @@ environment using the following command:
     $ pip install ocha-anticipy
 
 OCHA AnticiPy should now be installed.
+
+Optional dependencies
+*********************
+
+Some modules have optional dependencies that are not installed by default. Currently,
+this is just `glofas`. Optional dependencies will be included in the install if you
+specify the module as in the below command:
+
+.. code-block:: sh
+
+    $ pip install ocha-anticipy[glofas]
+
+Alternatively, you can install all requirements for all modules by specifying
+`full`:
+
+.. code-block:: sh
+
+    $ pip install ocha-anticipy[full]
 
 Usage Examples
 --------------

@@ -33,6 +33,14 @@ Install and update using [pip](https://pip.pypa.io/en/stable/getting-started/):
 pip install ocha-anticipy
 ```
 
+Some modules of the toolbox have specific dependencies not installed by default.
+These are documented within each module, but all dependencies can be installed
+using.
+
+```shell
+pip install -U ocha-anticipy[full]
+```
+
 ## A Simple Example
 
 OCHA AnticiPy downloads data to the directory referenced by the

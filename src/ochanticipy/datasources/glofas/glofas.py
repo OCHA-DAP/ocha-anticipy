@@ -7,13 +7,13 @@ from datetime import date
 from pathlib import Path
 from typing import List, Tuple, Union
 
-import cdsapi
 import numpy as np
 import xarray as xr
 from dateutil import rrule
 
 from ochanticipy.config.countryconfig import CountryConfig
 from ochanticipy.datasources.datasource import DataSource
+from ochanticipy.utils.check_extra_imports import check_extra_imports
 from ochanticipy.utils.dates import get_date_from_user_input
 from ochanticipy.utils.geoboundingbox import GeoBoundingBox
 
@@ -23,6 +23,12 @@ _RIVER_DISCHARGE_VAR = "dis24"
 _REQUEST_SLEEP_TIME = 60  # seconds
 
 logger = logging.getLogger(__name__)
+
+# putting on top level to ensure easy mocking in tests
+try:
+    import cdsapi
+except ModuleNotFoundError:
+    pass
 
 
 @dataclass
@@ -104,6 +110,11 @@ class Glofas(DataSource):
             datasource_base_dir=_MODULE_BASENAME,
             is_public=True,
         )
+        # check that extra dependencies are installed
+        check_extra_imports(
+            libraries=["cdsapi", "cfgrib"], subpackage="glofas"
+        )
+
         # The GloFAS API on CDS requires coordinates have the format x.x5
         self._geo_bounding_box = geo_bounding_box.round_coords(
             offset_val=0.05, round_val=0.1

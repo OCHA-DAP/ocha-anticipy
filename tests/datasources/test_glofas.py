@@ -1,4 +1,5 @@
 """Test the GloFAS instantiation."""
+import sys
 from datetime import date
 
 import pytest
@@ -97,3 +98,24 @@ def test_reforecast_dates(mock_country_config, geo_bounding_box):
             start_date=date(year=2020, month=1, day=2),
             end_date=date(year=2020, month=1, day=1),
         )
+
+
+def test_optional_module_error(
+    mock_country_config, geo_bounding_box, monkeypatch
+):
+    """Test module error raised correctly if dependencies missing."""
+    monkeypatch.setitem(sys.modules, "cdsapi", None)  # noqa: FKA01
+    with pytest.raises(ModuleNotFoundError, match=r"ochanticipy"):
+        from ochanticipy import GlofasForecast
+
+        GlofasForecast(
+            country_config=mock_country_config,
+            geo_bounding_box=geo_bounding_box,
+            leadtime_max=1,
+        )
+
+
+def test_optional_module_no_error(monkeypatch):
+    """Test no errors generated on library import w/o dependencies."""
+    monkeypatch.setitem(sys.modules, "cdsapi", None)  # noqa: FKA01
+    import ochanticipy  # noqa: F401
