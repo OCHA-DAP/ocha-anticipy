@@ -38,7 +38,10 @@ We currently support 20 out of 25 humanitarian response plan (HRP) countries:
 - Venezuela (VEN)
 - Yemen (YEM)
 
-In addition we support:
+Those not included either have missing data, or more complex COD AB
+download structures - for that latter case, we are working on an implementation.
+
+In addition we support several non-HRP countries:
 
 - Bangladesh (BGD)
 - Malawi (MWI)
