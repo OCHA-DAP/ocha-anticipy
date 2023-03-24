@@ -187,7 +187,7 @@ class GlofasReforecast(_GlofasForecastBase):
     Class for downloading and processing GloFAS reforecast data.
 
     The GloFAS reforecast dataset is a global raster presenting river
-    discharnge forecasted from 1999 until 2018, see
+    discharge forecasted from 1999 until 2018, see
     `this paper <https://hess.copernicus.org/preprints/hess-2020-532/>`_
     for more details.
 
@@ -197,8 +197,8 @@ class GlofasReforecast(_GlofasForecastBase):
     and processes it from a raster to a datasets of reporting points from the
     `GloFAS interface
     <https://www.globalfloods.eu/glofas-forecasting/>`_.
-     Due to the CDS request size limits, separate files are downloaded per
-     month (that contain all requested lead times).
+    Due to the CDS request size limits, separate files are downloaded per
+    month (that contain all requested lead times).
 
     Parameters
     ----------

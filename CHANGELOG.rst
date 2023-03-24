@@ -14,7 +14,16 @@ Unreleased
 Changed
 ~~~~~~~
 
+- Optional dependencies and documentation, testing, and development
+reqirements moved to ``extras_require``
+- GLOFAS module dependencies made optional
 - tox configuration moved to ``setup.cfg`` from ``tox.ini``
+
+Fixed
+~~~~~
+
+-  Automatic raster dimension setting for `lat/lon` and `X/Y`
+fixed to work for `rioxarray` methods
 
 
 [1.0.1] - 2023-02-03

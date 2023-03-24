@@ -1,6 +1,9 @@
 GloFAS
 ======
 
+.. extras-require:: glofas
+    :setup.cfg:
+
 Background
 ----------
 
@@ -184,6 +187,7 @@ ecCodes can be installed using `brew`:
 .. code-block:: shell
 
     brew install eccodes
+
 
 Reporting points
 ~~~~~~~~~~~~~~~~

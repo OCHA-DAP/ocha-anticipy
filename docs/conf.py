@@ -13,7 +13,7 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath("../.."))
+sys.path.insert(0, os.path.abspath(".."))
 
 # -- Project information -----------------------------------------------------
 
@@ -31,6 +31,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
     "sphinxcontrib.apidoc",
+    "sphinxcontrib.extras_require",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -42,8 +43,12 @@ templates_path = ["_templates"]
 exclude_patterns = []  # type: list
 
 # API doc settings
-apidoc_module_dir = "../../src/ochanticipy"
+apidoc_module_dir = "../src/ochanticipy"
 apidoc_output_dir = "."
+
+# Needed to sphinxcontrib.extra_requires to work
+package_root = "ochanticipy"
+pypi_name = "ocha-anticipy"
 
 # -- Options for HTML output -------------------------------------------------
 

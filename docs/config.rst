@@ -14,6 +14,7 @@ Several countries are already supported out-of-the box,
 and we are continuously adding more.
 
 .. _list of supported countries:
+
 A list of countries that we currently support:
 
 - Burkina Faso (BFA)
@@ -58,6 +59,7 @@ The YAML file will be validated and used to create the country configuration.
 At minimum, it must contain the country ISO3:
 
 .. code-block:: yaml
+
     iso3: "npl"
 
 For additional datasource-specific requirements, please see the
