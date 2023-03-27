@@ -1,0 +1,161 @@
+iso3: caf
+codab:
+  hdx_resource_name:
+    - caf_admbnda_adm0_200k_sigcaf_reach_itos_v2.zip
+    - caf_admbnda_adm1_200k_sigcaf_reach_itos_v2.zip
+    - caf_admbnda_adm2_200k_sigcaf_reach_itos_v2.zip
+    - caf_admbnda_adm3_200k_sigcaf_reach_itos_v2.zip
+    - caf_admbnda_adm4_reach_ocha_v2.zip
+  layer_base_name: caf_admbnda_adm{admin_level}_200k_sigcaf_reach_itos_v2.shp
+  admin_level_max: 4
+  admin4_name: caf_admbnda_adm4_reach_ocha_v2.shp
+fewsnet:
+  region_name: west-africa
+glofas:
+  reporting_points:
+  - name: Bac Bea
+    lon: 17.05
+    lat: 6.45
+  - name: Bamingui A Bamingui
+    lon: 20.25
+    lat: 7.55
+  - name: Bangoran A Bangoran
+    lon: 20.35
+    lat: 8.05
+  - name: Bangui
+    lon: 18.65
+    lat: 4.35
+  - name: Bangui-Kette A Alindao
+    lon: 21.15
+    lat: 5.05
+  - name: Batangafo
+    lon: 18.25
+    lat: 7.35
+  - name: Bossangoa
+    lon: 17.45
+    lat: 6.45
+  - name: Bossele Bali
+    lon: 18.45
+    lat: 4.55
+  - name: Boungou Mahamat
+    lon: 21.95
+    lat: 6.75
+  - name: Chinko A Rafai
+    lon: 23.95
+    lat: 5.05
+  - name: Fafa Bouca
+    lon: 18.25
+    lat: 6.45
+  - name: Gribingui A Kaga Bandoro Ex. Crampel
+    lon: 19.15
+    lat: 6.95
+  - name: Kadei Sosso
+    lon: 15.55
+    lat: 3.95
+  - name: Kerre Kerre
+    lon: 25.75
+    lat: 5.35
+  - name: Kotto Bria
+    lon: 22.05
+    lat: 6.45
+  - name: Kotto Ira-Banda
+    lon: 22.15
+    lat: 5.95
+  - name: Kotto Kembe
+    lon: 21.95
+    lat: 4.55
+  - name: Koukourou A Koukourou
+    lon: 20.05
+    lat: 7.15
+  - name: Lesse Boyali
+    lon: 18.15
+    lat: 4.05
+  - name: Lim Sarki
+    lon: 15.35
+    lat: 6.95
+  - name: Lobaye A Kedingue-Yawa
+    lon: 16.95
+    lat: 4.45
+  - name: Lobaye A Zaoro-Yanga
+    lon: 16.55
+    lat: 5.25
+  - name: Lobaye Mongoumba
+    lon: 18.45
+    lat: 3.65
+  - name: Lobaye Ngotto
+    lon: 17.35
+    lat: 4.05
+  - name: Lobaye Safa
+    lon: 18.05
+    lat: 3.65
+  - name: Loungoumba
+    lon: 22.65
+    lat: 4.75
+  - name: M Bata
+    lon: 18.25
+    lat: 3.65
+  - name: Mambere A Carnot
+    lon: 15.85
+    lat: 4.95
+  - name: Mbaere Bambio
+    lon: 16.95
+    lat: 3.95
+  - name: Mbali A Boali - I.C.O.T
+    lon: 17.95
+    lat: 4.95
+  - name: Mbari Fode
+    lon: 23.35
+    lat: 5.55
+  - name: Mbokou A Obo
+    lon: 26.45
+    lat: 5.45
+  - name: Mpoko Bimbo
+    lon: 18.45
+    lat: 4.35
+  - name: Nana A Bewiti
+    lon: 15.15
+    lat: 5.85
+  - name: Ngou Bougouy
+    lon: 15.15
+    lat: 7.05
+  - name: Ombella Ombella
+    lon: 18.85
+    lat: 5.15
+  - name: Ouaka A Bambari
+    lon: 20.65
+    lat: 5.75
+  - name: Ouaka Bakala
+    lon: 20.35
+    lat: 6.15
+  - name: Ouaka Bambala
+    lon: 20.15
+    lat: 5.15
+  - name: Ouandja Ouandja
+    lon: 22.65
+    lat: 9.25
+  - name: Ouarra A Dembia
+    lon: 24.45
+    lat: 5.15
+  - name: Oubangui A Zinga
+    lon: 18.55
+    lat: 3.75
+  - name: Ouham A Bozoum
+    lon: 16.35
+    lat: 6.35
+  - name: Pende Pende
+    lon: 16.25
+    lat: 7.25
+  - name: Salo
+    lon: 16.15
+    lat: 3.25
+  - name: Tomi A Sibut
+    lon: 19.05
+    lat: 5.75
+  - name: Vokouma Ouanda-Djalle
+    lon: 22.65
+    lat: 8.85
+  - name: Yata Birao
+    lon: 22.85
+    lat: 10.25
+usgs_ndvi:
+  area_name: west-africa

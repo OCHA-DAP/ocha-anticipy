@@ -1,6 +1,6 @@
 iso3: col
 codab:
-  hdx_dataset_name: COL Administrative Divisions Shapefiles.zip
+  hdx_resource_name: COL Administrative Divisions Shapefiles.zip
   layer_base_name: col_admbnda_adm{admin_level}_mgn_20200416.shp
   admin_level_max: 2
   admin0_name: col_admbnda_adm0_mgn_itos_20200416.shp

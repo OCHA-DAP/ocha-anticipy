@@ -1,0 +1,51 @@
+iso3: ner
+codab:
+  hdx_resource_name:
+    - NER_adm00_feb2018.zip
+    - NER_adm01_feb2018.zip
+    - NER_adm02_feb2018.zip
+    - NER_adm03_feb2018.zip
+  layer_base_name: NER_adm0{admin_level}_feb2018.shp
+  admin_level_max: 3
+fewsnet:
+  region_name: west-africa
+glofas:
+  reporting_points:
+  - name: Alcongui
+    lon: 0.55
+    lat: 14.75
+  - name: Boss Bangou
+    lon: 1.25
+    lat: 13.35
+  - name: Dargol A Kakassi
+    lon: 1.45
+    lat: 13.85
+  - name: Dargol At Tera
+    lon: 0.75
+    lat: 13.95
+  - name: Diongore Amont
+    lon: 2.25
+    lat: 12.95
+  - name: Garbe-Kourou
+    lon: 1.55
+    lat: 13.65
+  - name: Gorouol At Dolbel
+    lon: 0.25
+    lat: 14.55
+  - name: Goulbi De Maradi A Nielloua
+    lon: 7.25
+    lat: 13.15
+  - name: Kandadji
+    lon: 0.95
+    lat: 14.65
+  - name: Majia At Tsernaoua
+    lon: 5.35
+    lat: 13.85
+  - name: Niamey
+    lon: 2.05
+    lat: 13.55
+  - name: W
+    lon: 2.65
+    lat: 12.55
+usgs_ndvi:
+  area_name: west-africa

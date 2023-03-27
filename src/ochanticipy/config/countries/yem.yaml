@@ -1,6 +1,6 @@
 iso3: yem
 codab:
-  hdx_dataset_name: YEM Administrative Divisions Shapefiles.zip
+  hdx_resource_name: YEM Administrative Divisions Shapefiles.zip
   layer_base_name: yem_admbnda_adm{admin_level}_govyem_cso_20191002.shp
   admin_level_max: 3
 fewsnet:

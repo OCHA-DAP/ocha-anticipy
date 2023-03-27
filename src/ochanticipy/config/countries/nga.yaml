@@ -1,11 +1,11 @@
 iso3: nga
 codab:
-  hdx_dataset_name: nga_adm_osgof_20190417.zip
+  hdx_resource_name: nga_adm_osgof_20190417.zip
   layer_base_name: nga_admbnda_adm{admin_level}_osgof_20190417.shp
   admin_level_max: 3
   # Nigeria also has districts that don't fall into a particular admin level
   custom_layer_names:
-    - nga_admbnda_senDist_inec_osgof_20190417.shp
+    - name: nga_admbnda_senDist_inec_osgof_20190417.shp
 fewsnet:
   region_name: west-africa
 glofas:

@@ -7,21 +7,30 @@ from pydantic import BaseModel, root_validator, validator
 from ochanticipy.utils.io import parse_yaml
 
 
+class CustomLayerNames(BaseModel):
+    """Custom layer names for CodAB."""
+
+    name: str
+    hdx_resource: Optional[int]
+
+
 class CodABConfig(BaseModel):
     """COD AB configuration.
 
     Parameters
     ----------
-    hdx_dataset_name: str
-        COD AB dataset name on HDX. Can be found by taking the filename as it
-        appears on the dataset page.
+    admin_level_max: int
+         The maximum admin level available in the shapefile, cannot be
+         greater than 4.
+    hdx_resource_name: Union[str, List[str]]
+        COD AB resource name on HDX. Can be found by taking the filename as it
+        appears on the COD AB dataset page. If individual COD AB files are
+        contained in separate resources, provide each filename in a list, where
+        the index is equivalent to admin level.
     layer_base_name: str
         The base name of the different admin layers, that presumably only
         change by a single custom_layer_number depending on the level. Should
         contain {admin_level} in place of the custom_layer_number.
-    admin_level_max: int
-         The maximum admin level available in the shapefile, cannot be
-         greater than 4
     admin{level}_name: str, optional
         The names of any admin level layers that do not conform to the
         layer_base_name pattern, where {level} ranges from 0 to 4
@@ -29,15 +38,28 @@ class CodABConfig(BaseModel):
         Any additional layer names that don't fit into the admin level paradigm
     """
 
-    hdx_dataset_name: str
-    layer_base_name: str
     admin_level_max: int
+    hdx_resource_name: Union[str, List[str]]
+    layer_base_name: str
     admin0_name: Optional[str]
     admin1_name: Optional[str]
     admin2_name: Optional[str]
     admin3_name: Optional[str]
     admin4_name: Optional[str]
-    custom_layer_names: Optional[list]
+    custom_layer_names: Optional[List[CustomLayerNames]]
+
+    @validator("hdx_resource_name")
+    def _validate_hdx_resource_name(cls, hdx_resource_name, values):
+        """Ensure hdx_resource_name is str or list for all admin areas."""
+        if not isinstance(hdx_resource_name, str):
+            if len(hdx_resource_name) != values["admin_level_max"] + 1:
+                raise ValueError(
+                    "In the COD AB section of the country configuration file, "
+                    "hdx_resource_name should be a string or list of length "
+                    "admin_level_max, with a resource provided for each level "
+                    "from 0 to admin_level_max."
+                )
+        return hdx_resource_name
 
     @validator("layer_base_name")
     def _validate_layer_base_name(cls, layer_base_name):

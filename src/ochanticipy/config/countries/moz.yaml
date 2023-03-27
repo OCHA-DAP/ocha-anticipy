@@ -1,6 +1,6 @@
 iso3: moz
 codab:
-  hdx_dataset_name: moz_adm_20190607b_SHP.zip
+  hdx_resource_name: moz_adm_20190607b_SHP.zip
   layer_base_name: moz_admbnda_adm{admin_level}_ine_20190607.shp
   admin_level_max: 3
 fewsnet:
