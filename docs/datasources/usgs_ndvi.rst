@@ -63,8 +63,7 @@ Usage
 To use this class, you first need to create a country configuration
 for the country you would like to analyze. You also need to supply the area
 of coverage that the country data is contained in. You can Make sure FEWS NET covers the country
-of interest. You can find area of coverage for NDVI by searching for eMODIS NDVI C6 on
-the  `USGS search portal <https://earlywarning.usgs.gov/fews/search>`_.
+of interest.
 The valid values of the area names are listed above under Background.
 
 An example country config for Ethiopia is:
