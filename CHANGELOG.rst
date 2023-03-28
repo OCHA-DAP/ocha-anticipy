@@ -27,8 +27,10 @@ reqirements moved to ``extras_require``
 Fixed
 ~~~~~
 
--  Automatic raster dimension setting for `lat/lon` and `X/Y`
+- Automatic raster dimension setting for `lat/lon` and `X/Y`
 fixed to work for `rioxarray` methods
+- USGS NDVI documentation was updated to remove dead links
+and improve users ability to use the historical data
 
 
 [1.0.1] - 2023-02-03
