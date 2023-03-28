@@ -71,7 +71,10 @@ def test_codab_too_high_admin_level(mock_country_config):
 def test_codab_custom(mock_aa_data_dir, mock_country_config, gpd_read_file):
     """Test that load_codab_custom retrieves expected file and layer name."""
     custom_layer_number = 1
-    custom_layer_name_list = ["custom_layer_A", "custom_layer_B"]
+    custom_layer_name_list = [
+        {"name": "custom_layer_A"},
+        {"name": "custom_layer_B"},
+    ]
     mock_country_config.codab.custom_layer_names = custom_layer_name_list
     codab = CodAB(country_config=mock_country_config)
     codab.load_custom(custom_layer_number)

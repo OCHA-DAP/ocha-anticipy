@@ -190,7 +190,7 @@ class CodAB(DataSource):
     def _load_admin_layer(
         self, layer_name: str, admin_level: Optional[int] = None
     ) -> gpd.GeoDataFrame:
-        fp_index = int(admin_level or 0)
+        fp_index = int(admin_level or 0) if self._multiple_resources else 0
 
         try:
             return gpd.read_file(
