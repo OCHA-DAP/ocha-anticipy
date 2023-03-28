@@ -122,6 +122,70 @@ def test_codab_validate_admin_level_max(mock_parse_yaml):
         create_country_config(iso3="abc")
 
 
+def test_codab_validate_multiple_resources(mock_parse_yaml):
+    """Test that multiple resources must match admin levels."""
+    config_base = {
+        "iso3": "abc",
+        "codab": {
+            "hdx_resource_name": [f"fake_resource_name_{i}" for i in range(4)],
+            "layer_base_name": "layer_base_name_{admin_level}",
+            "admin_level_max": 3,
+        },
+    }
+    config_correct = copy.deepcopy(config_base)
+    config_incorrect_a = copy.deepcopy(config_base)
+    config_incorrect_a["codab"]["admin_level_max"] = 2
+    config_incorrect_b = copy.deepcopy(config_base)
+    config_incorrect_b["codab"]["admin_level_max"] = 4
+
+    mock_parse_yaml(
+        output_list=[config_correct, config_incorrect_a, config_incorrect_b]
+    )
+
+    # Check that correct config runs without issue
+    create_country_config(iso3="abc")
+    # Check that incorrect config raises error for config incorrect a
+    with pytest.raises(ValueError):
+        create_country_config(iso3="abc")
+    # Check that incorrect config raises error for config incorrect b
+    with pytest.raises(ValueError):
+        create_country_config(iso3="abc")
+
+
+def test_codab_validate_multiple_resources_custom(mock_parse_yaml):
+    """Test that multiple resources must match admin levels."""
+    config_base = {
+        "iso3": "abc",
+        "codab": {
+            "hdx_resource_name": [f"fake_resource_name_{i}" for i in range(4)],
+            "layer_base_name": "layer_base_name_{admin_level}",
+            "admin_level_max": 3,
+            "custom_layer_names": [
+                {"name": "custom_layer_A", "hdx_resource": 1},
+                {"name": "custom_layer_B", "hdx_resource": 2},
+            ],
+        },
+    }
+    config_correct = copy.deepcopy(config_base)
+    config_incorrect_a = copy.deepcopy(config_base)
+    config_incorrect_a["codab"]["custom_layer_names"][0]["hdx_resource"] = None
+    config_incorrect_b = copy.deepcopy(config_base)
+    config_incorrect_b["codab"]["custom_layer_names"][0]["hdx_resource"] = 4
+
+    mock_parse_yaml(
+        output_list=[config_correct, config_incorrect_a, config_incorrect_b]
+    )
+
+    # Check that correct config runs without issue
+    create_country_config(iso3="abc")
+    # Check that incorrect config raises error for config incorrect a
+    with pytest.raises(ValueError):
+        create_country_config(iso3="abc")
+    # Check that incorrect config raises error for config incorrect b
+    with pytest.raises(ValueError):
+        create_country_config(iso3="abc")
+
+
 def test_fewsnet_validate_region_name(mock_parse_yaml):
     """Test that fewsnet requires correct region name."""
     config_base = {

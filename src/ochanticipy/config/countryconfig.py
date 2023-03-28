@@ -81,6 +81,31 @@ class CodABConfig(BaseModel):
             )
         return admin_level_max
 
+    @validator("custom_layer_names")
+    def _validate_custom_layer_names(cls, custom_layer_names, values):
+        """Ensure that custom layer names work with multiple resources."""
+        if isinstance(values["hdx_resource_name"], list):
+            indexed = [
+                isinstance(x.hdx_resource, int) for x in custom_layer_names
+            ]
+            if not all(indexed):
+                raise ValueError(
+                    "In the COD AB section of the country configuration file, "
+                    "custom_layer_names must have an hdx_resource index "
+                    "specifying under which resource the layer is found."
+                )
+
+            correct_range = [
+                0 <= x.hdx_resource <= values["admin_level_max"]
+                for x in custom_layer_names
+            ]
+            if not all(correct_range):
+                raise ValueError(
+                    "In the COD AB section of the country configuration file, "
+                    "the custom_layer_names hdx_resource index must be a "
+                    "valid admin level between 0 and admin_level_max."
+                )
+
     @root_validator(pre=False, skip_on_failure=True)
     def _set_admin_levels(cls, values) -> dict:
         """Set admin levels names using layer base name."""
