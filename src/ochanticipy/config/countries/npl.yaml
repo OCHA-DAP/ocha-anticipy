@@ -2,7 +2,7 @@ iso3: npl
 codab:
   hdx_resource_name: npl_adm_nd_20190430_SHP.zip
   layer_base_name: npl_admbnda_adm{admin_level}_nd_20190430.shp
-  admin_level_max: 2
+  admin_level_max: 3
 glofas:
   reporting_points:
   - name: After Lothar Confluence
