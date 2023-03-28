@@ -12,14 +12,14 @@ environment such as ``venv``:
     python3.11 -m venv venv
     source venv/bin/activate
 
-In your virtual environment, please install all packages from
-``requirements/requirements-dev.txt``:
+In your virtual environment, please install all packages for
+development by running:
 
 .. code:: shell
 
-   pip install -r requirements/requirements-dev.txt
+   pip install -r requirements.txt
 
-OCHA AnticiPy makes use of
+``aa-toolbox`` makes use of
 `geopandas <https://geopandas.org/en/stable/>`__, which depends on
 `Fiona <https://github.com/Toblerity/Fiona>`__, so you will need to
 have `GDAL <https://github.com/Toblerity/Fiona#installation>`__
@@ -28,7 +28,7 @@ installed.
 Installation
 ------------
 
-To install in editable mode for development, execute:
+To install ``ocha-anticipy`` in editable mode for development, execute:
 
 .. code:: shell
 
@@ -103,9 +103,9 @@ To build the documentation and test your implementation, use the following comma
 
 .. code:: shell
 
-   sphinx-build -b html -d docs/build/doctrees docs/source docs/build/html
+   sphinx-build -b html -d docs/_build/doctrees docs docs/_build/html
 
-To view the docs, open up ``docs/build/html/index.html`` in your
+To view the docs, open up ``docs-build/html/index.html`` in your
 browser.
 
 pre-commit
@@ -133,20 +133,40 @@ package management.
 
 If you’ve introduced a new package to the source code (i.e. anywhere in
 ``src/``), please add it to the ``install_requires`` section of
-``setup.cfg`` with any known version constraints. For adding packages
-for development, documentation, or tests, add them to the relevant
-``.in`` file in the ``requirements`` directory. When you modify any of
-these lists, please try to keep them alphabetical! Any changes to the
-``requirements*.txt`` files will be generated with ``pre-commit``.
+``setup.cfg`` with any known version constraints. However, in the
+case where a library is only required for a single data source,
+these should be added in the ``options.extras_require`` section
+of ``setup.cfg``, with a relevant name for the requirements list.
+For example, the GLOFAS module relies on the ``cdsapi`` and
+``cfgrib`` packages, and would look like.
 
-To run this without commiting, execute:
+.. code::
+
+   [options.extras_require]
+   glofas =
+      cdsapi
+      cfgrib
+
+Also add reference to the subpackage under ``full`` using the
+``%(subpackage)s`` format.
+
+.. code::
+
+   full =
+      %(glofas)s
+
+For adding packages for testing, documentation, or development, add them to
+the relevant subpackage under ``[options.extras_require]``, ``test``,
+``doc``, and ``dev`` respectively. When you modify any of
+these lists, please try to keep them alphabetical!
+
+Any changes to the dependencies will be automatically reflected in
+``requirements.txt`` with ``pre-commit``, but you can re-generate
+the file without commiting by executing:
 
 .. code:: shell
 
    pre-commit run pip-compile --all-files
-
-For other functionality such as updating specific package versions,
-refer to the ``pip-tools`` documentation.
 
 Package Release
 ---------------

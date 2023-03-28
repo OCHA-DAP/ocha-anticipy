@@ -11,7 +11,7 @@ def mock_resource(mocker):
     """Mock the HDX download function."""
 
     class MockResource(UserDict):
-        # Resource is a UserDict so need to make a class to mock that
+        """Resource is a UserDict so need to make a class to mock."""
         def download(self, folder):
             return "", "resource_filepath"
 

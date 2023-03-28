@@ -156,7 +156,6 @@ class _IriForecast(DataSource):
         return self._processed_base_dir / self._get_file_name()
 
     def _get_url(self) -> str:
-
         base_url = (
             "https://iridl.ldeo.columbia.edu/SOURCES/.IRI/.FD/"
             f".NMME_Seasonal_Forecast/.Precipitation_ELR/"
@@ -190,7 +189,6 @@ class _IriForecast(DataSource):
     def _download(
         self, filepath: Path, url: str, iri_auth: str, clobber: bool
     ) -> Path:
-
         response = requests.get(
             url,
             # have to authenticate by using a cookie
