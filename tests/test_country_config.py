@@ -77,7 +77,7 @@ def test_codab_validate_layer_base_name(mock_parse_yaml):
     config_base = {
         "iso3": "abc",
         "codab": {
-            "hdx_dataset_name": "fake_dataset_name",
+            "hdx_resource_name": "fake_resource_name",
             "layer_base_name": "layer_base_name_",
             "admin_level_max": 1,
         },
@@ -99,7 +99,7 @@ def test_codab_validate_admin_level_max(mock_parse_yaml):
     config_base = {
         "iso3": "abc",
         "codab": {
-            "hdx_dataset_name": "fake_dataset_name",
+            "hdx_resource_name": "fake_resource_name",
             "layer_base_name": "layer_base_name_{admin_level}",
             "admin_level_max": 1,
         },

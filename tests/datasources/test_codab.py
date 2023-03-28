@@ -10,7 +10,7 @@ DATASOURCE_BASE_DIR = "cod_ab"
 def downloader(mocker):
     """Mock the HDX download function."""
     return mocker.patch(
-        "ochanticipy.datasources.codab.codab.load_dataset_from_hdx"
+        "ochanticipy.datasources.codab.codab.load_resource_from_hdx"
     )
 
 
@@ -20,13 +20,21 @@ def gpd_read_file(mocker):
     return mocker.patch("ochanticipy.datasources.codab.codab.gpd.read_file")
 
 
+class MockCustomLayer:
+    """Mock custom layers."""
+
+    def __init__(self, name, hdx_resource) -> None:
+        self.name = name
+        self.hdx_resource = hdx_resource
+
+
 def test_codab_download(mock_aa_data_dir, mock_country_config, downloader):
     """Test that load_codab calls the HDX API to download."""
     codab = CodAB(country_config=mock_country_config)
     codab.download()
     downloader.assert_called_with(
-        hdx_address=f"cod-ab-{mock_country_config.iso3}",
-        hdx_dataset_name=mock_country_config.codab.hdx_dataset_name,
+        hdx_dataset=f"cod-ab-{mock_country_config.iso3}",
+        hdx_resource_name=mock_country_config.codab.hdx_resource_name,
         output_filepath=mock_aa_data_dir
         / f"public/raw/{mock_country_config.iso3}/"
         f"{DATASOURCE_BASE_DIR}/{mock_country_config.iso3}_"
@@ -72,8 +80,8 @@ def test_codab_custom(mock_aa_data_dir, mock_country_config, gpd_read_file):
     """Test that load_codab_custom retrieves expected file and layer name."""
     custom_layer_number = 1
     custom_layer_name_list = [
-        {"name": "custom_layer_A"},
-        {"name": "custom_layer_B"},
+        MockCustomLayer(name="custom_layer_A", hdx_resource=None),
+        MockCustomLayer(name="custom_layer_B", hdx_resource=None),
     ]
     mock_country_config.codab.custom_layer_names = custom_layer_name_list
     codab = CodAB(country_config=mock_country_config)
@@ -82,7 +90,7 @@ def test_codab_custom(mock_aa_data_dir, mock_country_config, gpd_read_file):
         f"zip://{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
         f"{DATASOURCE_BASE_DIR}/{mock_country_config.iso3}_"
         f"{DATASOURCE_BASE_DIR}.shp.zip/"
-        f"{custom_layer_name_list[custom_layer_number]}"
+        f"{custom_layer_name_list[custom_layer_number].name}"
     )
 
 
@@ -96,8 +104,8 @@ def test_codab_custom_missing(mock_country_config, gpd_read_file):
 def test_codab_load_fail(mock_country_config):
     """Test raises file not found error when load fails."""
     codab = CodAB(country_config=mock_country_config)
-    # Remove file if it exists
-    codab._raw_filepath.unlink(missing_ok=True)
+    # Remove file for admin0 if it exists
+    codab._raw_filepaths[0].unlink(missing_ok=True)
     with pytest.raises(FileNotFoundError) as excinfo:
         codab.load(admin_level=0)
     assert (
