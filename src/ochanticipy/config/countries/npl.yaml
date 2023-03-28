@@ -1,11 +1,8 @@
 iso3: npl
 codab:
-  hdx_resource_name: npl_admbnda_nd_20201117_SHP.zip
-  layer_base_name: npl_admbnda_adm{admin_level}_nd_20201117.shp
+  hdx_resource_name: npl_adm_nd_20190430_SHP.zip
+  layer_base_name: npl_admbnda_adm{admin_level}_nd_20190430.shp
   admin_level_max: 2
-  # Nepal also has districts that don't fall into a particular admin level
-  custom_layer_names:
-    - name: npl_admbnda_districts_nd_20201117.shp
 glofas:
   reporting_points:
   - name: After Lothar Confluence
