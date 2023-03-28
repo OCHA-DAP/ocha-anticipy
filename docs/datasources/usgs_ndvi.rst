@@ -62,8 +62,10 @@ Usage
 
 To use this class, you first need to create a country configuration
 for the country you would like to analyze. You also need to supply the area
-of coverage that the country data is contained in. You can Make sure FEWS NET covers the country
-of interest.
+of coverage that the country data is contained in. Although the NDVI data
+are no longer available directly on the portal, you can derive the region
+name for the data using the primary
+`USGS FEWS data portal <https://earlywarning.usgs.gov/fews>`_.
 The valid values of the area names are listed above under Background.
 
 An example country config for Ethiopia is:
