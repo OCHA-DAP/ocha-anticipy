@@ -1,0 +1,10 @@
+iso3: afg
+fewsnet:
+  region_name: central-asia
+glofas:
+  reporting_points:
+  - name: Na
+    lon: 70.75
+    lat: 34.35
+usgs_ndvi:
+  area_name: central-asia
