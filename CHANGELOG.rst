@@ -31,6 +31,8 @@ Fixed
 fixed to work for `rioxarray` methods
 - USGS NDVI documentation was updated to remove dead links
 and improve users ability to use the historical data
+- pandas ``Index`` used in raster module docstrings in lieu of
+the now deprecated ``Int64Index``
 
 
 [1.0.1] - 2023-02-03
