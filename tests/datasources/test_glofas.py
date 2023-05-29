@@ -51,11 +51,13 @@ def test_forecast_dates(mock_country_config, geo_bounding_box):
         )
 
     # Try using a string as a date
-    good_end_date = "2022-11-15"
+    good_end_date = "2022-05-15"
     # These should not throw an error
     glofas_forecast(end_date=good_end_date)
     # End date too far in future
-    glofas_future = glofas_forecast(end_date=date(year=3000, month=1, day=1))
+    glofas_future = glofas_forecast(
+        start_date=date.today(), end_date=date(year=3000, month=1, day=1)
+    )
     assert glofas_future._end_date == date.today()
     # Start date too early
     glofas_past = glofas_forecast(
@@ -119,3 +121,15 @@ def test_optional_module_no_error(monkeypatch):
     """Test no errors generated on library import w/o dependencies."""
     monkeypatch.setitem(sys.modules, "cdsapi", None)  # noqa: FKA01
     import ochanticipy  # noqa: F401
+
+
+def test_max_requests(mock_country_config, geo_bounding_box):
+    """Test that max request number can't be exceeded."""
+    with pytest.raises(RuntimeError):
+        GlofasForecast(
+            country_config=mock_country_config,
+            geo_bounding_box=geo_bounding_box,
+            leadtime_max=15,
+            start_date=date(year=2021, month=5, day=26),
+            end_date=date(year=2023, month=5, day=29),
+        )

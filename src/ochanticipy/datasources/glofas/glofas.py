@@ -20,6 +20,7 @@ from ochanticipy.utils.geoboundingbox import GeoBoundingBox
 _MODULE_BASENAME = "glofas"
 _HYDROLOGICAL_MODEL = "lisflood"
 _RIVER_DISCHARGE_VAR = "dis24"
+_CDS_MAX_REQUESTS = 500
 _REQUEST_SLEEP_TIME = 60  # seconds
 
 logger = logging.getLogger(__name__)
@@ -138,6 +139,15 @@ class Glofas(DataSource):
             dtstart=self._start_date,
             until=self._end_date,
         )
+        if self._date_range.count() > _CDS_MAX_REQUESTS:
+            msg = (
+                f"Your parameters would result in "
+                f"{self._date_range.count()} requests, however we "
+                f"currently only support the CDS maximum of "
+                f"{_CDS_MAX_REQUESTS} at this time. Please divide your "
+                f"query into multiple instances."
+            )
+            raise RuntimeError(msg)
 
     def download(  # type: ignore
         self,
@@ -381,6 +391,7 @@ class Glofas(DataSource):
             # hammering on cds
             if query_params_list:
                 time.sleep(_REQUEST_SLEEP_TIME)
+                logger.info(f"Sleeping for {_REQUEST_SLEEP_TIME} s")
         return downloaded_filepaths
 
     def _get_query(

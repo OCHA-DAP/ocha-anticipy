@@ -20,17 +20,18 @@ Changed
 ~~~~~~~
 
 - Optional dependencies and documentation, testing, and development
-reqirements moved to ``extras_require``
-- GLOFAS module dependencies made optional
+  reqirements moved to ``extras_require``
+- GloFAS module dependencies made optional
 - tox configuration moved to ``setup.cfg`` from ``tox.ini``
 
 Fixed
 ~~~~~
 
 - Automatic raster dimension setting for `lat/lon` and `X/Y`
-fixed to work for `rioxarray` methods
+  fixed to work for `rioxarray` methods
 - USGS NDVI documentation was updated to remove dead links
-and improve users ability to use the historical data
+  and improve users ability to use the historical data
+- GloFAS does not permit users to go above request limit of 500
 
 [1.0.2] - 2023-05-29
 --------------------

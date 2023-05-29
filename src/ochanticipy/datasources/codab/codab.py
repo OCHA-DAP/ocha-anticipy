@@ -71,13 +71,13 @@ class CodAB(DataSource):
         """
         logger.info("`process()` method not implemented for CodAB.")
 
-    def load(self, admin_level: int) -> gpd.GeoDataFrame:  # type: ignore
+    def load(self, admin_level: int = 0) -> gpd.GeoDataFrame:  # type: ignore
         """
         Get the COD AB data by admin level.
 
         Parameters
         ----------
-        admin_level: int
+        admin_level: int, default = 0
             The administrative level
 
         Returns
