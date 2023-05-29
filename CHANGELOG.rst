@@ -15,6 +15,8 @@ Fixed
 ~~~~~
 
 - Fixed bug for loading COD AB shapefiles in Windows
+- pandas ``Index`` used in raster module docstrings in lieu of
+  the now deprecated ``Int64Index``
 
 [1.0.1] - 2023-02-03
 --------------------
