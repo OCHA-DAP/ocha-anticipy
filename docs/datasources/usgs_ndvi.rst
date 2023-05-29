@@ -6,8 +6,12 @@ Warning
 
 The MODIS sensor has been reported by USGS to
 have degraded in quality since May 2022 (dekad 13), and
-updates to this data source have stopped. This module
-remains for users to have access to historic data but
+updates to this data source have stopped. Documentation of
+the product has been removed from the
+`USGS FEWS product page <https://earlywarning.usgs.gov/fews/product>`_,
+which has made methodological details and geographic links unavailable.
+
+This module remains for users to have access to historic data but
 recent data is unavailable and care should be used
 analyzing any data since dekad 13 of 2022.
 
@@ -29,18 +33,17 @@ difference vegetation index (`NDVI <https://en.wikipedia.org/wiki/Normalized_dif
 generated from eMODIS AQUA provided by the USGS.
 
 NDVI data is generated from eMODIS AQUA and published data includes temporally smoothed NDVI, median anomaly,
-difference from the previous year, and median anomaly presented as a percentile. Full methodological
-details are available on the `Documentation page <https://earlywarning.usgs.gov/fews/product/449#documentation>`_
-for the specific coverage area. The data is made available for the following areas of coverage:
+difference from the previous year, and median anomaly presented as a percentile.
+The data is made available for the following areas of coverage:
 
-- `north-africa <https://earlywarning.usgs.gov/fews/product/449>`_
-- `east-africa <https://earlywarning.usgs.gov/fews/product/448>`_
-- `southern-africa <https://earlywarning.usgs.gov/fews/product/450>`_
-- `west-africa <https://earlywarning.usgs.gov/fews/product/451>`_
-- `central-asia <https://earlywarning.usgs.gov/fews/product/493>`_
-- `yemen <https://earlywarning.usgs.gov/fews/product/502>`_
-- `central-america <https://earlywarning.usgs.gov/fews/product/445>`_
-- `hispaniola <https://earlywarning.usgs.gov/fews/product/446>`_
+- north-africa
+- east-africa
+- southern-africa
+- west-africa
+- central-asia
+- yemen
+- central-america
+- hispaniola
 
 Data is published at the dekadal level, and is released soon after the end of the dekad.
 After a period of 3 dekads, data is updated with temporal smoothing and error correction
@@ -48,9 +51,10 @@ for cloud cover. Files for a specific dekad and region can range from 30MB up to
 so downloading and processing can take a long time.
 
 
-USGS publishes its data through its `web portal <https://earlywarning.usgs.gov/fews/datadownloads/East%20Africa/eMODIS%20NDVI%20C6>`_,
-which allows downloading data for a single geographical area and dekad. This data
-is extracted from the `back end data explorer <https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/fews/web/africa/east/dekadal/emodis/ndvi_c6/temporallysmoothedndvi/downloads/monthly/>`_.
+USGS published its data through its web portal,
+which allows downloading data for a single geographical area and dekad. However, the data
+is no longer made available there, and the data for this product are extracted
+from the `back end data explorer <https://edcintl.cr.usgs.gov/downloads/sciweb1/shared/fews/web/africa/east/dekadal/emodis/ndvi_c6/temporallysmoothedndvi/downloads/monthly/>`_.
 This module is designed to allow programmatic access to and analysis of NDVI data from the data explorer.
 
 Usage
@@ -58,9 +62,10 @@ Usage
 
 To use this class, you first need to create a country configuration
 for the country you would like to analyze. You also need to supply the area
-of coverage that the country data is contained in. You can Make sure FEWS NET covers the country
-of interest. You can find area of coverage for NDVI by searching for eMODIS NDVI C6 on
-the  `USGS search portal <https://earlywarning.usgs.gov/fews/search>`_.
+of coverage that the country data is contained in. Although the NDVI data
+are no longer available directly on the portal, you can derive the region
+name for the data using the primary
+`USGS FEWS data portal <https://earlywarning.usgs.gov/fews>`_.
 The valid values of the area names are listed above under Background.
 
 An example country config for Ethiopia is:
