@@ -159,7 +159,9 @@ class CodAB(DataSource):
 
     def _load_admin_layer(self, layer_name: str) -> gpd.GeoDataFrame:
         try:
-            return gpd.read_file(f"zip://{self._raw_filepath / layer_name}")
+            return gpd.read_file(
+                f"zip://{(self._raw_filepath / layer_name).as_posix()}"
+            )
         except DriverError as err:
             raise FileNotFoundError(
                 f"Could not read boundary shapefile. Make sure that "

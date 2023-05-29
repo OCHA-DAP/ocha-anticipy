@@ -258,9 +258,9 @@ class OapRasterMixin:
         ... )
         >>> da.oap.invert_coordinates(inplace=True)
         >>> da.get_index("lon")
-        Int64Index([67, 68, 69, 70], dtype='int64', name='lon')
+        Index([67, 68, 69, 70], dtype='int64', name='lon')
         >>> da.get_index("lat")
-        Int64Index([90, 89, 88, 87], dtype='int64', name='lat')
+        Index([90, 89, 88, 87], dtype='int64', name='lat')
         """
         data_obj = self._get_obj_oap(inplace=inplace)
         lon_inv, lat_inv = self._check_coords_inverted()
@@ -346,11 +346,11 @@ class OapRasterMixin:
         ... )
         >>> ds_inv = ds.oap.change_longitude_range()
         >>> ds_inv.get_index("lon")
-        Int64Index([-161, 0, 5, 120], dtype='int64', name='lon')
+        Index([-161, 0, 5, 120], dtype='int64', name='lon')
         >>> # invert coordinates back to original, in place
         >>> ds_inv.oap.change_longitude_range(to_180_range=False, inplace=True)
         >>> ds_inv.get_index("lon")
-        Int64Index([0, 5, 120, 199], dtype='int64', name='lon')
+        Index([0, 5, 120, 199], dtype='int64', name='lon')
         """
         data_obj = self._get_obj_oap(inplace=inplace)
 
