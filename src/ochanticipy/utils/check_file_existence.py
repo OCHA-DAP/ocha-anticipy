@@ -65,7 +65,7 @@ def check_file_existence(
     # check filepath exists -> clobber
     usage_dict = {
         True: {True: "overwriting existing", False: "using existing"},
-        False: {True: "downloading new", False: "downloading new"},
+        False: {True: "creating new", False: "creating new"},
     }
     fp_exists = filepath.exists()
 

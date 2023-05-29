@@ -340,6 +340,7 @@ The full codde snippet is below:
     from ochanticipy import create_country_config, CodAB, \
         GeoBoundingBox, GlofasForecast
 
+    country_config = create_country_config(iso3="bgd")
     codab = CodAB(country_config=country_config)
     codab.download()
     admin0 = codab.load()
