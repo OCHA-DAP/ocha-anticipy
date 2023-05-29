@@ -194,7 +194,7 @@ class CodAB(DataSource):
 
         try:
             return gpd.read_file(
-                f"zip://{self._raw_filepaths[fp_index] / layer_name}"
+                f"zip://{(self._raw_filepaths[fp_index] / layer_name).as_posix()}"
             )
         except DriverError as err:
             raise FileNotFoundError(

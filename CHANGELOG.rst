@@ -31,15 +31,23 @@ Fixed
 fixed to work for `rioxarray` methods
 - USGS NDVI documentation was updated to remove dead links
 and improve users ability to use the historical data
-- pandas ``Index`` used in raster module docstrings in lieu of
-the now deprecated ``Int64Index``
 
+[1.0.2] - 2023-05-29
+--------------------
+
+Fixed
+~~~~~
+
+- Fixed bug for loading COD AB shapefiles in Windows
+- pandas ``Index`` used in raster module docstrings in lieu of
+  the now deprecated ``Int64Index``
 
 [1.0.1] - 2023-02-03
 --------------------
 
 Removed
 ~~~~~~~
+
 - ``sphinx-rtd-theme`` dependency for docs (switch to Alabaster theme)
 
 Fixed
@@ -77,10 +85,12 @@ Changed
 
 Removed
 ~~~~~~~
+
 - Python 3.6 support
 
 Fixed
 ~~~~~
+
 - The check in ``DataSource`` for the required configuration file
   section now also checks if the section is ``None``
 - All available admin levels for DRC and Ethiopia are now accessible
