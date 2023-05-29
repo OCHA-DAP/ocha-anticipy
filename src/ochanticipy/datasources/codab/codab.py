@@ -100,8 +100,8 @@ class CodAB(DataSource):
 
         Parameters
         ----------
-        admin_level: int
-            The administrative level. Defaults to 0.
+        admin_level: int, default = 0
+            The administrative level
 
         Returns
         -------
@@ -193,9 +193,8 @@ class CodAB(DataSource):
         fp_index = int(admin_level) if self._multiple_resources else 0
 
         try:
-            return gpd.read_file(
-                f"zip://{(self._raw_filepaths[fp_index] / layer_name).as_posix()}"
-            )
+            zip_path = self._raw_filepaths[fp_index] / layer_name
+            return gpd.read_file(f"zip://{zip_path.as_posix()}")
         except DriverError as err:
             raise FileNotFoundError(
                 f"Could not read boundary shapefile. Make sure that "
