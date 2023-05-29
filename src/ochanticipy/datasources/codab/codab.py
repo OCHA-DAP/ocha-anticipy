@@ -1,7 +1,7 @@
 """Download and manipulate COD administrative boundaries."""
 import logging
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import List, Union
 
 import geopandas as gpd
 from fiona.errors import DriverError
@@ -40,18 +40,18 @@ class CodAB(DataSource):
         self._multiple_resources = isinstance(res_name, list)
 
         if self._multiple_resources:
-            self._resource_dirs = [
+            resource_dirs = [
                 self._base_dir / f"adm{i}" for i in range(len(res_name))
             ]
             self._hdx_resource_list = res_name
         else:
-            self._resource_dirs = [self._base_dir]
+            resource_dirs = [self._base_dir]
             self._hdx_resource_list = [res_name]
 
         # generate filepaths for all resource dirs
         self._raw_filepaths = [
             (self._raw_base_dir / f"{res_dir}.shp.zip")
-            for res_dir in self._resource_dirs
+            for res_dir in resource_dirs
         ]
 
     def download(self, clobber: bool = False) -> Union[Path, List[Path]]:
@@ -94,14 +94,14 @@ class CodAB(DataSource):
         """
         logger.info("`process()` method not implemented for CodAB.")
 
-    def load(self, admin_level: int) -> gpd.GeoDataFrame:  # type: ignore
+    def load(self, admin_level: int = 0) -> gpd.GeoDataFrame:  # type: ignore
         """
         Get the COD AB data by admin level.
 
         Parameters
         ----------
         admin_level: int
-            The administrative level
+            The administrative level. Defaults to 0.
 
         Returns
         -------
@@ -188,9 +188,9 @@ class CodAB(DataSource):
         )
 
     def _load_admin_layer(
-        self, layer_name: str, admin_level: Optional[int] = None
+        self, layer_name: str, admin_level: int
     ) -> gpd.GeoDataFrame:
-        fp_index = int(admin_level or 0) if self._multiple_resources else 0
+        fp_index = int(admin_level) if self._multiple_resources else 0
 
         try:
             return gpd.read_file(

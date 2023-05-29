@@ -113,16 +113,6 @@ def test_codab_multi_load_admin_level(
         f"{DATASOURCE_BASE_DIR}/adm1.shp.zip/{expected_layer_name}"
     )
 
-    # Then checking custom name
-    expected_layer_name = "admin2_custom_name"
-    codab.load(admin_level=2)
-
-    gpd_read_file.assert_called_with(
-        f"zip://{mock_aa_data_dir}/public/raw/{mock_config_multi.iso3}/"
-        f"{DATASOURCE_BASE_DIR}/{mock_config_multi.iso3}_"
-        f"{DATASOURCE_BASE_DIR}/adm2.shp.zip/{expected_layer_name}"
-    )
-
 
 def test_codab_too_high_admin_level(mock_country_config):
     """Test raised error when too high admin level requested."""
@@ -145,26 +135,6 @@ def test_codab_custom(mock_aa_data_dir, mock_country_config, gpd_read_file):
         f"zip://{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
         f"{DATASOURCE_BASE_DIR}/{mock_country_config.iso3}_"
         f"{DATASOURCE_BASE_DIR}.shp.zip/"
-        f"{custom_layer_name_list[custom_layer_number].name}"
-    )
-
-
-def test_codab_multi_custom(
-    mock_aa_data_dir, mock_config_multi, gpd_read_file
-):
-    """Test that load_codab_custom retrieves expected file and layer name."""
-    custom_layer_number = 1
-    custom_layer_name_list = [
-        MockCustomLayer(name="custom_layer_A", hdx_resource=0),
-        MockCustomLayer(name="custom_layer_B", hdx_resource=2),
-    ]
-    mock_config_multi.codab.custom_layer_names = custom_layer_name_list
-    codab = CodAB(country_config=mock_config_multi)
-    codab.load_custom(custom_layer_number)
-    gpd_read_file.assert_called_with(
-        f"zip://{mock_aa_data_dir}/public/raw/{mock_config_multi.iso3}/"
-        f"{DATASOURCE_BASE_DIR}/{mock_config_multi.iso3}_"
-        f"{DATASOURCE_BASE_DIR}/adm2.shp.zip/"
         f"{custom_layer_name_list[custom_layer_number].name}"
     )
 
