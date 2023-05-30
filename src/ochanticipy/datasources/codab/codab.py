@@ -1,6 +1,7 @@
 """Download and manipulate COD administrative boundaries."""
 import logging
 from pathlib import Path
+from typing import List, Union
 
 import geopandas as gpd
 from fiona.errors import DriverError
@@ -8,7 +9,7 @@ from fiona.errors import DriverError
 from ochanticipy.config.countryconfig import CountryConfig
 from ochanticipy.datasources.datasource import DataSource
 from ochanticipy.utils.check_file_existence import check_file_existence
-from ochanticipy.utils.hdx_api import load_dataset_from_hdx
+from ochanticipy.utils.hdx_api import load_resource_from_hdx
 
 logger = logging.getLogger(__name__)
 
@@ -30,12 +31,27 @@ class CodAB(DataSource):
             is_public=True,
             config_datasource_name="codab",
         )
-        self._raw_filepath = (
-            self._raw_base_dir / f"{self._country_config.iso3}_"
-            f"{self._datasource_base_dir}.shp.zip"
-        )
 
-    def download(self, clobber: bool = False) -> Path:
+        # account for files stored across multiple resources
+        res_name = self._datasource_config.hdx_resource_name
+        self._multiple_resources = isinstance(res_name, list)
+
+        if self._multiple_resources:
+            zip_filenames = [
+                f"{self._country_config.iso3}_adm{i}.shp.zip"
+                for i in range(len(res_name))
+            ]
+            self._hdx_resource_list = res_name
+        else:
+            zip_filenames = [f"{self._country_config.iso3}_adm.shp.zip"]
+            self._hdx_resource_list = [res_name]
+
+        # generate filepaths for all resource zipfiles
+        self._raw_filepaths = [
+            (self._raw_base_dir / fn) for fn in zip_filenames
+        ]
+
+    def download(self, clobber: bool = False) -> Union[Path, List[Path]]:
         """
         Download COD AB file from HDX.
 
@@ -46,7 +62,7 @@ class CodAB(DataSource):
 
         Returns
         -------
-        The downloaded filepath
+        The downloaded filepath(s)
 
         Examples
         --------
@@ -56,12 +72,16 @@ class CodAB(DataSource):
         >>> codab = CodAB(country_config=country_config)
         >>> npl_cod_shapefile = codab.download()
         """
-        return self._download(
-            filepath=self._raw_filepath,
-            hdx_address=f"cod-ab-{self._country_config.iso3}",
-            hdx_dataset_name=self._datasource_config.hdx_dataset_name,
-            clobber=clobber,
-        )
+        for filepath, hdx_resource_name in zip(
+            self._raw_filepaths, self._hdx_resource_list
+        ):
+            self._download(
+                filepath=filepath,
+                hdx_dataset=f"cod-ab-{self._country_config.iso3}",
+                hdx_resource_name=hdx_resource_name,
+                clobber=clobber,
+            )
+        return self._raw_base_dir
 
     def process(self, *args, **kwargs):
         """
@@ -110,7 +130,8 @@ class CodAB(DataSource):
         return self._load_admin_layer(
             layer_name=getattr(
                 self._datasource_config, f"admin{admin_level}_name"
-            )
+            ),
+            admin_level=admin_level,
         )
 
     def load_custom(self, custom_layer_number: int = 0) -> gpd.GeoDataFrame:
@@ -150,37 +171,44 @@ class CodAB(DataSource):
             layer_name = self._datasource_config.custom_layer_names[
                 custom_layer_number
             ]  # type: ignore
+
         except (IndexError, TypeError) as err:
             raise AttributeError(
                 f"{custom_layer_number}th custom layer requested but not "
                 f"available in {self._country_config.iso3.upper()} config file"
             ) from err
-        return self._load_admin_layer(layer_name=layer_name)
+        return self._load_admin_layer(
+            layer_name=layer_name,
+            admin_level=0,  # breaks if layer in multiple resources
+        )
 
-    def _load_admin_layer(self, layer_name: str) -> gpd.GeoDataFrame:
+    def _load_admin_layer(
+        self, layer_name: str, admin_level: int
+    ) -> gpd.GeoDataFrame:
+        fp_index = int(admin_level) if self._multiple_resources else 0
+
         try:
-            return gpd.read_file(
-                f"zip://{(self._raw_filepath / layer_name).as_posix()}"
-            )
+            zip_path = self._raw_filepaths[fp_index] / layer_name
+            return gpd.read_file(f"zip://{zip_path.as_posix()}")
         except DriverError as err:
             raise FileNotFoundError(
                 f"Could not read boundary shapefile. Make sure that "
                 f"you have already called the 'download' method and "
-                f"that the file {self._raw_filepath} exists. If it does "
-                f"exist, please check the validity of the layer name: "
-                f"'{layer_name}'."
+                f"that the file {self._raw_filepaths[fp_index]} exists."
+                f"If it does exist, please check the validity of the "
+                f"layer name: '{layer_name}'."
             ) from err
 
     @check_file_existence
     def _download(
         self,
         filepath: Path,
-        hdx_address: str,
-        hdx_dataset_name: str,
+        hdx_dataset: str,
+        hdx_resource_name: str,
         clobber: bool,
     ) -> Path:
-        return load_dataset_from_hdx(
-            hdx_address=hdx_address,
-            hdx_dataset_name=hdx_dataset_name,
+        return load_resource_from_hdx(
+            hdx_dataset=hdx_dataset,
+            hdx_resource_name=hdx_resource_name,
             output_filepath=filepath,
         )

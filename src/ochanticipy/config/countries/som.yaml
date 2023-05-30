@@ -1,6 +1,6 @@
 iso3: som
 codab:
-  hdx_dataset_name: som_adm_ocha_itos_20230308_SHP.zip
+  hdx_resource_name: som_adm_ocha_itos_20230308_SHP.zip
   layer_base_name: som_admbnda_adm{admin_level}_ocha_20230308.shp
   admin_level_max: 2
   # Somalia also has states and 2 operational zones

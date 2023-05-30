@@ -1,6 +1,6 @@
 iso3: mli
 codab:
-  hdx_dataset_name: mli_admb_1m_gov_20211220_SHP.zip
+  hdx_resource_name: mli_admb_1m_gov_20211220_SHP.zip
   layer_base_name: mli_admbnda_adm{admin_level}_1m_gov_20211220.shp
   admin_level_max: 3
 fewsnet:

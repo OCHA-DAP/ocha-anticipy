@@ -1,6 +1,6 @@
 iso3: bdi
 codab:
-  hdx_dataset_name: bdi_adm_igebu_ocha_20171103_SHP.zip
+  hdx_resource_name: bdi_adm_igebu_ocha_20171103_SHP.zip
   layer_base_name: bdi_admbnda_adm{admin_level}_igebu_ocha_20171103.shp
   admin_level_max: 2
 fewsnet:

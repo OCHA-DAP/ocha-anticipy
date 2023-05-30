@@ -14,7 +14,7 @@ Unreleased
 Added
 ~~~~~
 
-- Config files for 20/25 HRP countries
+- Config files for 25/25 HRP countries and several non-HRP countries
 
 Changed
 ~~~~~~~
