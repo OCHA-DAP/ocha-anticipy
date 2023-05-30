@@ -82,7 +82,7 @@ should be setup as follows:
         admin_level_max: 3
         adm1_name: nga_adm1.shp # contrived example for documentation
         custom_layer_names:
-            - name: nga_admbnda_senDist_inec_osgof_20190417.shp
+            - nga_admbnda_senDist_inec_osgof_20190417.shp
 
 Below is an explanation of the different parameters:
 

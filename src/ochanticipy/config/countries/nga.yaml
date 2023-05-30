@@ -5,7 +5,7 @@ codab:
   admin_level_max: 3
   # Nigeria also has districts that don't fall into a particular admin level
   custom_layer_names:
-    - name: nga_admbnda_senDist_inec_osgof_20190417.shp
+    - nga_admbnda_senDist_inec_osgof_20190417.shp
 fewsnet:
   region_name: west-africa
 glofas:

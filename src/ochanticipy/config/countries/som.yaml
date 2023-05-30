@@ -5,9 +5,9 @@ codab:
   admin_level_max: 2
   # Somalia also has states and 2 operational zones
   custom_layer_names:
-    - name: som_admbnda_state_ocha_20230308.shp
-    - name: som_admbnda_opz1_ocha_20230308.shp
-    - name: som_admbnda_opz2_ocha_20230308.shp
+    - som_admbnda_state_ocha_20230308.shp
+    - som_admbnda_opz1_ocha_20230308.shp
+    - som_admbnda_opz2_ocha_20230308.shp
 fewsnet:
   region_name: east-africa
 glofas:

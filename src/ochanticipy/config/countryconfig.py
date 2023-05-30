@@ -7,12 +7,6 @@ from pydantic import BaseModel, root_validator, validator
 from ochanticipy.utils.io import parse_yaml
 
 
-class CustomLayerNames(BaseModel):
-    """Custom layer names for CodAB."""
-
-    name: str
-
-
 class CodABConfig(BaseModel):
     """COD AB configuration.
 
@@ -47,7 +41,7 @@ class CodABConfig(BaseModel):
     admin2_name: Optional[str]
     admin3_name: Optional[str]
     admin4_name: Optional[str]
-    custom_layer_names: Optional[List[CustomLayerNames]]
+    custom_layer_names: Optional[List[str]]
 
     @validator("hdx_resource_name")
     def _validate_hdx_resource_name(cls, hdx_resource_name, values):

@@ -31,27 +31,24 @@ class CodAB(DataSource):
             is_public=True,
             config_datasource_name="codab",
         )
-        self._base_dir = Path(
-            f"{self._country_config.iso3}_{self._datasource_base_dir}"
-        )
 
         # account for files stored across multiple resources
         res_name = self._datasource_config.hdx_resource_name
         self._multiple_resources = isinstance(res_name, list)
 
         if self._multiple_resources:
-            resource_dirs = [
-                self._base_dir / f"adm{i}" for i in range(len(res_name))
+            zip_filenames = [
+                f"{self._country_config.iso3}_adm{i}.shp.zip"
+                for i in range(len(res_name))
             ]
             self._hdx_resource_list = res_name
         else:
-            resource_dirs = [self._base_dir]
+            zip_filenames = [f"{self._country_config.iso3}_adm.shp.zip"]
             self._hdx_resource_list = [res_name]
 
-        # generate filepaths for all resource dirs
+        # generate filepaths for all resource zipfiles
         self._raw_filepaths = [
-            (self._raw_base_dir / f"{res_dir}.shp.zip")
-            for res_dir in resource_dirs
+            (self._raw_base_dir / fn) for fn in zip_filenames
         ]
 
     def download(self, clobber: bool = False) -> Union[Path, List[Path]]:
@@ -84,7 +81,7 @@ class CodAB(DataSource):
                 hdx_resource_name=hdx_resource_name,
                 clobber=clobber,
             )
-        return self._base_dir
+        return self._raw_base_dir
 
     def process(self, *args, **kwargs):
         """

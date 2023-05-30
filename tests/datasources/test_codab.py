@@ -46,8 +46,7 @@ def test_codab_download(mock_aa_data_dir, mock_country_config, downloader):
         hdx_resource_name=mock_country_config.codab.hdx_resource_name,
         output_filepath=mock_aa_data_dir
         / f"public/raw/{mock_country_config.iso3}/"
-        f"{DATASOURCE_BASE_DIR}/{mock_country_config.iso3}_"
-        f"{DATASOURCE_BASE_DIR}.shp.zip",
+        f"{DATASOURCE_BASE_DIR}/{mock_country_config.iso3}_adm.shp.zip",
     )
 
 
@@ -63,7 +62,7 @@ def test_codab_download_multi(mock_aa_data_dir, mock_config_multi, downloader):
                 output_filepath=mock_aa_data_dir
                 / f"public/raw/{mock_config_multi.iso3}/"
                 f"{DATASOURCE_BASE_DIR}/{mock_config_multi.iso3}_"
-                f"{DATASOURCE_BASE_DIR}/adm{i}.shp.zip",
+                f"adm{i}.shp.zip",
             )
             for i in range(4)
         ]
@@ -83,7 +82,7 @@ def test_codab_load_admin_level(
     gpd_read_file.assert_called_with(
         f"zip://{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
         f"{DATASOURCE_BASE_DIR}/{mock_country_config.iso3}_"
-        f"{DATASOURCE_BASE_DIR}.shp.zip/{expected_layer_name}"
+        f"adm.shp.zip/{expected_layer_name}"
     )
 
     # Then checking custom name
@@ -93,7 +92,7 @@ def test_codab_load_admin_level(
     gpd_read_file.assert_called_with(
         f"zip://{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
         f"{DATASOURCE_BASE_DIR}/{mock_country_config.iso3}_"
-        f"{DATASOURCE_BASE_DIR}.shp.zip/{expected_layer_name}"
+        f"adm.shp.zip/{expected_layer_name}"
     )
 
 
@@ -110,7 +109,7 @@ def test_codab_multi_load_admin_level(
     gpd_read_file.assert_called_with(
         f"zip://{mock_aa_data_dir}/public/raw/{mock_config_multi.iso3}/"
         f"{DATASOURCE_BASE_DIR}/{mock_config_multi.iso3}_"
-        f"{DATASOURCE_BASE_DIR}/adm1.shp.zip/{expected_layer_name}"
+        f"adm1.shp.zip/{expected_layer_name}"
     )
 
 
@@ -134,7 +133,7 @@ def test_codab_custom(mock_aa_data_dir, mock_country_config, gpd_read_file):
     gpd_read_file.assert_called_with(
         f"zip://{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
         f"{DATASOURCE_BASE_DIR}/{mock_country_config.iso3}_"
-        f"{DATASOURCE_BASE_DIR}.shp.zip/"
+        f"adm.shp.zip/"
         f"{custom_layer_name_list[custom_layer_number].name}"
     )
 
