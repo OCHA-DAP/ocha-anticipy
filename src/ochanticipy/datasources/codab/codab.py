@@ -168,12 +168,9 @@ class CodAB(DataSource):
         try:
             # Ignore mypy for this line because custom_layer_names could be
             # None, but this is handled by the caught exceptions
-            custom_layer = self._datasource_config.custom_layer_names[
+            layer_name = self._datasource_config.custom_layer_names[
                 custom_layer_number
             ]  # type: ignore
-
-            layer_name = custom_layer.name
-            admin_level = custom_layer.hdx_resource
 
         except (IndexError, TypeError) as err:
             raise AttributeError(
@@ -181,7 +178,8 @@ class CodAB(DataSource):
                 f"available in {self._country_config.iso3.upper()} config file"
             ) from err
         return self._load_admin_layer(
-            layer_name=layer_name, admin_level=admin_level
+            layer_name=layer_name,
+            admin_level=0,  # breaks if layer in multiple resources
         )
 
     def _load_admin_layer(
