@@ -1,0 +1,13 @@
+iso3: ukr
+codab:
+  hdx_resource_name: ukr_admbnda_sspe_20230201_SHP.zip
+  layer_base_name: ukr_admbnda_sspe_20230201_SHP/ukr_admbnda_adm{admin_level}_sspe_20230201.shp
+  admin_level_max: 4
+glofas:
+  reporting_points:
+  - name: Dnepr Power Plant
+    lon: 35.05
+    lat: 47.85
+  - name: Kakhovskoye Vodokhranilishche Ges
+    lon: 33.15
+    lat: 46.75

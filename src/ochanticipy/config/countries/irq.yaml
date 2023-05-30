@@ -1,0 +1,6 @@
+iso3: irq
+codab:
+  hdx_resource_name: IRQ Administrative Divisions Shapefiles.zip
+  layer_base_name: irq_admbnda_adm{admin_level}_cso_20190603.shp
+  admin_level_max: 3
+  admin0_name: irq_admbnda_adm0_cso_itos_20190603.shp

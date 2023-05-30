@@ -1,0 +1,86 @@
+iso3: sdn
+codab:
+  hdx_resource_name: sdn_adm_cbs_nic_ssa_20200831_SHP.zip
+  layer_base_name: sdn_admbnda_adm{admin_level}_cbs_nic_ssa_20200831.shp
+  admin_level_max: 2
+fewsnet:
+  region_name: east-africa
+glofas:
+  reporting_points:
+  - name: Diem
+    lon: 34.95
+    lat: 11.25
+  - name: Dongola 1
+    lon: 30.45
+    lat: 19.15
+  - name: Dongola 2
+    lon: 30.45
+    lat: 19.15
+  - name: El Guisi
+    lon: 34.05
+    lat: 13.35
+  - name: El Hawata
+    lon: 34.65
+    lat: 13.35
+  - name: El Hsanab
+    lon: 33.95
+    lat: 17.65
+  - name: Girba Dam
+    lon: 35.95
+    lat: 14.95
+  - name: Jebal Aulia Dam
+    lon: 32.45
+    lat: 15.35
+  - name: Khartoum 1
+    lon: 32.55
+    lat: 15.55
+  - name: Khartoum 2
+    lon: 32.55
+    lat: 15.65
+  - name: Kubor
+    lon: 35.95
+    lat: 14.05
+  - name: Merowe Dam
+    lon: 31.85
+    lat: 18.55
+  - name: Na 1
+    lon: 32.75
+    lat: 12.35
+  - name: Na 2
+    lon: 32.45
+    lat: 13.75
+  - name: Na 3
+    lon: 32.25
+    lat: 14.75
+  - name: Na 4
+    lon: 33.95
+    lat: 13.15
+  - name: Na 5
+    lon: 33.55
+    lat: 13.75
+  - name: Na 6
+    lon: 32.45
+    lat: 15.55
+  - name: Na 7
+    lon: 32.85
+    lat: 16.45
+  - name: Ros Old
+    lon: 34.35
+    lat: 11.85
+  - name: Roseires Dam
+    lon: 34.35
+    lat: 11.85
+  - name: Sennar U S
+    lon: 33.65
+    lat: 13.55
+  - name: Sinnar Dam
+    lon: 33.65
+    lat: 13.55
+  - name: Tamaniat
+    lon: 32.55
+    lat: 15.95
+  - name: Wad El Hellewa
+    lon: 35.95
+    lat: 14.25
+usgs_ndvi:
+  area_name: east-africa

@@ -1,0 +1,71 @@
+iso3: cmr
+codab:
+  hdx_resource_name: cmr_admbnda_inc_20180104_SHP.zip
+  layer_base_name: cmr_admbnda_inc_20180104_SHP/cmr_admbnda_adm{admin_level}_inc_20180104.shp
+  admin_level_max: 3
+fewsnet:
+  region_name: west-africa
+glofas:
+  reporting_points:
+  - name: Benoue A Buffle Noir
+    lon: 13.85
+    lat: 8.15
+  - name: Boumba A Biwala
+    lon: 14.95
+    lat: 3.15
+  - name: Chagoua
+    lon: 15.05
+    lat: 12.05
+  - name: Dja A Bie
+    lon: 13.35
+    lat: 2.75
+  - name: Dja A Somalomo
+    lon: 12.75
+    lat: 3.35
+  - name: Djerem A Mbakaou Echelle Ii -Aval-
+    lon: 12.75
+    lat: 6.25
+  - name: Faro A Djelepo
+    lon: 12.85
+    lat: 8.65
+  - name: Kadei A Batouri
+    lon: 14.25
+    lat: 4.45
+  - name: Kadey A Pana
+    lon: 14.65
+    lat: 4.15
+  - name: Lokoundje A Lolodorf
+    lon: 10.75
+    lat: 3.25
+  - name: Lom A Betare Oya
+    lon: 14.15
+    lat: 5.85
+  - name: Mape A Au Pont De Magba  Amont
+    lon: 11.25
+    lat: 6.05
+  - name: Mayo Kebi A Cossi
+    lon: 13.85
+    lat: 9.55
+  - name: Mbalmayo
+    lon: 11.55
+    lat: 3.55
+  - name: Mbam A Bac De Goura
+    lon: 11.35
+    lat: 4.55
+  - name: Metchem A Gouri
+    lon: 10.05
+    lat: 6.25
+  - name: Mungo A Mundame
+    lon: 9.55
+    lat: 4.55
+  - name: Nyong A Olama
+    lon: 11.25
+    lat: 3.45
+  - name: Sanaga A Edea
+    lon: 10.05
+    lat: 3.75
+  - name: Sanaga A Nachtigal
+    lon: 11.65
+    lat: 4.35
+usgs_ndvi:
+  area_name: west-africa

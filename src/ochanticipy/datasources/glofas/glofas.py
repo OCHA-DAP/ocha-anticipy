@@ -7,22 +7,29 @@ from datetime import date
 from pathlib import Path
 from typing import List, Tuple, Union
 
-import cdsapi
 import numpy as np
 import xarray as xr
 from dateutil import rrule
 
 from ochanticipy.config.countryconfig import CountryConfig
 from ochanticipy.datasources.datasource import DataSource
+from ochanticipy.utils.check_extra_imports import check_extra_imports
 from ochanticipy.utils.dates import get_date_from_user_input
 from ochanticipy.utils.geoboundingbox import GeoBoundingBox
 
 _MODULE_BASENAME = "glofas"
 _HYDROLOGICAL_MODEL = "lisflood"
 _RIVER_DISCHARGE_VAR = "dis24"
+_CDS_MAX_REQUESTS = 500
 _REQUEST_SLEEP_TIME = 60  # seconds
 
 logger = logging.getLogger(__name__)
+
+# putting on top level to ensure easy mocking in tests
+try:
+    import cdsapi
+except ModuleNotFoundError:
+    pass
 
 
 @dataclass
@@ -104,6 +111,11 @@ class Glofas(DataSource):
             datasource_base_dir=_MODULE_BASENAME,
             is_public=True,
         )
+        # check that extra dependencies are installed
+        check_extra_imports(
+            libraries=["cdsapi", "cfgrib"], subpackage="glofas"
+        )
+
         # The GloFAS API on CDS requires coordinates have the format x.x5
         self._geo_bounding_box = geo_bounding_box.round_coords(
             offset_val=0.05, round_val=0.1
@@ -127,6 +139,15 @@ class Glofas(DataSource):
             dtstart=self._start_date,
             until=self._end_date,
         )
+        if self._date_range.count() > _CDS_MAX_REQUESTS:
+            msg = (
+                f"Your parameters would result in "
+                f"{self._date_range.count()} requests, however we "
+                f"currently only support the CDS maximum of "
+                f"{_CDS_MAX_REQUESTS} at this time. Please divide your "
+                f"query into multiple instances."
+            )
+            raise RuntimeError(msg)
 
     def download(  # type: ignore
         self,
@@ -370,6 +391,7 @@ class Glofas(DataSource):
             # hammering on cds
             if query_params_list:
                 time.sleep(_REQUEST_SLEEP_TIME)
+                logger.info(f"Sleeping for {_REQUEST_SLEEP_TIME} s")
         return downloaded_filepaths
 
     def _get_query(

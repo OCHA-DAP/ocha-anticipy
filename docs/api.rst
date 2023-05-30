@@ -46,6 +46,9 @@ FEWS NET
 GloFAS
 ^^^^^^
 
+.. extras-require:: glofas
+    :setup.cfg:
+
 .. automodule:: ochanticipy.datasources.glofas.glofas
 
 Reanalysis
@@ -130,13 +133,13 @@ Raster module
 Data arrays
 """""""""""
 
-.. autoclass:: ochanticipy.utils.raster.AatRasterArray
+.. autoclass:: ochanticipy.utils.raster.OapRasterArray
    :members:
    :inherited-members: RasterArray
 
 Datasets
 """"""""
 
-.. autoclass:: ochanticipy.utils.raster.AatRasterDataset
+.. autoclass:: ochanticipy.utils.raster.OapRasterDataset
    :members:
    :inherited-members: RasterDataset

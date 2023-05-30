@@ -43,7 +43,7 @@ def test_fp_not_exists(tmp_path, caplog):
     assert output_filepath == "a"
     assert (
         f"File {path_new} does not exist and clobber set to "
-        "False, downloading new file." in caplog.text
+        "False, creating new file." in caplog.text
     )
 
 

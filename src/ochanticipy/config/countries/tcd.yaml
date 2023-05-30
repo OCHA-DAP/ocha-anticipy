@@ -1,0 +1,98 @@
+iso3: tcd
+codab:
+  hdx_resource_name:
+    - tcd_admbnda_adm0_ocha.zip
+    - tcd_admbnda_adm1_ocha.zip
+    - tcd_admbnda_adm2_ocha_20170615.zip
+    - tcd_a_admbnd_adm3_ocha.zip
+  layer_base_name: tcd_admbnda_adm{admin_level}_ocha.shp
+  admin_level_max: 3
+  admin2_name: tcd_admbnda_adm2_ocha_20170615.shp
+  admin3_name: tcd_a_admbnd_adm3_ocha.shp
+fewsnet:
+  region_name: west-africa
+glofas:
+  reporting_points:
+  - name: Ba-Tha A Ati
+    lon: 18.35
+    lat: 13.15
+  - name: Ba-Tha A Oum-Hadjer
+    lon: 19.65
+    lat: 13.35
+  - name: Bahr Aouk Golongosso
+    lon: 19.15
+    lat: 9.05
+  - name: Bahr-Sara A Moissala
+    lon: 17.75
+    lat: 8.35
+  - name: Bongor
+    lon: 15.35
+    lat: 10.25
+  - name: Chari A Bousso
+    lon: 16.75
+    lat: 10.45
+  - name: Chari A Chagoua
+    lon: 15.15
+    lat: 12.05
+  - name: Chari A Hellibongo
+    lon: 18.35
+    lat: 9.25
+  - name: Chari A Mailao
+    lon: 15.25
+    lat: 11.55
+  - name: Chari A Ndjamena  -Ex Fort-Lamy-
+    lon: 15.05
+    lat: 12.05
+  - name: Kabia A Patalao
+    lon: 15.25
+    lat: 9.85
+  - name: Kabia At Pont Carol
+    lon: 15.45
+    lat: 9.25
+  - name: Lai
+    lon: 16.25
+    lat: 9.35
+  - name: Lim A Ouli Bangala
+    lon: 15.85
+    lat: 7.75
+  - name: Logone A Baibokoum
+    lon: 15.65
+    lat: 7.75
+  - name: Logone A Katoa
+    lon: 15.05
+    lat: 10.85
+  - name: Logone A Logone-Gana
+    lon: 15.15
+    lat: 11.55
+  - name: Logone A Moundou-Pont
+    lon: 16.05
+    lat: 8.55
+  - name: Mailao
+    lon: 15.25
+    lat: 11.55
+  - name: Manda
+    lon: 18.15
+    lat: 9.15
+  - name: Nana Barya A Markounda
+    lon: 16.95
+    lat: 7.65
+  - name: Ndjamena Fort Lamy
+    lon: 15.05
+    lat: 12.05
+  - name: Pende A Doba Cotonfran
+    lon: 16.85
+    lat: 8.65
+  - name: Pende A Gore
+    lon: 16.65
+    lat: 7.95
+  - name: Sarh Fort Archambault
+    lon: 18.45
+    lat: 9.05
+  - name: Tandjile A Bologo
+    lon: 15.75
+    lat: 9.05
+  - name: Tandjile A Tchoa
+    lon: 16.05
+    lat: 9.35
+usgs_ndvi:
+  area_name: west-africa

@@ -1,0 +1,14 @@
+iso3: bdi
+codab:
+  hdx_resource_name: bdi_adm_igebu_ocha_20171103_SHP.zip
+  layer_base_name: bdi_admbnda_adm{admin_level}_igebu_ocha_20171103.shp
+  admin_level_max: 2
+fewsnet:
+  region_name: east-africa
+glofas:
+  reporting_points:
+  - name: Akanyaru-Upper
+    lon: 29.75
+    lat: -2.75
+usgs_ndvi:
+  area_name: east-africa

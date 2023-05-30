@@ -1,0 +1,45 @@
+iso3: mmr
+glofas:
+  reporting_points:
+  - name: Bago
+    lon: 96.45
+    lat: 17.35
+  - name: Dothaung
+    lon: 96.55
+    lat: 18.95
+  - name: Hkamti
+    lon: 95.65
+    lat: 25.95
+  - name: Katha
+    lon: 96.35
+    lat: 24.15
+  - name: Magway
+    lon: 94.85
+    lat: 20.15
+  - name: Mawlaik
+    lon: 94.45
+    lat: 23.65
+  - name: Monywa
+    lon: 95.15
+    lat: 22.05
+  - name: Na 1
+    lon: 94.95
+    lat: 24.75
+  - name: Na 2
+    lon: 94.95
+    lat: 17.35
+  - name: Na 3
+    lon: 96.05
+    lat: 23.65
+  - name: Na 4
+    lon: 94.75
+    lat: 24.25
+  - name: Pyay
+    lon: 95.15
+    lat: 18.75
+  - name: Sagaing
+    lon: 96.05
+    lat: 21.95
+  - name: Toungoo
+    lon: 96.45
+    lat: 19.05

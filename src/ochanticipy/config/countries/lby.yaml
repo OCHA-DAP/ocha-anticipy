@@ -1,0 +1,7 @@
+iso3: lby
+codab:
+  hdx_resource_name: lby_adm_unosat_lbsc_20180507_SHP.zip
+  layer_base_name: lby_adm_unosat_lbsc_20180507_SHP/lby_admbnda_adm{admin_level}_unosat_lbsc_20180507.shp
+  admin_level_max: 2
+usgs_ndvi:
+  area_name: north-africa

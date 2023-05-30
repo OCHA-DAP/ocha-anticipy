@@ -1,0 +1,14 @@
+iso3: hti
+codab:
+  hdx_resource_name: hti_adm_cnigs_20181129.zip
+  layer_base_name: hti_adm_cnigs_20181129/hti_admbnda_adm{admin_level}_cnigs_20181129.shp
+  admin_level_max: 3
+fewsnet:
+  region_name: caribbean-central-america
+glofas:
+  reporting_points:
+  - name: Na
+    lon: -72.65
+    lat: 19.15
+usgs_ndvi:
+  area_name: hispaniola

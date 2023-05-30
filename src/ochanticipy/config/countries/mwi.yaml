@@ -1,7 +1,7 @@
 iso3: mwi
 codab:
-  hdx_dataset_name: mwi_adm_nso_20181016_SHP.zip
-  layer_base_name: mwi_admbnda_adm{admin_level}_nso_20181016.shp
+  hdx_resource_name: mwi_adm_nso_hotosm_20230405_SHP.zipSHP
+  layer_base_name: mwi_admbnda_adm{admin_level}_nso_hotosm_20230405.shp
   admin_level_max: 3
 fewsnet:
   region_name: southern-africa

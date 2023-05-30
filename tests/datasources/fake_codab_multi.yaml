@@ -1,0 +1,5 @@
+iso3: abc
+codab:
+  hdx_resource_name: [fake_hdx_resource_0, fake_hdx_resource_1, fake_hdx_resource_2, fake_hdx_resource_3]
+  layer_base_name: fake_layer_base_name_level{admin_level}
+  admin_level_max: 3

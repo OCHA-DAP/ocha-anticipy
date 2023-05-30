@@ -34,7 +34,6 @@ def mock_ndvi(mock_country_config):
     }
 
     def _mock_ndvi(variable: str = "smoothed"):
-
         ndvi = instantiator[variable](
             country_config=mock_country_config,
             start_date=start_date,

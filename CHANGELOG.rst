@@ -8,6 +8,31 @@ Changelog <https://keepachangelog.com/en/1.0.0/>`__, and this project
 adheres to `Semantic
 Versioning <https://semver.org/spec/v2.0.0.html>`__.
 
+[1.1.0] - 2023-05-30
+--------------------
+
+Added
+~~~~~
+
+- Config files for 25/25 HRP countries and several non-HRP countries
+
+Changed
+~~~~~~~
+
+- Optional dependencies and documentation, testing, and development
+  reqirements moved to ``extras_require``
+- GloFAS module dependencies made optional
+- tox configuration moved to ``setup.cfg`` from ``tox.ini``
+
+Fixed
+~~~~~
+
+- Automatic raster dimension setting for `lat/lon` and `X/Y`
+  fixed to work for `rioxarray` methods
+- USGS NDVI documentation was updated to remove dead links
+  and improve users ability to use the historical data
+- GloFAS does not permit users to go above request limit of 500
+
 [1.0.2] - 2023-05-29
 --------------------
 

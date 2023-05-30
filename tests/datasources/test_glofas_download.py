@@ -28,9 +28,10 @@ def mock_retrieve(mocker):
 @pytest.fixture
 def mock_result(mocker):
     """Mock the entire Result class."""
-    # This is needed because the reply is changed dynamically
-    # so very difficult to use a Mock object
+
     class MockResult:
+        """Reply changes dynamically so need mock object."""
+
         def __init__(self, *args, **kwargs):
             self.reply = {"state": "completed"}
             self.state = None
@@ -61,6 +62,7 @@ def test_reanalysis_download(
     mock_retrieve,
     mock_result,
     geo_bounding_box,
+    mocker,
 ):
     """
     Test GloFAS reanalysis download.

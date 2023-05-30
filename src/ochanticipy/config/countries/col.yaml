@@ -1,0 +1,182 @@
+iso3: col
+codab:
+  hdx_resource_name: COL Administrative Divisions Shapefiles.zip
+  layer_base_name: col_admbnda_adm{admin_level}_mgn_20200416.shp
+  admin_level_max: 2
+  admin0_name: col_admbnda_adm0_mgn_itos_20200416.shp
+glofas:
+  reporting_points:
+  - name: Anacaro
+    lon: -76.05
+    lat: 4.65
+  - name: Angostura
+    lon: -75.15
+    lat: 3.35
+  - name: Apavi
+    lon: -75.35
+    lat: 7.45
+  - name: Arrancaplumas
+    lon: -74.75
+    lat: 5.15
+  - name: Barrancabermeja
+    lon: -73.85
+    lat: 7.05
+  - name: Bolombolo
+    lon: -75.85
+    lat: 5.95
+  - name: Calamar
+    lon: -74.95
+    lat: 10.25
+  - name: Canafisto
+    lon: -75.85
+    lat: 6.45
+  - name: Capitanejo
+    lon: -72.75
+    lat: 6.55
+  - name: Cascada Simon Bolivar
+    lon: -76.25
+    lat: 1.85
+  - name: Contento El
+    lon: -73.75
+    lat: 8.25
+  - name: El Banco
+    lon: -73.95
+    lat: 8.95
+  - name: Guayabal
+    lon: -76.15
+    lat: 4.35
+  - name: Hormiguero
+    lon: -76.45
+    lat: 3.25
+  - name: Irra
+    lon: -75.65
+    lat: 5.25
+  - name: Juanchito
+    lon: -76.45
+    lat: 3.35
+  - name: La Balsa
+    lon: -76.65
+    lat: 3.05
+  - name: La Bolsa
+    lon: -76.55
+    lat: 3.15
+  - name: La Coquera
+    lon: -75.25
+    lat: 7.95
+  - name: La Esperanza
+    lon: -75.35
+    lat: 2.75
+  - name: La Magdalena
+    lon: -76.45
+    lat: 1.95
+  - name: La Pintada
+    lon: -75.65
+    lat: 5.65
+  - name: La Victoria
+    lon: -76.05
+    lat: 4.45
+  - name: La Virginia
+    lon: -75.95
+    lat: 4.85
+  - name: Las Flores
+    lon: -74.75
+    lat: 8.15
+  - name: Las Varas
+    lon: -74.55
+    lat: 8.35
+  - name: Magangue Esperanza
+    lon: -74.75
+    lat: 9.25
+  - name: Margento
+    lon: -74.95
+    lat: 8.05
+  - name: Mediacanoa
+    lon: -76.35
+    lat: 3.85
+  - name: Na 1
+    lon: -76.95
+    lat: 7.15
+  - name: Na 2
+    lon: -74.85
+    lat: 7.85
+  - name: Na 3
+    lon: -72.25
+    lat: 2.85
+  - name: Na 4
+    lon: -70.25
+    lat: 5.55
+  - name: Narino
+    lon: -74.85
+    lat: 4.35
+  - name: Olaya
+    lon: -75.85
+    lat: 6.65
+  - name: Paso Del Colegio
+    lon: -75.55
+    lat: 2.45
+  - name: Paz De Rio
+    lon: -72.75
+    lat: 5.95
+  - name: Penas Blancas
+    lon: -74.05
+    lat: 6.85
+  - name: Penoncito
+    lon: -73.85
+    lat: 8.95
+  - name: Pericongo
+    lon: -75.85
+    lat: 2.05
+  - name: Pte Balseadero
+    lon: -75.65
+    lat: 2.25
+  - name: Puente Iglesias
+    lon: -75.75
+    lat: 5.85
+  - name: Puente Pescadero
+    lon: -75.75
+    lat: 7.05
+  - name: Puente Santander
+    lon: -75.35
+    lat: 2.95
+  - name: Puerto Berrio
+    lon: -74.45
+    lat: 6.45
+  - name: Puerto Inmarco
+    lon: -74.55
+    lat: 6.25
+  - name: Puerto Salgar
+    lon: -74.65
+    lat: 5.45
+  - name: Puerto Valdivia
+    lon: -75.45
+    lat: 7.25
+  - name: Purificacion
+    lon: -74.95
+    lat: 3.85
+  - name: Regidor
+    lon: -73.85
+    lat: 8.65
+  - name: Salado Blanco
+    lon: -76.05
+    lat: 1.95
+  - name: San Carlos De Rio Negro
+    lon: -67.15
+    lat: 1.95
+  - name: San Pablo
+    lon: -73.95
+    lat: 7.45
+  - name: Sitio Nuevo R 11
+    lon: -73.85
+    lat: 7.75
+  - name: Suarez
+    lon: -76.75
+    lat: 2.95
+  - name: Ta Blanca
+    lon: -76.55
+    lat: 3.15
+  - name: Tacamocho
+    lon: -74.75
+    lat: 9.45
+  - name: Tres Cruces
+    lon: -74.55
+    lat: 8.65

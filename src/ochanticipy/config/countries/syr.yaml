@@ -1,0 +1,13 @@
+iso3: syr
+codab:
+  hdx_resource_name: SYR Administrative Divisions Shapefiles.zip
+  layer_base_name: Shapefiles/syr_admbnda_adm{admin_level}_uncs_unocha_20201217.shp
+  admin_level_max: 3
+glofas:
+  reporting_points:
+  - name: Na 1
+    lon: 40.85
+    lat: 34.65
+  - name: Na 2
+    lon: 40.85
+    lat: 36.45

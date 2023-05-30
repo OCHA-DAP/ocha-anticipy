@@ -1,0 +1,209 @@
+iso3: moz
+codab:
+  hdx_resource_name: moz_adm_20190607b_SHP.zip
+  layer_base_name: moz_admbnda_adm{admin_level}_ine_20190607.shp
+  admin_level_max: 3
+fewsnet:
+  region_name: southern-africa
+glofas:
+  reporting_points:
+  - name: Aruangua em Aruangua Alfanedga
+    lon: 30.35
+    lat: -15.55
+  - name: Buzi At E.N.1 Goonda E456
+    lon: 33.85
+    lat: -19.85
+  - name: Buzi At Estaquinha E188
+    lon: 34.15
+    lat: -19.95
+  - name: Buzi em Chibabava
+    lon: 33.65
+    lat: -20.25
+  - name: Buzi em Espungabera
+    lon: 32.85
+    lat: -20.45
+  - name: Capoche-Capoche I
+    lon: 32.65
+    lat: -15.15
+  - name: Chefu
+    lon: 32.45
+    lat: -22.25
+  - name: Cherinze-Ponte Vuende
+    lon: 33.05
+    lat: -15.15
+  - name: Chire em Megaza Mutamba
+    lon: 35.25
+    lat: -17.15
+  - name: Combomune 58510033
+    lon: 32.35
+    lat: -23.45
+  - name: Est  Nairoto Montepuz 58262047
+    lon: 39.05
+    lat: -12.55
+  - name: Gurue
+    lon: 36.95
+    lat: -15.45
+  - name: Incomati en Magude
+    lon: 32.65
+    lat: -25.05
+  - name: Inhamhombe em Maxixe km12
+    lon: 35.35
+    lat: -24.05
+  - name: Jagamo
+    lon: 35.25
+    lat: -24.15
+  - name: Licungo At Mocuba Ponte E91
+    lon: 36.95
+    lat: -16.85
+  - name: Licungo At Nante Intabo E647
+    lon: 36.95
+    lat: -16.85
+  - name: Limpopo At Chokwe E35
+    lon: 32.95
+    lat: -24.45
+  - name: Limpopo At Combomune E33
+    lon: 32.35
+    lat: -23.35
+  - name: Limpopo em Xai-Xai
+    lon: 33.65
+    lat: -25.05
+  - name: Lucite At Dombe E246
+    lon: 33.35
+    lat: -19.95
+  - name: Luenha-Luenha 1
+    lon: 33.45
+    lat: -16.55
+  - name: Lugenda em Congerane E.N.8
+    lon: 35.95
+    lat: -14.15
+  - name: Lugenda em Est. Litunde Marrupa
+    lon: 36.25
+    lat: -13.55
+  - name: Lugenda em Est. Marrupa Mecula
+    lon: 37.65
+    lat: -12.45
+  - name: Lurio
+    lon: 36.85
+    lat: -14.85
+  - name: Macarretane
+    lon: 32.85
+    lat: -24.35
+  - name: Maputo em Madubula I
+    lon: 32.45
+    lat: -26.75
+  - name: Matundo Cais 58316087
+    lon: 33.55
+    lat: -16.15
+  - name: Megaruma em E.N.106 Chiure Pemba
+    lon: 39.85
+    lat: -13.25
+  - name: Messalo em Chai E.N 243
+    lon: 40.05
+    lat: -11.85
+  - name: Montepuez em Mecuia
+    lon: 38.95
+    lat: -13.05
+  - name: Montepuez em Moja E.N.243
+    lon: 40.05
+    lat: -12.65
+  - name: Mutamba em Jangamo E.N.1
+    lon: 30.55
+    lat: -15.85
+  - name: Na 1
+    lon: 32.15
+    lat: -26.85
+  - name: Na 2
+    lon: 30.55
+    lat: -15.85
+  - name: Na 3
+    lon: 32.35
+    lat: -26.05
+  - name: Na 4
+    lon: 32.95
+    lat: -25.05
+  - name: Na 5
+    lon: 34.25
+    lat: -24.45
+  - name: Na 6
+    lon: 32.15
+    lat: -23.75
+  - name: Na 7
+    lon: 32.65
+    lat: -25.05
+  - name: Na 8
+    lon: 36.35
+    lat: -16.35
+  - name: Na 9
+    lon: 38.55
+    lat: -15.65
+  - name: Na 10
+    lon: 39.05
+    lat: -15.45
+  - name: Na 11
+    lon: 38.95
+    lat: -15.15
+  - name: Na 12
+    lon: 38.95
+    lat: -14.05
+  - name: Na 13
+    lon: 38.35
+    lat: -13.05
+  - name: Nametil
+    lon: 39.25
+    lat: -15.65
+  - name: Nhandare em Vila Paiva de Andrad
+    lon: 34.05
+    lat: -18.65
+  - name: Nhazania em J.E. da Costa
+    lon: 33.35
+    lat: -18.45
+  - name: Pungoe At En1 Ponte Gorongosa E651
+    lon: 34.15
+    lat: -19.05
+  - name: Pungue em E.N.102
+    lon: 33.25
+    lat: -18.55
+  - name: Pungue em Fronteira
+    lon: 33.05
+    lat: -18.35
+  - name: Pungwe At Mafambisse En6 E67
+    lon: 34.55
+    lat: -19.45
+  - name: Revubue em Chingodzi
+    lon: 33.65
+    lat: -16.15
+  - name: Revue
+    lon: 33.85
+    lat: -19.75
+  - name: Save em Massangena
+    lon: 32.95
+    lat: -21.55
+  - name: Sicacate 58510036
+    lon: 33.55
+    lat: -24.75
+  - name: Sinoya South
+    lon: 35.25
+    lat: -16.25
+  - name: Umbeluzi em Goba Montante
+    lon: 32.15
+    lat: -26.25
+  - name: Vila Franca do Save
+    lon: 34.55
+    lat: -21.15
+  - name: Zambeze At Caia S.S. E291
+    lon: 35.35
+    lat: -17.75
+  - name: Zambeze At Marromeu Sena Sugar E285
+    lon: 35.95
+    lat: -18.25
+  - name: Zambeze At Tete E320
+    lon: 33.65
+    lat: -16.25
+  - name: Zambeze em Mutarara
+    lon: 35.05
+    lat: -17.45
+  - name: Zembeze em Zumbo
+    lon: 30.45
+    lat: -15.65
+usgs_ndvi:
+  area_name: southern-africa

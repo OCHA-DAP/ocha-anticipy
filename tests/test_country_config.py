@@ -77,7 +77,7 @@ def test_codab_validate_layer_base_name(mock_parse_yaml):
     config_base = {
         "iso3": "abc",
         "codab": {
-            "hdx_dataset_name": "fake_dataset_name",
+            "hdx_resource_name": "fake_resource_name",
             "layer_base_name": "layer_base_name_",
             "admin_level_max": 1,
         },
@@ -99,7 +99,7 @@ def test_codab_validate_admin_level_max(mock_parse_yaml):
     config_base = {
         "iso3": "abc",
         "codab": {
-            "hdx_dataset_name": "fake_dataset_name",
+            "hdx_resource_name": "fake_resource_name",
             "layer_base_name": "layer_base_name_{admin_level}",
             "admin_level_max": 1,
         },
@@ -112,6 +112,36 @@ def test_codab_validate_admin_level_max(mock_parse_yaml):
     mock_parse_yaml(
         output_list=[config_correct, config_incorrect_a, config_incorrect_b]
     )
+    # Check that correct config runs without issue
+    create_country_config(iso3="abc")
+    # Check that incorrect config raises error for config incorrect a
+    with pytest.raises(ValueError):
+        create_country_config(iso3="abc")
+    # Check that incorrect config raises error for config incorrect b
+    with pytest.raises(ValueError):
+        create_country_config(iso3="abc")
+
+
+def test_codab_validate_multiple_resources(mock_parse_yaml):
+    """Test that multiple resources must match admin levels."""
+    config_base = {
+        "iso3": "abc",
+        "codab": {
+            "hdx_resource_name": [f"fake_resource_name_{i}" for i in range(4)],
+            "layer_base_name": "layer_base_name_{admin_level}",
+            "admin_level_max": 3,
+        },
+    }
+    config_correct = copy.deepcopy(config_base)
+    config_incorrect_a = copy.deepcopy(config_base)
+    config_incorrect_a["codab"]["admin_level_max"] = 2
+    config_incorrect_b = copy.deepcopy(config_base)
+    config_incorrect_b["codab"]["admin_level_max"] = 4
+
+    mock_parse_yaml(
+        output_list=[config_correct, config_incorrect_a, config_incorrect_b]
+    )
+
     # Check that correct config runs without issue
     create_country_config(iso3="abc")
     # Check that incorrect config raises error for config incorrect a

@@ -1,0 +1,89 @@
+iso3: nga
+codab:
+  hdx_resource_name: nga_adm_osgof_20190417.zip
+  layer_base_name: nga_admbnda_adm{admin_level}_osgof_20190417.shp
+  admin_level_max: 3
+  # Nigeria also has districts that don't fall into a particular admin level
+  custom_layer_names:
+    - nga_admbnda_senDist_inec_osgof_20190417.shp
+fewsnet:
+  region_name: west-africa
+glofas:
+  reporting_points:
+  - name: Benue A Makurdi
+    lon: 8.55
+    lat: 7.75
+  - name: Benue A Umaisha
+    lon: 7.15
+    lat: 7.95
+  - name: Benue A Wuro Boki
+    lon: 12.75
+    lat: 9.35
+  - name: Dapchi
+    lon: 11.55
+    lat: 12.45
+  - name: Dudurun Warwade At Chai-Chai
+    lon: 9.25
+    lat: 11.95
+  - name: Gashua
+    lon: 11.05
+    lat: 12.85
+  - name: Geidam
+    lon: 11.95
+    lat: 12.95
+  - name: Hadejia
+    lon: 10.05
+    lat: 12.45
+  - name: Ibi
+    lon: 9.75
+    lat: 8.15
+  - name: Jamaare River At Bunga
+    lon: 9.65
+    lat: 10.95
+  - name: Jamaare River At Foggo
+    lon: 9.95
+    lat: 11.45
+  - name: Kaduna A Wuya
+    lon: 5.85
+    lat: 9.15
+  - name: Kafin Hausa
+    lon: 9.95
+    lat: 12.25
+  - name: Kasaga
+    lon: 10.35
+    lat: 12.85
+  - name: Katagum
+    lon: 10.35
+    lat: 12.25
+  - name: Katsina Ala A Katsina Ala
+    lon: 9.35
+    lat: 7.25
+  - name: Likori
+    lon: 10.35
+    lat: 12.65
+  - name: Lokoja
+    lon: 6.75
+    lat: 7.75
+  - name: Na
+    lon: 6.85
+    lat: 6.55
+  - name: Niger A  Jebba Downstream Dam
+    lon: 4.95
+    lat: 9.15
+  - name: Niger A Baro
+    lon: 6.45
+    lat: 8.55
+  - name: Niger A Onitsha
+    lon: 6.75
+    lat: 6.25
+  - name: Sokoto A Kende
+    lon: 4.25
+    lat: 11.55
+  - name: Wudil
+    lon: 8.75
+    lat: 11.75
+  - name: Yidere Bode
+    lon: 4.15
+    lat: 11.35
+usgs_ndvi:
+  area_name: west-africa

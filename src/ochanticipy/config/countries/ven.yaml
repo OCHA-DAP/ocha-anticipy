@@ -1,0 +1,76 @@
+iso3: ven
+codab:
+  hdx_resource_name: ven_adm_ine_20210223_SHP.zip
+  layer_base_name: ven_admbnda_adm{admin_level}_ine_20210223.shp
+  admin_level_max: 3
+glofas:
+  reporting_points:
+  - name: Canagua
+    lon: -71.35
+    lat: 8.15
+  - name: Dos Aguas
+    lon: -64.45
+    lat: 5.95
+  - name: Ejido
+    lon: -71.15
+    lat: 8.55
+  - name: El Perro
+    lon: -64.55
+    lat: 5.85
+  - name: Entre Rios
+    lon: -64.45
+    lat: 5.85
+  - name: Na 1
+    lon: -72.25
+    lat: 9.05
+  - name: Na 2
+    lon: -66.65
+    lat: 7.35
+  - name: Na 3
+    lon: -67.65
+    lat: 7.95
+  - name: Na 4
+    lon: -62.15
+    lat: 8.55
+  - name: Na 5
+    lon: -69.45
+    lat: 7.05
+  - name: Na 6
+    lon: -67.15
+    lat: 6.65
+  - name: Na 7
+    lon: -69.35
+    lat: 8.05
+  - name: Na 8
+    lon: -68.75
+    lat: 7.85
+  - name: Na 9
+    lon: -68.45
+    lat: 7.45
+  - name: Na 10
+    lon: -68.65
+    lat: 7.65
+  - name: Na 11
+    lon: -67.75
+    lat: 7.35
+  - name: Na 12
+    lon: -67.55
+    lat: 7.05
+  - name: Na 13
+    lon: -63.45
+    lat: 8.15
+  - name: Na 14
+    lon: -67.45
+    lat: 7.85
+  - name: Pie De Salto
+    lon: -64.45
+    lat: 6.25
+  - name: Puente Angostura
+    lon: -63.55
+    lat: 8.15
+  - name: Solano
+    lon: -66.95
+    lat: 1.95
+  - name: Tama Tama
+    lon: -65.75
+    lat: 3.15

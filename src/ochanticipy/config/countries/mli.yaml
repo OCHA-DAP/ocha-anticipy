@@ -1,0 +1,170 @@
+iso3: mli
+codab:
+  hdx_resource_name: mli_admb_1m_gov_20211220_SHP.zip
+  layer_base_name: mli_admbnda_adm{admin_level}_1m_gov_20211220.shp
+  admin_level_max: 3
+fewsnet:
+  region_name: west-africa
+glofas:
+  reporting_points:
+  - name: Akka
+    lon: -4.25
+    lat: 15.45
+  - name: Ansongo 1
+    lon: 0.45
+    lat: 15.65
+  - name: Ansongo 2
+    lon: 0.45
+    lat: 15.65
+  - name: Bafing Makana 1
+    lon: -10.25
+    lat: 12.55
+  - name: Bafing Makana 2
+    lon: -10.25
+    lat: 12.55
+  - name: Bamako 1
+    lon: -7.95
+    lat: 12.65
+  - name: Bamako 2
+    lon: -7.95
+    lat: 12.65
+  - name: Banankoro
+    lon: -8.65
+    lat: 11.65
+  - name: Banifing At Kolondieba
+    lon: -6.85
+    lat: 11.05
+  - name: Baoule At Madina Diassa
+    lon: -7.65
+    lat: 10.75
+  - name: Bara Issa A Awoye
+    lon: -4.15
+    lat: 15.45
+  - name: Beneny Kegny
+    lon: -4.95
+    lat: 13.35
+  - name: Bougouni
+    lon: -7.35
+    lat: 11.45
+  - name: Daka Saydou
+    lon: -10.35
+    lat: 12.15
+  - name: Diangola
+    lon: -9.45
+    lat: 12.75
+  - name: Dibia
+    lon: -10.75
+    lat: 13.25
+  - name: Dioila
+    lon: -6.75
+    lat: 12.55
+  - name: Dire
+    lon: -3.35
+    lat: 16.25
+  - name: Douna 1
+    lon: -5.85
+    lat: 13.25
+  - name: Douna 2
+    lon: -5.85
+    lat: 13.25
+  - name: Galougo
+    lon: -11.05
+    lat: 13.85
+  - name: Gao
+    lon: -0.05
+    lat: 16.25
+  - name: Gouala
+    lon: -8.25
+    lat: 11.95
+  - name: Goundam
+    lon: -3.65
+    lat: 16.45
+  - name: Gourbassy
+    lon: -11.65
+    lat: 13.35
+  - name: Guelelinkoro
+    lon: -8.55
+    lat: 11.15
+  - name: Kabate
+    lon: -11.15
+    lat: 14.55
+  - name: Kana
+    lon: -6.35
+    lat: 12.95
+  - name: Kara
+    lon: -5.05
+    lat: 14.15
+  - name: Kayes
+    lon: -11.35
+    lat: 14.35
+  - name: Ke Macina
+    lon: -5.35
+    lat: 13.95
+  - name: Kirango Aval
+    lon: -6.05
+    lat: 13.75
+  - name: Koli-Koli A Korientze
+    lon: -3.75
+    lat: 15.35
+  - name: Koryoume
+    lon: -3.05
+    lat: 16.65
+  - name: Koulikoro
+    lon: -7.55
+    lat: 12.85
+  - name: Kouoro 2
+    lon: -5.65
+    lat: 11.95
+  - name: Mahina
+    lon: -10.85
+    lat: 13.75
+  - name: Na
+    lon: -4.15
+    lat: 14.55
+  - name: Nantaka  Mopti
+    lon: -4.15
+    lat: 14.55
+  - name: Niger A Kenieroba
+    lon: -8.25
+    lat: 12.15
+  - name: Niger River At Tossaye
+    lon: -0.55
+    lat: 16.95
+  - name: Oualia
+    lon: -10.35
+    lat: 13.55
+  - name: Pankourou 1
+    lon: -6.55
+    lat: 11.45
+  - name: Pankourou 2
+    lon: -6.55
+    lat: 11.45
+  - name: Sarafere
+    lon: -3.65
+    lat: 15.85
+  - name: Selingue
+    lon: -8.25
+    lat: 11.65
+  - name: Siramakana
+    lon: -9.05
+    lat: 14.25
+  - name: Sofara
+    lon: -4.25
+    lat: 14.05
+  - name: Tamani
+    lon: -6.85
+    lat: 13.35
+  - name: Tilembeya
+    lon: -4.95
+    lat: 14.15
+  - name: Tonka
+    lon: -3.75
+    lat: 16.15
+  - name: Tossaye
+    lon: -3.25
+    lat: 16.35
+  - name: Toukoto
+    lon: -9.85
+    lat: 13.45
+usgs_ndvi:
+  area_name: west-africa

@@ -14,12 +14,38 @@ Several countries are already supported out-of-the box,
 and we are continuously adding more.
 
 .. _list of supported countries:
-A list of countries that we currently support:
 
+We currently support all 25 humanitarian response plan (HRP) countries:
+
+- Afghanistan (AFG)
 - Burkina Faso (BFA)
-- Bangladesh (BGD)
+- Burundi (BDI)
+- Cameroon (CMR)
+- Central African Republic (CAF)
+- Chad (TCD)
+- Colombia (COL)
 - Democratic Republic of the Congo (COD)
 - Ethiopia (ETH)
+- Haiti (HTI)
+- Iraq (IRQ)
+- Libya (LBY)
+- Mali (MLI)
+- Mozambique (MOZ)
+- Myanmar (MMR)
+- Niger (NER)
+- Nigeria (NGA)
+- Somalia (SOM)
+- South Sudan (SSD)
+- State of Palestine (PSE)
+- Sudan (SDN)
+- Syrian Arab Republic (SYR)
+- Ukraine (UKR)
+- Venezuela (VEN)
+- Yemen (YEM)
+
+In addition we support several non-HRP countries:
+
+- Bangladesh (BGD)
 - Malawi (MWI)
 - Nepal (NPL)
 
@@ -37,6 +63,16 @@ for Nepal, which has the ISO3 "NPL":
 
     from ochanticipy import create_country_config
     country_config = create_country_config(iso3="npl")
+
+
+Unavailable Data
+----------------
+
+For certain countries, data from a specific source may be unavailable. For the HRP countries,
+Afghanistan and Myanmar do not have COD AB configurations, as Afghanistan's COD AB shapefiles
+are private and Myanmar does not have COD AB files. In these cases, you will need to manually
+load and use other files.
+
 
 Custom Country Configuration
 ----------------------------
@@ -58,6 +94,7 @@ The YAML file will be validated and used to create the country configuration.
 At minimum, it must contain the country ISO3:
 
 .. code-block:: yaml
+
     iso3: "npl"
 
 For additional datasource-specific requirements, please see the

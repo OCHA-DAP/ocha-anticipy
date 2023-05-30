@@ -1,0 +1,17 @@
+iso3: ssd
+codab:
+  hdx_resource_name: ssd_admbnda_imwg_nbs_20221219_SHP.zip
+  layer_base_name: ssd_admbnda_imwg_nbs_20221219_SHP/ssd_admbnda_adm{admin_level}_imwg_nbs_20221219.shp
+  admin_level_max: 3
+fewsnet:
+  region_name: east-africa
+glofas:
+  reporting_points:
+  - name: Malakal 1
+    lon: 31.65
+    lat: 9.55
+  - name: Malakal 2
+    lon: 31.65
+    lat: 9.55
+usgs_ndvi:
+  area_name: east-africa

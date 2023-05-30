@@ -1,0 +1,61 @@
+iso3: som
+codab:
+  hdx_resource_name: som_adm_ocha_itos_20230308_SHP.zip
+  layer_base_name: som_admbnda_adm{admin_level}_ocha_20230308.shp
+  admin_level_max: 2
+  # Somalia also has states and 2 operational zones
+  custom_layer_names:
+    - som_admbnda_state_ocha_20230308.shp
+    - som_admbnda_opz1_ocha_20230308.shp
+    - som_admbnda_opz2_ocha_20230308.shp
+fewsnet:
+  region_name: east-africa
+glofas:
+  reporting_points:
+  - name: Afgooye
+    lon: 45.15
+    lat: 2.15
+  - name: Audegle
+    lon: 44.85
+    lat: 1.95
+  - name: Balcad
+    lon: 45.35
+    lat: 2.35
+  - name: Bardheere
+    lon: 42.25
+    lat: 2.35
+  - name: Beletweyne
+    lon: 45.15
+    lat: 4.75
+  - name: Bu Ale
+    lon: 42.55
+    lat: 1.25
+  - name: Bulo Burti
+    lon: 45.55
+    lat: 3.85
+  - name: Jamaame
+    lon: 42.65
+    lat: -0.05
+  - name: Jilib
+    lon: 42.75
+    lat: 0.55
+  - name: Jowhar
+    lon: 45.55
+    lat: 2.85
+  - name: Kamsuma
+    lon: 42.75
+    lat: 0.25
+  - name: Kaytooy
+    lon: 42.65
+    lat: 0.75
+  - name: Luuq
+    lon: 42.55
+    lat: 3.75
+  - name: Marerey
+    lon: 42.75
+    lat: 0.45
+  - name: Na
+    lon: 45.45
+    lat: 2.55
+usgs_ndvi:
+  area_name: east-africa
