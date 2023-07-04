@@ -2,7 +2,7 @@
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union
 
-from pydantic import BaseModel, root_validator, validator
+from pydantic import BaseModel, field_validator, model_validator
 
 from ochanticipy.utils.io import parse_yaml
 
@@ -36,14 +36,14 @@ class CodABConfig(BaseModel):
     admin_level_max: int
     hdx_resource_name: Union[str, List[str]]
     layer_base_name: str
-    admin0_name: Optional[str]
-    admin1_name: Optional[str]
-    admin2_name: Optional[str]
-    admin3_name: Optional[str]
-    admin4_name: Optional[str]
-    custom_layer_names: Optional[List[str]]
+    admin0_name: Optional[str] = None
+    admin1_name: Optional[str] = None
+    admin2_name: Optional[str] = None
+    admin3_name: Optional[str] = None
+    admin4_name: Optional[str] = None
+    custom_layer_names: Optional[List[str]] = None
 
-    @validator("hdx_resource_name")
+    @field_validator("hdx_resource_name")
     def _validate_hdx_resource_name(cls, hdx_resource_name, values):
         """Ensure hdx_resource_name is str or list for all admin areas."""
         if isinstance(hdx_resource_name, list) and (
@@ -57,7 +57,7 @@ class CodABConfig(BaseModel):
             )
         return hdx_resource_name
 
-    @validator("layer_base_name")
+    @field_validator("layer_base_name")
     def _validate_layer_base_name(cls, layer_base_name):
         """Ensure that the layer basename contains {admin_level}."""
         if "{admin_level}" not in layer_base_name:
@@ -67,7 +67,7 @@ class CodABConfig(BaseModel):
             )
         return layer_base_name
 
-    @validator("admin_level_max")
+    @field_validator("admin_level_max")
     def _validate_admin_level_max(cls, admin_level_max):
         """Ensure that admin_level_max is between 0 and 4."""
         if not 0 <= admin_level_max <= 4:
@@ -77,7 +77,7 @@ class CodABConfig(BaseModel):
             )
         return admin_level_max
 
-    @root_validator(pre=False, skip_on_failure=True)
+    @model_validator(mode="after")
     def _set_admin_levels(cls, values) -> dict:
         """Set admin levels names using layer base name."""
         for admin_level in range(values["admin_level_max"] + 1):
@@ -109,7 +109,7 @@ class FewsNetConfig(BaseModel):
     }
     region_name: str
 
-    @validator("region_name")
+    @field_validator("region_name")
     def regionname_valid(cls, v, values):
         """Check that regionname is one of the valid ones."""
         valid_regionnames = values["region_name_code_mapping"].keys()
@@ -120,7 +120,7 @@ class FewsNetConfig(BaseModel):
             )
         return v
 
-    @root_validator(pre=False, skip_on_failure=True)
+    @model_validator(mode="after")
     def _set_region_code(cls, values) -> dict:
         """Set region code based on region name."""
         values["region_code"] = values["region_name_code_mapping"][
@@ -165,7 +165,7 @@ class UsgsNdviConfig(BaseModel):
     }
     area_name: str
 
-    @validator("area_name")
+    @field_validator("area_name")
     def area_name_valid(cls, v, values) -> str:
         """Check that area_name is valid."""
         valid_area_names = values["area_name_mapping"].keys()
@@ -176,7 +176,7 @@ class UsgsNdviConfig(BaseModel):
             )
         return v
 
-    @root_validator(pre=False, skip_on_failure=True)
+    @model_validator(mode="after")
     def _set_area_codes(cls, values) -> dict:
         """Set NDVI url and prefix from area."""
         values["area_url"], values["area_prefix"] = values[
@@ -203,12 +203,12 @@ class CountryConfig(BaseModel):
     """
 
     iso3: str
-    codab: Optional[CodABConfig]
-    fewsnet: Optional[FewsNetConfig]
-    glofas: Optional[GlofasConfig]
-    usgs_ndvi: Optional[UsgsNdviConfig]
+    codab: Optional[CodABConfig] = None
+    fewsnet: Optional[FewsNetConfig] = None
+    glofas: Optional[GlofasConfig] = None
+    usgs_ndvi: Optional[UsgsNdviConfig] = None
 
-    @validator("iso3")
+    @field_validator("iso3")
     def _validate_iso3(cls, iso3):
         """Ensure ISO3 is length three and alphabet chars only."""
         return _validate_iso3(iso3)
