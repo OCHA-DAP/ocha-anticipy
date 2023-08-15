@@ -22,6 +22,8 @@ _HYDROLOGICAL_MODEL = "lisflood"
 _RIVER_DISCHARGE_VAR = "dis24"
 _CDS_MAX_REQUESTS = 500
 _REQUEST_SLEEP_TIME = 60  # seconds
+DEFAULT_MODEL_VERSION = 4
+
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +32,18 @@ try:
     import cdsapi
 except ModuleNotFoundError:
     pass
+
+
+class ModelVersions(dict):
+    """Class to type the allowed model versions."""
+
+    ALLOWED_KEYS = {3, 4}
+
+    def __setitem__(self, key, value):
+        """Set the allowed keys."""
+        if key not in self.ALLOWED_KEYS:
+            raise KeyError(f"Key '{key}' is not allowed")
+        super().__setitem__(key, value)
 
 
 @dataclass
@@ -67,8 +81,9 @@ class Glofas(DataSource):
         The bounding coordinates of the area that should be included
     cds_name : str
         The name of the dataset in CDS
-    system_version : str
-        An input to the CDS query
+    model_version : int
+        The version of the model to use, can only be 3 or 4.
+        Converted to system_version for the CDS query.
     product_type : str or list
         Which product types from the dataset are requested
     date_variable_prefix : str
@@ -95,7 +110,7 @@ class Glofas(DataSource):
         country_config: CountryConfig,
         geo_bounding_box: GeoBoundingBox,
         cds_name: str,
-        system_version: str,
+        model_version: int,
         product_type: Union[str, List[str]],
         date_variable_prefix: str,
         frequency: int,
@@ -127,7 +142,7 @@ class Glofas(DataSource):
             end_date=end_date,
         )
         self._cds_name = cds_name
-        self._system_version = system_version
+        self._system_version = self._get_system_version(model_version)
         self._product_type = product_type
         self._date_variable_prefix = date_variable_prefix
         self._frequency = frequency
@@ -303,6 +318,19 @@ class Glofas(DataSource):
             filepath_list, preprocess=self._preprocess_load
         ) as ds:
             return ds
+
+    @staticmethod
+    @abstractmethod
+    def _system_version_dict() -> ModelVersions:
+        """Return a dictionary with system version strings."""
+        pass
+
+    @classmethod
+    def _get_system_version(cls, model_version: int):
+        try:
+            return cls._system_version_dict()[model_version]
+        except KeyError:
+            raise ValueError("Model version must be 3 or 4")
 
     def _get_filepath(
         self,

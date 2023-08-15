@@ -23,7 +23,7 @@ class _GlofasForecastBase(glofas.Glofas):
         country_config: CountryConfig,
         geo_bounding_box: GeoBoundingBox,
         cds_name: str,
-        system_version: str,
+        model_version: int,
         product_type: Union[str, List[str]],
         date_variable_prefix: str,
         frequency: int,
@@ -38,7 +38,7 @@ class _GlofasForecastBase(glofas.Glofas):
             country_config=country_config,
             geo_bounding_box=geo_bounding_box,
             cds_name=cds_name,
-            system_version=system_version,
+            model_version=model_version,
             product_type=product_type,
             date_variable_prefix=date_variable_prefix,
             frequency=frequency,
@@ -126,6 +126,10 @@ class GlofasForecast(_GlofasForecastBase):
     end_date : Union[date, str], default: date.today()
         The ending date for the dataset. If left blank, defaults to
         the current date
+    model_version : int, default: 4
+        The version of the GloFAS model to use, can only be 3 or 4.
+        If in doubt, always use the latest (default).
+
     Examples
     --------
     Download, process and load GloFAS forecast data for the past month,
@@ -161,6 +165,7 @@ class GlofasForecast(_GlofasForecastBase):
         leadtime_max: int,
         start_date: Union[date, str] = None,
         end_date: Union[date, str] = None,
+        model_version: int = glofas.DEFAULT_MODEL_VERSION,
     ):
         super().__init__(
             country_config=country_config,
@@ -168,7 +173,7 @@ class GlofasForecast(_GlofasForecastBase):
             start_date=start_date,
             end_date=end_date,
             cds_name="cems-glofas-forecast",
-            system_version="operational",
+            model_version=model_version,
             product_type=["control_forecast", "ensemble_perturbed_forecasts"],
             date_variable_prefix="",
             frequency=rrule.DAILY,
@@ -176,6 +181,13 @@ class GlofasForecast(_GlofasForecastBase):
             leadtime_max=leadtime_max,
             start_date_min=date(year=2021, month=5, day=26),
         )
+
+    @staticmethod
+    def _system_version_dict() -> glofas.ModelVersions:
+        model_versions = glofas.ModelVersions()
+        model_versions[3] = "version_3_1"
+        model_versions[4] = "operational"
+        return model_versions
 
     @staticmethod
     def _preprocess_load(ds: xr.Dataset) -> xr.Dataset:
@@ -215,6 +227,9 @@ class GlofasReforecast(_GlofasForecastBase):
     end_date : Union[date, str], default: date(year=2018, month=12, day=31)
         The ending date for the dataset. If left blank, defaults to the
         last available date
+    model_version : int, default: 4
+        The version of the GloFAS model to use, can only be 3 or 4.
+        If in doubt, always use the latest (default).
 
     Examples
     --------
@@ -248,14 +263,15 @@ class GlofasReforecast(_GlofasForecastBase):
         leadtime_max: int,
         start_date: Union[date, str] = None,
         end_date: Union[date, str] = None,
+        model_version: int = glofas.DEFAULT_MODEL_VERSION,
     ):
         super().__init__(
             country_config=country_config,
             geo_bounding_box=geo_bounding_box,
             start_date=start_date,
             end_date=end_date,
+            model_version=model_version,
             cds_name="cems-glofas-reforecast",
-            system_version="version_3_1",
             product_type=[
                 "control_reforecast",
                 "ensemble_perturbed_reforecasts",
@@ -267,3 +283,10 @@ class GlofasReforecast(_GlofasForecastBase):
             start_date_min=date(year=1999, month=1, day=1),
             end_date_max=date(year=2018, month=12, day=31),
         )
+
+    @staticmethod
+    def _system_version_dict() -> glofas.ModelVersions:
+        model_versions = glofas.ModelVersions()
+        model_versions[3] = "version_3_1"
+        model_versions[4] = "version_4_0"
+        return model_versions
