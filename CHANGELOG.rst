@@ -8,8 +8,24 @@ Changelog <https://keepachangelog.com/en/1.0.0/>`__, and this project
 adheres to `Semantic
 Versioning <https://semver.org/spec/v2.0.0.html>`__.
 
-Unreleased
-----------
+[1.1.2] - 2023-07-04
+--------------------
+
+Fixed
+~~~~~
+
+- Temporarily restrict Pydantic to below v2
+
+[1.1.1] - 2023-05-30
+--------------------
+
+Fixed
+~~~~~
+
+- Typo in required extras for ReadTheDocs
+
+[1.1.0] - 2023-05-30
+--------------------
 
 Added
 ~~~~~
