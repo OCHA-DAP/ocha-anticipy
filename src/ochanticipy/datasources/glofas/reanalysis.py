@@ -98,11 +98,11 @@ class GlofasReanalysis(glofas.Glofas):
         )
 
     @staticmethod
-    def _system_version_dict() -> glofas.ModelVersions:
-        model_versions = glofas.ModelVersions()
-        model_versions[3] = "version_3_1"
-        model_versions[4] = "version_4_0"
-        return model_versions
+    def _system_version_dict() -> glofas.SystemVersions:
+        system_versions = glofas.SystemVersions()
+        system_versions[3] = "version_3_1"
+        system_versions[4] = "version_4_0"
+        return system_versions
 
     @check_file_existence
     def _load_single_file(

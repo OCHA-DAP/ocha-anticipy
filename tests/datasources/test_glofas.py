@@ -133,3 +133,14 @@ def test_max_requests(mock_country_config, geo_bounding_box):
             start_date=date(year=2021, month=5, day=26),
             end_date=date(year=2023, month=5, day=29),
         )
+
+
+def test_incorrect_model_version(mock_country_config, geo_bounding_box):
+    """Test that incorrect model version raises an error."""
+    with pytest.raises(ValueError):
+        GlofasForecast(
+            country_config=mock_country_config,
+            geo_bounding_box=geo_bounding_box,
+            leadtime_max=15,
+            model_version=10,
+        )

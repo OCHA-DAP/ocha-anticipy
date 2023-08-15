@@ -34,7 +34,7 @@ except ModuleNotFoundError:
     pass
 
 
-class ModelVersions(dict):
+class SystemVersions(dict):
     """Class to type the allowed model versions."""
 
     ALLOWED_KEYS = {3, 4}
@@ -321,7 +321,7 @@ class Glofas(DataSource):
 
     @staticmethod
     @abstractmethod
-    def _system_version_dict() -> ModelVersions:
+    def _system_version_dict() -> SystemVersions:
         """Return a dictionary with system version strings."""
         pass
 

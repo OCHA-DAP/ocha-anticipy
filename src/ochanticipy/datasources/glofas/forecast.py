@@ -183,11 +183,11 @@ class GlofasForecast(_GlofasForecastBase):
         )
 
     @staticmethod
-    def _system_version_dict() -> glofas.ModelVersions:
-        model_versions = glofas.ModelVersions()
-        model_versions[3] = "version_3_1"
-        model_versions[4] = "operational"
-        return model_versions
+    def _system_version_dict() -> glofas.SystemVersions:
+        system_versions = glofas.SystemVersions()
+        system_versions[3] = "version_3_1"
+        system_versions[4] = "operational"
+        return system_versions
 
     @staticmethod
     def _preprocess_load(ds: xr.Dataset) -> xr.Dataset:
@@ -265,6 +265,10 @@ class GlofasReforecast(_GlofasForecastBase):
         end_date: Union[date, str] = None,
         model_version: int = glofas.DEFAULT_MODEL_VERSION,
     ):
+        # Unfortunately start date min and max depend on the model version.
+        # Ideally would check model version integrity prior to this step.
+        start_date_min_year = {3: 1999, 4: 2003}
+        start_date_max_year = {3: 2018, 4: 2022}
         super().__init__(
             country_config=country_config,
             geo_bounding_box=geo_bounding_box,
@@ -280,13 +284,17 @@ class GlofasReforecast(_GlofasForecastBase):
             frequency=rrule.MONTHLY,
             coord_names=["number", "time", "step"],
             leadtime_max=leadtime_max,
-            start_date_min=date(year=1999, month=1, day=1),
-            end_date_max=date(year=2018, month=12, day=31),
+            start_date_min=date(
+                year=start_date_min_year[model_version], month=1, day=1
+            ),
+            end_date_max=date(
+                year=start_date_max_year[model_version], month=12, day=31
+            ),
         )
 
     @staticmethod
-    def _system_version_dict() -> glofas.ModelVersions:
-        model_versions = glofas.ModelVersions()
-        model_versions[3] = "version_3_1"
-        model_versions[4] = "version_4_0"
-        return model_versions
+    def _system_version_dict() -> glofas.SystemVersions:
+        system_versions = glofas.SystemVersions()
+        system_versions[3] = "version_3_1"
+        system_versions[4] = "version_4_0"
+        return system_versions
