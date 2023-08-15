@@ -95,7 +95,7 @@ def test_reanalysis_download(
         f"{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}"
         f"/glofas/cems-glofas-historical/"
         f"{mock_country_config.iso3}_"
-        f"cems-glofas-historical_2021_Np1d05Sm2d25Ep3d35Wm4d45.grib"
+        f"cems-glofas-historical_v4_2021_Np1d05Sm2d25Ep3d35Wm4d45.grib"
     )
     mock_retrieve.assert_called_with(**expected_retrieve_args)
     mock_result.return_value.download.assert_called_with(
@@ -147,7 +147,7 @@ def test_forecast_download(
         f"{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
         f"glofas/cems-glofas-forecast/"
         f"{mock_country_config.iso3}_"
-        f"cems-glofas-forecast_2022-01-01_ltmax03d_Np1d05Sm2d25Ep3d35Wm4d45"
+        f"cems-glofas-forecast_v4_2022-01-01_ltmax03d_Np1d05Sm2d25Ep3d35Wm4d45"
         f".grib"
     )
     mock_retrieve.assert_called_with(**expected_retrieve_args)
@@ -199,7 +199,7 @@ def test_reforecast_download(
         f"{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
         f"glofas/cems-glofas-reforecast/"
         f"{mock_country_config.iso3}_"
-        f"cems-glofas-reforecast_2018-01_ltmax03d_Np1d05Sm2d25Ep3d35Wm4d45"
+        f"cems-glofas-reforecast_v4_2018-01_ltmax03d_Np1d05Sm2d25Ep3d35Wm4d45"
         f".grib"
     )
     mock_retrieve.assert_called_with(**expected_retrieve_args)

@@ -84,15 +84,33 @@ def test_reforecast_dates(mock_country_config, geo_bounding_box):
             leadtime_max=15,
         )
 
+    def glofas_reforecast_v3(start_date: date = None, end_date: date = None):
+        return GlofasReforecast(
+            country_config=mock_country_config,
+            geo_bounding_box=geo_bounding_box,
+            start_date=start_date,
+            end_date=end_date,
+            leadtime_max=15,
+            model_version=3,
+        )
+
     # These should not throw an error
     glofas_reforecast()
     # Try using a string as a date
     glofas_reforecast(end_date="2010-01-01")
     # End date too far in future
     glofas_future = glofas_reforecast(end_date=date(year=3000, month=1, day=1))
+    assert glofas_future._end_date == date(year=2022, month=12, day=31)
+    glofas_future = glofas_reforecast_v3(
+        end_date=date(year=3000, month=1, day=1)
+    )
     assert glofas_future._end_date == date(year=2018, month=12, day=31)
     # Start date too early
     glofas_past = glofas_reforecast(start_date=date(year=1800, month=1, day=1))
+    assert glofas_past._start_date == date(year=2003, month=1, day=1)
+    glofas_past = glofas_reforecast_v3(
+        start_date=date(year=1800, month=1, day=1)
+    )
     assert glofas_past._start_date == date(year=1999, month=1, day=1)
     # End date > start date
     with pytest.raises(ValueError):

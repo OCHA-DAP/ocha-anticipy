@@ -142,6 +142,7 @@ class Glofas(DataSource):
             end_date=end_date,
         )
         self._cds_name = cds_name
+        self._model_version = model_version
         self._system_version = self._get_system_version(model_version)
         self._product_type = product_type
         self._date_variable_prefix = date_variable_prefix
@@ -340,7 +341,10 @@ class Glofas(DataSource):
         is_processed: bool = False,
     ) -> Path:
         """Get downloaded / processed filepaths based on GloFAS product."""
-        filename = f"{self._country_config.iso3}_{self._cds_name}_{year}"
+        filename = (
+            f"{self._country_config.iso3}_{self._cds_name}_"
+            f"v{self._model_version}_{year}"
+        )
         if self._frequency in [rrule.MONTHLY, rrule.DAILY]:
             filename += f"-{str(month).zfill(2)}"
         if self._frequency == rrule.DAILY:
