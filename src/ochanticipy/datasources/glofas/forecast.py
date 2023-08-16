@@ -33,6 +33,7 @@ class _GlofasForecastBase(glofas.Glofas):
         end_date_max: date = None,
         start_date: Union[date, str] = None,
         end_date: Union[date, str] = None,
+        month_list: List[int] = None,
     ):
         super().__init__(
             country_config=country_config,
@@ -48,6 +49,7 @@ class _GlofasForecastBase(glofas.Glofas):
             start_date=start_date,
             end_date=end_date,
             leadtime_max=leadtime_max,
+            month_list=month_list,
         )
 
     @check_file_existence
@@ -265,10 +267,18 @@ class GlofasReforecast(_GlofasForecastBase):
         end_date: Union[date, str] = None,
         model_version: int = glofas.DEFAULT_MODEL_VERSION,
     ):
-        # Unfortunately start date min and max depend on the model version.
+        # Unfortunately start date min and max, as well as months,
+        # depend on the model version.
         # Ideally would check model version integrity prior to this step.
-        start_date_min_year = {3: 1999, 4: 2003}
-        start_date_max_year = {3: 2018, 4: 2022}
+        start_date_min = {
+            3: date(year=1999, month=1, day=1),
+            4: date(year=2003, month=3, day=1),
+        }
+        end_date_max = {
+            3: date(year=2018, month=12, day=31),
+            4: date(year=2022, month=8, day=31),
+        }
+        month_list = {3: None, 4: list(range(3, 8))}
         super().__init__(
             country_config=country_config,
             geo_bounding_box=geo_bounding_box,
@@ -284,12 +294,9 @@ class GlofasReforecast(_GlofasForecastBase):
             frequency=rrule.MONTHLY,
             coord_names=["number", "time", "step"],
             leadtime_max=leadtime_max,
-            start_date_min=date(
-                year=start_date_min_year[model_version], month=1, day=1
-            ),
-            end_date_max=date(
-                year=start_date_max_year[model_version], month=12, day=31
-            ),
+            start_date_min=start_date_min[model_version],
+            end_date_max=end_date_max[model_version],
+            month_list=month_list[model_version],
         )
 
     @staticmethod

@@ -173,8 +173,8 @@ def test_reforecast_download(
         country_config=mock_country_config,
         geo_bounding_box=geo_bounding_box,
         leadtime_max=3,
-        start_date=date(year=2018, month=1, day=1),
-        end_date=date(year=2018, month=1, day=31),
+        start_date=date(year=2018, month=3, day=1),
+        end_date=date(year=2018, month=3, day=31),
     )
     glofas_reforecast.download()
     expected_retrieve_args = {
@@ -189,7 +189,7 @@ def test_reforecast_download(
             "system_version": "version_4_0",
             "hydrological_model": "lisflood",
             "hyear": "2018",
-            "hmonth": "01",
+            "hmonth": "03",
             "hday": [str(x + 1).zfill(2) for x in range(31)],
             "area": [1.05, -4.45, -2.25, 3.35],
             "leadtime_hour": ["24", "48", "72"],
@@ -199,7 +199,7 @@ def test_reforecast_download(
         f"{mock_aa_data_dir}/public/raw/{mock_country_config.iso3}/"
         f"glofas/cems-glofas-reforecast/"
         f"{mock_country_config.iso3}_"
-        f"cems-glofas-reforecast_v4_2018-01_ltmax03d_Np1d05Sm2d25Ep3d35Wm4d45"
+        f"cems-glofas-reforecast_v4_2018-03_ltmax03d_Np1d05Sm2d25Ep3d35Wm4d45"
         f".grib"
     )
     mock_retrieve.assert_called_with(**expected_retrieve_args)

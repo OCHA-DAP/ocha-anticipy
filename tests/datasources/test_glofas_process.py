@@ -247,8 +247,8 @@ class TestProcess:
             country_config=mock_country_config,
             geo_bounding_box=self.geo_bounding_box,
             leadtime_max=3,
-            start_date=date(year=2018, month=1, day=1),
-            end_date=date(year=2018, month=1, day=31),
+            start_date=date(year=2018, month=3, day=1),
+            end_date=date(year=2018, month=3, day=31),
         )
         output_filepath = glofas_reforecast.process()[0]
         with xr.open_dataset(output_filepath) as output_ds:

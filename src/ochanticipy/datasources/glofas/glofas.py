@@ -103,6 +103,8 @@ class Glofas(DataSource):
         The ending date for the dataset
     leadtime_max : int, default = None
         The maximum lead time in days, for forecast or reforecast data
+    limit_months: List[int], default = None
+        Limit to specific months, required for the version 4 reforecast
     """
 
     def __init__(
@@ -120,6 +122,7 @@ class Glofas(DataSource):
         start_date: Union[date, str] = None,
         end_date: Union[date, str] = None,
         leadtime_max: int = None,
+        month_list: List[int] = None,
     ):
         super().__init__(
             country_config=country_config,
@@ -154,6 +157,7 @@ class Glofas(DataSource):
             freq=self._frequency,
             dtstart=self._start_date,
             until=self._end_date,
+            bymonth=month_list,
         )
         if self._date_range.count() > _CDS_MAX_REQUESTS:
             msg = (
