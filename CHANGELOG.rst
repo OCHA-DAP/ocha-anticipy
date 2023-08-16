@@ -14,7 +14,9 @@ Versioning <https://semver.org/spec/v2.0.0.html>`__.
 Added
 ~~~~~
 
-- Support for GloFAS version 4.0
+- Support for GloFAS version 4.0, note that this will break any GloFAS
+  filepaths downloaded with previous versions as the model version is now
+  added to the filename
 
 [1.1.2] - 2023-07-04
 --------------------
