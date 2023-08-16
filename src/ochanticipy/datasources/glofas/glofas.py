@@ -168,6 +168,8 @@ class Glofas(DataSource):
                 f"query into multiple instances."
             )
             raise RuntimeError(msg)
+        elif self._date_range.count() == 0:
+            raise ValueError("Date range is empty, check start and end dates")
 
     def download(  # type: ignore
         self,
