@@ -2,7 +2,7 @@
 import logging
 from datetime import date
 from pathlib import Path
-from typing import List, Union
+from typing import Union
 
 import xarray as xr
 from dateutil import rrule
@@ -15,83 +15,7 @@ from ochanticipy.utils.geoboundingbox import GeoBoundingBox
 logger = logging.getLogger(__name__)
 
 
-class _GlofasForecastBase(glofas.Glofas):
-    """Base class for all GloFAS forecast data downloading and processing."""
-
-    def __init__(
-        self,
-        country_config: CountryConfig,
-        geo_bounding_box: GeoBoundingBox,
-        cds_name: str,
-        model_version: int,
-        product_type: Union[str, List[str]],
-        date_variable_prefix: str,
-        frequency: int,
-        coord_names: List[str],
-        leadtime_max: int,
-        start_date_min: date,
-        end_date_max: date = None,
-        start_date: Union[date, str] = None,
-        end_date: Union[date, str] = None,
-        month_list: List[int] = None,
-    ):
-        super().__init__(
-            country_config=country_config,
-            geo_bounding_box=geo_bounding_box,
-            cds_name=cds_name,
-            model_version=model_version,
-            product_type=product_type,
-            date_variable_prefix=date_variable_prefix,
-            frequency=frequency,
-            coord_names=coord_names,
-            start_date_min=start_date_min,
-            end_date_max=end_date_max,
-            start_date=start_date,
-            end_date=end_date,
-            leadtime_max=leadtime_max,
-            month_list=month_list,
-        )
-
-    @check_file_existence
-    def _load_single_file(
-        self, input_filepath: Path, filepath: Path, clobber: bool
-    ) -> xr.Dataset:
-        return _read_in_ensemble_and_perturbed_datasets(
-            filepath=input_filepath
-        )
-
-
-def _read_in_ensemble_and_perturbed_datasets(filepath: Path):
-    """Read in forecast and reforecast data.
-
-    The GloFAS forecast and reforecast data GRIB files contain two
-    separate datasets: the control member, generated from the most accurate
-    estimate of current conditions, and the perturbed forecast, which
-    contains N ensemble members created by perturbing the control forecast.
-
-    This function reads in both datasets and creates an N+1 (perturbed
-    + control) ensemble.
-    See `this paper <https://hess.copernicus.org/preprints/hess-2020-532/>`__
-    for more details.
-    """
-    ds_list = []
-    for data_type in ["cf", "pf"]:
-        ds = xr.load_dataset(
-            filepath,
-            engine="cfgrib",
-            backend_kwargs={
-                "indexpath": "",
-                "filter_by_keys": {"dataType": data_type},
-            },
-        )
-        # Extra processing require for control forecast
-        if data_type == "cf":
-            ds = ds.expand_dims(dim="number")
-        ds_list.append(ds)
-    return xr.combine_by_coords(ds_list, combine_attrs="drop_conflicts")
-
-
-class GlofasForecast(_GlofasForecastBase):
+class GlofasForecast(glofas.Glofas):
     """
     Class for downloading and processing GloFAS forecast data.
 
@@ -179,7 +103,7 @@ class GlofasForecast(_GlofasForecastBase):
             product_type=["control_forecast", "ensemble_perturbed_forecasts"],
             date_variable_prefix="",
             frequency=rrule.DAILY,
-            coord_names=["number", "step"],
+            coord_names=["time", "number", "step"],
             leadtime_max=leadtime_max,
             start_date_min=date(year=2021, month=5, day=26),
         )
@@ -191,12 +115,16 @@ class GlofasForecast(_GlofasForecastBase):
         system_versions[4] = "operational"
         return system_versions
 
-    @staticmethod
-    def _preprocess_load(ds: xr.Dataset) -> xr.Dataset:
-        return ds.expand_dims("time")
+    @check_file_existence
+    def _load_single_file(
+        self, input_filepath: Path, filepath: Path, clobber: bool
+    ) -> xr.Dataset:
+        return _read_in_ensemble_and_perturbed_datasets(
+            filepath=input_filepath
+        ).expand_dims("time")
 
 
-class GlofasReforecast(_GlofasForecastBase):
+class GlofasReforecast(glofas.Glofas):
     """
     Class for downloading and processing GloFAS reforecast data.
 
@@ -307,3 +235,41 @@ class GlofasReforecast(_GlofasForecastBase):
         system_versions[3] = "version_3_1"
         system_versions[4] = "version_4_0"
         return system_versions
+
+    @check_file_existence
+    def _load_single_file(
+        self, input_filepath: Path, filepath: Path, clobber: bool
+    ) -> xr.Dataset:
+        return _read_in_ensemble_and_perturbed_datasets(
+            filepath=input_filepath
+        )
+
+
+def _read_in_ensemble_and_perturbed_datasets(filepath: Path):
+    """Read in forecast and reforecast data.
+
+    The GloFAS forecast and reforecast data GRIB files contain two
+    separate datasets: the control member, generated from the most accurate
+    estimate of current conditions, and the perturbed forecast, which
+    contains N ensemble members created by perturbing the control forecast.
+
+    This function reads in both datasets and creates an N+1 (perturbed
+    + control) ensemble.
+    See `this paper <https://hess.copernicus.org/preprints/hess-2020-532/>`__
+    for more details.
+    """
+    ds_list = []
+    for data_type in ["cf", "pf"]:
+        ds = xr.load_dataset(
+            filepath,
+            engine="cfgrib",
+            backend_kwargs={
+                "indexpath": "",
+                "filter_by_keys": {"dataType": data_type},
+            },
+        )
+        # Extra processing require for control forecast
+        if data_type == "cf":
+            ds = ds.expand_dims(dim="number")
+        ds_list.append(ds)
+    return xr.combine_by_coords(ds_list, combine_attrs="drop_conflicts")

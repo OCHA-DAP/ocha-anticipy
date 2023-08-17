@@ -321,9 +321,7 @@ class Glofas(DataSource):
             )
             for dataset_date in self._date_range
         ]
-        with xr.open_mfdataset(
-            filepath_list, preprocess=self._preprocess_load
-        ) as ds:
+        with xr.open_mfdataset(filepath_list) as ds:
             return ds
 
     @staticmethod
