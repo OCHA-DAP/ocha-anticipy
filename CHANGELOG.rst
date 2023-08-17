@@ -18,6 +18,11 @@ Added
   filepaths downloaded with previous versions as the model version is now
   added to the filename
 
+Fixed
+~~~~~
+
+- GloFAS forecast loading was broken due to missing time dimension
+
 [1.1.2] - 2023-07-04
 --------------------
 
