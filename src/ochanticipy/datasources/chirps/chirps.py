@@ -593,7 +593,7 @@ class ChirpsDaily(_Chirps):
         url = (
             f"{_BASE_URL}"
             ".daily-improved/.global/."
-            f"{str(self._resolution).replace('.', 'precision')}/.prcp/"
+            f"{str(self._resolution).replace('.', 'p')}/.prcp/"
             f"{location_url}"
             f"T/%28{day}%20{month_name}%20{year}%29%28{day}"
             f"%20{month_name}%20{year}"
