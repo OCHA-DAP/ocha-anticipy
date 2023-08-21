@@ -427,7 +427,7 @@ class ChirpsMonthly(_Chirps):
         file_name = (
             f"{file_name_base}"
             f"r{self._resolution}"
-            f"_{self._geobb.get_filename_repr(p=0)}.nc"
+            f"_{self._geobb.get_filename_repr(precision=0)}.nc"
         )
         return file_name
 
@@ -562,7 +562,7 @@ class ChirpsDaily(_Chirps):
             f"{file_name_base}"
             f"{day}_"
             f"r{self._resolution}"
-            f"_{self._geobb.get_filename_repr(p=0)}.nc"
+            f"_{self._geobb.get_filename_repr(precision=0)}.nc"
         )
         return file_name
 
@@ -593,7 +593,7 @@ class ChirpsDaily(_Chirps):
         url = (
             f"{_BASE_URL}"
             ".daily-improved/.global/."
-            f"{str(self._resolution).replace('.', 'p')}/.prcp/"
+            f"{str(self._resolution).replace('.', 'precision')}/.prcp/"
             f"{location_url}"
             f"T/%28{day}%20{month_name}%20{year}%29%28{day}"
             f"%20{month_name}%20{year}"

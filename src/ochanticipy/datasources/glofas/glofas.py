@@ -22,6 +22,13 @@ _HYDROLOGICAL_MODEL = "lisflood"
 _RIVER_DISCHARGE_VAR = "dis24"
 _CDS_MAX_REQUESTS = 500
 _REQUEST_SLEEP_TIME = 60  # seconds
+# The GloFAS API on CDS requires coordinates have specific formats.
+# For v3, this needs to be x.x5, and v4, either x.x25 or x.x75.
+_GBB_ROUND_COORDS_PARAMS = {
+    3: {"offset_val": 0.05, "round_val": 0.1},
+    4: {"offset_val": 0.025, "round_val": 0.05},
+}
+_FILENAME_ROUNDING_PRECISION = {3: 2, 4: 3}
 DEFAULT_MODEL_VERSION = 4
 
 
@@ -133,11 +140,6 @@ class Glofas(DataSource):
         check_extra_imports(
             libraries=["cdsapi", "cfgrib"], subpackage="glofas"
         )
-
-        # The GloFAS API on CDS requires coordinates have the format x.x5
-        self._geo_bounding_box = geo_bounding_box.round_coords(
-            offset_val=0.05, round_val=0.1
-        )
         self._start_date, self._end_date = _set_dates(
             start_date_min=start_date_min,
             end_date_max=end_date_max,
@@ -147,6 +149,9 @@ class Glofas(DataSource):
         self._cds_name = cds_name
         self._model_version = model_version
         self._system_version = self._get_system_version(model_version)
+        self._geo_bounding_box = geo_bounding_box.round_coords(
+            **_GBB_ROUND_COORDS_PARAMS[self._model_version]
+        )
         self._product_type = product_type
         self._date_variable_prefix = date_variable_prefix
         self._frequency = frequency
@@ -355,7 +360,10 @@ class Glofas(DataSource):
             filename += f"-{str(day).zfill(2)}"
         if self._leadtime_max is not None:
             filename += f"_ltmax{str(self._leadtime_max).zfill(2)}d"
-        filename += f"_{self._geo_bounding_box.get_filename_repr(p=2)}"
+        filename_gbb = self._geo_bounding_box.get_filename_repr(
+            precision=_FILENAME_ROUNDING_PRECISION[self._model_version]
+        )
+        filename += f"_{filename_gbb}"
         if is_processed:
             filename += "_processed.nc"
         else:
