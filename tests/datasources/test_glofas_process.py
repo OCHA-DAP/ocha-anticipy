@@ -165,8 +165,11 @@ class TestProcess:
             single_day=single_day,
         )
         coords = {}
+        if single_day:
+            raw_data = raw_data.expand_dims("time")
+            coords["time"] = raw_data.time
         if number_coord is not None:
-            coords = {"number": number_coord}
+            coords["number"] = number_coord
         if not single_day:
             coords["time"] = raw_data.time
         if include_step:
@@ -205,7 +208,7 @@ class TestProcess:
     ):
         """Create fake processed GloFAS forecast or reforecast data."""
 
-        def _mock_processed_dta_forecast(single_day: bool = False):
+        def _mock_processed_data_forecast(single_day: bool = False):
             cf_raw, pf_raw, expected_dis24 = mock_ensemble_raw(
                 single_day=single_day
             )
@@ -221,7 +224,7 @@ class TestProcess:
                 single_day=single_day,
             )
 
-        return _mock_processed_dta_forecast
+        return _mock_processed_data_forecast
 
     def test_reanalysis_process(
         self, mock_country_config, mock_processed_data_reanalysis
@@ -247,8 +250,8 @@ class TestProcess:
             country_config=mock_country_config,
             geo_bounding_box=self.geo_bounding_box,
             leadtime_max=3,
-            start_date=date(year=2018, month=1, day=1),
-            end_date=date(year=2018, month=1, day=31),
+            start_date=date(year=2018, month=3, day=1),
+            end_date=date(year=2018, month=3, day=31),
         )
         output_filepath = glofas_reforecast.process()[0]
         with xr.open_dataset(output_filepath) as output_ds:

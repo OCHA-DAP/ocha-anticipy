@@ -22,6 +22,15 @@ _HYDROLOGICAL_MODEL = "lisflood"
 _RIVER_DISCHARGE_VAR = "dis24"
 _CDS_MAX_REQUESTS = 500
 _REQUEST_SLEEP_TIME = 60  # seconds
+# The GloFAS API on CDS requires coordinates have specific formats.
+# For v3, this needs to be x.x5, and v4, either x.x25 or x.x75.
+_GBB_ROUND_COORDS_PARAMS = {
+    3: {"offset_val": 0.05, "round_val": 0.1},
+    4: {"offset_val": 0.025, "round_val": 0.05},
+}
+_FILENAME_ROUNDING_PRECISION = {3: 2, 4: 3}
+DEFAULT_MODEL_VERSION = 4
+
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +39,18 @@ try:
     import cdsapi
 except ModuleNotFoundError:
     pass
+
+
+class SystemVersions(dict):
+    """Class to type the allowed model versions."""
+
+    ALLOWED_KEYS = {3, 4}
+
+    def __setitem__(self, key, value):
+        """Set the allowed keys."""
+        if key not in self.ALLOWED_KEYS:
+            raise KeyError(f"Key '{key}' is not allowed")
+        super().__setitem__(key, value)
 
 
 @dataclass
@@ -67,8 +88,9 @@ class Glofas(DataSource):
         The bounding coordinates of the area that should be included
     cds_name : str
         The name of the dataset in CDS
-    system_version : str
-        An input to the CDS query
+    model_version : int
+        The version of the model to use, can only be 3 or 4.
+        Converted to system_version for the CDS query.
     product_type : str or list
         Which product types from the dataset are requested
     date_variable_prefix : str
@@ -88,6 +110,8 @@ class Glofas(DataSource):
         The ending date for the dataset
     leadtime_max : int, default = None
         The maximum lead time in days, for forecast or reforecast data
+    limit_months: List[int], default = None
+        Limit to specific months, required for the version 4 reforecast
     """
 
     def __init__(
@@ -95,7 +119,7 @@ class Glofas(DataSource):
         country_config: CountryConfig,
         geo_bounding_box: GeoBoundingBox,
         cds_name: str,
-        system_version: str,
+        model_version: int,
         product_type: Union[str, List[str]],
         date_variable_prefix: str,
         frequency: int,
@@ -105,6 +129,7 @@ class Glofas(DataSource):
         start_date: Union[date, str] = None,
         end_date: Union[date, str] = None,
         leadtime_max: int = None,
+        month_list: List[int] = None,
     ):
         super().__init__(
             country_config=country_config,
@@ -115,11 +140,6 @@ class Glofas(DataSource):
         check_extra_imports(
             libraries=["cdsapi", "cfgrib"], subpackage="glofas"
         )
-
-        # The GloFAS API on CDS requires coordinates have the format x.x5
-        self._geo_bounding_box = geo_bounding_box.round_coords(
-            offset_val=0.05, round_val=0.1
-        )
         self._start_date, self._end_date = _set_dates(
             start_date_min=start_date_min,
             end_date_max=end_date_max,
@@ -127,7 +147,11 @@ class Glofas(DataSource):
             end_date=end_date,
         )
         self._cds_name = cds_name
-        self._system_version = system_version
+        self._model_version = model_version
+        self._system_version = self._get_system_version(model_version)
+        self._geo_bounding_box = geo_bounding_box.round_coords(
+            **_GBB_ROUND_COORDS_PARAMS[self._model_version]
+        )
         self._product_type = product_type
         self._date_variable_prefix = date_variable_prefix
         self._frequency = frequency
@@ -138,6 +162,7 @@ class Glofas(DataSource):
             freq=self._frequency,
             dtstart=self._start_date,
             until=self._end_date,
+            bymonth=month_list,
         )
         if self._date_range.count() > _CDS_MAX_REQUESTS:
             msg = (
@@ -148,6 +173,8 @@ class Glofas(DataSource):
                 f"query into multiple instances."
             )
             raise RuntimeError(msg)
+        elif self._date_range.count() == 0:
+            raise ValueError("Date range is empty, check start and end dates")
 
     def download(  # type: ignore
         self,
@@ -299,10 +326,21 @@ class Glofas(DataSource):
             )
             for dataset_date in self._date_range
         ]
-        with xr.open_mfdataset(
-            filepath_list, preprocess=self._preprocess_load
-        ) as ds:
+        with xr.open_mfdataset(filepath_list) as ds:
             return ds
+
+    @staticmethod
+    @abstractmethod
+    def _system_version_dict() -> SystemVersions:
+        """Return a dictionary with system version strings."""
+        pass
+
+    @classmethod
+    def _get_system_version(cls, model_version: int):
+        try:
+            return cls._system_version_dict()[model_version]
+        except KeyError:
+            raise ValueError("Model version must be 3 or 4")
 
     def _get_filepath(
         self,
@@ -312,14 +350,20 @@ class Glofas(DataSource):
         is_processed: bool = False,
     ) -> Path:
         """Get downloaded / processed filepaths based on GloFAS product."""
-        filename = f"{self._country_config.iso3}_{self._cds_name}_{year}"
+        filename = (
+            f"{self._country_config.iso3}_{self._cds_name}_"
+            f"v{self._model_version}_{year}"
+        )
         if self._frequency in [rrule.MONTHLY, rrule.DAILY]:
             filename += f"-{str(month).zfill(2)}"
         if self._frequency == rrule.DAILY:
             filename += f"-{str(day).zfill(2)}"
         if self._leadtime_max is not None:
             filename += f"_ltmax{str(self._leadtime_max).zfill(2)}d"
-        filename += f"_{self._geo_bounding_box.get_filename_repr(p=2)}"
+        filename_gbb = self._geo_bounding_box.get_filename_repr(
+            precision=_FILENAME_ROUNDING_PRECISION[self._model_version]
+        )
+        filename += f"_{filename_gbb}"
         if is_processed:
             filename += "_processed.nc"
         else:

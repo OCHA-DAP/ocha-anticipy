@@ -45,6 +45,10 @@ class GlofasReanalysis(glofas.Glofas):
     end_date : Union[date, str], default: date.today()
         The ending date for the dataset. If left blank, defaults to
         the current date
+    model_version : int, default: 4
+        The version of the GloFAS model to use, can only be 3 or 4.
+        If in doubt, always use the latest (default).
+
     Examples
     --------
     Download, process and load all historical GloFAS reanalysis data
@@ -77,12 +81,13 @@ class GlofasReanalysis(glofas.Glofas):
         geo_bounding_box: GeoBoundingBox,
         start_date: Union[date, str] = None,
         end_date: Union[date, str] = None,
+        model_version: int = glofas.DEFAULT_MODEL_VERSION,
     ):
         super().__init__(
             country_config=country_config,
             geo_bounding_box=geo_bounding_box,
             cds_name="cems-glofas-historical",
-            system_version="version_3_1",
+            model_version=model_version,
             product_type="consolidated",
             date_variable_prefix="h",
             frequency=rrule.YEARLY,
@@ -91,6 +96,13 @@ class GlofasReanalysis(glofas.Glofas):
             start_date=start_date,
             end_date=end_date,
         )
+
+    @staticmethod
+    def _system_version_dict() -> glofas.SystemVersions:
+        system_versions = glofas.SystemVersions()
+        system_versions[3] = "version_3_1"
+        system_versions[4] = "version_4_0"
+        return system_versions
 
     @check_file_existence
     def _load_single_file(

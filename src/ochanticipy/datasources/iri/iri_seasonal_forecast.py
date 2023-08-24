@@ -145,7 +145,8 @@ class _IriForecast(DataSource):
         file_name = (
             f"{self._country_config.iso3}"
             f"_iri_forecast_seasonal_precipitation_tercile_"
-            f"{self._forecast_type}_{self._geobb.get_filename_repr(p=0)}.nc"
+            f"{self._forecast_type}"
+            f"_{self._geobb.get_filename_repr(precision=0)}.nc"
         )
         return file_name
 

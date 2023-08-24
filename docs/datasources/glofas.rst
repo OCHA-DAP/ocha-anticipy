@@ -39,14 +39,17 @@ reporting points (those found on the map viewer)
 still need to be extracted. This GloFAS Python module takes
 care of all of these steps.
 
-A note about model versions: On 26 May 2021 GloFAS released `version 3
+Both the latest version (version 4, released summer 2023) and the
+previous version (version 3,
+`released May 2021
 <https://www.copernicus.eu/en/news/news/observer-whats-new-latest-glofas-31-release>`_
-of their model. While version 2 is still available on CDS, it
-will soon be phased out. Thus this module is currently only able
-to download version 3.
+)
+are supported. We do not support version 2 at this time.
 
 Before describing the module usage, we will outline the different
 GloFAS datasets available: reanalysis, forecast, and reforecast.
+All datasets have a spatial resolution of 0.05° in version 4,
+and 0.1° for version 3.
 
 Reanalysis
 ~~~~~~~~~~
@@ -55,7 +58,7 @@ GloFAS-ERA5 reanalysis
 `(Harrigan et al.)
 <https://essd.copernicus.org/articles/12/2043/2020/>`_
 is a global gridded dataset of river discharge with
-a daily timestep and resolution of 0.1°,
+a daily timestep,
 available from 1 January 1979 to the present day (updated daily).
 It is based on ECMWF's latest global atmospheric reanalysis
 `(ERA5, Herbasch et al.)
@@ -89,7 +92,7 @@ Twice per week (Mondays and Thursdays), the IFS is extended to run up to 46 days
 at a coarser resolution (~36 km). GloFAS makes available days
 16 to 30 for this extended forecast.
 
-Version 3 of the forecast data is available to download from 26 May 2021 until
+Both versions 3 and 4 of the forecast data are available to download from 26 May 2021 until
 present day (updated daily) `here
 <https://cds.climate.copernicus.eu/cdsapp#!/dataset/cems-glofas-forecast?tab=overview>`_.
 While CDS does have version 3 pre-release data from 2020-2021,
@@ -108,8 +111,10 @@ is similar to the forecast, but uses the ECMWF IFS
 <https://www.ecmwf.int/en/forecasts/documentation-and-support/extended-range/re-forecast-medium-and-extended-forecast-range>`_.
 The reforecast is initialized twice per week (Monday and Thursdays)
 and has 11 ensemble members.
-The data runs from January 1999 to December 2018,
-and is available to download
+The data runs from March 2003 to August 2022, and is only available
+for the months March to August.
+(For version 3 it runs from January 1999 to December 2018, for all months).
+The data can be downloaded
 `from CDS here
 <https://cds.climate.copernicus.eu/cdsapp#!/dataset/cems-glofas-reforecast?tab=overview>`_.
 

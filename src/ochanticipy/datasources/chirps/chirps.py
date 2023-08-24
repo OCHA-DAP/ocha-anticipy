@@ -427,7 +427,7 @@ class ChirpsMonthly(_Chirps):
         file_name = (
             f"{file_name_base}"
             f"r{self._resolution}"
-            f"_{self._geobb.get_filename_repr(p=0)}.nc"
+            f"_{self._geobb.get_filename_repr(precision=0)}.nc"
         )
         return file_name
 
@@ -562,7 +562,7 @@ class ChirpsDaily(_Chirps):
             f"{file_name_base}"
             f"{day}_"
             f"r{self._resolution}"
-            f"_{self._geobb.get_filename_repr(p=0)}.nc"
+            f"_{self._geobb.get_filename_repr(precision=0)}.nc"
         )
         return file_name
 

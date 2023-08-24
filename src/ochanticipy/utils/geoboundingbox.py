@@ -179,13 +179,13 @@ class GeoBoundingBox:
             new_coords[direction] = float(rounded_coord)
         return GeoBoundingBox(**new_coords)
 
-    def get_filename_repr(self, p: int = 0) -> str:
+    def get_filename_repr(self, precision: int = 0) -> str:
         """
         Get succinct boundary representation for usage in filenames.
 
         Parameters
         ----------
-        p : int, default = 0
+        precision : int, default = 0
             Precision, i.e. number of decimal places to round to. Default is
             0 for ints.
 
@@ -197,9 +197,9 @@ class GeoBoundingBox:
         def _str_format(coord):
             """Add m indicating minus value and p indicating positive value."""
             if coord < 0:
-                return f"m{abs(coord):.{p}f}"
+                return f"m{abs(coord):.{precision}f}"
             else:
-                return f"p{coord:.{p}f}"
+                return f"p{coord:.{precision}f}"
 
         return (
             f"N{_str_format(self.lat_max)}S{_str_format(self.lat_min)}"
